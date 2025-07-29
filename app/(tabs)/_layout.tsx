@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
 
+import Footer from '@/components/footer/Footer';
 import { HapticTab } from '@/components/HapticTab';
 import Header from '@/components/header/Header';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -37,6 +38,13 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="tienda"
+          options={{
+            title: 'Shop',
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="cart.fill" color={color} />,
+          }}
+        />
+        <Tabs.Screen
           name="explore"
           options={{
             title: 'Explore',
@@ -44,6 +52,7 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
+      <Footer />
     </>
   );
 }
