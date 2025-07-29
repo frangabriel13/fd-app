@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Logo from './Logo';
 import Notification from './Notification';
 import Search from './Search';
 
@@ -9,8 +10,8 @@ const Header = () => {
   
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
+      <Logo />
       <Search />
-      <Text style={styles.title}>Esto es el Header</Text>
       <Notification />
     </View>
   );
@@ -26,13 +27,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#212529',
-    flex: 1,
-    textAlign: 'center',
   },
 });
 
