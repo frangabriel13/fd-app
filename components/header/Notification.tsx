@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 const Notification = () => {
   return (
     <View>
-      <Text>Notification</Text>
+      <Text className='font-mont-black'>Notification</Text>
     </View>
   )
 };

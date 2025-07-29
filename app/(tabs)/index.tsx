@@ -16,7 +16,7 @@ export default function HomeScreen() {
           style={styles.reactLogo}
         />
       }>
-      <View className="flex-row items-center gap-2 bg-red-500 p-4">
+      <View className="flex-row items-center gap-2 bg-blue-500 p-4">
         <ThemedText type="title">Fabricante Directo App!!!!!</ThemedText>
         <HelloWave />
       </View>
