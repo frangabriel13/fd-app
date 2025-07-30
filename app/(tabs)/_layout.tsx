@@ -2,7 +2,6 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
 
-import Footer from '@/components/footer/Footer';
 import { HapticTab } from '@/components/HapticTab';
 import Header from '@/components/header/Header';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -52,7 +51,6 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-      <Footer />
     </>
   );
 }
