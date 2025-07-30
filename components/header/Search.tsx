@@ -1,19 +1,13 @@
-import { Ionicons } from '@expo/vector-icons';
 import { TextInput, View } from 'react-native';
 
 const Search = () => {
   return (
     <View className="flex-1 mx-4">
-      <View className="flex-row items-center bg-gray-100 rounded-full px-4 py-2">
-        <Ionicons 
-          name="search-outline" 
-          size={20} 
-          color="#021344" 
-        />
+      <View className="flex-row items-center bg-gray-100 rounded px-0 py-0">
         <TextInput
-          placeholder="Buscaraaaa..."
+          placeholder="Buscar productos o fabricantes..."
           placeholderTextColor="#9ca3af"
-          className="flex-1 ml-3 font-mont-regular text-primary"
+          className="flex-1 ml-2 font-mont-regular text-primary"
           editable={false} // Deshabilitado ya que no tiene funcionalidad
         />
       </View>
