@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Logo from './Logo';
@@ -7,16 +8,24 @@ import Search from './Search';
 const Header = () => {
   // Los insets son las áreas seguras del dispositivo donde no se superpone el contenido con la barra de estado o los bordes del dispositivo.
   const insets = useSafeAreaInsets();
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   
   return (
     <View style={[styles.container, { paddingTop: insets.top + 5 }]} className='bg-primary'>
-      <View className="w-10 items-center">
-        <Logo />
-      </View>
-      <Search />
-      <View className="w-10 items-center">
-        <Notification />
-      </View>
+      {!isSearchExpanded && (
+        <View className="w-10 items-center">
+          <Logo />
+        </View>
+      )}
+      <Search 
+        isExpanded={isSearchExpanded}
+        onExpandChange={setIsSearchExpanded}
+      />
+      {!isSearchExpanded && (
+        <View className="w-10 items-center">
+          <Notification />
+        </View>
+      )}
     </View>
   );
 }
