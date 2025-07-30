@@ -13,6 +13,11 @@ const Search = () => {
           className="flex-1 ml-2 font-mont-regular text-primary"
           value={searchText}
           onChangeText={setSearchText}
+          returnKeyType="search"
+          onSubmitEditing={() => {
+            console.log('Buscar:', searchText);
+            // Aquí irá tu lógica de búsqueda
+          }}
         />
       </View>
     </View> // Flex-1 para ocupar el espacio disponible y mx-4 para márgenes laterales (separación horizontal)
