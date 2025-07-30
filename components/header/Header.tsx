@@ -9,7 +9,7 @@ const Header = () => {
   const insets = useSafeAreaInsets();
   
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]} className='bg-primary'>
+    <View style={[styles.container, { paddingTop: insets.top + 5 }]} className='bg-primary'>
       <Logo />
       <Search />
       <Notification />
@@ -19,10 +19,10 @@ const Header = () => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    paddingHorizontal: 10,
+    paddingBottom: 10,
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#e9ecef',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
