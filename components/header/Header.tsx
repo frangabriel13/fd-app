@@ -10,9 +10,13 @@ const Header = () => {
   
   return (
     <View style={[styles.container, { paddingTop: insets.top + 5 }]} className='bg-primary'>
-      <Logo />
+      <View className="w-10 items-center">
+        <Logo />
+      </View>
       <Search />
-      <Notification />
+      <View className="w-10 items-center">
+        <Notification />
+      </View>
     </View>
   );
 }

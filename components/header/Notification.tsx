@@ -12,7 +12,7 @@ const Notification = () => {
       <TouchableOpacity
         onPress={handleNotificationPress}
         activeOpacity={0.7} // Mejora la experiencia táctil
-        className="p-2 rounded-full" // Padding y borde redondeado
+        // className="p-2 rounded-full"
         accessibilityLabel="Notificaciones" // Para lectores de pantalla
         accessibilityRole="button" // Para entender qué es
       >
