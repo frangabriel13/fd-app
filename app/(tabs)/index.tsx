@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 const HomeScreen = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Esto es el Homee</Text>
+      <Text style={styles.text}>Fabricante Directo</Text>
     </View>
   );
 };
