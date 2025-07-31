@@ -4,10 +4,12 @@ import { Platform } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
 import Header from '@/components/header/Header';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { Ionicons } from '@expo/vector-icons';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -33,35 +35,37 @@ export default function TabLayout() {
           name="index"
           options={{
             title: 'Inicio',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+            // tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+            tabBarIcon: ({ color }) => <AntDesign name="home" size={28} color={color} />,
           }}
         />
         <Tabs.Screen
           name="tienda"
           options={{
             title: 'Tienda',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="cart.fill" color={color} />,
+            // tabBarIcon: ({ color }) => <AntDesign name="shoppingcart" size={28} color={color} />,
+            tabBarIcon: ({ color }) => <Ionicons name="storefront-outline" size={28} color={color} />,
           }}
         />
         <Tabs.Screen
           name="carrito"
           options={{
             title: 'Carrito',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="cart.fill" color={color} />,
+            tabBarIcon: ({ color }) => <AntDesign name="shoppingcart" size={28} color={color} />,
           }}
         />
         <Tabs.Screen
           name="favoritos"
           options={{
             title: 'Favoritos',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="heart.fill" color={color} />,
+            tabBarIcon: ({ color }) => <AntDesign name="hearto" size={28} color={color} />,
           }}
         />
         <Tabs.Screen
           name="fabricantes"
           options={{
-            title: 'Fabricantes',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+            title: 'Más',
+            tabBarIcon: ({ color }) => <SimpleLineIcons name="menu" size={28} color={color} />,
           }}
         />
       </Tabs>
