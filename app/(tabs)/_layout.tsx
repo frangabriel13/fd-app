@@ -17,7 +17,7 @@ export default function TabLayout() {
       <Header />
       <Tabs
         screenOptions={{
-          // tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+          tabBarActiveTintColor: '#f86f1a', // Cambia este color al que prefieras
           headerShown: false,
           tabBarButton: HapticTab,
           tabBarBackground: TabBarBackground,
@@ -63,7 +63,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="fabricantes"
+          name="more"
           options={{
             title: 'Más',
             tabBarIcon: ({ color }) => <SimpleLineIcons name="menu" size={28} color={color} />,
