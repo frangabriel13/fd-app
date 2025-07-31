@@ -5,8 +5,8 @@ import { Platform } from 'react-native';
 import { HapticTab } from '@/components/HapticTab';
 import Header from '@/components/header/Header';
 import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Ionicons } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 
 export default function TabLayout() {
@@ -41,11 +41,10 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="tienda"
+          name="favoritos"
           options={{
-            title: 'Tienda',
-            // tabBarIcon: ({ color }) => <AntDesign name="shoppingcart" size={28} color={color} />,
-            tabBarIcon: ({ color }) => <Ionicons name="storefront-outline" size={28} color={color} />,
+            title: 'Favoritos',
+            tabBarIcon: ({ color }) => <AntDesign name="hearto" size={28} color={color} />,
           }}
         />
         <Tabs.Screen
@@ -56,10 +55,10 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="favoritos"
+          name="fabricantes"
           options={{
-            title: 'Favoritos',
-            tabBarIcon: ({ color }) => <AntDesign name="hearto" size={28} color={color} />,
+            title: 'Live Shopping',
+            tabBarIcon: ({ color }) => <FontAwesome6 name="wifi" size={24} color={color} style={{ transform: [{ rotate: '45deg' }] }} />,
           }}
         />
         <Tabs.Screen
