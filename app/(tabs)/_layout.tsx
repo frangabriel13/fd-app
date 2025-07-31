@@ -5,21 +5,19 @@ import { Platform } from 'react-native';
 import { HapticTab } from '@/components/HapticTab';
 import Header from '@/components/header/Header';
 import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { Ionicons } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  // const colorScheme = useColorScheme();
 
   return (
     <>
       <Header />
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+          tabBarActiveTintColor: '#f86f1a', // Cambia este color al que prefieras
           headerShown: false,
           tabBarButton: HapticTab,
           tabBarBackground: TabBarBackground,
@@ -27,8 +25,11 @@ export default function TabLayout() {
             ios: {
               // Use a transparent background on iOS to show the blur effect
               position: 'absolute',
+              backgroundColor: '#fff',
             },
-            default: {},
+            default: {
+              backgroundColor: '#fff',
+            },
           }),
         }}>
         <Tabs.Screen
@@ -62,7 +63,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="fabricantes"
+          name="more"
           options={{
             title: 'Más',
             tabBarIcon: ({ color }) => <SimpleLineIcons name="menu" size={28} color={color} />,
