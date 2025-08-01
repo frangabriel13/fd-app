@@ -11,8 +11,8 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,                    // ESENCIAL: Ocupa todo el espacio disponible
-    backgroundColor: '#fff',    // Fondo base
-    padding: 16,               // Espaciado interno
+    // backgroundColor: '#fff',
+    paddingHorizontal: 10,
   },
   text: {
     fontSize: 18,
