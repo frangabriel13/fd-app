@@ -1,45 +1,37 @@
 import sliderImages from '@/constants/Images';
-import { Dimensions, Image, StyleSheet, View } from 'react-native';
+import { Dimensions, Image, ScrollView, View } from 'react-native';
 
 const { width } = Dimensions.get('window');
 const aspectRatio = 1920 / 750;
 
+const images = [
+  sliderImages.banner1,
+  sliderImages.banner2,
+  sliderImages.banner3,
+  sliderImages.banner4,
+];
+
 const Slider = () => {
   return (
-    <View style={styles.container}>
-      <Image 
-        source={sliderImages.banner1}
-        className='w-full rounded mb-2'
-        style={{ height: width / aspectRatio }}
-        resizeMode='cover'
-      />
-      <Image 
-        source={sliderImages.banner2}
-        className='w-full rounded mb-2'
-        style={{ height: width / aspectRatio }}
-        resizeMode='cover'
-      />
-      <Image 
-        source={sliderImages.banner3}
-        className='w-full rounded mb-2'
-        style={{ height: width / aspectRatio }}
-        resizeMode='cover'
-      />
-      <Image 
-        source={sliderImages.banner4}
-        className='w-full rounded mb-2'
-        style={{ height: width / aspectRatio }}
-        resizeMode='cover'
-      />
-    </View>
+    <ScrollView
+      horizontal
+      pagingEnabled
+      showsHorizontalScrollIndicator={false}
+      className="w-full"
+    >
+      {images.map((img, idx) => (
+        <View key={idx} style={{ width }}>
+          <Image
+            source={img}
+            className="w-full rounded mb-2"
+            style={{ height: width / aspectRatio, width: width }}
+            resizeMode="cover" 
+          />
+        </View>
+      ))}
+    </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 0,
-  },
-});
 
 
 export default Slider;
