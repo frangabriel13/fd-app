@@ -1,6 +1,6 @@
 import sliderImages from '@/constants/Images';
 import { useEffect, useRef, useState } from 'react';
-import { Dimensions, Image, NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native';
+import { Dimensions, Image, NativeScrollEvent, NativeSyntheticEvent, ScrollView, StyleSheet, View } from 'react-native';
 
 const { width } = Dimensions.get('window');
 const aspectRatio = 1920 / 750;
@@ -61,11 +61,11 @@ const Slider = () => {
       contentOffset={{ x: width, y: 0 }}
     >
       {loopedImages.map((img, idx) => (
-        <View key={idx} style={{ width }}>
+        <View key={idx} style={styles.slide}>
           <Image
             source={img}
-            className="w-full rounded mb-2"
-            style={{ height: width / aspectRatio, width: width }}
+            className="w-full mb-2"
+            style={styles.image}
             resizeMode="cover"
           />
         </View>
@@ -73,6 +73,16 @@ const Slider = () => {
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  slide: {
+    width: width,
+  },
+  image: {
+    width: width,
+    height: width / aspectRatio,
+  },
+});
 
 
 export default Slider;
