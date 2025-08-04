@@ -1,10 +1,18 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { StyleSheet, View } from 'react-native';
 import { BodyText } from '../ui';
 
-const MenuItem = ({ icon, label }: { icon: any; label: string }) => (
+interface MenuItemProps {
+  icon: string;
+  label: string;
+  IconComponent?: any; // Puede ser AntDesign, Ionicons, MaterialIcons, etc.
+}
+
+const MenuItem = ({ icon, label, IconComponent = AntDesign }: MenuItemProps) => (
   <View style={styles.item}>
-    <AntDesign name={icon} size={20} color="#333" style={{ marginRight: 12 }} />
+    <IconComponent name={icon} size={20} color="#333" style={{ marginRight: 12 }} />
     <BodyText>{label}</BodyText>
   </View>
 );
@@ -15,7 +23,7 @@ const Menu = () => {
       {/* Primera lista */}
       <View>
         <MenuItem icon="home" label="Inicio" />
-        <MenuItem icon="shoppingcart" label="Tienda" />
+        <MenuItem icon="storefront-outline" label="Tienda" IconComponent={Ionicons} />
         <MenuItem icon="user" label="Mi perfil" />
       </View>
 
@@ -25,8 +33,8 @@ const Menu = () => {
       {/* Segunda lista */}
       <View>
         <MenuItem icon="heart" label="Favoritos" />
-        <MenuItem icon="staro" label="Tiendas seguidas" />
-        <MenuItem icon="shoppingcart" label="Mis compras" />
+        <MenuItem icon="star-outline" label="Tiendas seguidas" IconComponent={Ionicons} />
+        <MenuItem icon="shopping-bag" label="Mis compras" IconComponent={MaterialIcons} />
       </View>
 
       {/* Segunda línea divisoria */}
@@ -49,8 +57,8 @@ const styles = StyleSheet.create({
   item: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-    paddingVertical: 8,
+    marginBottom: 4,
+    paddingVertical: 4,
   },
   divider: {
     height: 1,
