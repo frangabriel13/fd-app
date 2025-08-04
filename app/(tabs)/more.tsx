@@ -1,9 +1,10 @@
-import { Text, View } from 'react-native';
+import DataProfile from '@/components/more/DataProfile';
+import { View } from 'react-native';
 
 const ManusScreen = () => {
   return (
-    <View>
-      <Text>Fabricantes</Text>
+    <View className='flex-1'>
+      <DataProfile />
     </View>
   );
 }
