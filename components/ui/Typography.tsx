@@ -15,25 +15,47 @@ export const Typography: React.FC<TypographyProps> = ({
   const getVariantStyles = () => {
     switch (variant) {
       case 'h1':
-        return 'text-3xl font-mont-bold text-gray-900';
+        return 'text-3xl font-mont-bold';
       case 'h2':
-        return 'text-2xl font-mont-bold text-gray-900';
+        return 'text-2xl font-mont-bold';
       case 'h3':
-        return 'text-xl font-mont-medium text-gray-900';
+        return 'text-xl font-mont-medium';
       case 'body':
-        return 'text-base font-mont-regular text-gray-700';
+        return 'text-base font-mont-regular';
       case 'caption':
-        return 'text-sm font-mont-light text-gray-500';
+        return 'text-sm font-mont-light';
       case 'button':
-        return 'text-base font-mont-medium text-white';
+        return 'text-base font-mont-medium';
       default:
-        return 'text-base font-mont-regular text-gray-700';
+        return 'text-base font-mont-regular';
+    }
+  };
+
+  const getDefaultTextColor = () => {
+    // Solo aplicar color por defecto si no se especifica className con color
+    if (className && (className.includes('text-') || className.includes('color-'))) {
+      return '';
+    }
+    
+    switch (variant) {
+      case 'h1':
+      case 'h2':
+      case 'h3':
+        return 'text-gray-900';
+      case 'body':
+        return 'text-gray-700';
+      case 'caption':
+        return 'text-gray-500';
+      case 'button':
+        return 'text-white';
+      default:
+        return 'text-gray-700';
     }
   };
 
   return (
     <Text 
-      className={`${getVariantStyles()} ${className}`}
+      className={`${getVariantStyles()} ${getDefaultTextColor()} ${className}`}
       {...props}
     >
       {children}
