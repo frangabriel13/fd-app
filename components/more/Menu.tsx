@@ -5,7 +5,7 @@ import Foundation from '@expo/vector-icons/Foundation';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Octicons from '@expo/vector-icons/Octicons';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { BodyText } from '../ui';
 
 interface MenuItemProps {
@@ -38,7 +38,7 @@ const MenuItem = ({
 
 const Menu = () => {
   return (
-    <View style={styles.container} className='p-4'>
+    <ScrollView style={styles.container} className='p-4'>
       {/* Primera lista */}
       <View>
         <MenuItem icon="home" label="Inicio" />
@@ -82,13 +82,12 @@ const Menu = () => {
         <MenuItem icon="scissors" label="Insumos para costura y confección" IconComponent={FontAwesome} />
         <MenuItem icon="tool" label="Máquinas textiles" />
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    // backgroundColor: 'blue',
   },
   item: {
     flexDirection: 'row',
