@@ -10,11 +10,26 @@ interface MenuItemProps {
   icon: string;
   label: string;
   IconComponent?: any; // Puede ser AntDesign, Ionicons, MaterialIcons, etc.
+  iconSize?: number;
+  iconStyle?: object;
 }
 
-const MenuItem = ({ icon, label, IconComponent = AntDesign }: MenuItemProps) => (
+const MenuItem = ({ 
+  icon, 
+  label, 
+  IconComponent = AntDesign, 
+  iconSize = 20,
+  iconStyle = {}
+}: MenuItemProps) => (
   <View style={styles.item}>
-    <IconComponent name={icon} size={20} color="#333" style={{ marginRight: 12 }} />
+    <View style={styles.iconContainer}>
+      <IconComponent 
+        name={icon} 
+        size={iconSize} 
+        color="#333" 
+        style={[styles.defaultIcon, iconStyle]} 
+      />
+    </View>
     <BodyText>{label}</BodyText>
   </View>
 );
@@ -27,7 +42,13 @@ const Menu = () => {
         <MenuItem icon="home" label="Inicio" />
         <MenuItem icon="storefront-outline" label="Tienda" IconComponent={Ionicons} />
         <MenuItem icon="package" label="Packs/Combos" IconComponent={Octicons} />
-        <MenuItem icon="wifi" label="Live Shopping" IconComponent={FontAwesome6} />
+        <MenuItem 
+          icon="wifi" 
+          label="Live Shopping" 
+          IconComponent={FontAwesome6}
+          iconSize={18}
+          iconStyle={{ transform: [{ rotate: '45deg' }] }}
+        />
         <MenuItem icon="user" label="Mi perfil" />
       </View>
 
@@ -36,7 +57,7 @@ const Menu = () => {
 
       {/* Segunda lista */}
       <View>
-        <MenuItem icon="heart" label="Favoritos" />
+        <MenuItem icon="hearto" label="Favoritos" IconComponent={AntDesign} />
         <MenuItem icon="star-outline" label="Tiendas seguidas" IconComponent={Ionicons} />
         <MenuItem icon="shopping-bag" label="Mis compras" IconComponent={MaterialIcons} />
       </View>
@@ -63,6 +84,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 4,
     paddingVertical: 4,
+  },
+  iconContainer: {
+    width: 32, // Ancho fijo para mantener alineación
+    marginRight: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  defaultIcon: {
+    // Estilos base para todos los íconos
   },
   divider: {
     height: 1,
