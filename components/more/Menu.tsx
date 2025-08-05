@@ -20,7 +20,7 @@ const MenuItem = ({
   icon, 
   label, 
   IconComponent = AntDesign, 
-  iconSize = 20,
+  iconSize = 24,
   iconStyle = {}
 }: MenuItemProps) => (
   <Pressable
@@ -40,7 +40,7 @@ const MenuItem = ({
           style={[styles.defaultIcon, iconStyle]} 
         />
       </View>
-      <BodyText>{label}</BodyText>
+      <BodyText style={{ color: 'black' }}>{label}</BodyText>
     </View>
   </Pressable>
 );
@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
   },
   defaultIcon: {
     // Estilos base para todos los íconos
+    color: 'black',
   },
   divider: {
     height: 1,
