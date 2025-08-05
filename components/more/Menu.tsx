@@ -1,6 +1,8 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Octicons from '@expo/vector-icons/Octicons';
 import { StyleSheet, View } from 'react-native';
 import { BodyText } from '../ui';
 
@@ -24,6 +26,8 @@ const Menu = () => {
       <View>
         <MenuItem icon="home" label="Inicio" />
         <MenuItem icon="storefront-outline" label="Tienda" IconComponent={Ionicons} />
+        <MenuItem icon="package" label="Packs/Combos" IconComponent={Octicons} />
+        <MenuItem icon="wifi" label="Live Shopping" IconComponent={FontAwesome6} />
         <MenuItem icon="user" label="Mi perfil" />
       </View>
 
