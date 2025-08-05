@@ -1,7 +1,9 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import Foundation from '@expo/vector-icons/Foundation';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Octicons from '@expo/vector-icons/Octicons';
 import { StyleSheet, View } from 'react-native';
 import { BodyText } from '../ui';
@@ -57,9 +59,11 @@ const Menu = () => {
 
       {/* Segunda lista */}
       <View>
+        <MenuItem icon="notifications-outline" label="Notificaciones" IconComponent={Ionicons} />
         <MenuItem icon="hearto" label="Favoritos" IconComponent={AntDesign} />
-        <MenuItem icon="star-outline" label="Tiendas seguidas" IconComponent={Ionicons} />
-        <MenuItem icon="shopping-bag" label="Mis compras" IconComponent={MaterialIcons} />
+        <MenuItem icon="store-plus-outline" label="Tiendas seguidas" IconComponent={MaterialCommunityIcons} />
+        <MenuItem icon="bag-check-outline" label="Mis compras" IconComponent={Ionicons} />
+        <MenuItem icon="headphones-simple" label="Ayuda" IconComponent={FontAwesome6} />
       </View>
 
       {/* Segunda línea divisoria */}
@@ -67,9 +71,16 @@ const Menu = () => {
 
       {/* Tercera lista */}
       <View>
-        <MenuItem icon="man" label="Hombre" />
-        <MenuItem icon="woman" label="Mujer" />
-        <MenuItem icon="smileo" label="Niños" />
+        <MenuItem icon="staro" label="Productos destacados" />
+        <MenuItem icon="burst-new" label="Nuevos ingresos" IconComponent={Foundation} />
+        <MenuItem icon="tago" label="Ofertas" />
+        <MenuItem icon="bed-outline" label="Blanquería" IconComponent={Ionicons} />
+        <MenuItem icon="woman-outline" label="Lencería" IconComponent={Ionicons} />
+        <MenuItem icon="shoe-sneaker" label="Calzado" IconComponent={MaterialCommunityIcons} />
+        <MenuItem icon="diamond" label="Bisutería" IconComponent={FontAwesome} />
+        <MenuItem icon="layers-outline" label="Telas textiles" IconComponent={Ionicons} />
+        <MenuItem icon="scissors" label="Insumos para costura y confección" IconComponent={FontAwesome} />
+        <MenuItem icon="tool" label="Máquinas textiles" />
       </View>
     </View>
   );
