@@ -5,7 +5,7 @@ import Foundation from '@expo/vector-icons/Foundation';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Octicons from '@expo/vector-icons/Octicons';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { BodyText } from '../ui';
 
 interface MenuItemProps {
@@ -23,17 +23,26 @@ const MenuItem = ({
   iconSize = 20,
   iconStyle = {}
 }: MenuItemProps) => (
-  <View style={styles.item}>
-    <View style={styles.iconContainer}>
-      <IconComponent 
-        name={icon} 
-        size={iconSize} 
-        color="#333" 
-        style={[styles.defaultIcon, iconStyle]} 
-      />
+  <Pressable
+    style={({ pressed }) => [
+        styles.item,
+        pressed && styles.pressedItem
+      ]}
+      android_ripple={{ color: '#e5e7eb' }}
+      // Puedes agregar onPress aquí si lo necesitas
+    >
+    <View style={styles.item}>
+      <View style={styles.iconContainer}>
+        <IconComponent 
+          name={icon} 
+          size={iconSize} 
+          color="#333" 
+          style={[styles.defaultIcon, iconStyle]} 
+        />
+      </View>
+      <BodyText>{label}</BodyText>
     </View>
-    <BodyText>{label}</BodyText>
-  </View>
+  </Pressable>
 );
 
 const Menu = () => {
@@ -97,6 +106,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 4,
     paddingVertical: 4,
+  },
+  pressedItem: {
+    backgroundColor: '#f3f4f6',
   },
   iconContainer: {
     width: 32, // Ancho fijo para mantener alineación
