@@ -21,7 +21,8 @@ export const Card: React.FC<CardProps> = ({
       case 'outlined':
         return 'bg-white border border-gray-200';
       default:
-        return 'bg-white';
+        // return 'bg-white';
+        return '';
     }
   };
 

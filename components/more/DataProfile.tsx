@@ -4,6 +4,7 @@ import { BodyText, Card, H3 } from '../ui';
 
 const DataProfile = () => {
   return (
+    // <Card variant="default" className='bg-secondary-400'>
     <Card variant="default" className='bg-secondary-400'>
       <H3 className='text-white'>Franco Mansilla</H3>
       <View style={styles.text}>
