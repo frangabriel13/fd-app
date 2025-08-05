@@ -38,7 +38,10 @@ const MenuItem = ({
 
 const Menu = () => {
   return (
-    <ScrollView style={styles.container} className='p-4'>
+    <ScrollView 
+      style={styles.container} 
+      contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
+    >
       {/* Primera lista */}
       <View>
         <MenuItem icon="home" label="Inicio" />
