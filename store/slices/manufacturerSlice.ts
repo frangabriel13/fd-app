@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { refreshTokenService } from '../../services/authService';
+import { authInstance, manufacturerInstance } from '../../services/axiosConfig';
 
 // Tipos
 interface Manufacturer {
@@ -27,24 +28,14 @@ const initialState: ManufacturerState = {
   token: null,
 };
 
-// Instancia de axios para manufacturers (sin interceptores aquí para evitar dependencias circulares)
-const manufacturerAxios = axios.create({
-  baseURL: 'http://localhost:3001/api/manufacturers',
-});
-
 // Thunk para refresh token
 export const refreshToken = createAsyncThunk(
   'manufacturer/refreshToken',
   async (_, { rejectWithValue }) => {
     try {
-      console.log('Refreshing token...');
-      const response = await manufacturerAxios.post('/refresh-token');
-      const newToken = response.data.token;
-      await AsyncStorage.setItem('token', newToken);
-      return newToken;
+      return await refreshTokenService();
     } catch (error: any) {
-      console.error('Error refreshing token:', error);
-      return rejectWithValue(error.response?.data?.message || 'Error refreshing token');
+      return rejectWithValue(error.message || 'Error refreshing token');
     }
   }
 );
@@ -54,7 +45,7 @@ export const loginManufacturer = createAsyncThunk(
   'manufacturer/login',
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://localhost:3001/api/auth/login', credentials);
+      const response = await authInstance.post('/login', credentials);
       const { token, manufacturer } = response.data;
       await AsyncStorage.setItem('token', token);
       return { token, manufacturer };
@@ -69,14 +60,7 @@ export const getManufacturerProfile = createAsyncThunk(
   'manufacturer/getProfile',
   async (_, { rejectWithValue }) => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        return rejectWithValue('No token found');
-      }
-      
-      const response = await manufacturerAxios.get('/profile', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await manufacturerInstance.get('/profile');
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Error getting profile');

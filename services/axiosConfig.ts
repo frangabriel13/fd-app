@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import { store } from '../store';
-import { refreshToken } from '../store/slices/manufacturerSlice';
+import { refreshTokenService } from './authService';
 
 const addAuthHeader = async (config: any) => {
   try {
@@ -107,16 +106,12 @@ instancesWithAuth.forEach(instance => {
       if (error.response && error.response.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
         try {
-          // Dispatch la acción de refresh token
-          const result = await store.dispatch(refreshToken());
-          if (refreshToken.fulfilled.match(result)) {
-            const newToken = result.payload;
-            originalRequest.headers['Authorization'] = 'Bearer ' + newToken;
-            return instance(originalRequest);
-          } else {
-            throw new Error('Failed to refresh token');
-          }
+          const newToken = await refreshTokenService();
+          originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+          return instance(originalRequest);
         } catch (err) {
+          // Si falla el refresh, redirigir a login o mostrar error
+          console.error('Failed to refresh token, redirecting to login');
           return Promise.reject(err);
         }
       }
