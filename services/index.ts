@@ -3,21 +3,7 @@ import * as axiosInstances from './axiosConfig';
 
 // Re-export todas las instancias de axios para facilitar su uso
 export {
-  manufacturerInstance,
-  userInstance,
-  productInstance,
-  authInstance,
-  wholesalerInstance,
-  categoryInstance,
-  sizeInstance,
-  imageInstance,
-  colorInstance,
-  packInstance,
-  genderInstance,
-  orderInstance,
-  reviewInstance,
-  favoriteInstance,
-  adminInstance
+  adminInstance, authInstance, categoryInstance, colorInstance, favoriteInstance, genderInstance, imageInstance, manufacturerInstance, orderInstance, packInstance, productInstance, reviewInstance, sizeInstance, userInstance, wholesalerInstance
 } from './axiosConfig';
 
 // Objeto con todas las instancias para acceso fácil

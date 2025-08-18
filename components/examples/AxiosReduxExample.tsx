@@ -1,11 +1,11 @@
 // Ejemplo de uso de las instancias de axios y Redux en tu app móvil
 
 import React from 'react';
+import { Button, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { View, Text, Button } from 'react-native';
-import { RootState, AppDispatch } from '../../store';
-import { loginManufacturer, getManufacturerProfile, refreshToken } from '../../store/slices/manufacturerSlice';
 import { manufacturerInstance, productInstance } from '../../services';
+import { AppDispatch, RootState } from '../../store';
+import { getManufacturerProfile, loginManufacturer, refreshToken } from '../../store/slices/manufacturerSlice';
 
 const ExampleUsage = () => {
   const dispatch = useDispatch<AppDispatch>();
