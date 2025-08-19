@@ -60,7 +60,7 @@ const LoginScreen = () => {
       
       <Button 
         variant="ghost" 
-        onPress={() => router.push('/(auth)/register')}
+        onPress={() => router.push('/(auth)/registro')}
       >
         ¿No tienes cuenta? Regístrate
       </Button>
