@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { View, TextInput, Alert, ScrollView } from 'react-native';
+import { View, TextInput, Alert, ScrollView, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Button, Container, H1 } from '@/components/ui';
 import { manufacturerInstance } from '@/services';
+import { Typography } from '@/components/ui/Typography';
 
 export default function RegisterScreen() {
   const [formData, setFormData] = useState({
@@ -44,8 +45,16 @@ export default function RegisterScreen() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    // TODO: Implementar lógica de autenticación con Google
+    Alert.alert('Google Login', 'Funcionalidad pendiente de implementar');
+  }
+
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView 
+      className="flex-1 bg-gray-50"
+      contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+    >
       <Container type="page" className="justify-center">
         <H1 className="text-center mb-8">Crear Cuenta</H1>
         
@@ -89,6 +98,30 @@ export default function RegisterScreen() {
         >
           Crear Cuenta
         </Button>
+
+        {/* Separador */}
+              <View className="flex-row items-center mb-4">
+                <View className="flex-1 h-px bg-gray-300" />
+                <Typography variant="body" className="mx-4 text-gray-500">
+                  O
+                </Typography>
+                <View className="flex-1 h-px bg-gray-300" />
+              </View>
+              
+              {/* Botón de Google */}
+              <TouchableOpacity 
+                onPress={handleGoogleLogin}
+                className="mb-4 flex-row items-center justify-center border border-gray-300 bg-white rounded-lg px-4 py-3 active:bg-gray-50"
+              >
+                <View className="w-5 h-5 mr-3 items-center justify-center bg-white rounded-full">
+                  <Typography variant="button" className="text-red-500 font-bold text-lg">
+                    G
+                  </Typography>
+                </View>
+                <Typography variant="button" className="text-gray-700 font-mont-medium">
+                  Continuar con Google
+                </Typography>
+              </TouchableOpacity>
         
         <Button 
           variant="ghost" 

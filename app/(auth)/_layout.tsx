@@ -17,6 +17,13 @@ export default function AuthLayout() {
           headerShown: false 
         }} 
       />
+      <Stack.Screen 
+        name="recuperar-password" 
+        options={{ 
+          title: 'Recuperar Contraseña',
+          headerShown: false 
+        }} 
+      />
     </Stack>
   );
 }
