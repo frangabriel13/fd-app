@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
-import { Button, Container, H1 } from '@/components/ui';
+import { Button, Container, H1, GoogleIcon } from '@/components/ui';
 import { useAppDispatch } from '@/hooks/redux';
 import { loginManufacturer } from '@/store/slices/manufacturerSlice';
 import { Typography } from '@/components/ui/Typography';
@@ -57,14 +57,6 @@ const LoginScreen = () => {
         className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-6 font-mont-regular text-gray-900"
       />
 
-      <TouchableOpacity 
-        onPress={() => router.push('/(auth)/recuperar-password')}
-        className="mb-6 items-center"
-      >
-        <Typography variant="body" className="text-white">
-          ¿Olvidaste tu contraseña?
-        </Typography>
-      </TouchableOpacity>
       
       <Button 
         variant="primary" 
@@ -75,6 +67,15 @@ const LoginScreen = () => {
         Iniciar Sesión
       </Button>
       
+      <Button 
+        variant="ghost"
+        // size="zero"
+        onPress={() => router.push('/(auth)/recuperar-password')}
+        className="mb-6 text-white py-0"
+      >
+        ¿Olvidaste tu contraseña?
+      </Button>
+
       {/* Separador */}
       <View className="flex-row items-center mb-4">
         <View className="flex-1 h-px bg-gray-400" />
@@ -88,11 +89,10 @@ const LoginScreen = () => {
       <TouchableOpacity 
         onPress={handleGoogleLogin}
         className="mb-4 flex-row items-center justify-center border border-gray-200 bg-white rounded-lg px-4 py-3 active:bg-gray-50 shadow-sm"
+        style={{ justifyContent: 'center', position: 'relative' }}
       >
-        <View className="w-5 h-5 mr-3 items-center justify-center bg-white rounded-full">
-          <Typography variant="button" className="text-red-500 font-bold text-lg">
-            G
-          </Typography>
+        <View className="mr-3" style={{ position: 'absolute', left: 16 }}>
+          <GoogleIcon size={20} />
         </View>
         <Typography variant="button" className="text-gray-700 font-mont-medium">
           Continuar con Google
@@ -100,7 +100,8 @@ const LoginScreen = () => {
       </TouchableOpacity>
       
       <Button 
-        variant="ghost" 
+        variant="ghost"
+        // size='zero'
         onPress={() => router.push('/(auth)/registro')}
         className="text-white"
       >
