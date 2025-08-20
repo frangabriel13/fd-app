@@ -45,7 +45,7 @@ const LoginScreen = () => {
         autoCapitalize="none"
         keyboardType="email-address"
         placeholderTextColor="#9CA3AF"
-        className="border border-gray-200 bg-white rounded-lg px-4 py-3 mb-4 font-mont-regular text-gray-900"
+        className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
       />
       
       <TextInput
@@ -54,14 +54,14 @@ const LoginScreen = () => {
         onChangeText={setPassword}
         secureTextEntry
         placeholderTextColor="#9CA3AF"
-        className="border border-gray-200 bg-white rounded-lg px-4 py-3 mb-6 font-mont-regular text-gray-900"
+        className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-6 font-mont-regular text-gray-900"
       />
 
       <TouchableOpacity 
         onPress={() => router.push('/(auth)/recuperar-password')}
         className="mb-6 items-center"
       >
-        <Typography variant="body" className="text-blue-300 hover:text-blue-100">
+        <Typography variant="body" className="text-white">
           ¿Olvidaste tu contraseña?
         </Typography>
       </TouchableOpacity>
@@ -70,7 +70,7 @@ const LoginScreen = () => {
         variant="primary" 
         onPress={handleLogin}
         loading={loading}
-        className="mb-4"
+        className="mb-4 rounded-md bg-secondary"
       >
         Iniciar Sesión
       </Button>
@@ -102,6 +102,7 @@ const LoginScreen = () => {
       <Button 
         variant="ghost" 
         onPress={() => router.push('/(auth)/registro')}
+        className="text-white"
       >
         ¿No tienes cuenta? Regístrate
       </Button>
