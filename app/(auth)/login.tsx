@@ -89,8 +89,9 @@ const LoginScreen = () => {
       <TouchableOpacity 
         onPress={handleGoogleLogin}
         className="mb-4 flex-row items-center justify-center border border-gray-200 bg-white rounded-lg px-4 py-3 active:bg-gray-50 shadow-sm"
+        style={{ justifyContent: 'center', position: 'relative' }}
       >
-        <View className="mr-3">
+        <View className="mr-3" style={{ position: 'absolute', left: 16 }}>
           <GoogleIcon size={20} />
         </View>
         <Typography variant="button" className="text-gray-700 font-mont-medium">
