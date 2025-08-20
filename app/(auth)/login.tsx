@@ -35,8 +35,8 @@ const LoginScreen = () => {
   }
 
   return (
-    <Container type="page" className="justify-center">
-      <H1 className="text-center mb-8">Iniciar Sesión</H1>
+    <Container type="page" className="justify-center bg-primary">
+      <H1 className="text-center mb-8 text-white">Iniciar Sesión</H1>
       
       <TextInput
         placeholder="Email"
@@ -44,7 +44,8 @@ const LoginScreen = () => {
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
-        className="border border-gray-300 rounded-lg px-4 py-3 mb-4 font-mont-regular"
+        placeholderTextColor="#9CA3AF"
+        className="border border-gray-200 bg-white rounded-lg px-4 py-3 mb-4 font-mont-regular text-gray-900"
       />
       
       <TextInput
@@ -52,14 +53,15 @@ const LoginScreen = () => {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
-        className="border border-gray-300 rounded-lg px-4 py-3 mb-6 font-mont-regular"
+        placeholderTextColor="#9CA3AF"
+        className="border border-gray-200 bg-white rounded-lg px-4 py-3 mb-6 font-mont-regular text-gray-900"
       />
 
       <TouchableOpacity 
         onPress={() => router.push('/(auth)/recuperar-password')}
         className="mb-6 items-center"
       >
-        <Typography variant="body" className="text-blue-500">
+        <Typography variant="body" className="text-blue-300 hover:text-blue-100">
           ¿Olvidaste tu contraseña?
         </Typography>
       </TouchableOpacity>
@@ -75,17 +77,17 @@ const LoginScreen = () => {
       
       {/* Separador */}
       <View className="flex-row items-center mb-4">
-        <View className="flex-1 h-px bg-gray-300" />
-        <Typography variant="body" className="mx-4 text-gray-500">
+        <View className="flex-1 h-px bg-gray-400" />
+        <Typography variant="body" className="mx-4 text-gray-300">
           O
         </Typography>
-        <View className="flex-1 h-px bg-gray-300" />
+        <View className="flex-1 h-px bg-gray-400" />
       </View>
       
       {/* Botón de Google */}
       <TouchableOpacity 
         onPress={handleGoogleLogin}
-        className="mb-4 flex-row items-center justify-center border border-gray-300 bg-white rounded-lg px-4 py-3 active:bg-gray-50"
+        className="mb-4 flex-row items-center justify-center border border-gray-200 bg-white rounded-lg px-4 py-3 active:bg-gray-50 shadow-sm"
       >
         <View className="w-5 h-5 mr-3 items-center justify-center bg-white rounded-full">
           <Typography variant="button" className="text-red-500 font-bold text-lg">
