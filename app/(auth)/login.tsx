@@ -56,7 +56,7 @@ const LoginScreen = () => {
       />
 
       <TouchableOpacity 
-        // onPress={() => router.push('/(auth)/forgot-password')}
+        onPress={() => router.push('/(auth)/recuperar-password')}
         className="mb-6 items-center"
       >
         <Typography variant="body" className="text-blue-500">
