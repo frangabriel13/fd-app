@@ -47,6 +47,9 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const getTextColor = () => {
+    // Si hay clases de texto personalizadas en className, no aplicar color por defecto
+    if (className.includes('text-')) return '';
+    
     if (variant === 'outline') return 'text-blue-600';
     if (variant === 'ghost') return 'text-gray-700';
     return 'text-white';
