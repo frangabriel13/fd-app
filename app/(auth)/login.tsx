@@ -57,14 +57,6 @@ const LoginScreen = () => {
         className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-6 font-mont-regular text-gray-900"
       />
 
-      <TouchableOpacity 
-        onPress={() => router.push('/(auth)/recuperar-password')}
-        className="mb-6 items-center"
-      >
-        <Typography variant="body" className="text-white">
-          ¿Olvidaste tu contraseña?
-        </Typography>
-      </TouchableOpacity>
       
       <Button 
         variant="primary" 
@@ -75,6 +67,15 @@ const LoginScreen = () => {
         Iniciar Sesión
       </Button>
       
+      <Button 
+        variant="ghost"
+        // size="zero"
+        onPress={() => router.push('/(auth)/recuperar-password')}
+        className="mb-6 text-white py-0"
+      >
+        ¿Olvidaste tu contraseña?
+      </Button>
+
       {/* Separador */}
       <View className="flex-row items-center mb-4">
         <View className="flex-1 h-px bg-gray-400" />
@@ -100,7 +101,8 @@ const LoginScreen = () => {
       </TouchableOpacity>
       
       <Button 
-        variant="ghost" 
+        variant="ghost"
+        // size='zero'
         onPress={() => router.push('/(auth)/registro')}
         className="text-white"
       >
