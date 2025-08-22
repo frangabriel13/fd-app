@@ -23,7 +23,15 @@ const LoginScreen = () => {
       await dispatch(login({ email, password })).unwrap();
       router.push('/(tabs)');
     } catch(error: any) {
-      Alert.alert('error', error.message || 'Error al iniciar sesión');
+      const errorMessage = error.message || 'Error al iniciar sesión';
+      const errorInfo = error.info;
+      
+      // Si hay info adicional (como cuando el usuario fue registrado con Google)
+      if (errorInfo && errorInfo.message) {
+        Alert.alert('Información', `${errorMessage}\n\n${errorInfo.message}`);
+      } else {
+        Alert.alert('Error', errorMessage);
+      }
     } finally {
       setLoading(false);
     }
