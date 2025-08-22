@@ -10,32 +10,31 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const dispatch = useAppDispatch();
 
   const handleLogin = async () => {
-    if(!email || !password) {
-      Alert.alert('Error', 'Por favor completa todos los campos');
-      return
+    if (!email || !password) {
+      setError('Por favor completa todos los campos');
+      return;
     }
 
     setLoading(true);
+    setError(null); // Limpiar el error antes de intentar iniciar sesión
     try {
       await dispatch(login({ email, password })).unwrap();
       router.push('/(tabs)');
-    } catch(error: any) {
-      const errorMessage = error.message || 'Error al iniciar sesión';
-      const errorInfo = error.info;
-      
-      // Si hay info adicional (como cuando el usuario fue registrado con Google)
-      if (errorInfo && errorInfo.message) {
-        Alert.alert('Información', `${errorMessage}\n\n${errorInfo.message}`);
-      } else {
-        Alert.alert('Error', errorMessage);
-      }
+    } catch (err: any) {
+      const errorMessage = err.message || 'Error al iniciar sesión';
+      const errorInfo = err.info?.message;
+
+      // Mostrar el mensaje de error
+      // setError(errorInfo ? `${errorMessage}\n${errorInfo}` : errorMessage);
+      setError(errorInfo ? `${errorInfo}` : errorMessage);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const handleGoogleLogin = async () => {
     // TODO: Implementar lógica de autenticación con Google
@@ -45,6 +44,12 @@ const LoginScreen = () => {
   return (
     <Container type="page" className="justify-center bg-primary">
       <H1 className="text-center mb-8 text-white">Iniciar Sesión</H1>
+
+      {error && (
+        <Typography variant="body" className="text-red-500 mb-4 text-center">
+          {error}
+        </Typography>
+      )}
       
       <TextInput
         placeholder="Email"
