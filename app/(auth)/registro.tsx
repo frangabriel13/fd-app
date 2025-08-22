@@ -2,20 +2,22 @@ import { useState } from 'react';
 import { View, TextInput, Alert, ScrollView, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Button, Container, H1, GoogleIcon } from '@/components/ui';
-import { manufacturerInstance } from '@/services';
+import { registerUser } from '@/store/slices/userSlice';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { Typography } from '@/components/ui/Typography';
 
 export default function RegisterScreen() {
+  const dispatch = useAppDispatch();
+  const { loading, error } = useAppSelector(state => state.user);
+  
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
-  const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
-    if (!formData.name || !formData.email || !formData.password) {
+    if (!formData.email || !formData.password) {
       Alert.alert('Error', 'Por favor completa todos los campos');
       return;
     }
@@ -25,23 +27,25 @@ export default function RegisterScreen() {
       return;
     }
 
-    setLoading(true);
     try {
-      await manufacturerInstance.post('/register', {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      });
+      // Usar el thunk de Redux solo con email y password
+      const result = await dispatch(registerUser({ 
+        email: formData.email, 
+        password: formData.password 
+      }));
       
-      Alert.alert(
-        'Éxito', 
-        'Cuenta creada exitosamente',
-        [{ text: 'OK', onPress: () => router.replace('/(auth)/login') }]
-      );
-    } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.message || 'Error al crear cuenta');
-    } finally {
-      setLoading(false);
+      // Verificar si el registro fue exitoso
+      if (registerUser.fulfilled.match(result)) {
+        Alert.alert(
+          'Éxito', 
+          'Cuenta creada exitosamente',
+          [{ text: 'OK', onPress: () => router.replace('/(auth)/login') }]
+        );
+      } else if (registerUser.rejected.match(result)) {
+        Alert.alert('Error', result.payload as string || 'Error al crear cuenta');
+      }
+    } catch {
+      Alert.alert('Error', 'Ocurrió un error inesperado');
     }
   };
 
@@ -92,6 +96,15 @@ export default function RegisterScreen() {
           Crear Cuenta
         </Button>
 
+        {/* Mostrar error de Redux si existe */}
+        {error && (
+          <View className="mb-4 p-3 bg-red-100 rounded-md">
+            <Typography variant="body" className="text-red-700">
+              {error}
+            </Typography>
+          </View>
+        )}
+
         {/* Separador */}
         <View className="flex-row items-center mb-4">
           <View className="flex-1 h-px bg-gray-300" />
@@ -102,19 +115,6 @@ export default function RegisterScreen() {
         </View>
               
         {/* Botón de Google */}
-        {/* <TouchableOpacity 
-          onPress={handleGoogleLogin}
-          className="mb-4 flex-row items-center justify-center border border-gray-300 bg-white rounded-lg px-4 py-3 active:bg-gray-50"
-        >
-          <View className="w-5 h-5 mr-3 items-center justify-center bg-white rounded-full">
-            <Typography variant="button" className="text-red-500 font-bold text-lg">
-              G
-            </Typography>
-          </View>
-          <Typography variant="button" className="text-gray-700 font-mont-medium">
-            Continuar con Google
-          </Typography>
-        </TouchableOpacity> */}
         <TouchableOpacity 
           onPress={handleGoogleLogin}
           className="mb-4 flex-row items-center justify-center border border-gray-200 bg-white rounded-lg px-4 py-3 active:bg-gray-50 shadow-sm"
