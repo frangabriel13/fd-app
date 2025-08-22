@@ -3,7 +3,7 @@ import { View, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Button, Container, H1, GoogleIcon } from '@/components/ui';
 import { useAppDispatch } from '@/hooks/redux';
-import { loginManufacturer } from '@/store/slices/manufacturerSlice';
+import { login } from '@/store/slices/authSlice';
 import { Typography } from '@/components/ui/Typography';
 
 const LoginScreen = () => {
@@ -20,7 +20,7 @@ const LoginScreen = () => {
 
     setLoading(true);
     try {
-      await dispatch(loginManufacturer({ email, password })).unwrap();
+      await dispatch(login({ email, password })).unwrap();
       router.push('/(tabs)');
     } catch(error: any) {
       Alert.alert('error', error.message || 'Error al iniciar sesión');
