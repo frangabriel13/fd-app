@@ -5,6 +5,7 @@ import { Button, Container, H1, GoogleIcon } from '@/components/ui';
 import { registerUser } from '@/store/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { Typography } from '@/components/ui/Typography';
+import { registerUserValidator } from '@/utils/validators';
 
 export default function RegisterScreen() {
   const dispatch = useAppDispatch();
@@ -17,24 +18,23 @@ export default function RegisterScreen() {
   });
 
   const handleRegister = async () => {
-    if (!formData.email || !formData.password) {
-      Alert.alert('Error', 'Por favor completa todos los campos');
-      return;
-    }
+    const validationErrors = registerUserValidator(
+      formData.email,
+      formData.password,
+      formData.confirmPassword
+    );
 
-    if (formData.password !== formData.confirmPassword) {
-      Alert.alert('Error', 'Las contraseñas no coinciden');
+    if (Object.keys(validationErrors).length > 0) {
+      Alert.alert('Error', Object.values(validationErrors).join('\n'));
       return;
     }
 
     try {
-      // Usar el thunk de Redux solo con email y password
       const result = await dispatch(registerUser({ 
         email: formData.email, 
         password: formData.password 
       }));
       
-      // Verificar si el registro fue exitoso
       if (registerUser.fulfilled.match(result)) {
         Alert.alert(
           'Éxito', 
