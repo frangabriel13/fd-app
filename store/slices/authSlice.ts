@@ -1,7 +1,6 @@
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-// import { authInstance } from '../../services/axiosConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { authInstance } from '@/services';
 
 // Tipos
 interface User {
@@ -32,7 +31,11 @@ export const login = createAsyncThunk(
   'auth/login',
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      // Tu lógica aquí
+      const response = await authInstance.post('/login', credentials);
+      const { user, token } = response.data;
+
+      await AsyncStorage.setItem('token', token);
+      return { user, token };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Error');
     }
@@ -61,7 +64,9 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
-        // Completar aquí
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isAuthenticated = true;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -69,6 +74,7 @@ const authSlice = createSlice({
       });
   },
 });
+
 
 export const { clearError, logout } = authSlice.actions;
 export default authSlice.reducer;
