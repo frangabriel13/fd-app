@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { refreshTokenService } from './authService';
+import { API_CONFIG } from '@/constants/ApiConfig';
 
 const addAuthHeader = async (config: any) => {
   try {
@@ -16,72 +17,72 @@ const addAuthHeader = async (config: any) => {
 };
 
 export const manufacturerInstance = axios.create({
-  baseURL: 'http://localhost:3001/api/manufacturers',
+  baseURL: `${API_CONFIG.API_URL_3001}/manufacturers`,
 });
 manufacturerInstance.interceptors.request.use(addAuthHeader);
 
 export const userInstance = axios.create({
-  baseURL: 'http://localhost:3001/api/users',
+  baseURL: `${API_CONFIG.API_URL_3001}/users`,
 });
 userInstance.interceptors.request.use(addAuthHeader);
 
 export const productInstance = axios.create({
-  baseURL: 'http://localhost:3000/api/products',
+  baseURL: `${API_CONFIG.API_URL_3000}/products`,
 });
 productInstance.interceptors.request.use(addAuthHeader);
 
 export const authInstance = axios.create({
-  baseURL: 'http://localhost:3001/api/auth',
+  baseURL: `${API_CONFIG.API_URL_3001}/auth`,
 });
 
 export const wholesalerInstance = axios.create({
-  baseURL: 'http://localhost:3001/api/wholesalers',
+  baseURL: `${API_CONFIG.API_URL_3001}/wholesalers`,
 });
 wholesalerInstance.interceptors.request.use(addAuthHeader);
 
 export const categoryInstance = axios.create({
-  baseURL: 'http://localhost:3000/api/categories',
+  baseURL: `${API_CONFIG.API_URL_3000}/categories`,
 });
 
 export const sizeInstance = axios.create({
-  baseURL: 'http://localhost:3000/api/sizes',
+  baseURL: `${API_CONFIG.API_URL_3000}/sizes`,
 });
 
 export const imageInstance = axios.create({
-  baseURL: 'http://localhost:3000/api/images',
+  baseURL: `${API_CONFIG.API_URL_3000}/images`,
 });
 imageInstance.interceptors.request.use(addAuthHeader);
 
 export const colorInstance = axios.create({
-  baseURL: 'http://localhost:3000/api/colors',
+  baseURL: `${API_CONFIG.API_URL_3000}/colors`,
 });
 
 export const packInstance = axios.create({
-  baseURL: 'http://localhost:3000/api/packs',
+  baseURL: `${API_CONFIG.API_URL_3000}/packs`,
 });
 packInstance.interceptors.request.use(addAuthHeader);
 
 export const genderInstance = axios.create({
-  baseURL: 'http://localhost:3000/api/genders',
+  baseURL: `${API_CONFIG.API_URL_3000}/genders`,
 });
 
 export const orderInstance = axios.create({
-  baseURL: 'http://localhost:3001/api/orders',
+  baseURL: `${API_CONFIG.API_URL_3001}/orders`,
 });
 orderInstance.interceptors.request.use(addAuthHeader);
 
 export const reviewInstance = axios.create({
-  baseURL: 'http://localhost:3001/api/reviews',
+  baseURL: `${API_CONFIG.API_URL_3001}/reviews`,
 });
 reviewInstance.interceptors.request.use(addAuthHeader);
 
 export const favoriteInstance = axios.create({
-  baseURL: 'http://localhost:3001/api/favorites',
+  baseURL: `${API_CONFIG.API_URL_3001}/favorites`,
 });
 favoriteInstance.interceptors.request.use(addAuthHeader);
 
 export const adminInstance = axios.create({
-  baseURL: 'http://localhost:3001/api/admin',
+  baseURL: `${API_CONFIG.API_URL_3001}/admin`,
 });
 adminInstance.interceptors.request.use(addAuthHeader);
 
