@@ -54,6 +54,8 @@ export default function RegisterScreen() {
     Alert.alert('Google Login', 'Funcionalidad pendiente de implementar');
   }
 
+  const isFormValid = formData.email && formData.password && formData.confirmPassword;
+
   return (
     <ScrollView 
       className="flex-1 bg-gray-50"
@@ -91,6 +93,7 @@ export default function RegisterScreen() {
           variant="primary" 
           onPress={handleRegister}
           loading={loading}
+          disabled={!isFormValid || loading}
           className="mb-4 bg-secondary"
         >
           Crear Cuenta
