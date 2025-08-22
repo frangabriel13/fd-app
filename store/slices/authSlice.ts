@@ -9,12 +9,17 @@ interface User {
   name: string;
 }
 
+interface AuthError {
+  message: string;
+  info?: string;
+}
+
 interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
-  error: string | null;
+  error: AuthError | null;
 }
 
 // Estado inicial
@@ -37,7 +42,10 @@ export const login = createAsyncThunk(
       await AsyncStorage.setItem('token', token);
       return { user, token };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Error');
+      return rejectWithValue({
+        message: error.response?.data?.message || 'Error al iniciar sesión',
+        info: error.response?.data?.info || null,
+      });
     }
   }
 );
@@ -70,7 +78,7 @@ const authSlice = createSlice({
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload as AuthError;
       });
   },
 });
