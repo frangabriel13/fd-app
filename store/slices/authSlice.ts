@@ -50,6 +50,24 @@ export const login = createAsyncThunk(
   }
 );
 
+export const loginWithGoogle = createAsyncThunk(
+  'auth/loginWithGoogle',
+  async (accessToken: string, { rejectWithValue }) => {
+    try {
+      const response = await authInstance.post('/auth/google', { accessToken });
+      const { user, token } = response.data;
+
+      await AsyncStorage.setItem('token', token);
+      return { user, token };
+    } catch (error: any) {
+      return rejectWithValue({
+        message: error.response?.data?.message || 'Error al iniciar sesión con Google',
+        info: error.response?.data?.info || null,
+      });
+    }
+  }
+);
+
 // Slice
 const authSlice = createSlice({
   name: 'auth',
@@ -77,6 +95,21 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
       })
       .addCase(login.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as AuthError;
+      })
+      // Agregar casos para Google login
+      .addCase(loginWithGoogle.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginWithGoogle.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isAuthenticated = true;
+      })
+      .addCase(loginWithGoogle.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as AuthError;
       });
