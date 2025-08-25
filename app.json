@@ -10,13 +10,13 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "googleServicesFile": "./google-services.json"
+      "bundleIdentifier": "com.fabricantedirecto.fdapp"
     },
     "android": {
+      "package": "com.fabricantedirecto.fdapp",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff",
-        "googleServicesFile": "./google-services.json"
+        "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
     },

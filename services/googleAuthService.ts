@@ -6,7 +6,7 @@ import { GOOGLE_AUTH_CONFIG } from '@/config/googleAuth';
 WebBrowser.maybeCompleteAuthSession();
 
 const redirectUri = AuthSession.makeRedirectUri({
-  scheme: 'fd-app', // Usa el nombre de tu proyecto
+  scheme: 'fdapp', // Usa el nombre de tu proyecto
   useProxy: true,
 });
 
