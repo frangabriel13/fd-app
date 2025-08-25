@@ -7,7 +7,6 @@ WebBrowser.maybeCompleteAuthSession();
 
 const redirectUri = AuthSession.makeRedirectUri({
   scheme: 'fdapp', // Usa el nombre de tu proyecto
-  useProxy: true,
 });
 
 export const useGoogleAuth = () => {
@@ -41,6 +40,7 @@ export const exchangeGoogleTokenForBackendAuth = async (accessToken: string) => 
     const data = await response.json();
     return data;
   } catch (error) {
+    console.error('Error al validar token con el backend:', error);
     throw new Error('Error al validar token con el backend');
   }
 };
