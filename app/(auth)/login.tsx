@@ -3,14 +3,16 @@ import { View, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Button, Container, H1, GoogleIcon } from '@/components/ui';
 import { useAppDispatch } from '@/hooks/redux';
-import { login } from '@/store/slices/authSlice';
+import { login, loginWithGoogle } from '@/store/slices/authSlice';
 import { Typography } from '@/components/ui/Typography';
+import { useGoogleAuth } from '@/services/googleAuthService';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [request, response, promptAsync] = useGoogleAuth();
   const dispatch = useAppDispatch();
 
   const handleLogin = async () => {
@@ -37,8 +39,26 @@ const LoginScreen = () => {
   };
 
   const handleGoogleLogin = async () => {
-    // TODO: Implementar lógica de autenticación con Google
-    Alert.alert('Google Login', 'Funcionalidad pendiente de implementar');
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const result = await promptAsync();
+      
+      if (result?.type === 'success') {
+        const { authentication } = result;
+        if (authentication?.accessToken) {
+          await dispatch(loginWithGoogle(authentication.accessToken)).unwrap();
+          router.push('/(tabs)');
+        }
+      }
+    } catch (err: any) {
+      const errorMessage = err.message || 'Error al iniciar sesión con Google';
+      const errorInfo = err.info?.message;
+      setError(errorInfo ? errorInfo : errorMessage);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -101,8 +121,13 @@ const LoginScreen = () => {
       {/* Botón de Google */}
       <TouchableOpacity 
         onPress={handleGoogleLogin}
+        disabled={!request || loading}
         className="mb-4 flex-row items-center justify-center border border-gray-200 bg-white rounded-lg px-4 py-3 active:bg-gray-50 shadow-sm"
-        style={{ justifyContent: 'center', position: 'relative' }}
+        style={{ 
+          justifyContent: 'center', 
+          position: 'relative',
+          opacity: (!request || loading) ? 0.5 : 1 
+        }}
       >
         <View className="mr-3" style={{ position: 'absolute', left: 16 }}>
           <GoogleIcon size={20} />
