@@ -5,7 +5,7 @@ import { Button, Container, H1, GoogleIcon } from '@/components/ui';
 import { useAppDispatch } from '@/hooks/redux';
 import { login, loginWithGoogle } from '@/store/slices/authSlice';
 import { Typography } from '@/components/ui/Typography';
-import { useGoogleAuth } from '@/services/googleAuthService';
+import { useGoogleAuth, exchangeCodeForToken } from '@/services/googleAuthService';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -46,13 +46,25 @@ const LoginScreen = () => {
       const result = await promptAsync();
       
       if (result?.type === 'success') {
-        const { authentication } = result;
-        if (authentication?.accessToken) {
-          await dispatch(loginWithGoogle(authentication.accessToken)).unwrap();
-          router.push('/(tabs)');
+        const { params } = result;
+        if (params?.code) {
+          // Intercambiamos el código por tokens
+          const tokenResponse = await exchangeCodeForToken(params.code, request?.redirectUri || '');
+          
+          if (tokenResponse?.accessToken) {
+            await dispatch(loginWithGoogle(tokenResponse.accessToken)).unwrap();
+            router.push('/(tabs)');
+          } else {
+            setError('Error al obtener el token de acceso');
+          }
+        } else {
+          setError('No se recibió el código de autorización');
         }
+      } else if (result?.type === 'error') {
+        setError(`Error de autenticación: ${result.error?.message || 'Error desconocido'}`);
       }
     } catch (err: any) {
+      console.error('Error en Google Login:', err);
       const errorMessage = err.message || 'Error al iniciar sesión con Google';
       const errorInfo = err.info?.message;
       setError(errorInfo ? errorInfo : errorMessage);
