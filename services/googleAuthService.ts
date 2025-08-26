@@ -1,29 +1,47 @@
 import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
-import { Platform } from 'react-native';
 import { GOOGLE_AUTH_CONFIG } from '@/config/googleAuth';
 
 WebBrowser.maybeCompleteAuthSession();
 
-const redirectUri = AuthSession.makeRedirectUri({
-  scheme: 'fdapp', // Usa el nombre de tu proyecto
-});
+// Para AuthSession, siempre usamos el webClientId
+const discovery = {
+  authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
+  tokenEndpoint: 'https://oauth2.googleapis.com/token',
+  revocationEndpoint: 'https://oauth2.googleapis.com/revoke',
+};
 
 export const useGoogleAuth = () => {
-  const clientId = Platform.select({
-    ios: GOOGLE_AUTH_CONFIG.iosClientId,
-    android: GOOGLE_AUTH_CONFIG.androidClientId,
-    default: GOOGLE_AUTH_CONFIG.webClientId,
-  });
+  // Forzar el uso del proxy de Expo para AuthSession
+  const redirectUri = `https://auth.expo.io/@frangabriel.13/fd-app`;
 
   return AuthSession.useAuthRequest(
     {
-      clientId,
+      clientId: GOOGLE_AUTH_CONFIG.webClientId, // Siempre usar webClientId para AuthSession
       scopes: ['openid', 'profile', 'email'],
       redirectUri,
+      responseType: AuthSession.ResponseType.Code,
     },
-    { authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth' }
+    discovery
   );
+};
+
+export const exchangeCodeForToken = async (code: string, redirectUri: string) => {
+  try {
+    const tokenResponse = await AuthSession.exchangeCodeAsync(
+      {
+        clientId: GOOGLE_AUTH_CONFIG.webClientId,
+        code,
+        redirectUri,
+      },
+      discovery
+    );
+    
+    return tokenResponse;
+  } catch (error) {
+    console.error('Error al intercambiar código por token:', error);
+    throw error;
+  }
 };
 
 export const exchangeGoogleTokenForBackendAuth = async (accessToken: string) => {
