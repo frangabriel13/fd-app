@@ -1,18 +1,16 @@
 import { useState } from 'react';
-import { View, TextInput, Alert, TouchableOpacity } from 'react-native';
+import { View, TextInput, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Button, Container, H1, GoogleIcon } from '@/components/ui';
 import { useAppDispatch } from '@/hooks/redux';
-import { login, loginWithGoogle } from '@/store/slices/authSlice';
+import { login } from '@/store/slices/authSlice';
 import { Typography } from '@/components/ui/Typography';
-import { useGoogleAuth, exchangeCodeForToken } from '@/services/googleAuthService';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [request, response, promptAsync, redirectUri] = useGoogleAuth();
   const dispatch = useAppDispatch();
 
   const handleLogin = async () => {
@@ -40,49 +38,6 @@ const LoginScreen = () => {
 
   const handleGoogleLogin = async () => {
     console.log('Boton presionado');
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const result = await promptAsync();
-      console.log('Resultado de promptAsync:', result);
-      
-      if (result?.type === 'success') {
-        const { params } = result;
-        console.log('Parámetros recibidos:', params);
-        
-        if (params?.code) {
-          // Intercambiamos el código por tokens usando el mismo redirectUri
-          const tokenResponse = await exchangeCodeForToken(params.code, redirectUri || '');
-          console.log('Token response:', tokenResponse);
-          
-          if (tokenResponse?.accessToken) {
-            await dispatch(loginWithGoogle(tokenResponse.accessToken)).unwrap();
-            router.push('/(tabs)');
-          } else {
-            setError('Error al obtener el token de acceso');
-          }
-        } else {
-          setError('No se recibió el código de autorización');
-        }
-      } else if (result?.type === 'error') {
-        console.error('Error en AuthSession:', result.error);
-        setError(`Error de autenticación: ${result.error?.message || 'Error desconocido'}`);
-      } else if (result?.type === 'cancel') {
-        console.log('Usuario canceló la autenticación');
-        setError('Autenticación cancelada por el usuario');
-      } else {
-        console.log('Resultado inesperado:', result);
-        setError('Resultado inesperado en la autenticación');
-      }
-    } catch (err: any) {
-      console.error('Error en Google Login:', err);
-      const errorMessage = err.message || 'Error al iniciar sesión con Google';
-      const errorInfo = err.info?.message;
-      setError(errorInfo ? errorInfo : errorMessage);
-    } finally {
-      setLoading(false);
-    }
   }
 
   return (
@@ -145,12 +100,12 @@ const LoginScreen = () => {
       {/* Botón de Google */}
       <TouchableOpacity 
         onPress={handleGoogleLogin}
-        disabled={!request || loading}
+        // disabled={!request || loading}
         className="mb-4 flex-row items-center justify-center border border-gray-200 bg-white rounded-lg px-4 py-3 active:bg-gray-50 shadow-sm"
         style={{ 
           justifyContent: 'center', 
           position: 'relative',
-          opacity: (!request || loading) ? 0.5 : 1 
+          // opacity: (!request || loading) ? 0.5 : 1 
         }}
       >
         <View className="mr-3" style={{ position: 'absolute', left: 16 }}>
