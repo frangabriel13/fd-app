@@ -12,18 +12,24 @@ const discovery = {
 };
 
 export const useGoogleAuth = () => {
-  // Forzar el uso del proxy de Expo para AuthSession
+  // Forzar el uso del proxy de Expo para desarrollo
   const redirectUri = `https://auth.expo.io/@frangabriel.13/fd-app`;
 
-  return AuthSession.useAuthRequest(
+  console.log('Redirect URI generado:', redirectUri); // Para debugging
+
+  const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
-      clientId: GOOGLE_AUTH_CONFIG.webClientId, // Siempre usar webClientId para AuthSession
+      clientId: GOOGLE_AUTH_CONFIG.webClientId,
       scopes: ['openid', 'profile', 'email'],
       redirectUri,
       responseType: AuthSession.ResponseType.Code,
+      prompt: AuthSession.Prompt.SelectAccount, // Forzar selección de cuenta
     },
     discovery
   );
+
+  // Retornar el redirectUri usado en la request para consistencia
+  return [request, response, promptAsync, redirectUri] as const;
 };
 
 export const exchangeCodeForToken = async (code: string, redirectUri: string) => {
