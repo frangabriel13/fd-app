@@ -12,7 +12,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [request, response, promptAsync] = useGoogleAuth();
+  const [request, response, promptAsync, redirectUri] = useGoogleAuth();
   const dispatch = useAppDispatch();
 
   const handleLogin = async () => {
@@ -39,17 +39,22 @@ const LoginScreen = () => {
   };
 
   const handleGoogleLogin = async () => {
+    console.log('Boton presionado');
     try {
       setLoading(true);
       setError(null);
       
       const result = await promptAsync();
+      console.log('Resultado de promptAsync:', result);
       
       if (result?.type === 'success') {
         const { params } = result;
+        console.log('Parámetros recibidos:', params);
+        
         if (params?.code) {
-          // Intercambiamos el código por tokens
-          const tokenResponse = await exchangeCodeForToken(params.code, request?.redirectUri || '');
+          // Intercambiamos el código por tokens usando el mismo redirectUri
+          const tokenResponse = await exchangeCodeForToken(params.code, redirectUri || '');
+          console.log('Token response:', tokenResponse);
           
           if (tokenResponse?.accessToken) {
             await dispatch(loginWithGoogle(tokenResponse.accessToken)).unwrap();
@@ -61,7 +66,14 @@ const LoginScreen = () => {
           setError('No se recibió el código de autorización');
         }
       } else if (result?.type === 'error') {
+        console.error('Error en AuthSession:', result.error);
         setError(`Error de autenticación: ${result.error?.message || 'Error desconocido'}`);
+      } else if (result?.type === 'cancel') {
+        console.log('Usuario canceló la autenticación');
+        setError('Autenticación cancelada por el usuario');
+      } else {
+        console.log('Resultado inesperado:', result);
+        setError('Resultado inesperado en la autenticación');
       }
     } catch (err: any) {
       console.error('Error en Google Login:', err);
