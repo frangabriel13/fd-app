@@ -6,8 +6,11 @@ import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { login, googleLogin } from '@/store/slices/authSlice';
 import { Typography } from '@/components/ui/Typography';
 import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
+import { useAuth } from '@/hooks/useAuth';
 
 const LoginScreen = () => {
+  useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,7 +29,7 @@ const LoginScreen = () => {
     setError(null); // Limpiar el error antes de intentar iniciar sesión
     try {
       await dispatch(login({ email, password })).unwrap();
-      router.push('/(tabs)');
+      router.replace('/(tabs)');
     } catch (err: any) {
       const errorMessage = err.message || 'Error al iniciar sesión';
       const errorInfo = err.info?.message;
@@ -64,7 +67,7 @@ const LoginScreen = () => {
         await dispatch(googleLogin(googleData)).unwrap();
         
         // Navegar a las tabs si todo sale bien
-        router.push('/(tabs)');
+        router.replace('/(tabs)');
       } else {
         console.log('Respuesta de Google Sign-In:', userInfo);
         setError('Error en la respuesta de Google Sign-In');

@@ -3,7 +3,7 @@ import { router, useSegments } from 'expo-router';
 import { useAppSelector } from './redux';
 
 export function useAuth() {
-  const { token, currentManufacturer } = useAppSelector(state => state.manufacturer);
+  const { token, user, isAuthenticated } = useAppSelector(state => state.auth);
   const segments = useSegments();
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export function useAuth() {
   }, [token, segments]);
 
   return {
-    isAuthenticated: !!token,
-    user: currentManufacturer,
+    isAuthenticated,
+    user,
   };
 }
