@@ -74,6 +74,22 @@ export const googleLogin = createAsyncThunk(
   }
 );
 
+export const logoutAsync = createAsyncThunk(
+  'auth/logout',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await authInstance.post('/logout');
+      await AsyncStorage.removeItem('token');
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue({
+        message: error.response?.data?.message || 'Error al cerrar sesión',
+        info: error.response?.data?.info || null,
+      });
+    }
+  }
+);
+
 // Slice
 const authSlice = createSlice({
   name: 'auth',
@@ -118,6 +134,20 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as AuthError;
       })
+      .addCase(logoutAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(logoutAsync.fulfilled, (state) => {
+        state.loading = false;
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
+      })
+      .addCase(logoutAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as AuthError;
+      });
   },
 });
 
