@@ -41,11 +41,9 @@ const LoginScreen = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      console.log('Iniciando Google Sign-In...');
       const userInfo = await googleSignIn();
       
       if (userInfo && 'data' in userInfo && userInfo.data) {
-        console.log('Google Sign-In exitoso:', userInfo);
         
         // Verificar que tenemos todos los datos necesarios
         const { idToken, user } = userInfo.data;
@@ -61,8 +59,6 @@ const LoginScreen = () => {
           name: user.name,
           photo: user.photo || '', // Usar string vacío si no hay foto
         };
-        
-        console.log('Enviando datos al backend:', googleData);
         
         // Enviar al backend usando Redux
         await dispatch(googleLogin(googleData)).unwrap();
