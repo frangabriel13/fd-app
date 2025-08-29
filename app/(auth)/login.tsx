@@ -5,6 +5,7 @@ import { Button, Container, H1, GoogleIcon } from '@/components/ui';
 import { useAppDispatch } from '@/hooks/redux';
 import { login } from '@/store/slices/authSlice';
 import { Typography } from '@/components/ui/Typography';
+import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -12,6 +13,7 @@ const LoginScreen = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const dispatch = useAppDispatch();
+  const { signIn: googleSignIn, isLoading: googleLoading, error: googleError } = useGoogleSignIn();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -37,16 +39,57 @@ const LoginScreen = () => {
   };
 
   const handleGoogleLogin = async () => {
-    console.log('Boton presionado');
+    try {
+      console.log('Iniciando Google Sign-In...');
+      const userInfo = await googleSignIn();
+      
+      if (userInfo && 'data' in userInfo && userInfo.data) {
+        console.log('Google Sign-In exitoso:', userInfo);
+        
+        // Aquí puedes enviar la información del usuario a tu backend
+        // para validar y crear/obtener el token de tu aplicación
+        console.log('Datos del usuario:', {
+          id: userInfo.data.user.id,
+          name: userInfo.data.user.name,
+          email: userInfo.data.user.email,
+          photo: userInfo.data.user.photo,
+        });
+        
+        // Por ahora, simplemente navegamos a las tabs
+        // En un caso real, deberías validar con tu backend primero
+        router.push('/(tabs)');
+
+        // CORRECCIÓN NECESARIA:
+        // if (userInfo && userInfo.user) {  // ← SIN .data
+        //   console.log('Google Sign-In exitoso:', userInfo);
+          
+        //   console.log('Datos del usuario:', {
+        //     id: userInfo.user.id,        // ← DIRECTO DESDE userInfo.user
+        //     name: userInfo.user.name,
+        //     email: userInfo.user.email,
+        //     photo: userInfo.user.photo,
+        //   });
+          
+        //   router.push('/(tabs)');
+        // }
+      } else {
+        console.log('Respuesta de Google Sign-In:', userInfo);
+        setError('Error en la respuesta de Google Sign-In');
+      }
+    } catch (error: any) {
+      console.error('Error en Google Sign-In:', error);
+      setError(error.message || 'Error al iniciar sesión con Google');
+    }
   }
 
   return (
     <Container type="page" className="justify-center bg-primary">
       <H1 className="text-center mb-8 text-white">Iniciar Sesión</H1>
 
-      {error && (
+      {/* Mostrar errores de Google si existen */}
+      {(error || googleError) && (
         <Typography variant="body" className="text-red-500 mb-4 text-center">
-          {error}
+          {error || googleError}
         </Typography>
       )}
       
@@ -100,19 +143,19 @@ const LoginScreen = () => {
       {/* Botón de Google */}
       <TouchableOpacity 
         onPress={handleGoogleLogin}
-        // disabled={!request || loading}
+        disabled={loading || googleLoading}
         className="mb-4 flex-row items-center justify-center border border-gray-200 bg-white rounded-lg px-4 py-3 active:bg-gray-50 shadow-sm"
         style={{ 
           justifyContent: 'center', 
           position: 'relative',
-          // opacity: (!request || loading) ? 0.5 : 1 
+          opacity: (loading || googleLoading) ? 0.5 : 1 
         }}
       >
         <View className="mr-3" style={{ position: 'absolute', left: 16 }}>
           <GoogleIcon size={20} />
         </View>
         <Typography variant="button" className="text-gray-700 font-mont-medium">
-          Continuar con Google
+          {googleLoading ? 'Conectando...' : 'Continuar con Google'}
         </Typography>
       </TouchableOpacity>
       
