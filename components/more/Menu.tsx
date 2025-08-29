@@ -7,6 +7,10 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Octicons from '@expo/vector-icons/Octicons';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { BodyText } from '../ui';
+import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
+import { useAppDispatch } from '@/hooks/redux';
+import { logoutAsync } from '@/store/slices/authSlice';
+import { router } from 'expo-router';
 
 interface MenuItemProps {
   icon: string;
@@ -14,6 +18,7 @@ interface MenuItemProps {
   IconComponent?: any; // Puede ser AntDesign, Ionicons, MaterialIcons, etc.
   iconSize?: number;
   iconStyle?: object;
+  onPress?: () => void;
 }
 
 const MenuItem = ({ 
@@ -21,7 +26,8 @@ const MenuItem = ({
   label, 
   IconComponent = AntDesign, 
   iconSize = 24,
-  iconStyle = {}
+  iconStyle = {},
+  onPress,
 }: MenuItemProps) => (
   <Pressable
     style={({ pressed }) => [
@@ -29,7 +35,7 @@ const MenuItem = ({
         pressed && styles.pressedItem
       ]}
       android_ripple={{ color: '#e5e7eb' }}
-      // Puedes agregar onPress aquí si lo necesitas
+      onPress={onPress}
     >
     <View style={styles.item}>
       <View style={styles.iconContainer}>
@@ -46,6 +52,22 @@ const MenuItem = ({
 );
 
 const Menu = () => {
+  const dispatch = useAppDispatch();
+  const { signOut } = useGoogleSignIn();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+
+      await dispatch(logoutAsync()).unwrap();
+
+      console.log('Sesión cerrada con éxito');
+      router.replace('/(auth)/login');
+    } catch(error) {
+      console.error('Error al cerrar sesión: ', error);
+    }
+  };
+
   return (
     <ScrollView 
       style={styles.container} 
@@ -93,6 +115,14 @@ const Menu = () => {
         <MenuItem icon="layers-outline" label="Telas textiles" IconComponent={Ionicons} />
         <MenuItem icon="scissors" label="Insumos para costura y confección" IconComponent={FontAwesome} />
         <MenuItem icon="tool" label="Máquinas textiles" />
+      </View>
+
+      {/* Tercera línea divisoria */}
+      <View style={styles.divider} />
+
+      {/* Cuarta lista */}
+      <View>
+        <MenuItem icon="poweroff" label="Cerrar sesión" onPress={handleLogout} />
       </View>
     </ScrollView>
   );
