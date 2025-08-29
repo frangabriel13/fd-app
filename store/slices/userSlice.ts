@@ -24,10 +24,10 @@ const initialState: UserState = {
 };
 
 export const registerUser = createAsyncThunk(
-  'user/register',
+  'user/register-with-code',
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await userInstance.post('/register', credentials);
+      const response = await userInstance.post('/register-with-code', credentials);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || 'Error al registrar usuario');
