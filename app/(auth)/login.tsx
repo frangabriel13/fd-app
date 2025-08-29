@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { View, TextInput, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Button, Container, H1, GoogleIcon } from '@/components/ui';
-import { useAppDispatch } from '@/hooks/redux';
-import { login } from '@/store/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { login, googleLogin } from '@/store/slices/authSlice';
 import { Typography } from '@/components/ui/Typography';
 import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
 
@@ -13,6 +13,7 @@ const LoginScreen = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const dispatch = useAppDispatch();
+  const authLoading = useAppSelector((state) => state.auth.loading);
   const { signIn: googleSignIn, isLoading: googleLoading, error: googleError } = useGoogleSignIn();
 
   const handleLogin = async () => {
@@ -46,32 +47,28 @@ const LoginScreen = () => {
       if (userInfo && 'data' in userInfo && userInfo.data) {
         console.log('Google Sign-In exitoso:', userInfo);
         
-        // Aquí puedes enviar la información del usuario a tu backend
-        // para validar y crear/obtener el token de tu aplicación
-        console.log('Datos del usuario:', {
-          id: userInfo.data.user.id,
-          name: userInfo.data.user.name,
-          email: userInfo.data.user.email,
-          photo: userInfo.data.user.photo,
-        });
+        // Verificar que tenemos todos los datos necesarios
+        const { idToken, user } = userInfo.data;
+        if (!idToken || !user.email || !user.name) {
+          setError('Datos incompletos de Google Sign-In');
+          return;
+        }
         
-        // Por ahora, simplemente navegamos a las tabs
-        // En un caso real, deberías validar con tu backend primero
+        // Preparar los datos para enviar al backend
+        const googleData = {
+          idToken,
+          email: user.email,
+          name: user.name,
+          photo: user.photo || '', // Usar string vacío si no hay foto
+        };
+        
+        console.log('Enviando datos al backend:', googleData);
+        
+        // Enviar al backend usando Redux
+        await dispatch(googleLogin(googleData)).unwrap();
+        
+        // Navegar a las tabs si todo sale bien
         router.push('/(tabs)');
-
-        // CORRECCIÓN NECESARIA:
-        // if (userInfo && userInfo.user) {  // ← SIN .data
-        //   console.log('Google Sign-In exitoso:', userInfo);
-          
-        //   console.log('Datos del usuario:', {
-        //     id: userInfo.user.id,        // ← DIRECTO DESDE userInfo.user
-        //     name: userInfo.user.name,
-        //     email: userInfo.user.email,
-        //     photo: userInfo.user.photo,
-        //   });
-          
-        //   router.push('/(tabs)');
-        // }
       } else {
         console.log('Respuesta de Google Sign-In:', userInfo);
         setError('Error en la respuesta de Google Sign-In');
@@ -143,19 +140,19 @@ const LoginScreen = () => {
       {/* Botón de Google */}
       <TouchableOpacity 
         onPress={handleGoogleLogin}
-        disabled={loading || googleLoading}
+        disabled={loading || googleLoading || authLoading}
         className="mb-4 flex-row items-center justify-center border border-gray-200 bg-white rounded-lg px-4 py-3 active:bg-gray-50 shadow-sm"
         style={{ 
           justifyContent: 'center', 
           position: 'relative',
-          opacity: (loading || googleLoading) ? 0.5 : 1 
+          opacity: (loading || googleLoading || authLoading) ? 0.5 : 1 
         }}
       >
         <View className="mr-3" style={{ position: 'absolute', left: 16 }}>
           <GoogleIcon size={20} />
         </View>
         <Typography variant="button" className="text-gray-700 font-mont-medium">
-          {googleLoading ? 'Conectando...' : 'Continuar con Google'}
+          {(googleLoading || authLoading) ? 'Conectando...' : 'Continuar con Google'}
         </Typography>
       </TouchableOpacity>
       
