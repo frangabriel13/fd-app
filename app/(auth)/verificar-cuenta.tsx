@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useAppDispatch } from '@/hooks/redux';
+import { resendVerificationCode } from '@/store/slices/userSlice';
 import { View, TextInput, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Button, Container, H1 } from '@/components/ui';
@@ -6,6 +8,8 @@ import { Typography } from '@/components/ui/Typography';
 import Feather from '@expo/vector-icons/Feather';
 
 const VerifyAccountScreen = () => {
+  const dispatch = useAppDispatch();
+
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
