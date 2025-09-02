@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ViewProps } from 'react-native';
+import { View, ViewProps, SafeAreaView } from 'react-native';
 
 interface SpacerProps extends ViewProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
@@ -65,6 +65,20 @@ export const Container: React.FC<ContainerProps> = ({
         return 'py-4';
     }
   };
+
+  // Para páginas completas, usar SafeAreaView
+  if (type === 'page') {
+    return (
+      <SafeAreaView style={{ flex: 1 }}>
+        <View 
+          className={`${getTypeStyles()} ${className}`}
+          {...props}
+        >
+          {children}
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <View 
