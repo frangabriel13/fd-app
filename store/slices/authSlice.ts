@@ -42,10 +42,18 @@ export const login = createAsyncThunk(
       await AsyncStorage.setItem('token', token);
       return { user, token };
     } catch (error: any) {
-      return rejectWithValue({
-        message: error.response?.data?.message || 'Error al iniciar sesión',
-        info: error.response?.data?.info || null,
-      });
+      // return rejectWithValue({
+      //   message: error.response?.data?.message || 'Error al iniciar sesión',
+      //   info: error.response?.data?.info || null,
+      // });
+      const errorMessage = error.response?.data?.message || 'Error al iniciar sesión';
+      const errorInfo = error.response?.data?.info || null;
+
+      if(errorMessage === 'El email aún no ha sido verificado') {
+        return rejectWithValue({ message: errorMessage, info: errorInfo });
+      } else {
+        return rejectWithValue({ message: errorMessage });
+      }
     }
   }
 );
