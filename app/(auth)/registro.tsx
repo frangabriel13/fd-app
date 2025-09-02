@@ -3,13 +3,16 @@ import { View, TextInput, Alert, ScrollView, TouchableOpacity } from 'react-nati
 import { router } from 'expo-router';
 import { Button, Container, H1, GoogleIcon } from '@/components/ui';
 import { registerUser } from '@/store/slices/userSlice';
+import { googleLogin } from '@/store/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { Typography } from '@/components/ui/Typography';
 import { registerUserValidator } from '@/utils/validators';
+import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
 
 export default function RegisterScreen() {
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector(state => state.user);
+  const { signIn: googleSignIn, isLoading: googleLoading, error: googleError } = useGoogleSignIn();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -50,9 +53,34 @@ export default function RegisterScreen() {
   };
 
   const handleGoogleLogin = async () => {
-    // TODO: Implementar lógica de autenticación con Google
-    Alert.alert('Google Login', 'Funcionalidad pendiente de implementar');
-  }
+    try {
+      const userInfo = await googleSignIn();
+      
+      if (userInfo && 'data' in userInfo && userInfo.data) {
+        const { idToken, user } = userInfo.data;
+        if (!idToken || !user.email || !user.name) {
+          Alert.alert('Error', 'Datos incompletos de Google Sign-In');
+          return;
+        }
+
+        const googleData = {
+          idToken,
+          email: user.email,
+          name: user.name,
+          photo: user.photo || '',
+        };
+
+        await dispatch(googleLogin(googleData)).unwrap();
+        router.replace('/(tabs)');
+      } else {
+        console.log('Respuesta de Google Sign-In:', userInfo);
+        Alert.alert('Error', 'Error en la respuesta de Google Sign-In');
+      }
+    } catch (error: any) {
+      console.error('Error en Google Sign-In:', error);
+      Alert.alert('Error', error.message || 'Error al iniciar sesión con Google');
+    }
+  };
 
   const isFormValid = formData.email && formData.password && formData.confirmPassword;
 
@@ -120,14 +148,19 @@ export default function RegisterScreen() {
         {/* Botón de Google */}
         <TouchableOpacity 
           onPress={handleGoogleLogin}
+          disabled={googleLoading}
           className="mb-4 flex-row items-center justify-center border border-gray-200 bg-white rounded-lg px-4 py-3 active:bg-gray-50 shadow-sm"
-          style={{ justifyContent: 'center', position: 'relative' }}
+          style={{ 
+            justifyContent: 'center', 
+            position: 'relative',
+            opacity: googleLoading ? 0.5 : 1 
+          }}
         >
           <View className="mr-3" style={{ position: 'absolute', left: 16 }}>
             <GoogleIcon size={20} />
           </View>
           <Typography variant="button" className="text-gray-700 font-mont-medium">
-            Continuar con Google
+            {googleLoading ? 'Conectando...' : 'Continuar con Google'}
           </Typography>
         </TouchableOpacity>
         
