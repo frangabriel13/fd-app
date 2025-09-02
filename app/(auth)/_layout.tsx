@@ -24,6 +24,13 @@ export default function AuthLayout() {
           headerShown: false 
         }} 
       />
+      <Stack.Screen 
+        name="verificar-cuenta" 
+        options={{ 
+          title: 'Verificar Cuenta',
+          headerShown: false 
+        }} 
+      />
     </Stack>
   );
 }
