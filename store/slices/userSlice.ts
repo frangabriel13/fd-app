@@ -35,6 +35,18 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+export const resendVerificationCode = createAsyncThunk(
+  'user/resend-verification-code',
+  async (email: string, { rejectWithValue }) => {
+    try {
+      const response = await userInstance.post('/resend-verification-code', { email });
+      return response.data.message;
+    } catch(error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al reenviar el código de verificación');
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -78,7 +90,20 @@ const userSlice = createSlice({
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      });
+      })
+      // resendVerificationCode
+      .addCase(resendVerificationCode.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resendVerificationCode.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(resendVerificationCode.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
   },
 });
 
