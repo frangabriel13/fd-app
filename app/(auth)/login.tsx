@@ -35,8 +35,11 @@ const LoginScreen = () => {
       const errorInfo = err.info?.message;
 
       // Mostrar el mensaje de error
-      // setError(errorInfo ? `${errorMessage}\n${errorInfo}` : errorMessage);
-      setError(errorInfo ? `${errorInfo}` : errorMessage);
+      if(errorMessage === 'El email aún no ha sido verificado') {
+        router.replace('/(auth)/verificar-cuenta');
+      } else {
+        setError(errorInfo ? `${errorInfo}` : errorMessage);
+      }
     } finally {
       setLoading(false);
     }

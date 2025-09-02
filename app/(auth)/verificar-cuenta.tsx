@@ -1,26 +1,9 @@
-// import { View, Text, StyleSheet } from 'react-native';
-
-// const VerifyAccountScreen = () => {
-//   return (
-//     <View style={styles.container}>
-//       <Text>VerifyAccountScreen</Text>
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     padding: 0,
-//   },
-// });
-
-
-// export default VerifyAccountScreen;
 import { useState } from 'react';
 import { View, TextInput, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Button, Container, H1 } from '@/components/ui';
 import { Typography } from '@/components/ui/Typography';
+import Feather from '@expo/vector-icons/Feather';
 
 const VerifyAccountScreen = () => {
   const [code, setCode] = useState(['', '', '', '', '', '']);
@@ -66,6 +49,13 @@ const VerifyAccountScreen = () => {
 
   return (
     <Container type="page" className="justify-center bg-primary">
+      <TouchableOpacity
+        onPress={() => router.replace('/(auth)/login')}
+        className="absolute top-8 left-4 rounded-full border border-white p-1"
+      >
+        <Feather name="arrow-left" size={24} color="white" />
+      </TouchableOpacity>
+      
       <H1 className="text-center mb-8 text-white">Verificar Cuenta</H1>
 
       {/* Mostrar errores si existen */}
@@ -94,9 +84,18 @@ const VerifyAccountScreen = () => {
         variant="primary"
         onPress={handleVerify}
         loading={loading}
-        className="rounded-md bg-secondary"
+        className="rounded-md bg-secondary mb-4"
       >
         Verificar Cuenta
+      </Button>
+
+      <Button 
+        variant="ghost"
+        // size='zero'
+        onPress={() => router.replace('/(auth)/login')}
+        className="text-white"
+      >
+        Reenviar código
       </Button>
     </Container>
   );
