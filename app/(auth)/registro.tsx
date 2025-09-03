@@ -39,11 +39,7 @@ export default function RegisterScreen() {
       }));
       
       if (registerUser.fulfilled.match(result)) {
-        Alert.alert(
-          'Éxito', 
-          'Cuenta creada exitosamente',
-          [{ text: 'OK', onPress: () => router.replace('/(auth)/login') }]
-        );
+        router.replace(`/(auth)/verificar-cuenta?email=${encodeURIComponent(formData.email)}`);
       } else if (registerUser.rejected.match(result)) {
         Alert.alert('Error', result.payload as string || 'Error al crear cuenta');
       }

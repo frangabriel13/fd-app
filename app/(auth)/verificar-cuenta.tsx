@@ -94,11 +94,11 @@ const VerifyAccountScreen = () => {
       <H1 className="text-center mb-8 text-white">Verificar Cuenta</H1>
 
       {/* Mostrar email para confirmar */}
-      {/* {email && (
+      {email && (
         <Typography variant="body" className="text-gray-300 mb-4 text-center">
-          Comprueba tu bandeja de entrada
+          Ingresa el código de 6 dígitos enviado a {email}
         </Typography>
-      )} */}
+      )}
 
       {/* Inputs para los 6 dígitos */}
       <View className="flex-row justify-center mb-6">
