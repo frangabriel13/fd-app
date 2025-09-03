@@ -35,6 +35,18 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+export const verifyAccount = createAsyncThunk(
+  'user/verify-with-code',
+  async (credentials: { email: string; code: string }, { rejectWithValue }) => {
+    try {
+      const response = await userInstance.post('/verify-with-code', credentials);
+      return response.data.user;
+    } catch(error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al verificar cuenta');
+    }
+  }
+)
+
 export const resendVerificationCode = createAsyncThunk(
   'user/resend-verification-code',
   async (email: string, { rejectWithValue }) => {
@@ -101,6 +113,19 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(resendVerificationCode.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      // verifyAccount
+      .addCase(verifyAccount.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(verifyAccount.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(verifyAccount.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAppDispatch } from '@/hooks/redux';
-import { resendVerificationCode } from '@/store/slices/userSlice';
+import { resendVerificationCode, verifyAccount } from '@/store/slices/userSlice';
 import { View, TextInput, TouchableOpacity } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Button, Container, H1 } from '@/components/ui';
@@ -50,10 +50,9 @@ const VerifyAccountScreen = () => {
       const verificationCode = code.join('');
       console.log('Código de verificación:', verificationCode);
 
-      // Aquí puedes agregar la lógica para verificar el código
-      // Ejemplo: await dispatch(verifyAccount(verificationCode)).unwrap();
+      await dispatch(verifyAccount({ email: email as string, code: verificationCode })).unwrap();
 
-      router.replace('/(tabs)'); // Navegar si la verificación es exitosa
+      router.replace('/(auth)/login'); // Navegar si la verificación es exitosa
     } catch (err: any) {
       setError(err.message || 'Error al verificar la cuenta');
     } finally {
