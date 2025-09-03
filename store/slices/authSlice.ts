@@ -98,6 +98,37 @@ export const logoutAsync = createAsyncThunk(
   }
 );
 
+export const forgotPassword = createAsyncThunk(
+  'auth/forgotPassword',
+  async(email: string, { rejectWithValue }) => {
+    try {
+      const response = await authInstance.post('/forgot-password', { email });
+      return response.data;
+    } catch(error: any) {
+      return rejectWithValue({
+        message: error.response?.data?.message || 'Error al solicitar restablecimiento de contraseña',
+      })
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk(
+  'auth/resetPassword',
+  async (
+    { token, password }: { token: string; password: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await authInstance.post(`/reset-password/${token}`, { password });
+      return response.data;
+    } catch(error: any) {
+      return rejectWithValue({
+        message: error.response?.data?.message || 'Error al restablecer la contraseña'
+      });
+    }
+  }
+)
+
 // Slice
 const authSlice = createSlice({
   name: 'auth',
@@ -155,7 +186,31 @@ const authSlice = createSlice({
       .addCase(logoutAsync.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as AuthError;
-      });
+      })
+      // forgotPassword
+      .addCase(forgotPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as AuthError;
+      })
+      // resetPassword
+      .addCase(resetPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as AuthError;
+      })
   },
 });
 
