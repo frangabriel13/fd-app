@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAppDispatch } from '@/hooks/redux';
 import { resendVerificationCode, verifyAccount } from '@/store/slices/userSlice';
 import { View, TextInput, TouchableOpacity } from 'react-native';
@@ -17,6 +17,9 @@ const VerifyAccountScreen = () => {
   const [resendLoading, setResendLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  // Refs para los inputs
+  const inputRefs = useRef<(TextInput | null)[]>([]);
+
   // Verificar que tenemos el email
   useEffect(() => {
     if (!email) {
@@ -32,8 +35,7 @@ const VerifyAccountScreen = () => {
 
     // Mover el foco al siguiente input automáticamente
     if (value && index < 5) {
-      const nextInput = document.getElementById(`digit-${index + 1}`);
-      nextInput?.focus();
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
@@ -104,7 +106,7 @@ const VerifyAccountScreen = () => {
         {code.map((digit, index) => (
           <TextInput
             key={index}
-            id={`digit-${index}`}
+            ref={(ref) => { inputRefs.current[index] = ref; }}
             value={digit}
             onChangeText={(value) => handleInputChange(value, index)}
             keyboardType="numeric"
