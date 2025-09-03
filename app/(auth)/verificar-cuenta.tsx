@@ -1,18 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppDispatch } from '@/hooks/redux';
 import { resendVerificationCode } from '@/store/slices/userSlice';
 import { View, TextInput, TouchableOpacity } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Button, Container, H1 } from '@/components/ui';
 import { Typography } from '@/components/ui/Typography';
 import Feather from '@expo/vector-icons/Feather';
 
 const VerifyAccountScreen = () => {
   const dispatch = useAppDispatch();
+  const { email } = useLocalSearchParams<{ email: string }>();
 
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Verificar que tenemos el email
+  useEffect(() => {
+    if (!email) {
+      setError('Email no encontrado. Por favor vuelve al login.');
+    }
+  }, [email]);
 
   const handleInputChange = (value: string, index: number) => {
     if (value.length > 1) return; // Solo permitir un carácter por input
@@ -51,6 +61,27 @@ const VerifyAccountScreen = () => {
     }
   };
 
+  const handleResendCode = async () => {
+    if (!email) {
+      setError('Email no encontrado. Por favor vuelve al login.');
+      return;
+    }
+
+    setResendLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      await dispatch(resendVerificationCode(email)).unwrap();
+      setSuccessMessage('Código de verificación reenviado exitosamente');
+      console.log('Código reenviado exitosamente');
+    } catch (err: any) {
+      setError(err || 'Error al reenviar el código');
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
   return (
     <Container type="page" className="justify-center bg-primary">
       <TouchableOpacity
@@ -62,12 +93,12 @@ const VerifyAccountScreen = () => {
       
       <H1 className="text-center mb-8 text-white">Verificar Cuenta</H1>
 
-      {/* Mostrar errores si existen */}
-      {error && (
-        <Typography variant="body" className="text-red-500 mb-4 text-center">
-          {error}
+      {/* Mostrar email para confirmar */}
+      {/* {email && (
+        <Typography variant="body" className="text-gray-300 mb-4 text-center">
+          Comprueba tu bandeja de entrada
         </Typography>
-      )}
+      )} */}
 
       {/* Inputs para los 6 dígitos */}
       <View className="flex-row justify-center mb-6">
@@ -96,11 +127,26 @@ const VerifyAccountScreen = () => {
       <Button 
         variant="ghost"
         // size='zero'
-        onPress={() => router.replace('/(auth)/login')}
+        onPress={handleResendCode}
+        loading={resendLoading}
         className="text-white"
       >
         Reenviar código
       </Button>
+
+      {/* Mostrar mensajes de éxito */}
+      {successMessage && (
+        <Typography variant="body" className="text-green-400 mb-4 text-center">
+          {successMessage}
+        </Typography>
+      )}
+
+      {/* Mostrar errores si existen */}
+      {error && (
+        <Typography variant="body" className="text-red-500 mb-4 text-center">
+          {error}
+        </Typography>
+      )}
     </Container>
   );
 };

@@ -36,7 +36,7 @@ const LoginScreen = () => {
 
       // Mostrar el mensaje de error
       if(errorMessage === 'El email aún no ha sido verificado') {
-        router.replace('/(auth)/verificar-cuenta');
+        router.replace(`/(auth)/verificar-cuenta?email=${encodeURIComponent(email)}`);
       } else {
         setError(errorInfo ? `${errorInfo}` : errorMessage);
       }
