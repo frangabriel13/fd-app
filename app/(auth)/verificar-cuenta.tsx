@@ -6,6 +6,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Button, Container, H1 } from '@/components/ui';
 import { Typography } from '@/components/ui/Typography';
 import Feather from '@expo/vector-icons/Feather';
+import SuccessModal from '@/components/modals/successModal';
 
 const VerifyAccountScreen = () => {
   const dispatch = useAppDispatch();
@@ -16,6 +17,7 @@ const VerifyAccountScreen = () => {
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Refs para los inputs
   const inputRefs = useRef<(TextInput | null)[]>([]);
@@ -54,7 +56,13 @@ const VerifyAccountScreen = () => {
 
       await dispatch(verifyAccount({ email: email as string, code: verificationCode })).unwrap();
 
-      router.replace('/(auth)/login'); // Navegar si la verificación es exitosa
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        router.replace('/(auth)/login');
+      }, 3000);
+
+      // router.replace('/(auth)/login');
     } catch (err: any) {
       setError(err.message || 'Error al verificar la cuenta');
     } finally {
@@ -85,69 +93,77 @@ const VerifyAccountScreen = () => {
 
   return (
     <Container type="page" className="justify-center bg-primary">
-      <TouchableOpacity
-        onPress={() => router.replace('/(auth)/login')}
-        className="absolute top-8 left-4 rounded-full border border-white p-1"
-      >
-        <Feather name="arrow-left" size={24} color="white" />
-      </TouchableOpacity>
-      
-      <H1 className="text-center mb-8 text-white">Verificar Cuenta</H1>
+      {showSuccessModal ? (
+      <SuccessModal
+        title="¡Email verificado correctamente!"
+        text="Serás redirigido a la pantalla de inicio de sesión en unos segundos..."
+      />
+    ) : (
+      <>
+        <TouchableOpacity
+          onPress={() => router.replace('/(auth)/login')}
+          className="absolute top-8 left-4 rounded-full border border-white p-1"
+        >
+          <Feather name="arrow-left" size={24} color="white" />
+        </TouchableOpacity>
+        
+        <H1 className="text-center mb-8 text-white">Verificar Cuenta</H1>
 
-      {/* Mostrar email para confirmar */}
-      {email && (
-        <Typography variant="body" className="text-gray-300 mb-4 text-center">
-          Ingresa el código de 6 dígitos enviado a {email}
-        </Typography>
-      )}
+        {/* Mostrar email para confirmar */}
+        {email && (
+          <Typography variant="body" className="text-gray-300 mb-4 text-center">
+            Ingresa el código de 6 dígitos enviado a {email}
+          </Typography>
+        )}
 
-      {/* Inputs para los 6 dígitos */}
-      <View className="flex-row justify-center mb-6">
-        {code.map((digit, index) => (
-          <TextInput
-            key={index}
-            ref={(ref) => { inputRefs.current[index] = ref; }}
-            value={digit}
-            onChangeText={(value) => handleInputChange(value, index)}
-            keyboardType="numeric"
-            maxLength={1}
-            className="border border-gray-200 bg-white rounded-md text-center text-lg font-mont-medium mx-2 w-12 h-12 text-gray-900"
-          />
-        ))}
-      </View>
+        {/* Inputs para los 6 dígitos */}
+        <View className="flex-row justify-center mb-6">
+          {code.map((digit, index) => (
+            <TextInput
+              key={index}
+              ref={(ref) => { inputRefs.current[index] = ref; }}
+              value={digit}
+              onChangeText={(value) => handleInputChange(value, index)}
+              keyboardType="numeric"
+              maxLength={1}
+              className="border border-gray-200 bg-white rounded-md text-center text-lg font-mont-medium mx-2 w-12 h-12 text-gray-900"
+            />
+          ))}
+        </View>
 
-      <Button
-        variant="primary"
-        onPress={handleVerify}
-        loading={loading}
-        className="rounded-md bg-secondary mb-4"
-      >
-        Verificar Cuenta
-      </Button>
+        <Button
+          variant="primary"
+          onPress={handleVerify}
+          loading={loading}
+          className="rounded-md bg-secondary mb-4"
+        >
+          Verificar Cuenta
+        </Button>
 
-      <Button 
-        variant="ghost"
-        // size='zero'
-        onPress={handleResendCode}
-        loading={resendLoading}
-        className="text-white"
-      >
-        Reenviar código
-      </Button>
+        <Button 
+          variant="ghost"
+          onPress={handleResendCode}
+          loading={resendLoading}
+          className="text-white"
+        >
+          Reenviar código
+        </Button>
 
-      {/* Mostrar mensajes de éxito */}
-      {successMessage && (
-        <Typography variant="body" className="text-green-400 mb-4 text-center">
-          {successMessage}
-        </Typography>
-      )}
+        {/* Mostrar mensajes de éxito */}
+        {successMessage && (
+          <Typography variant="body" className="text-green-400 mb-4 text-center">
+            {successMessage}
+          </Typography>
+        )}
 
-      {/* Mostrar errores si existen */}
-      {error && (
-        <Typography variant="body" className="text-red-500 mb-4 text-center">
-          {error}
-        </Typography>
-      )}
+        {/* Mostrar errores si existen */}
+        {error && (
+          <Typography variant="body" className="text-red-500 mb-4 text-center">
+            {error}
+          </Typography>
+        )}
+      </>
+    )}
     </Container>
   );
 };
