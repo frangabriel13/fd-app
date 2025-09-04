@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { setToken } from '@/store/slices/manufacturerSlice';
+import { useRouter } from 'expo-router';
 
 interface AuthContextType {
   isLoading: boolean;
@@ -17,13 +18,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const dispatch = useAppDispatch();
   const { token } = useAppSelector(state => state.auth);
-
-  console.log('token:', token);
+  const router = useRouter();
 
   useEffect(() => {
     const loadStoredAuth = async () => {
       try {
         const storedToken = await AsyncStorage.getItem('token');
+        console.log('Stored token:', storedToken);
         if (storedToken) {
           dispatch(setToken(storedToken));
         }
@@ -36,6 +37,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     loadStoredAuth();
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!isLoading && !token) {
+      router.replace('/(auth)/login');
+    }
+  }, [isLoading, token, router]);
 
   return (
     <AuthContext.Provider 
