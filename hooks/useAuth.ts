@@ -6,10 +6,10 @@ export function useAuth() {
   const { token, user, isAuthenticated } = useAppSelector(state => state.auth);
   const segments = useSegments();
 
-  console.log('Current segments:', segments);
-  console.log('Current user:', user);
-  console.log('Is authenticated:', isAuthenticated);
-  console.log('Current token:', token);
+  // console.log('Current segments:', segments);
+  // console.log('Current user:', user);
+  // console.log('Is authenticated:', isAuthenticated);
+  // console.log('Current token:', token);
 
   useEffect(() => {
     const inAuthGroup = segments[0] === '(auth)';

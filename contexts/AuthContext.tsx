@@ -16,7 +16,9 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const dispatch = useAppDispatch();
-  const { token } = useAppSelector(state => state.manufacturer);
+  const { token } = useAppSelector(state => state.auth);
+
+  console.log('token:', token);
 
   useEffect(() => {
     const loadStoredAuth = async () => {

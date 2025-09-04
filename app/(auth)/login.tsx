@@ -6,10 +6,10 @@ import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { login, googleLogin } from '@/store/slices/authSlice';
 import { Typography } from '@/components/ui/Typography';
 import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
-import { useAuth } from '@/hooks/useAuth';
+// import { useAuth } from '@/hooks/useAuth';
 
 const LoginScreen = () => {
-  useAuth();
+  // useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
