@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
-import { useAuth } from '@/hooks/useAuth';
+// import { useAuth } from '@/hooks/useAuth';
 
 import { HapticTab } from '@/components/HapticTab';
 import Header from '@/components/header/Header';
@@ -11,7 +11,7 @@ import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 
 export default function TabLayout() {
   // const colorScheme = useColorScheme();
-  useAuth();
+  // useAuth();
   
   return (
     <>
