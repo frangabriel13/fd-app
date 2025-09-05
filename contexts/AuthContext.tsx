@@ -7,17 +7,19 @@ import { useRouter } from 'expo-router';
 interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
+  userRole: string | null;
 }
 
 const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   isAuthenticated: false,
+  userRole: null,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const dispatch = useAppDispatch();
-  const { token } = useAppSelector(state => state.auth);
+  const { token, user } = useAppSelector(state => state.auth);
   const router = useRouter();
 
   useEffect(() => {
@@ -25,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const storedToken = await AsyncStorage.getItem('token');
         console.log('Stored token:', storedToken);
-        if (storedToken) {
+        if(storedToken) {
           dispatch(setToken(storedToken));
         }
       } catch (error) {
@@ -38,17 +40,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadStoredAuth();
   }, [dispatch]);
 
+  // useEffect(() => {
+  //   if (!isLoading && !token) {
+  //     router.replace('/(auth)/login');
+  //   }
+  // }, [isLoading, token, router]);
+
   useEffect(() => {
-    if (!isLoading && !token) {
-      router.replace('/(auth)/login');
+    if(!isLoading) {
+      if(!token) {
+        router.replace('/(auth)/login');
+      } else if(user?.role === null) {
+        router.replace('/(onboarding)/rol');
+      }
     }
-  }, [isLoading, token, router]);
+  }, [isLoading, token, user, router]);
 
   return (
     <AuthContext.Provider 
       value={{ 
         isLoading, 
-        isAuthenticated: !!token 
+        isAuthenticated: !!token,
+        userRole: user?.role || null,
       }}
     >
       {children}
