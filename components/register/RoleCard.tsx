@@ -5,16 +5,21 @@ const RoleCard = ({
   title,
   image,
   onPress,
+  isSelected,
 }: {
   role: 'mayorista' | 'fabricante';
   title: string;
   image: any;
   onPress: () => void;
+  isSelected: boolean;
 }) => {
   return (
     <TouchableOpacity
       onPress={onPress}
-      // className="border p-4 rounded-lg"
+      style={[
+        styles.card,
+        isSelected && styles.selectedCard,
+      ]}
     >
       <Image 
         source={image} 
@@ -26,6 +31,19 @@ const RoleCard = ({
 };
 
 const styles = StyleSheet.create({
+  card: {
+    borderWidth: 5,
+    borderColor: '#ccc', // Borde gris por defecto
+    borderRadius: 8,
+    // padding: 16,
+    // marginBottom: 16,
+    // alignItems: 'center',
+    backgroundColor: '#ccc',
+  },
+  selectedCard: {
+    backgroundColor: 'orange',
+    borderColor: 'orange', // Borde naranja si está seleccionado
+  },
   image: {
     width: '100%', // Ocupa todo el ancho del contenedor
     height: undefined, // Permite que el alto se ajuste automáticamente
