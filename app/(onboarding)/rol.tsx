@@ -23,33 +23,47 @@ const RoleSelectionScreen = () => {
   };
 
   return (
-    <Container type="page">
-      <H2>Elige una de las dos opciones</H2>
+    <Container type="page" style={styles.container}>
+      <View style={styles.content}>
+        <H2>Elige una de las dos opciones</H2>
 
-      <RoleCard
-        role="mayorista"
-        title="Mayorista"
-        image={Images.roleImages.wholesaler}
-        onPress={() => setSelectedRole('mayorista')}
-      />
-      <RoleCard
-        role="fabricante"
-        title="Fabricante"
-        image={Images.roleImages.manufacturer}
-        onPress={() => setSelectedRole('fabricante')}
-      />
+        <RoleCard
+          role="mayorista"
+          title="Mayorista"
+          image={Images.roleImages.wholesaler}
+          onPress={() => setSelectedRole('mayorista')}
+        />
+        <RoleCard
+          role="fabricante"
+          title="Fabricante"
+          image={Images.roleImages.manufacturer}
+          onPress={() => setSelectedRole('fabricante')}
+        />
+      </View>
 
       <Button
         variant="primary"
         onPress={handleContinue}
         disabled={!selectedRole}
-        className="mt-8 bg-primary"
+        className="bg-primary"
       >
         Continuar
       </Button>
     </Container>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+  },
+  content: {
+    flex: 1,
+    gap: 30,
+  },
+});
 
 
 export default RoleSelectionScreen;
