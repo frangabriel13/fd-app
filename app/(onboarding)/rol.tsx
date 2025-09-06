@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { Button, Container, H1, H2, BodyText } from '@/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import RoleCard from '@/components/register/RoleCard';
+import Images from '@/constants/Images';
 
 const RoleSelectionScreen = () => {
   const [selectedRole, setSelectedRole] = useState<'mayorista' | 'fabricante'>(null);
@@ -23,17 +24,19 @@ const RoleSelectionScreen = () => {
 
   return (
     <Container type="page">
-      <H1>Selecciona un rol</H1>
+      <H2>Elige una de las dos opciones</H2>
 
       <RoleCard
         role="mayorista"
         title="Mayorista"
-        image="https://via.placeholder.com/150"
+        image={Images.roleImages.wholesaler}
+        onPress={() => setSelectedRole('mayorista')}
       />
       <RoleCard
         role="fabricante"
         title="Fabricante"
-        image="https://via.placeholder.com/150"
+        image={Images.roleImages.manufacturer}
+        onPress={() => setSelectedRole('fabricante')}
       />
 
       <Button
