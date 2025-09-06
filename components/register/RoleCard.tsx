@@ -4,14 +4,16 @@ const RoleCard = ({
   role,
   title,
   image,
+  onPress,
 }: {
   role: 'mayorista' | 'fabricante';
   title: string;
   image: any;
+  onPress: () => void;
 }) => {
   return (
     <TouchableOpacity
-      onPress={() => setSelectedRole(role)}
+      onPress={onPress}
       // className="border p-4 rounded-lg"
     >
       <Image 
