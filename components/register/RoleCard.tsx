@@ -1,5 +1,4 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { H2 } from '@/components/ui';
 
 const RoleCard = ({
   role,
@@ -13,19 +12,25 @@ const RoleCard = ({
   return (
     <TouchableOpacity
       onPress={() => setSelectedRole(role)}
-      className="border p-4 rounded-lg"
+      // className="border p-4 rounded-lg"
     >
-      <Image source={image} style={{ width: 100, height: 100 }} />
-      <H2>{title}</H2>
+      <Image 
+        source={image} 
+        style={styles.image}
+        resizeMode="contain" // Ajusta la imagen sin distorsión
+      />
     </TouchableOpacity>
   );
 };
 
-// const styles = StyleSheet.create({
-//   container: {
-//     padding: 0,
-//   },
-// });
+const styles = StyleSheet.create({
+  image: {
+    width: '100%', // Ocupa todo el ancho del contenedor
+    height: undefined, // Permite que el alto se ajuste automáticamente
+    aspectRatio: 1200 / 800, // Relación de aspecto de la imagen
+    borderRadius: 8,
+  },
+});
 
 
 export default RoleCard;
