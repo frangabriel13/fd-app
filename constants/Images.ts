@@ -5,5 +5,10 @@ const sliderImages = {
   banner4: require('../assets/images/sliders/banner4.png'),
 };
 
+const roleImages = {
+  wholesaler: require('../assets/images/role1.png'),
+  manufacturer: require('../assets/images/role2.png'),
+};
 
-export default sliderImages;
+
+export default { sliderImages, roleImages };
