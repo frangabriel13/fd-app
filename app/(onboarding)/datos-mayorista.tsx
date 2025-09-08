@@ -3,6 +3,8 @@ import { View, StyleSheet, Alert } from 'react-native';
 import { Button, Container, H2, Input, PhoneInput, Typography} from '@/components/ui';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { createWholesaler } from '@/store/slices/wholesalerSlice';
+import { router } from 'expo-router';
+import { createWholesalerValidator } from '@/utils/validators';
 
 const DataWholesalerScreen = () => {
   const dispatch = useAppDispatch();
@@ -12,15 +14,24 @@ const DataWholesalerScreen = () => {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    userId: userId || '',
+    userId: userId || 0, // Cambiar a number
   });
 
   const handleSubmit = async () => {
     console.log('Submitting form data:', formData);
-    if(!formData.name || !formData.phone || !formData.userId) {
-      console.log('Form data incomplete:', formData);
-      Alert.alert('Error', 'Por favor completa todos los campos');
-      console.log('Form data incomplete:', formData);
+    
+    // Validar los datos del formulario usando el validador
+    const validationErrors = createWholesalerValidator(
+      formData.name, 
+      formData.phone, 
+      Number(formData.userId)
+    );
+    
+    if (Object.keys(validationErrors).length > 0) {
+      console.log('Validation errors:', validationErrors);
+      // Mostrar todos los errores de validación
+      const errorMessages = Object.values(validationErrors).join('\n');
+      Alert.alert('Error de validación', errorMessages);
       return;
     }
 
@@ -30,7 +41,7 @@ const DataWholesalerScreen = () => {
       const resultAction = await dispatch(createWholesaler({
         name: formData.name,
         phone: formData.phone,
-        userId: formData.userId
+        userId: Number(formData.userId) // Convertir a number explícitamente
       }));
       console.log('Result action:', resultAction);
 
@@ -47,7 +58,7 @@ const DataWholesalerScreen = () => {
         ]);
       } else if (createWholesaler.rejected.match(resultAction)) {
         // El error ya se maneja en el estado global
-        Alert.alert('Error', resultAction.payload || 'Error al crear mayorista');
+        Alert.alert('Error', (resultAction.payload as string) || 'Error al crear mayorista');
       }
     } catch (error) {
       console.log('Error inesperado:', error);
@@ -86,7 +97,7 @@ const DataWholesalerScreen = () => {
         {loading ? 'Creando...' : 'Continuar'}
       </Button>
 
-      {error && <Typography variant="error" className="text-center mt-4">{error}</Typography>}
+      {error && <Typography variant="body" style={styles.errorText}>{error}</Typography>}
     </Container>
   );
 };
@@ -102,7 +113,12 @@ const styles = StyleSheet.create({
   },
   inputsContainer: {
     gap: 16,
-  }
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    marginTop: 16,
+  },
 });
 
 
