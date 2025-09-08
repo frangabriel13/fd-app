@@ -24,6 +24,7 @@ export const createWholesaler = createAsyncThunk(
   'wholesaler/createWholesaler',
   async (wholesalerData: { name: string; phone: string, userId: number }, { rejectWithValue }) => {
     try {
+      console.log('Creating wholesaler with data:', wholesalerData);
       const response = await wholesalerInstance.post('/', wholesalerData);
       return response.data;
     } catch(error: any) {
