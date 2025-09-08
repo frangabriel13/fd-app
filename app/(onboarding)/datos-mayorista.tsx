@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, Alert, TextInput } from 'react-native';
 import { router } from 'expo-router';
-import { Button, Container, H2, BodyText, Input } from '@/components/ui';
+import { Button, Container, H2, BodyText, Input, PhoneInput } from '@/components/ui';
 import { useAppDispatch } from '@/hooks/redux';
 
 
@@ -31,7 +31,7 @@ const DataWholesalerScreen = () => {
             // onChangeText={setValue}
             // error={error}
           />
-          <Input
+          <PhoneInput
             label="Teléfono"
             keyboardType="phone-pad"
           />
