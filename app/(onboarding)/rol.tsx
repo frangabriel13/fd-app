@@ -32,12 +32,14 @@ const RoleSelectionScreen = () => {
           title="Mayorista"
           image={Images.roleImages.wholesaler}
           onPress={() => setSelectedRole('mayorista')}
+          isSelected={selectedRole === 'mayorista'}
         />
         <RoleCard
           role="fabricante"
           title="Fabricante"
           image={Images.roleImages.manufacturer}
           onPress={() => setSelectedRole('fabricante')}
+          isSelected={selectedRole === 'fabricante'}
         />
       </View>
 
