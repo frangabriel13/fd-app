@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { Button, Container, H1, H2, BodyText } from '@/components/ui';
-import { Ionicons } from '@expo/vector-icons';
+import { Button, Container, H2 } from '@/components/ui';
 import RoleCard from '@/components/register/RoleCard';
 import Images from '@/constants/Images';
 
@@ -59,7 +58,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
   },
   content: {
     flex: 1,
