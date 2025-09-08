@@ -23,7 +23,7 @@ const DataWholesalerScreen = () => {
       <View style={styles.content}>
         <H2>Ingresar datos</H2>
 
-        <View>
+        <View style={styles.inputsContainer}>
           <Input
             label="Nombre y Apellido"
             // placeholder="Nombre del negocio"
@@ -56,9 +56,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   content: {
-      flex: 1,
-      gap: 30,
-    },
+    flex: 1,
+    gap: 30,
+  },
+  inputsContainer: {
+    gap: 16,
+  }
 });
 
 
