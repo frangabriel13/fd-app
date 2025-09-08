@@ -1,20 +1,59 @@
 import { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Button, Container, H2, Input, PhoneInput } from '@/components/ui';
+import { View, StyleSheet, Alert } from 'react-native';
+import { Button, Container, H2, Input, PhoneInput, Typography} from '@/components/ui';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { createWholesaler } from '@/store/slices/wholesalerSlice';
 
 const DataWholesalerScreen = () => {
   const dispatch = useAppDispatch();
   const userId = useAppSelector(state => state.auth.user?.id);
-  const [loading, setLoading] = useState(false);
+  const { loading, error, success } = useAppSelector(state => state.wholesaler);
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     userId: userId || '',
   });
 
-  const handleSubmit = () => {
-    console.log('Form Data:', formData);
+  const handleSubmit = async () => {
+    console.log('Submitting form data:', formData);
+    if(!formData.name || !formData.phone || !formData.userId) {
+      console.log('Form data incomplete:', formData);
+      Alert.alert('Error', 'Por favor completa todos los campos');
+      console.log('Form data incomplete:', formData);
+      return;
+    }
+
+    try {
+      // Despachar la acción createWholesaler
+      console.log('Dispatching createWholesaler with:');
+      const resultAction = await dispatch(createWholesaler({
+        name: formData.name,
+        phone: formData.phone,
+        userId: formData.userId
+      }));
+      console.log('Result action:', resultAction);
+
+      // Verificar si la acción fue exitosa
+      if (createWholesaler.fulfilled.match(resultAction)) {
+        Alert.alert('Éxito', 'Mayorista creado correctamente', [
+          {
+            text: 'OK',
+            onPress: () => {
+              // Redirigir a la siguiente pantalla o cerrar onboarding
+              router.push('/(tabs)'); // O la ruta que corresponda
+            }
+          }
+        ]);
+      } else if (createWholesaler.rejected.match(resultAction)) {
+        // El error ya se maneja en el estado global
+        Alert.alert('Error', resultAction.payload || 'Error al crear mayorista');
+      }
+    } catch (error) {
+      console.log('Error inesperado:', error);
+      console.error('Error inesperado:', error);
+      Alert.alert('Error', 'Ocurrió un error inesperado');
+    }
   };
 
   return (
@@ -25,7 +64,6 @@ const DataWholesalerScreen = () => {
         <View style={styles.inputsContainer}>
           <Input
             label="Nombre y Apellido"
-            // placeholder="Ingresa tu nombre completo"
             value={formData.name}
             onChangeText={(text) => setFormData(prev => ({ ...prev, name: text }))}
           />
@@ -36,7 +74,6 @@ const DataWholesalerScreen = () => {
             onPhoneChange={(fullPhone, countryCode, phone) => {
               setFormData(prev => ({ ...prev, phone: fullPhone }));
             }}
-            // placeholder="Número de teléfono"
           />
         </View>
       </View>
@@ -44,11 +81,12 @@ const DataWholesalerScreen = () => {
       <Button
         variant="primary"
         onPress={handleSubmit}
-        // disabled={!selectedRole}
         className="bg-primary"
       >
-        Continuar
+        {loading ? 'Creando...' : 'Continuar'}
       </Button>
+
+      {error && <Typography variant="error" className="text-center mt-4">{error}</Typography>}
     </Container>
   );
 };

@@ -6,6 +6,7 @@ import { persistReducer, persistStore } from 'redux-persist';
 import userSlice from './slices/userSlice';
 import manufacturerSlice from './slices/manufacturerSlice';
 import authSlice from './slices/authSlice';
+import wholesalerSlice from './slices/wholesalerSlice';
 // import cartSlice from './slices/cartSlice';
 
 // Combine all reducers
@@ -13,14 +14,14 @@ const rootReducer = combineReducers({
   user: userSlice,
   manufacturer: manufacturerSlice,
   auth: authSlice,
-  // cart: cartSlice,
+  wholesaler: wholesalerSlice,
 });
 
 // Persist configuration
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['user', 'manufacturer', 'auth'], // Only persist these reducers
+  whitelist: ['user', 'manufacturer', 'auth', 'wholesaler'], // Only persist these reducers
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
