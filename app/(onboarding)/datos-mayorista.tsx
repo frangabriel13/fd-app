@@ -16,6 +16,10 @@ const DataWholesalerScreen = () => {
     phone: '',
     userId: userId || 0, // Cambiar a number
   });
+  const [formErrors, setFormErrors] = useState({
+    name: '',
+    phone: '',
+  });
 
   const handleSubmit = async () => {
     console.log('Submitting form data:', formData);
@@ -30,8 +34,11 @@ const DataWholesalerScreen = () => {
     if (Object.keys(validationErrors).length > 0) {
       console.log('Validation errors:', validationErrors);
       // Mostrar todos los errores de validación
-      const errorMessages = Object.values(validationErrors).join('\n');
-      Alert.alert('Error de validación', errorMessages);
+      setFormErrors({
+        name: validationErrors.name || '',
+        phone: validationErrors.phone || '',
+      });
+
       return;
     }
 
@@ -75,6 +82,7 @@ const DataWholesalerScreen = () => {
         <View style={styles.inputsContainer}>
           <Input
             label="Nombre y Apellido"
+            error={formErrors.name}
             value={formData.name}
             onChangeText={(text) => setFormData(prev => ({ ...prev, name: text }))}
           />
@@ -82,6 +90,7 @@ const DataWholesalerScreen = () => {
             label="Teléfono"
             defaultCountryCode="AR"
             value={formData.phone}
+            error={formErrors.phone}
             onPhoneChange={(fullPhone, countryCode, phone) => {
               setFormData(prev => ({ ...prev, phone: fullPhone }));
             }}
