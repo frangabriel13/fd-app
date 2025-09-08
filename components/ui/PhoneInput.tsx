@@ -55,7 +55,11 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
   const handleChangeText = (text: string) => {
     // Limpiar el texto para que solo contenga números y espacios
     const cleanText = text.replace(/[^\d\s]/g, '');
-    const fullPhone = `${selectedCountry.callingCode} ${cleanText}`;
+    const fullPhone = `${selectedCountry.callingCode} ${cleanText}`.trim();
+    
+    console.log('Texto ingresado:', text);
+    console.log('Texto limpio:', cleanText);
+    console.log('Teléfono completo:', fullPhone);
     
     if (onChangeText) {
       onChangeText(fullPhone);
@@ -97,7 +101,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
         {/* Input para el número */}
         <TextInput
           style={styles.phoneInput}
-          placeholder="Número de teléfono"
+          // placeholder="Número de teléfono"
           keyboardType="phone-pad"
           value={phoneNumber}
           onChangeText={handleChangeText}
@@ -127,12 +131,15 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
               </TouchableOpacity>
             </View>
             
-            <FlatList
-              data={COUNTRIES}
-              keyExtractor={(item) => item.code}
-              renderItem={renderCountryItem}
-              style={styles.countriesList}
-            />
+            <View style={styles.countriesContainer}>
+              <FlatList
+                data={COUNTRIES}
+                keyExtractor={(item) => item.code}
+                renderItem={renderCountryItem}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 20 }}
+              />
+            </View>
           </View>
         </View>
       </Modal>
@@ -204,7 +211,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: '80%',
+    height: '80%', // Cambiado de maxHeight a height
   },
   modalHeader: {
     flexDirection: 'row',
@@ -228,6 +235,11 @@ const styles = StyleSheet.create({
   },
   countriesList: {
     flex: 1,
+    paddingHorizontal: 0, // Asegurar que no haya padding extra
+  },
+  countriesContainer: {
+    flex: 1,
+    paddingTop: 0,
   },
   countryItem: {
     flexDirection: 'row',
