@@ -26,14 +26,18 @@ const DataWholesalerScreen = () => {
         <View style={styles.inputsContainer}>
           <Input
             label="Nombre y Apellido"
-            // placeholder="Nombre del negocio"
-            // value={formData.name}
-            // onChangeText={setValue}
-            // error={error}
+            // placeholder="Ingresa tu nombre completo"
+            value={formData.name}
+            onChangeText={(text) => setFormData(prev => ({ ...prev, name: text }))}
           />
           <PhoneInput
             label="Teléfono"
-            keyboardType="phone-pad"
+            defaultCountryCode="AR"
+            value={formData.phone}
+            onPhoneChange={(fullPhone, countryCode, phone) => {
+              setFormData(prev => ({ ...prev, phone: fullPhone }));
+            }}
+            // placeholder="Número de teléfono"
           />
         </View>
       </View>
