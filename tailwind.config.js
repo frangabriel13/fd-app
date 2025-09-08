@@ -28,6 +28,7 @@ module.exports = {
           600: '#4b5563',
           400: '#9ca3af',
           200: '#d1d5db',
+          150: '#e5e7eb',
           100: '#f3f4f6', // Usado para fondos claros
         },
       },
