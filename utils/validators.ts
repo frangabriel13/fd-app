@@ -23,3 +23,26 @@ export const registerUserValidator = (email: string, password: string, confirmPa
 
   return errors;
 };
+
+export const createWholesalerValidator = (name: string, phone: string, userId: number) => {
+  let errors: { [key: string]: string } = {};
+
+  if (!name) {
+    errors.name = 'El nombre es requerido';
+  } else if (name.length < 3) {
+    errors.name = 'El nombre debe tener al menos 3 caracteres';
+  }
+
+  const phoneRegex = /^\+?\d{7,15}$/;
+  if (!phone) {
+    errors.phone = 'El teléfono es requerido';
+  } else if (!phoneRegex.test(phone)) {
+    errors.phone = 'El teléfono es inválido';
+  }
+
+  if (!userId || userId <= 0) {
+    errors.userId = 'El ID de usuario es inválido';
+  }
+
+  return errors;
+};
