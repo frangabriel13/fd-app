@@ -1,17 +1,16 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, Alert, TextInput } from 'react-native';
-import { router } from 'expo-router';
-import { Button, Container, H2, BodyText, Input, PhoneInput } from '@/components/ui';
-import { useAppDispatch } from '@/hooks/redux';
-
+import { View, StyleSheet } from 'react-native';
+import { Button, Container, H2, Input, PhoneInput } from '@/components/ui';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 
 const DataWholesalerScreen = () => {
   const dispatch = useAppDispatch();
+  const userId = useAppSelector(state => state.auth.user?.id);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    // userId
+    userId: userId || '',
   });
 
   const handleSubmit = () => {
