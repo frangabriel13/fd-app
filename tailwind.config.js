@@ -23,6 +23,13 @@ module.exports = {
           200: '#ea580c',
           100: '#ffedd5',
         },
+        gray: {
+          DEFAULT: '#6b7280',
+          600: '#4b5563',
+          400: '#9ca3af',
+          200: '#d1d5db',
+          100: '#f3f4f6', // Usado para fondos claros
+        },
       },
       fontFamily: {
         'mont-black': ['Montserrat-Black', 'sans-serif'],
@@ -35,4 +42,3 @@ module.exports = {
   },
   plugins: [],
 }
-
