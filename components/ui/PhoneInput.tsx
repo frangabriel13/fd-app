@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TextInputProps, TouchableOpacity, Text, TextInput, Modal, FlatList } from 'react-native';
-import { BodyText } from './Typography';
+import { BodyText, Caption } from './Typography';
 
 // Lista de países más comunes con sus códigos
 const COUNTRIES = [
@@ -57,10 +57,6 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
     const cleanText = text.replace(/[^\d\s]/g, '');
     const fullPhone = `${selectedCountry.callingCode} ${cleanText}`.trim();
     
-    console.log('Texto ingresado:', text);
-    console.log('Texto limpio:', cleanText);
-    console.log('Teléfono completo:', fullPhone);
-    
     if (onChangeText) {
       onChangeText(fullPhone);
     }
@@ -75,10 +71,10 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
       style={styles.countryItem}
       onPress={() => handleSelectCountry(item)}
     >
-      <Text style={styles.flag}>{item.flag}</Text>
+      <Text className='font-mont-regular' style={styles.flag}>{item.flag}</Text>
       <View style={styles.countryInfo}>
-        <Text style={styles.countryName}>{item.name}</Text>
-        <Text style={styles.countryCallingCode}>{item.callingCode}</Text>
+        <Text className='font-mont-medium' style={styles.countryName}>{item.name}</Text>
+        <Text className='font-mont-regular' style={styles.countryCallingCode}>{item.callingCode}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -93,14 +89,15 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
           style={styles.countrySelector}
           onPress={() => setShowCountryPicker(true)}
         >
-          <Text style={styles.flag}>{selectedCountry.flag}</Text>
-          <Text style={styles.callingCode}>{selectedCountry.callingCode}</Text>
-          <Text style={styles.arrow}>▼</Text>
+          <Text className='font-mont-regular' style={styles.flag}>{selectedCountry.flag}</Text>
+          <Text className='font-mont-regular' style={styles.callingCode}>{selectedCountry.callingCode}</Text>
+          <Text className='font-mont-regular' style={styles.arrow}>▼</Text>
         </TouchableOpacity>
 
         {/* Input para el número */}
         <TextInput
           style={styles.phoneInput}
+          className='font-mont-regular'
           // placeholder="Número de teléfono"
           keyboardType="phone-pad"
           value={phoneNumber}
@@ -110,7 +107,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
       </View>
 
       {/* Error message */}
-      {error && <Text style={styles.error}>{error}</Text>}
+      {error && <Caption style={styles.error}>{error}</Caption>}
 
       {/* Country Picker Modal */}
       <Modal
@@ -122,12 +119,12 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Seleccionar país</Text>
+              <Text className='font-mont-medium' style={styles.modalTitle}>Seleccionar país</Text>
               <TouchableOpacity
                 onPress={() => setShowCountryPicker(false)}
                 style={styles.closeButton}
               >
-                <Text style={styles.closeButtonText}>✕</Text>
+                <Text className='font-mont-regular' style={styles.closeButtonText}>✕</Text>
               </TouchableOpacity>
             </View>
             
@@ -152,7 +149,6 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   label: {
-    marginBottom: 2,
   },
   container: {
     flexDirection: 'row',
@@ -169,14 +165,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
-    paddingVertical: 12,
     borderRightWidth: 1,
     borderRightColor: '#e5e5e5',
     backgroundColor: '#f9f9f9',
-    minWidth: 100,
   },
   flag: {
-    fontSize: 18,
+    fontSize: 16,
     marginRight: 8,
   },
   callingCode: {
@@ -186,7 +180,7 @@ const styles = StyleSheet.create({
   },
   arrow: {
     marginLeft: 4,
-    fontSize: 10,
+    fontSize: 16,
     color: '#666',
   },
   phoneInput: {
@@ -194,11 +188,9 @@ const styles = StyleSheet.create({
     height: 48,
     paddingHorizontal: 12,
     fontSize: 16,
-    color: '#333',
+    // color: '#333',
   },
   error: {
-    marginTop: 4,
-    fontSize: 12,
     color: 'red',
   },
   // Modal styles
@@ -254,8 +246,8 @@ const styles = StyleSheet.create({
   },
   countryName: {
     fontSize: 16,
-    color: '#333',
-    fontWeight: '500',
+    // color: '#333',
+    // fontWeight: '500',
   },
   countryCallingCode: {
     fontSize: 14,

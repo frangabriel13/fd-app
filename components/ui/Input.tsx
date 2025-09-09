@@ -13,9 +13,10 @@ export const Input: React.FC<InputProps> = ({ label, error, style, ...props }) =
       {label && <BodyText>{label}</BodyText>}
       <TextInput
         style={[styles.input, error && styles.inputError, style]}
+        className='font-mont-regular'
         {...props}
       />
-      {error && <Caption>{error}</Caption>}
+      {error && <Caption style={styles.error}>{error}</Caption>}
     </View>
   );
 };
