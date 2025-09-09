@@ -55,10 +55,10 @@ const wholesalerSlice = createSlice({
       state.success = true;
       state.error = null;
     })
-    .addCase(createWholesaler.rejected, (state, action: PayloadAction<string>) => {
+    .addCase(createWholesaler.rejected, (state, action) => {
       state.loading = false;
       state.success = false;
-      state.error = action.payload;
+      state.error = action.payload as string || 'Error al crear mayorista';
     });
   }
 })
