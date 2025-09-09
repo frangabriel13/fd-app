@@ -5,12 +5,14 @@ import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { createWholesaler } from '@/store/slices/wholesalerSlice';
 import { router } from 'expo-router';
 import { createWholesalerValidator } from '@/utils/validators';
+import SuccessModal from '@/components/modals/successModal';
 
 const DataWholesalerScreen = () => {
   const dispatch = useAppDispatch();
   const userId = useAppSelector(state => state.auth.user?.id);
   const { loading, error, success } = useAppSelector(state => state.wholesaler);
 
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -54,15 +56,11 @@ const DataWholesalerScreen = () => {
 
       // Verificar si la acción fue exitosa
       if (createWholesaler.fulfilled.match(resultAction)) {
-        Alert.alert('Éxito', 'Mayorista creado correctamente', [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Redirigir a la siguiente pantalla o cerrar onboarding
-              router.push('/(tabs)'); // O la ruta que corresponda
-            }
-          }
-        ]);
+        setShowSuccessModal(true); // Mostrar el modal de éxito
+        // setTimeout(() => {
+        //   setShowSuccessModal(false);
+        //   router.push('/(tabs)');
+        // }, 3000);
       } else if (createWholesaler.rejected.match(resultAction)) {
         // El error ya se maneja en el estado global
         Alert.alert('Error', (resultAction.payload as string) || 'Error al crear mayorista');
@@ -75,7 +73,15 @@ const DataWholesalerScreen = () => {
   };
 
   return (
-    <Container  type="page" style={styles.container}>
+    showSuccessModal ? (
+    <Container type="page" className="justify-center bg-primary">
+      <SuccessModal
+        title="¡Éxito!"
+        text="El mayorista ha sido creado correctamente."
+      />
+    </Container>
+  ) : (
+    <Container type="page" style={styles.container}>
       <View style={styles.content}>
         <H2>Ingresar datos</H2>
 
@@ -84,7 +90,7 @@ const DataWholesalerScreen = () => {
             label="Nombre y Apellido"
             error={formErrors.name}
             value={formData.name}
-            onChangeText={(text) => setFormData(prev => ({ ...prev, name: text }))}
+            onChangeText={(text) => setFormData((prev) => ({ ...prev, name: text }))}
           />
           <PhoneInput
             label="Teléfono"
@@ -92,7 +98,7 @@ const DataWholesalerScreen = () => {
             value={formData.phone}
             error={formErrors.phone}
             onPhoneChange={(fullPhone, countryCode, phone) => {
-              setFormData(prev => ({ ...prev, phone: fullPhone }));
+              setFormData((prev) => ({ ...prev, phone: fullPhone }));
             }}
           />
         </View>
@@ -101,6 +107,8 @@ const DataWholesalerScreen = () => {
       <Button
         variant="primary"
         onPress={handleSubmit}
+        loading={loading}
+        disabled={!formData.name || !formData.phone || loading}
         className="bg-primary"
       >
         {loading ? 'Creando...' : 'Continuar'}
@@ -108,6 +116,7 @@ const DataWholesalerScreen = () => {
 
       {error && <Typography variant="body" style={styles.errorText}>{error}</Typography>}
     </Container>
+  )
   );
 };
 
