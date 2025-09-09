@@ -50,11 +50,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if(!isLoading) {
       if(!token) {
         router.replace('/(auth)/login');
-      } else if(user?.role === null) {
+      } 
+      else if(user?.role === null) {
         router.replace('/(onboarding)/rol');
       }
     }
   }, [isLoading, token, user, router]);
+
+  console.log('userRole:', user?.role);
 
   return (
     <AuthContext.Provider 
