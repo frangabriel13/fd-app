@@ -33,7 +33,7 @@ export const createWholesalerValidator = (name: string, phone: string, userId: n
     errors.name = 'El nombre debe tener al menos 3 caracteres';
   }
 
-  const phoneRegex = /^\+?\d{7,15}$/;
+  const phoneRegex = /^\+?\d{1,4}(\s?\d{1,15}){1,}$/;
   if (!phone) {
     errors.phone = 'El teléfono es requerido';
   } else if (!phoneRegex.test(phone)) {
