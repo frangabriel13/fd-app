@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Button, Container, H2, Input, PhoneInput, Typography} from '@/components/ui';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
@@ -6,11 +6,13 @@ import { createWholesaler } from '@/store/slices/wholesalerSlice';
 import { router } from 'expo-router';
 import { createWholesalerValidator } from '@/utils/validators';
 import SuccessModal from '@/components/modals/successModal';
+import { useModal } from '@/contexts/ModalContext';
 
 const DataWholesalerScreen = () => {
   const dispatch = useAppDispatch();
   const userId = useAppSelector(state => state.auth.user?.id);
-  const { loading, error, success } = useAppSelector(state => state.wholesaler);
+  const { loading, error } = useAppSelector(state => state.wholesaler);
+  const { setSuccessModalVisible } = useModal();
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -22,6 +24,13 @@ const DataWholesalerScreen = () => {
     name: '',
     phone: '',
   });
+
+  // Limpiar el estado del modal cuando el componente se desmonte
+  useEffect(() => {
+    return () => {
+      setSuccessModalVisible(false);
+    };
+  }, [setSuccessModalVisible]);
 
   const handleSubmit = async () => {
     console.log('Submitting form data:', formData);
@@ -57,10 +66,14 @@ const DataWholesalerScreen = () => {
       // Verificar si la acción fue exitosa
       if (createWholesaler.fulfilled.match(resultAction)) {
         setShowSuccessModal(true); // Mostrar el modal de éxito
-        // setTimeout(() => {
-        //   setShowSuccessModal(false);
-        //   router.push('/(tabs)');
-        // }, 3000);
+        setSuccessModalVisible(true); // Actualizar el contexto para desactivar el botón back
+        
+        // Navegar a las tabs después de 3 segundos
+        setTimeout(() => {
+          setShowSuccessModal(false);
+          setSuccessModalVisible(false);
+          router.push('/(tabs)');
+        }, 3000);
       } else if (createWholesaler.rejected.match(resultAction)) {
         // El error ya se maneja en el estado global
         Alert.alert('Error', (resultAction.payload as string) || 'Error al crear mayorista');
@@ -76,8 +89,8 @@ const DataWholesalerScreen = () => {
     showSuccessModal ? (
     <Container type="page" className="justify-center bg-primary">
       <SuccessModal
-        title="¡Éxito!"
-        text="El mayorista ha sido creado correctamente."
+        title="¡Registrato con éxito!"
+        text="Será redireccionado a la página de inicio."
       />
     </Container>
   ) : (
