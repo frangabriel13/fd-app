@@ -1,4 +1,4 @@
-import sliderImages from '@/constants/Images';
+import Images from '@/constants/Images';
 import { useEffect, useRef, useState } from 'react';
 import { Dimensions, Image, NativeScrollEvent, NativeSyntheticEvent, ScrollView, StyleSheet, View } from 'react-native';
 
@@ -6,10 +6,10 @@ const { width } = Dimensions.get('window');
 const aspectRatio = 1920 / 750;
 
 const images = [
-  sliderImages.banner1,
-  sliderImages.banner2,
-  sliderImages.banner3,
-  sliderImages.banner4,
+  Images.sliderImages.banner1,
+  Images.sliderImages.banner2,
+  Images.sliderImages.banner3,
+  Images.sliderImages.banner4,
 ];
 
 const loopedImages = [images[images.length - 1], ...images, images[0]];
