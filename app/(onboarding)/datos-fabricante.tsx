@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
-import { Button, Container, H2, Input, InputMoney, PhoneInput, Typography} from '@/components/ui';
+import { Button, Container, H2, Input, InputMoney, PhoneInput, InputSelect, Typography} from '@/components/ui';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { createManufacturer } from '@/store/slices/manufacturerSlice';
 import { router } from 'expo-router';
@@ -140,6 +140,13 @@ const DataManufacturerScreen = () => {
               }}
             />
           </View>
+          <InputSelect
+            label="¿Cuénta con punto de venta?"
+            options={[
+              { label: 'Sí', value: 'true' },
+              { label: 'No', value: 'false' }
+            ]} 
+          />
         </View>
   
         <Button
