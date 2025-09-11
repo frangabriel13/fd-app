@@ -105,7 +105,7 @@ const DataManufacturerScreen = () => {
           title="¡Registrato con éxito!"
           text="Será redireccionado a la página de inicio."
         />
-    </Container>
+      </Container>
     ) : (
       <Container type="page" style={styles.container}>
         <View style={styles.content}>
@@ -145,7 +145,9 @@ const DataManufacturerScreen = () => {
             options={[
               { label: 'Sí', value: 'true' },
               { label: 'No', value: 'false' }
-            ]} 
+            ]}
+            value={formData.pointOfSale}
+            onValueChange={(value) => setFormData((prev) => ({ ...prev, pointOfSale: value }))}
           />
         </View>
   
