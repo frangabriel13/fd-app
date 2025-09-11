@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
-import { Button, Container, H2, Input, PhoneInput, Typography} from '@/components/ui';
+import { Button, Container, H2, Input, InputMoney, PhoneInput, Typography} from '@/components/ui';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { createManufacturer } from '@/store/slices/manufacturerSlice';
 import { router } from 'expo-router';
@@ -114,9 +114,21 @@ const DataManufacturerScreen = () => {
           <View style={styles.inputsContainer}>
             <Input
               label="Nombre y Apellido"
+              error={formErrors.owner}
+              value={formData.owner}
+              onChangeText={(text) => setFormData((prev) => ({ ...prev, owner: text }))}
+            />
+            <Input
+              label="Nombre de la tienda"
               error={formErrors.name}
               value={formData.name}
               onChangeText={(text) => setFormData((prev) => ({ ...prev, name: text }))}
+            />
+            <InputMoney
+              label="Monto mínimo"
+              error={formErrors.minPurchase}
+              value={formData.minPurchase.toString()}
+              onChangeText={(text) => setFormData((prev) => ({ ...prev, minPurchase: Number(text) || 0 }))}
             />
             <PhoneInput
               label="Teléfono"
