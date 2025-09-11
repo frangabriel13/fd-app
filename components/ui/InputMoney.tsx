@@ -47,7 +47,6 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   label: {
-    marginBottom: 4,
   },
   container: {
     flexDirection: 'row',
@@ -78,7 +77,6 @@ const styles = StyleSheet.create({
     height: 48,
     paddingHorizontal: 12,
     fontSize: 16,
-    // color: '#333',
   },
   error: {
     color: 'red',
