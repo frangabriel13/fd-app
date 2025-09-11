@@ -8,4 +8,4 @@ export { GoogleIcon } from './GoogleIcon';
 export { Input } from './Input';
 export { PhoneInput } from './PhoneInput';
 export { InputMoney } from './InputMoney';
-
+export { InputSelect } from './InputSelect';
