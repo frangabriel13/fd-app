@@ -155,7 +155,7 @@ const DataManufacturerScreen = () => {
           variant="primary"
           onPress={handleSubmit}
           loading={loading}
-          disabled={!formData.name || !formData.phone || loading}
+          disabled={!formData.name || !formData.phone || !formData.pointOfSale || loading}
           className="bg-primary"
         >
           {loading ? 'Creando...' : 'Continuar'}
