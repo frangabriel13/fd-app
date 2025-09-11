@@ -11,6 +11,8 @@ interface Manufacturer {
   pointOfSale: string;
   street: string;
   owner: string;
+  galleryName?: string;
+  storeNumber?: string;
   phone: string;
   minPurchase: number;
   userId: number;
@@ -53,6 +55,8 @@ export const createManufacturer = createAsyncThunk(
     phone: string;
     minPurchase: number;
     userId: number;
+    galleryName?: string;
+    storeNumber?: string;
   }, { rejectWithValue }) => {
     try {
       const response = await manufacturerInstance.post('/', manufacturerData);
