@@ -50,7 +50,13 @@ const DataManufacturerScreen = () => {
       const validationErrors = createManufacturerValidator(
         formData.name, 
         formData.phone, 
-        Number(formData.userId)
+        Number(formData.userId),
+        formData.pointOfSale,
+        formData.street,
+        formData.galleryName,
+        formData.storeNumber,
+        formData.owner,
+        formData.minPurchase
       );
       
       if (Object.keys(validationErrors).length > 0) {
@@ -79,7 +85,9 @@ const DataManufacturerScreen = () => {
           street: formData.street,
           owner: formData.owner,
           minPurchase: formData.minPurchase,
-          userId: Number(formData.userId)
+          userId: Number(formData.userId),
+          galleryName: formData.galleryName || undefined,
+          storeNumber: formData.storeNumber || undefined,
         }));
   
         // Verificar si la acción fue exitosa
