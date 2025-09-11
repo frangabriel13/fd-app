@@ -19,6 +19,8 @@ const DataManufacturerScreen = () => {
     name: '',
     pointOfSale: '',
     street: '',
+    galleryName: '',
+    storeNumber: '',
     owner: '',
     phone: '',
     minPurchase: 0,
@@ -29,6 +31,8 @@ const DataManufacturerScreen = () => {
     phone: '',
     pointOfSale: '',
     street: '',
+    galleryName: '',
+    storeNumber: '',
     owner: '',
     minPurchase: '',
   });
@@ -58,6 +62,8 @@ const DataManufacturerScreen = () => {
           street: validationErrors.street || '',
           owner: validationErrors.owner || '',
           minPurchase: validationErrors.minPurchase || '',
+          galleryName: validationErrors.galleryName || '',
+          storeNumber: validationErrors.storeNumber || '',
         });
   
         return;
@@ -119,13 +125,13 @@ const DataManufacturerScreen = () => {
               onChangeText={(text) => setFormData((prev) => ({ ...prev, owner: text }))}
             />
             <Input
-              label="Nombre de la tienda"
+              label="Nombre de tu marca"
               error={formErrors.name}
               value={formData.name}
               onChangeText={(text) => setFormData((prev) => ({ ...prev, name: text }))}
             />
             <InputMoney
-              label="Monto mínimo"
+              label="Compra mínima por mayor"
               error={formErrors.minPurchase}
               value={formData.minPurchase.toString()}
               onChangeText={(text) => setFormData((prev) => ({ ...prev, minPurchase: Number(text) || 0 }))}
@@ -139,16 +145,39 @@ const DataManufacturerScreen = () => {
                 setFormData((prev) => ({ ...prev, phone: fullPhone }));
               }}
             />
+            <InputSelect
+              label="¿Cuénta con punto de venta?"
+              options={[
+                { label: 'Sí', value: 'true' },
+                { label: 'No', value: 'false' }
+              ]}
+              value={formData.pointOfSale}
+              onValueChange={(value) => setFormData((prev) => ({ ...prev, pointOfSale: value }))}
+            />
           </View>
-          <InputSelect
-            label="¿Cuénta con punto de venta?"
-            options={[
-              { label: 'Sí', value: 'true' },
-              { label: 'No', value: 'false' }
-            ]}
-            value={formData.pointOfSale}
-            onValueChange={(value) => setFormData((prev) => ({ ...prev, pointOfSale: value }))}
-          />
+
+          {formData.pointOfSale === 'true' && (
+            <View style={styles.inputsContainer}>
+              <Input
+                label="Dirección del local"
+                error={formErrors.street}
+                value={formData.street}
+                onChangeText={(text) => setFormData((prev) => ({ ...prev, street: text }))}
+              />
+              <Input
+                label="Nombre de la galería (opcional)"
+                error={formErrors.galleryName}
+                value={formData.galleryName}
+                onChangeText={(text) => setFormData((prev) => ({ ...prev, galleryName: text }))}
+              />
+              <Input
+                label="Número del local/puesto (opcional)"
+                error={formErrors.storeNumber}
+                value={formData.storeNumber}
+                onChangeText={(text) => setFormData((prev) => ({ ...prev, storeNumber: text }))}
+              />
+            </View>
+          )}
         </View>
   
         <Button
