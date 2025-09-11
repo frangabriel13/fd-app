@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert, ScrollView } from 'react-native';
 import { Button, Container, H2, Input, InputMoney, PhoneInput, InputSelect, Typography} from '@/components/ui';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { createManufacturer } from '@/store/slices/manufacturerSlice';
@@ -114,71 +114,73 @@ const DataManufacturerScreen = () => {
       </Container>
     ) : (
       <Container type="page" style={styles.container}>
-        <View style={styles.content}>
-          <H2>Ingresar datos</H2>
-  
-          <View style={styles.inputsContainer}>
-            <Input
-              label="Nombre y Apellido"
-              error={formErrors.owner}
-              value={formData.owner}
-              onChangeText={(text) => setFormData((prev) => ({ ...prev, owner: text }))}
-            />
-            <Input
-              label="Nombre de tu marca"
-              error={formErrors.name}
-              value={formData.name}
-              onChangeText={(text) => setFormData((prev) => ({ ...prev, name: text }))}
-            />
-            <InputMoney
-              label="Compra mínima por mayor"
-              error={formErrors.minPurchase}
-              value={formData.minPurchase.toString()}
-              onChangeText={(text) => setFormData((prev) => ({ ...prev, minPurchase: Number(text) || 0 }))}
-            />
-            <PhoneInput
-              label="Teléfono"
-              defaultCountryCode="AR"
-              value={formData.phone}
-              error={formErrors.phone}
-              onPhoneChange={(fullPhone, countryCode, phone) => {
-                setFormData((prev) => ({ ...prev, phone: fullPhone }));
-              }}
-            />
-            <InputSelect
-              label="¿Cuénta con punto de venta?"
-              options={[
-                { label: 'Sí', value: 'true' },
-                { label: 'No', value: 'false' }
-              ]}
-              value={formData.pointOfSale}
-              onValueChange={(value) => setFormData((prev) => ({ ...prev, pointOfSale: value }))}
-            />
-          </View>
-
-          {formData.pointOfSale === 'true' && (
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.content}>
+            <H2>Ingresar datos</H2>
+    
             <View style={styles.inputsContainer}>
               <Input
-                label="Dirección del local"
-                error={formErrors.street}
-                value={formData.street}
-                onChangeText={(text) => setFormData((prev) => ({ ...prev, street: text }))}
+                label="Nombre y Apellido"
+                error={formErrors.owner}
+                value={formData.owner}
+                onChangeText={(text) => setFormData((prev) => ({ ...prev, owner: text }))}
               />
               <Input
-                label="Nombre de la galería (opcional)"
-                error={formErrors.galleryName}
-                value={formData.galleryName}
-                onChangeText={(text) => setFormData((prev) => ({ ...prev, galleryName: text }))}
+                label="Nombre de tu marca"
+                error={formErrors.name}
+                value={formData.name}
+                onChangeText={(text) => setFormData((prev) => ({ ...prev, name: text }))}
               />
-              <Input
-                label="Número del local/puesto (opcional)"
-                error={formErrors.storeNumber}
-                value={formData.storeNumber}
-                onChangeText={(text) => setFormData((prev) => ({ ...prev, storeNumber: text }))}
+              <InputMoney
+                label="Compra mínima por mayor"
+                error={formErrors.minPurchase}
+                value={formData.minPurchase.toString()}
+                onChangeText={(text) => setFormData((prev) => ({ ...prev, minPurchase: Number(text) || 0 }))}
+              />
+              <PhoneInput
+                label="Teléfono"
+                defaultCountryCode="AR"
+                value={formData.phone}
+                error={formErrors.phone}
+                onPhoneChange={(fullPhone, countryCode, phone) => {
+                  setFormData((prev) => ({ ...prev, phone: fullPhone }));
+                }}
+              />
+              <InputSelect
+                label="¿Cuénta con punto de venta?"
+                options={[
+                  { label: 'Sí', value: 'true' },
+                  { label: 'No', value: 'false' }
+                ]}
+                value={formData.pointOfSale}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, pointOfSale: value }))}
               />
             </View>
-          )}
-        </View>
+
+            {formData.pointOfSale === 'true' && (
+              <View style={styles.inputsContainer}>
+                <Input
+                  label="Dirección del local"
+                  error={formErrors.street}
+                  value={formData.street}
+                  onChangeText={(text) => setFormData((prev) => ({ ...prev, street: text }))}
+                />
+                <Input
+                  label="Nombre de la galería (opcional)"
+                  error={formErrors.galleryName}
+                  value={formData.galleryName}
+                  onChangeText={(text) => setFormData((prev) => ({ ...prev, galleryName: text }))}
+                />
+                <Input
+                  label="Número del local/puesto (opcional)"
+                  error={formErrors.storeNumber}
+                  value={formData.storeNumber}
+                  onChangeText={(text) => setFormData((prev) => ({ ...prev, storeNumber: text }))}
+                />
+              </View>
+            )}
+          </View>
+        </ScrollView>
   
         <Button
           variant="primary"
@@ -200,6 +202,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'space-between',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 16, // Espacio adicional al final
   },
   content: {
     flex: 1,
