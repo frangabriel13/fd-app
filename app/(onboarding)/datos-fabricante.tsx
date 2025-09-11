@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, ScrollView } from 'react-native';
 import { Button, Container, H2, Input, InputMoney, PhoneInput, InputSelect, Typography} from '@/components/ui';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { createManufacturer } from '@/store/slices/manufacturerSlice';
+import { createManufacturer, resetManufacturerState } from '@/store/slices/manufacturerSlice';
 import { router } from 'expo-router';
 import { createManufacturerValidator } from '@/utils/validators';
 import SuccessModal from '@/components/modals/successModal';
@@ -39,10 +39,13 @@ const DataManufacturerScreen = () => {
   });
 
   useEffect(() => {
+    // Resetear el estado del manufacturer cuando el componente se monta
+    dispatch(resetManufacturerState());
+    
     return () => {
       setSuccessModalVisible(false);
     };
-  }, [setSuccessModalVisible]);
+  }, [dispatch, setSuccessModalVisible]);
 
   const handleSubmit = async () => {
       console.log('Submitting form data:', formData);
