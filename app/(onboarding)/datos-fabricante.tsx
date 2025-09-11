@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import { createManufacturerValidator } from '@/utils/validators';
 import SuccessModal from '@/components/modals/successModal';
 import { useModal } from '@/contexts/ModalContext';
+import { formatToARS } from '@/utils/formatters';
 
 const DataManufacturerScreen = () => {
   const dispatch = useAppDispatch();
@@ -76,12 +77,13 @@ const DataManufacturerScreen = () => {
       }
   
       try {
+        const pointOfSaleBoolean = formData.pointOfSale === 'true';
         // Despachar la acción createWholesaler
         console.log('Dispatching createWholesaler with:');
         const resultAction = await dispatch(createManufacturer({
           name: formData.name,
           phone: formData.phone,
-          pointOfSale: formData.pointOfSale,
+          pointOfSale: pointOfSaleBoolean,
           street: formData.street,
           owner: formData.owner,
           minPurchase: formData.minPurchase,
@@ -142,8 +144,12 @@ const DataManufacturerScreen = () => {
               <InputMoney
                 label="Compra mínima por mayor"
                 error={formErrors.minPurchase}
-                value={formData.minPurchase.toString()}
-                onChangeText={(text) => setFormData((prev) => ({ ...prev, minPurchase: Number(text) || 0 }))}
+                value={formatToARS(formData.minPurchase)}
+                onChangeText={(text) => {
+                  // Eliminar caracteres no numéricos y convertir a número
+                  const numericValue = Number(text.replace(/[^0-9]/g, '')) || 0;
+                  setFormData((prev) => ({ ...prev, minPurchase: numericValue }));
+                }}
               />
               <PhoneInput
                 label="Teléfono"

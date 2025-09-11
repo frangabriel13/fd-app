@@ -8,7 +8,7 @@ import { resetState } from './wholesalerSlice';
 interface Manufacturer {
   id: number;
   name: string;
-  pointOfSale: string;
+  pointOfSale: boolean;
   street: string;
   owner: string;
   galleryName?: string;
@@ -49,7 +49,7 @@ export const createManufacturer = createAsyncThunk(
   'manufacturer/createManufacturer',
   async (manufacturerData:{
     name: string;
-    pointOfSale: string;
+    pointOfSale: boolean;
     street: string;
     owner: string;
     phone: string;
