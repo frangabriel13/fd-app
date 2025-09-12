@@ -81,18 +81,24 @@ const DataManufacturerScreen = () => {
   
       try {
         const pointOfSaleBoolean = formData.pointOfSale === 'true';
-        // Despachar la acción createWholesaler
-        console.log('Dispatching createWholesaler with:');
+        // Normalizar los campos vacíos a null
+        const normalizedFormData = {
+          ...formData,
+          street: formData.street.trim() === '' ? null : formData.street,
+          galleryName: formData.galleryName.trim() === '' ? null : formData.galleryName,
+          storeNumber: formData.storeNumber.trim() === '' ? null : formData.storeNumber,
+        };
+        // Despachar la acción createManufacturer
         const resultAction = await dispatch(createManufacturer({
-          name: formData.name,
-          phone: formData.phone,
+          name: normalizedFormData.name,
+          phone: normalizedFormData.phone,
           pointOfSale: pointOfSaleBoolean,
-          street: formData.street,
-          owner: formData.owner,
-          minPurchase: formData.minPurchase,
-          userId: Number(formData.userId),
-          galleryName: formData.galleryName || undefined,
-          storeNumber: formData.storeNumber || undefined,
+          street: normalizedFormData.street,
+          owner: normalizedFormData.owner,
+          minPurchase: normalizedFormData.minPurchase,
+          userId: Number(normalizedFormData.userId),
+          galleryName: normalizedFormData.galleryName,
+          storeNumber: normalizedFormData.storeNumber,
         }));
   
         // Verificar si la acción fue exitosa
