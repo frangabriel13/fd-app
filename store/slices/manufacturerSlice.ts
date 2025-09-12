@@ -1,8 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { refreshTokenService } from '../../services/authService';
-import { authInstance, manufacturerInstance } from '../../services/axiosConfig';
-import { resetState } from './wholesalerSlice';
+import { manufacturerInstance } from '../../services/axiosConfig';
 
 // Tipos
 interface Manufacturer {
@@ -82,7 +81,7 @@ const manufacturerSlice = createSlice({
     setToken: (state, action: PayloadAction<string>) => {
       state.token = action.payload;
     },
-    resetState: (state) => {
+    resetManufacturerState: (state) => {
       state.loading = false;
       state.error = null;
       state.token = null;
@@ -122,5 +121,5 @@ const manufacturerSlice = createSlice({
   },
 });
 
-export const { clearError, logout, setToken } = manufacturerSlice.actions;
+export const { clearError, logout, setToken, resetManufacturerState } = manufacturerSlice.actions;
 export default manufacturerSlice.reducer;
