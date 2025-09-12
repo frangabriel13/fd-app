@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { setToken } from '@/store/slices/manufacturerSlice';
+import { setToken } from '@/store/slices/authSlice';
 import { useRouter } from 'expo-router';
 
 interface AuthContextType {
@@ -47,14 +47,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // }, [isLoading, token, router]);
 
   useEffect(() => {
+    console.log('AuthContext useEffect - isLoading:', isLoading, 'token:', !!token, 'userRole:', user?.role);
+    
     if(!isLoading) {
-      if(!token) {
-        router.replace('/(auth)/login');
-      } else if(user?.role === null || user?.role === undefined) {
-        router.replace('/(onboarding)/rol');
-      }
+      // Usar setTimeout para permitir que el estado se actualice completamente
+      const timeoutId = setTimeout(() => {
+        if(!token) {
+          console.log('No token, redirecting to login');
+          router.replace('/(auth)/login');
+        } else if(token && user && (user?.role === null || user?.role === undefined)) {
+          console.log('User has no role, redirecting to onboarding');
+          router.replace('/(onboarding)/rol');
+        } else if(token && user && user?.role) {
+          console.log('User authenticated with role:', user?.role);
+          // No hacemos nada aquí, el login screen maneja la redirección a tabs
+        }
+      }, 100); // Pequeño delay para permitir que el estado se actualice
+
+      return () => clearTimeout(timeoutId);
     }
-  }, [isLoading, token, user, router]);
+  }, [isLoading, token, user, user?.role, router]);
 
   console.log('userRole:', user?.role);
 
