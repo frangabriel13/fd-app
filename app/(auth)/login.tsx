@@ -36,8 +36,12 @@ const LoginScreen = () => {
     setLoading(true);
     setError(null); // Limpiar el error antes de intentar iniciar sesión
     try {
-      await dispatch(login({ email, password })).unwrap();
-      router.replace('/(tabs)');
+      const result = await dispatch(login({ email, password })).unwrap();
+      // Si el usuario tiene rol, redirigir a tabs, sino el AuthContext manejará la redirección
+      if (result.user?.role) {
+        router.replace('/(tabs)');
+      }
+      // Si no tiene rol, el AuthContext se encargará de redirigir a onboarding
     } catch (err: any) {
       const errorMessage = err.message || 'Error al iniciar sesión';
       const errorInfo = err.info?.message;
@@ -75,10 +79,13 @@ const LoginScreen = () => {
         };
         
         // Enviar al backend usando Redux
-        await dispatch(googleLogin(googleData)).unwrap();
+        const result = await dispatch(googleLogin(googleData)).unwrap();
         
-        // Navegar a las tabs si todo sale bien
-        router.replace('/(tabs)');
+        // Si el usuario tiene rol, redirigir a tabs, sino el AuthContext manejará la redirección
+        if (result.user?.role) {
+          router.replace('/(tabs)');
+        }
+        // Si no tiene rol, el AuthContext se encargará de redirigir a onboarding
       } else {
         console.log('Respuesta de Google Sign-In:', userInfo);
         setError('Error en la respuesta de Google Sign-In');

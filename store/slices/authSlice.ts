@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { authInstance } from '@/services';
 
 // Tipos
@@ -147,6 +147,9 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = null;
     },
+    setToken: (state, action: PayloadAction<string>) => {
+      state.token = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -220,5 +223,5 @@ const authSlice = createSlice({
 });
 
 
-export const { clearError, logout, resetAuthState } = authSlice.actions;
+export const { clearError, logout, resetAuthState, setToken } = authSlice.actions;
 export default authSlice.reducer;
