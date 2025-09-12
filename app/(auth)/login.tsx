@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, TextInput, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Button, Container, H1, GoogleIcon } from '@/components/ui';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { login, googleLogin } from '@/store/slices/authSlice';
+import { login, googleLogin, resetAuthState } from '@/store/slices/authSlice';
 import { Typography } from '@/components/ui/Typography';
 import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
 // import { useAuth } from '@/hooks/useAuth';
@@ -18,6 +18,14 @@ const LoginScreen = () => {
   const dispatch = useAppDispatch();
   const authLoading = useAppSelector((state) => state.auth.loading);
   const { signIn: googleSignIn, isLoading: googleLoading, error: googleError } = useGoogleSignIn();
+
+  useEffect(() => {
+    // Resetear el estado de auth cuando el componente se monta
+    dispatch(resetAuthState());
+    // También resetear el estado local
+    setLoading(false);
+    setError(null);
+  }, [dispatch]);
 
   const handleLogin = async () => {
     if (!email || !password) {
