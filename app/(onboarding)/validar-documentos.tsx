@@ -13,7 +13,7 @@ const ValidateDocumentsScreen = () => {
 
   const handleDocumentPress = (documentType: 'selfie' | 'dniFront' | 'dniBack') => {
     console.log(`Pressed ${documentType}`);
-    // Aquí irá la funcionalidad de subir documentos
+    // Aquí irá la funcionalidad de seleccionar imagen (cámara o galería)
   };
 
   const allDocumentsUploaded = Object.values(uploadedDocuments).every(Boolean);
@@ -62,7 +62,7 @@ const ValidateDocumentsScreen = () => {
         disabled={!allDocumentsUploaded}
         className="bg-primary"
       >
-        Continuar
+        Verificar identidad
       </Button>
     </Container>
   );
