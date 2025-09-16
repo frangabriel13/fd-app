@@ -106,11 +106,11 @@ const DataManufacturerScreen = () => {
           setShowSuccessModal(true); // Mostrar el modal de éxito
           setSuccessModalVisible(true); // Actualizar el contexto para desactivar el botón back
           
-          // Navegar a las tabs después de 3 segundos
+          // Navegar a validar-documentos después de 3 segundos
           setTimeout(() => {
             setShowSuccessModal(false);
             setSuccessModalVisible(false);
-            router.push('/(tabs)');
+            router.push('/(onboarding)/validar-documentos');
           }, 3000);
         } else if (createManufacturer.rejected.match(resultAction)) {
           // El error ya se maneja en el estado global
@@ -128,7 +128,7 @@ const DataManufacturerScreen = () => {
       <Container type="page" className="justify-center bg-primary">
         <SuccessModal
           title="¡Registrato con éxito!"
-          text="Será redireccionado a la página de inicio."
+          text="Es hora de corroborar tu identidad."
         />
       </Container>
     ) : (
