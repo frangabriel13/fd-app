@@ -10,5 +10,11 @@ const roleImages = {
   manufacturer: require('../assets/images/role2.png'),
 };
 
+const documentsImages = {
+  dniFront: require('../assets/images/frente.png'),
+  dniBack: require('../assets/images/reverso.png'),
+  selfie: require('../assets/images/selfie1.png'),
+}
 
-export default { sliderImages, roleImages };
+
+export default { sliderImages, roleImages, documentsImages };
