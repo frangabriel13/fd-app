@@ -22,11 +22,12 @@ const ValidateDocumentsScreen = () => {
     <Container type="page" style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.content}>
-          <H2>Subir documentación</H2>
-          
-          <Typography variant="body" style={styles.description}>
-            Para verificar tu identidad, necesitamos que subas los siguientes documentos:
-          </Typography>
+          <View>
+            <H2 style={styles.title}>Subir documentación</H2>
+            <Typography variant="body" style={styles.description}>
+              Para verificar tu identidad, necesitamos que subas los siguientes documentos:
+            </Typography>
+          </View>
 
           <View style={styles.documentsContainer}>
             <DocumentCard
@@ -79,6 +80,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     gap: 30,
+  },
+  title: {
+    textAlign: 'center',
   },
   description: {
     color: '#6C757D',
