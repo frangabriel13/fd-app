@@ -87,49 +87,49 @@ const DataWholesalerScreen = () => {
 
   return (
     showSuccessModal ? (
-    <Container type="page" className="justify-center bg-primary">
-      <SuccessModal
-        title="¡Registrato con éxito!"
-        text="Será redireccionado a la página de inicio."
-      />
-    </Container>
-  ) : (
-    <Container type="page" style={styles.container}>
-      <View style={styles.content}>
-        <H2>Ingresar datos</H2>
+      <Container type="page" className="justify-center bg-primary">
+        <SuccessModal
+          title="¡Registrato con éxito!"
+          text="Será redireccionado a la página de inicio."
+        />
+      </Container>
+    ) : (
+      <Container type="page" style={styles.container}>
+        <View style={styles.content}>
+          <H2>Ingresar datos</H2>
 
-        <View style={styles.inputsContainer}>
-          <Input
-            label="Nombre y Apellido"
-            error={formErrors.name}
-            value={formData.name}
-            onChangeText={(text) => setFormData((prev) => ({ ...prev, name: text }))}
-          />
-          <PhoneInput
-            label="Teléfono"
-            defaultCountryCode="AR"
-            value={formData.phone}
-            error={formErrors.phone}
-            onPhoneChange={(fullPhone, countryCode, phone) => {
-              setFormData((prev) => ({ ...prev, phone: fullPhone }));
-            }}
-          />
+          <View style={styles.inputsContainer}>
+            <Input
+              label="Nombre y Apellido"
+              error={formErrors.name}
+              value={formData.name}
+              onChangeText={(text) => setFormData((prev) => ({ ...prev, name: text }))}
+            />
+            <PhoneInput
+              label="Teléfono"
+              defaultCountryCode="AR"
+              value={formData.phone}
+              error={formErrors.phone}
+              onPhoneChange={(fullPhone, countryCode, phone) => {
+                setFormData((prev) => ({ ...prev, phone: fullPhone }));
+              }}
+            />
+          </View>
         </View>
-      </View>
 
-      <Button
-        variant="primary"
-        onPress={handleSubmit}
-        loading={loading}
-        disabled={!formData.name || !formData.phone || loading}
-        className="bg-primary"
-      >
-        {loading ? 'Creando...' : 'Continuar'}
-      </Button>
+        <Button
+          variant="primary"
+          onPress={handleSubmit}
+          loading={loading}
+          disabled={!formData.name || !formData.phone || loading}
+          className="bg-primary"
+        >
+          {loading ? 'Creando...' : 'Continuar'}
+        </Button>
 
-      {error && <Typography variant="body" style={styles.errorText}>{error}</Typography>}
-    </Container>
-  )
+        {error && <Typography variant="body" style={styles.errorText}>{error}</Typography>}
+      </Container>
+    )
   );
 };
 
