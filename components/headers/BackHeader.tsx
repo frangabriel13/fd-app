@@ -21,7 +21,8 @@ const BackHeader = () => {
 
   const inOnRoleScreen = pathname === '/rol';
   const inDatosMayoristaScreen = pathname === '/datos-mayorista';
-  const shouldDisableBack = inOnRoleScreen || (inDatosMayoristaScreen && isSuccessModalVisible);
+  const inValidarDocumentosScreen = pathname === '/validar-documentos';
+  const shouldDisableBack = inOnRoleScreen || (inDatosMayoristaScreen && isSuccessModalVisible) || inValidarDocumentosScreen;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 0 }]} className='bg-primary'>
