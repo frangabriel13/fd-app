@@ -66,6 +66,27 @@ export const createManufacturer = createAsyncThunk(
   }
 );
 
+export const uploadDocuments = createAsyncThunk(
+  'manufacturer/uploadDocuments',
+  async (
+    { id, images }: { id: number; images: { [key: string]: File } },
+    { rejectWithValue }
+  ) => {
+    try {
+      const formData = new FormData();
+      for(const [key, file] of Object.entries(images)) {
+        formData.append(key, file);
+      }
+
+      const response = await manufacturerInstance.post(`/${id}/images`, formData);
+
+      return response.data;
+    } catch(error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al subir documentos');
+    }
+  }
+);
+
 // Slice
 const manufacturerSlice = createSlice({
   name: 'manufacturer',
@@ -117,6 +138,22 @@ const manufacturerSlice = createSlice({
         state.loading = false;
         state.success = false;
         state.error = action.payload as string || 'Error al crear fabricante';
+      })
+      // Upload Documents
+      .addCase(uploadDocuments.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(uploadDocuments.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.error = null;
+      })
+      .addCase(uploadDocuments.rejected, (state, action) => {
+        state.loading = false;
+        state.success = false;
+        state.error = action.payload as string || 'Error al subir documentos';
       });
   },
 });
