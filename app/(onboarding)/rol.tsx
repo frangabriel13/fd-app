@@ -6,7 +6,7 @@ import RoleCard from '@/components/register/RoleCard';
 import Images from '@/constants/Images';
 
 const RoleSelectionScreen = () => {
-  const [selectedRole, setSelectedRole] = useState<'mayorista' | 'fabricante'>(null);
+  const [selectedRole, setSelectedRole] = useState<'mayorista' | 'fabricante' | null>(null);
 
   const handleContinue = () => {
     if(!selectedRole) {
@@ -16,6 +16,7 @@ const RoleSelectionScreen = () => {
 
     if(selectedRole === 'mayorista') {
       router.push('/(onboarding)/datos-mayorista');
+      // router.push('/(tabs)');
     } else {
       router.push('/(onboarding)/datos-fabricante');
     }
