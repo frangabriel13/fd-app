@@ -24,6 +24,12 @@ interface ManufacturerState {
   token: string | null;
 }
 
+interface ImageUpload {
+  uri: string;
+  type: string;
+  name: string;
+}
+
 // Estado inicial
 const initialState: ManufacturerState = {
   loading: false,
@@ -69,16 +75,22 @@ export const createManufacturer = createAsyncThunk(
 export const uploadDocuments = createAsyncThunk(
   'manufacturer/uploadDocuments',
   async (
-    { id, images }: { id: number; images: { [key: string]: File } },
+    { id, images }: { id: number; images: { [key: string]: ImageUpload } },
     { rejectWithValue }
   ) => {
     try {
       const formData = new FormData();
-      for(const [key, file] of Object.entries(images)) {
-        formData.append(key, file);
+      for(const [key, image] of Object.entries(images)) {
+        formData.append(key, {
+          uri: image.uri,
+          type: image.type,
+          name: image.name,
+        } as any);
       }
 
-      const response = await manufacturerInstance.post(`/${id}/images`, formData);
+      const response = await manufacturerInstance.post(`/${id}/images`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
 
       return response.data;
     } catch(error: any) {
