@@ -22,6 +22,7 @@ interface ManufacturerState {
   success: boolean;
   error: string | null;
   token: string | null;
+  manufacturer: Manufacturer | null;
 }
 
 interface ImageUpload {
@@ -36,6 +37,7 @@ const initialState: ManufacturerState = {
   success: false,
   error: null,
   token: null,
+  manufacturer: null,
 };
 
 // Thunk para refresh token
@@ -79,6 +81,7 @@ export const uploadDocuments = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
+      console.log('Subiendo imágenes para fabricante ID:', id, images);
       const formData = new FormData();
       for(const [key, image] of Object.entries(images)) {
         formData.append(key, {
@@ -145,6 +148,7 @@ const manufacturerSlice = createSlice({
         state.loading = false;
         state.success = true;
         state.error = null;
+        state.manufacturer = action.payload;
       })
       .addCase(createManufacturer.rejected, (state, action) => {
         state.loading = false;
@@ -169,6 +173,7 @@ const manufacturerSlice = createSlice({
       });
   },
 });
+
 
 export const { clearError, logout, setToken, resetManufacturerState } = manufacturerSlice.actions;
 export default manufacturerSlice.reducer;

@@ -110,7 +110,7 @@ const DataManufacturerScreen = () => {
           setTimeout(() => {
             setShowSuccessModal(false);
             setSuccessModalVisible(false);
-            router.push('/(onboarding)/validar-documentos');
+            router.push('/(tabs)');
           }, 3000);
         } else if (createManufacturer.rejected.match(resultAction)) {
           // El error ya se maneja en el estado global
