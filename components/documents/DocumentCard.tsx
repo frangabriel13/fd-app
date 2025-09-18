@@ -8,6 +8,7 @@ interface DocumentCardProps {
   image: ImageSourcePropType;
   onPress: () => void;
   isUploaded?: boolean;
+  isSelected?: boolean;
 }
 
 const DocumentCard: React.FC<DocumentCardProps> = ({
@@ -16,10 +17,15 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
   image,
   onPress,
   isUploaded = false,
+  isSelected = false,
 }) => {
   return (
     <TouchableOpacity 
-      style={[styles.container, isUploaded && styles.containerUploaded]} 
+      style={[
+        styles.container, 
+        isUploaded && styles.containerUploaded,
+        isSelected && !isUploaded && styles.containerSelected
+      ]} 
       onPress={onPress}
     >
       <View style={styles.content}>
@@ -60,6 +66,10 @@ const styles = StyleSheet.create({
   containerUploaded: {
     borderColor: '#28A745',
     backgroundColor: '#F8FFF9',
+  },
+  containerSelected: {
+    borderColor: '#007BFF',
+    backgroundColor: '#F0F8FF',
   },
   content: {
     flexDirection: 'row',
