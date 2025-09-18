@@ -22,6 +22,7 @@ interface ManufacturerState {
   success: boolean;
   error: string | null;
   token: string | null;
+  manufacturer: Manufacturer | null;
 }
 
 interface ImageUpload {
@@ -36,6 +37,7 @@ const initialState: ManufacturerState = {
   success: false,
   error: null,
   token: null,
+  manufacturer: null,
 };
 
 // Thunk para refresh token
@@ -146,6 +148,7 @@ const manufacturerSlice = createSlice({
         state.loading = false;
         state.success = true;
         state.error = null;
+        state.manufacturer = action.payload;
       })
       .addCase(createManufacturer.rejected, (state, action) => {
         state.loading = false;
