@@ -1,11 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { Button, Container, H2, Typography} from '@/components/ui';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import Images from '@/constants/Images';
 import DocumentCard from '@/components/documents/DocumentCard';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { uploadDocuments, clearError } from '@/store/slices/manufacturerSlice';
 
 const ValidateDocumentsScreen = () => {
+  const dispatch = useAppDispatch();
+  const { loading, success, error } = useAppSelector((state) => state.manufacturer);
+  const manufacturerId = Number(useAppSelector((state) => state.auth.user?.id));
+  
   const [selectedDocuments, setSelectedDocuments] = useState({
     selfie: null,
     dniFront: null,
@@ -17,6 +23,34 @@ const ValidateDocumentsScreen = () => {
     dniFront: false,
     dniBack: false,
   });
+
+  const [hasJustUploaded, setHasJustUploaded] = useState(false);
+
+  // Effect para limpiar el estado de Redux al montar el componente
+  useEffect(() => {
+    dispatch(clearError());
+    // También podríamos resetear el state completo si hay una acción para eso
+  }, [dispatch]);
+
+  // Effect para manejar el éxito de la subida
+  useEffect(() => {
+    if (success && hasJustUploaded) {
+      setUploadedDocuments({
+        selfie: true,
+        dniFront: true,
+        dniBack: true,
+      });
+      Alert.alert('¡Éxito!', 'Los documentos se han subido correctamente');
+      setHasJustUploaded(false); // Reset del flag
+    }
+  }, [success, hasJustUploaded]);
+
+  // Effect para manejar errores
+  useEffect(() => {
+    if (error) {
+      Alert.alert('Error', error);
+    }
+  }, [error]);
 
   const handleDocumentPress = async (documentType: 'selfie' | 'dniFront' | 'dniBack') => {
     const options = ['Elegir de la galería', 'Tomar una foto', 'Cancelar'];
@@ -53,6 +87,44 @@ const ValidateDocumentsScreen = () => {
       })),
       { cancelable: true }
     );
+  };
+
+  const handleVerifyIdentity = async () => {
+    if (!allDocumentsSelected) {
+      Alert.alert('Error', 'Por favor selecciona todas las imágenes antes de continuar.');
+      return;
+    }
+
+    try {
+      // Marcar que estamos iniciando una subida
+      setHasJustUploaded(true);
+      
+      // Preparar las imágenes para la subida
+      const images = {
+        selfie: {
+          uri: selectedDocuments.selfie!,
+          type: 'image/jpeg',
+          name: 'selfie.jpg',
+        },
+        dniFront: {
+          uri: selectedDocuments.dniFront!,
+          type: 'image/jpeg',
+          name: 'dni_front.jpg',
+        },
+        dniBack: {
+          uri: selectedDocuments.dniBack!,
+          type: 'image/jpeg',
+          name: 'dni_back.jpg',
+        },
+      };
+
+      // Necesitarás obtener el ID del fabricante de algún lugar
+      // Por ahora uso un ID temporal - deberás cambiarlo según tu lógica
+      
+      await dispatch(uploadDocuments({ id: manufacturerId, images })).unwrap();
+    } catch (error) {
+      console.error('Error al subir documentos:', error);
+    }
   };
 
   const allDocumentsSelected = Object.values(selectedDocuments).every(Boolean);
@@ -101,10 +173,11 @@ const ValidateDocumentsScreen = () => {
 
       <Button
         variant="primary"
-        disabled={!allDocumentsSelected}
+        disabled={!allDocumentsSelected || loading}
         className="bg-primary"
+        onPress={handleVerifyIdentity}
       >
-        Verificar identidad
+        {loading ? 'Subiendo documentos...' : 'Verificar identidad'}
       </Button>
     </Container>
   );

@@ -79,6 +79,7 @@ export const uploadDocuments = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
+      console.log('Subiendo imágenes para fabricante ID:', id, images);
       const formData = new FormData();
       for(const [key, image] of Object.entries(images)) {
         formData.append(key, {
@@ -169,6 +170,7 @@ const manufacturerSlice = createSlice({
       });
   },
 });
+
 
 export const { clearError, logout, setToken, resetManufacturerState } = manufacturerSlice.actions;
 export default manufacturerSlice.reducer;
