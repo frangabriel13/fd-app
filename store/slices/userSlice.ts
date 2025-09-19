@@ -59,6 +59,18 @@ export const resendVerificationCode = createAsyncThunk(
   }
 );
 
+export const fetchAuthUser = createAsyncThunk(
+  'user/fetchAuthUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await userInstance.get('/me');
+      return response.data;
+    } catch(error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al obtener el usuario autenticado');
+    }
+  }
+)
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -129,6 +141,20 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      // fetchAuthUser
+      .addCase(fetchAuthUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAuthUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchAuthUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 

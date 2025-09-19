@@ -15,8 +15,8 @@ const RoleSelectionScreen = () => {
     }
 
     if(selectedRole === 'mayorista') {
-      router.push('/(onboarding)/datos-mayorista');
-      // router.push('/(tabs)');
+      // router.push('/(onboarding)/datos-mayorista');
+      router.push('/(tabs)');
     } else {
       router.push('/(onboarding)/datos-fabricante');
     }
