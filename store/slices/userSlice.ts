@@ -3,8 +3,22 @@ import { userInstance } from '@/services';
 
 interface User {
   id: string;
-  name: string;
   email: string;
+  role: string | null;
+  manufacturer?: Manufacturer | null;
+  wholesaler?: Wholesaler | null;
+}
+
+interface Manufacturer {
+  id: string;
+  name: string;
+  image: string;
+  verificationStatus: string;
+}
+
+interface Wholesaler {
+  id: string;
+  name: string;
 }
 
 interface UserState {
