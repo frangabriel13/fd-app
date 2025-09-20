@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useAppSelector } from '@/hooks/redux';
+import { useAppSelector, useAppDispatch } from '@/hooks/redux';
 import { useRouter } from 'expo-router';
 import { fetchAuthUser } from '@/store/slices/userSlice';
 
@@ -16,6 +16,7 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(true);
   const { token, user } = useAppSelector(state => state.auth);
   const router = useRouter();
@@ -23,12 +24,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Solo esperar a que redux-persist termine de hidratar
   useEffect(() => {
     // Dar tiempo a redux-persist para hidratar el estado
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
+      if (token) {
+        // Llamar a fetchAuthUser si hay un token
+        await dispatch(fetchAuthUser());
+      }
       setIsLoading(false);
     }, 100);
     
     return () => clearTimeout(timer);
-  }, []);
+  }, [dispatch, token]);
   
   useEffect(() => {
     console.log('AuthContext useEffect - isLoading:', isLoading, 'token:', !!token, 'userRole:', user?.role);
