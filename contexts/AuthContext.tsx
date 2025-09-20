@@ -18,7 +18,8 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(true);
-  const { token, user } = useAppSelector(state => state.auth);
+  const { token, user: authUser } = useAppSelector(state => state.auth);
+  const { user: myUser } = useAppSelector(state => state.user);
   const router = useRouter();
   
   // Solo esperar a que redux-persist termine de hidratar
@@ -36,31 +37,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [dispatch, token]);
   
   useEffect(() => {
-    console.log('AuthContext useEffect - isLoading:', isLoading, 'token:', !!token, 'userRole:', user?.role);
+    console.log('AuthContext useEffect - isLoading:', isLoading, 'token:', !!token, 'userRole:', authUser?.role);
     
     if(!isLoading) {
       const timeoutId = setTimeout(() => {
         if(!token) {
           console.log('No token, redirecting to login');
           router.replace('/(auth)/login');
-        } else if(token && user && (user?.role === null || user?.role === undefined)) {
+        } else if(token && authUser && (authUser?.role === null || authUser?.role === undefined)) {
           console.log('User has no role, redirecting to onboarding');
           router.replace('/(onboarding)/rol');
-        } else if(token && user && user?.role) {
-          console.log('User authenticated with role:', user?.role);
+        } else if(token && authUser && authUser?.role) {
+          if(authUser.role === 'manufacturer' && myUser?.manufacturer?.verificationStatus === 'not_started') {
+            router.replace('/(onboarding)/validar-documentos');
+          }
         }
       }, 100);
       
       return () => clearTimeout(timeoutId);
     }
-  }, [isLoading, token, user, user?.role, router]);
+  }, [isLoading, token, authUser, authUser?.role, myUser, router]);
+
+  console.log('mi usuario', myUser);
   
   return (
     <AuthContext.Provider 
     value={{ 
       isLoading, 
       isAuthenticated: !!token,
-      userRole: user?.role || null,
+      userRole: authUser?.role || null,
     }}
     >
       {children}
