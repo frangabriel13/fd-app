@@ -17,6 +17,7 @@ interface Manufacturer {
   selfie?: string | null;
   dniFront?: string | null;
   dniBack?: string | null;
+  role?: string | null;
 }
 
 interface Wholesaler {

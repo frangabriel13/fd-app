@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Dar tiempo a redux-persist para hidratar el estado
     const timer = setTimeout(async () => {
-      if (token) {
+      if(token) {
         // Llamar a fetchAuthUser si hay un token
         await dispatch(fetchAuthUser());
       }
@@ -37,20 +37,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [dispatch, token]);
   
   useEffect(() => {
-    console.log('AuthContext useEffect - isLoading:', isLoading, 'token:', !!token, 'userRole:', authUser?.role);
-    
     if(!isLoading) {
       const timeoutId = setTimeout(() => {
         if(!token) {
-          console.log('No token, redirecting to login');
           router.replace('/(auth)/login');
         } 
-        else if(token && authUser && (authUser?.role === null || authUser?.role === undefined)) {
-          console.log('User has no role, redirecting to onboarding');
+        else if(token && myUser && (myUser?.role === null || myUser?.role === undefined)) {
           router.replace('/(onboarding)/rol');
         } 
-        else if(token && authUser && authUser?.role) {
-          if(authUser.role === 'manufacturer' && (myUser?.manufacturer?.verificationStatus === 'not_started' ||
+        else if(token && myUser && myUser?.role) {
+          if(myUser?.role === 'manufacturer' && (myUser?.manufacturer?.verificationStatus === 'not_started' ||
             myUser?.manufacturer?.verificationStatus === 'pending'
           )) {
             router.replace('/(onboarding)/validar-documentos');
@@ -61,8 +57,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return () => clearTimeout(timeoutId);
     }
   }, [isLoading, token, authUser, authUser?.role, myUser, router]);
-
-  console.log('mi usuario', myUser);
   
   return (
     <AuthContext.Provider 
