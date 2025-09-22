@@ -10,7 +10,9 @@ import { uploadDocuments, clearError } from '@/store/slices/manufacturerSlice';
 const ValidateDocumentsScreen = () => {
   const dispatch = useAppDispatch();
   const { loading, success, error } = useAppSelector((state) => state.manufacturer);
-  const manufacturerId = Number(useAppSelector((state) => state.auth.user?.id));
+  const manufacturerId = Number(useAppSelector((state) => state.user.user?.manufacturer?.id));
+  // console.log('myUser', myUser);
+  console.log('manufacturerId', manufacturerId);
   
   const [selectedDocuments, setSelectedDocuments] = useState({
     selfie: null,
@@ -120,6 +122,7 @@ const ValidateDocumentsScreen = () => {
 
       // Necesitarás obtener el ID del fabricante de algún lugar
       // Por ahora uso un ID temporal - deberás cambiarlo según tu lógica
+      console.log('manufacturerId:', manufacturerId);
       
       await dispatch(uploadDocuments({ id: manufacturerId, images })).unwrap();
     } catch (error) {

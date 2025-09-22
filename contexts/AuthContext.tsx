@@ -47,7 +47,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else if(token && authUser && (authUser?.role === null || authUser?.role === undefined)) {
           console.log('User has no role, redirecting to onboarding');
           router.replace('/(onboarding)/rol');
-        } else if(token && authUser && authUser?.role) {
+        } 
+        else if(token && authUser && authUser?.role) {
           if(authUser.role === 'manufacturer' && myUser?.manufacturer?.verificationStatus === 'not_started') {
             router.replace('/(onboarding)/validar-documentos');
           }

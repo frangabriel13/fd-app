@@ -27,6 +27,8 @@ interface UserState {
   error: string | null;
   isVerified: boolean; // Agregado para consistencia con web
   followed: any[]; // Agregado para consistencia con web
+  manufacturer?: Manufacturer | null; // Agregado para consistencia con web
+  wholesaler?: Wholesaler | null; // Agregado para consistencia con web
 }
 
 const initialState: UserState = {
