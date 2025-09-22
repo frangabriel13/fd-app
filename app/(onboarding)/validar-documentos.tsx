@@ -11,10 +11,15 @@ const ValidateDocumentsScreen = () => {
   const dispatch = useAppDispatch();
   const { loading, success, error } = useAppSelector((state) => state.manufacturer);
   const manufacturerId = Number(useAppSelector((state) => state.user.user?.manufacturer?.id));
+  const manufacturer = useAppSelector((state) => state.user.user?.manufacturer);
   // console.log('myUser', myUser);
   console.log('manufacturerId', manufacturerId);
   
-  const [selectedDocuments, setSelectedDocuments] = useState({
+  const [selectedDocuments, setSelectedDocuments] = useState<{
+    selfie: string | null;
+    dniFront: string | null;
+    dniBack: string | null;
+  }>({
     selfie: null,
     dniFront: null,
     dniBack: null,
@@ -27,6 +32,23 @@ const ValidateDocumentsScreen = () => {
   });
 
   const [hasJustUploaded, setHasJustUploaded] = useState(false);
+
+  // Effect para inicializar documentos existentes
+  useEffect(() => {
+    if (manufacturer) {
+      setSelectedDocuments({
+        selfie: manufacturer.selfie || null,
+        dniFront: manufacturer.dniFront || null,
+        dniBack: manufacturer.dniBack || null,
+      });
+
+      setUploadedDocuments({
+        selfie: !!manufacturer.selfie,
+        dniFront: !!manufacturer.dniFront,
+        dniBack: !!manufacturer.dniBack,
+      });
+    }
+  }, [manufacturer]);
 
   // Effect para limpiar el estado de Redux al montar el componente
   useEffect(() => {
@@ -131,6 +153,7 @@ const ValidateDocumentsScreen = () => {
   };
 
   const allDocumentsSelected = Object.values(selectedDocuments).every(Boolean);
+  const allDocumentsUploaded = Object.values(uploadedDocuments).every(Boolean);
 
   return (
     <Container type="page" style={styles.container}>
@@ -139,7 +162,10 @@ const ValidateDocumentsScreen = () => {
           <View>
             <H2 style={styles.title}>Subir documentación</H2>
             <Typography variant="body" style={styles.description}>
-              Para verificar tu identidad, necesitamos que subas los siguientes documentos:
+              {allDocumentsUploaded 
+                ? "Tus documentos han sido enviados y están pendientes de verificación."
+                : "Para verificar tu identidad, necesitamos que subas los siguientes documentos:"
+              }
             </Typography>
           </View>
 
@@ -148,7 +174,7 @@ const ValidateDocumentsScreen = () => {
               title="Selfie con documento"
               subtitle="Foto tuya sosteniendo tu DNI"
               image={selectedDocuments.selfie ? { uri: selectedDocuments.selfie } : Images.documentsImages.selfie}
-              onPress={() => handleDocumentPress('selfie')}
+              onPress={uploadedDocuments.selfie ? () => {} : () => handleDocumentPress('selfie')}
               isUploaded={uploadedDocuments.selfie}
               isSelected={!!selectedDocuments.selfie}
             />
@@ -157,7 +183,7 @@ const ValidateDocumentsScreen = () => {
               title="DNI Frente"
               subtitle="Parte frontal de tu documento"
               image={selectedDocuments.dniFront ? { uri: selectedDocuments.dniFront } : Images.documentsImages.dniFront}
-              onPress={() => handleDocumentPress('dniFront')}
+              onPress={uploadedDocuments.dniFront ? () => {} : () => handleDocumentPress('dniFront')}
               isUploaded={uploadedDocuments.dniFront}
               isSelected={!!selectedDocuments.dniFront}
             />
@@ -166,7 +192,7 @@ const ValidateDocumentsScreen = () => {
               title="DNI Dorso"
               subtitle="Parte trasera de tu documento"
               image={selectedDocuments.dniBack ? { uri: selectedDocuments.dniBack } : Images.documentsImages.dniBack}
-              onPress={() => handleDocumentPress('dniBack')}
+              onPress={uploadedDocuments.dniBack ? () => {} : () => handleDocumentPress('dniBack')}
               isUploaded={uploadedDocuments.dniBack}
               isSelected={!!selectedDocuments.dniBack}
             />
@@ -174,9 +200,17 @@ const ValidateDocumentsScreen = () => {
         </View>
       </ScrollView>
 
+      {/* {allDocumentsUploaded && (
+        <View style={styles.pendingMessage}>
+          <Typography variant="body" style={styles.pendingText}>
+            📋 Tus documentos están pendientes de verificación
+          </Typography>
+        </View>
+      )} */}
+      
       <Button
         variant="primary"
-        disabled={!allDocumentsSelected || loading}
+        disabled={!allDocumentsSelected || loading || allDocumentsUploaded}
         className="bg-primary"
         onPress={handleVerifyIdentity}
       >
@@ -210,6 +244,17 @@ const styles = StyleSheet.create({
   documentsContainer: {
     gap: 20,
   },
+  // pendingMessage: {
+  //   backgroundColor: '#E3F2FD',
+  //   padding: 16,
+  //   borderRadius: 8,
+  //   marginBottom: 16,
+  // },
+  // pendingText: {
+  //   color: '#1976D2',
+  //   textAlign: 'center',
+  //   fontWeight: '500',
+  // },
 });
 
 

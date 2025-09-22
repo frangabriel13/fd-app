@@ -44,10 +44,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if(!token) {
           console.log('No token, redirecting to login');
           router.replace('/(auth)/login');
-        } else if(token && authUser && (authUser?.role === null || authUser?.role === undefined)) {
+        } 
+        else if(token && authUser && (authUser?.role === null || authUser?.role === undefined)) {
           console.log('User has no role, redirecting to onboarding');
           router.replace('/(onboarding)/rol');
-        } else if(token && authUser && authUser?.role) {
+        } 
+        else if(token && authUser && authUser?.role) {
           if(authUser.role === 'manufacturer' && (myUser?.manufacturer?.verificationStatus === 'not_started' ||
             myUser?.manufacturer?.verificationStatus === 'pending'
           )) {

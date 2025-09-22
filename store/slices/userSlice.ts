@@ -14,6 +14,9 @@ interface Manufacturer {
   name: string;
   image: string;
   verificationStatus: string;
+  selfie?: string | null;
+  dniFront?: string | null;
+  dniBack?: string | null;
 }
 
 interface Wholesaler {
