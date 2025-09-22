@@ -81,7 +81,7 @@ export const uploadDocuments = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      console.log('Subiendo imágenes para fabricante ID:', id, images);
+      // console.log('Subiendo imágenes para fabricante ID:', id, images);
       const formData = new FormData();
       for(const [key, image] of Object.entries(images)) {
         formData.append(key, {
@@ -90,6 +90,8 @@ export const uploadDocuments = createAsyncThunk(
           name: image.name,
         } as any);
       }
+
+      console.log('🌐 FormData preparado para la subida:', formData);
 
       const response = await manufacturerInstance.post(`/${id}/images`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }

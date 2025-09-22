@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 // Instancia específica para operaciones de autenticación (sin interceptores)
-const authAxios = axios.create({
+const manufacturerAxios = axios.create({
   baseURL: 'http://localhost:3001/api/manufacturers',
 });
 
@@ -15,7 +15,7 @@ export const refreshTokenService = async (): Promise<string> => {
     console.log('Refreshing token...');
     const currentToken = await AsyncStorage.getItem('token');
     
-    const response = await authAxios.post('/refresh-token', {}, {
+    const response = await manufacturerAxios.post('/refresh-token', {}, {
       headers: currentToken ? { Authorization: `Bearer ${currentToken}` } : {}
     });
     
