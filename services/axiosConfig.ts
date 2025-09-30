@@ -9,9 +9,15 @@ const addAuthHeader = async (config: any) => {
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
+    console.log('🔑 API Request:', {
+      url: config.url,
+      baseURL: config.baseURL,
+      method: config.method,
+      hasToken: !!token
+    });
     return config;
   } catch (error) {
-    console.error('Error getting token from AsyncStorage:', error);
+    console.error('❌ Error getting token from AsyncStorage:', error);
     return config;
   }
 };
@@ -101,8 +107,27 @@ const instancesWithAuth = [
 
 instancesWithAuth.forEach(instance => {
   instance.interceptors.response.use(
-    response => response,
+    response => {
+      console.log('✅ API Response:', {
+        url: response.config.url,
+        status: response.status
+      });
+      return response;
+    },
     async error => {
+      console.error('❌ API Error:', {
+        url: error.config?.url,
+        message: error.message,
+        status: error.response?.status,
+        code: error.code
+      });
+      
+      // Error de red
+      if (error.code === 'ECONNREFUSED' || error.code === 'NETWORK_ERROR' || !error.response) {
+        console.error('🚫 Network Error - Backend no disponible:', error.message);
+        return Promise.reject(error);
+      }
+
       const originalRequest = error.config;
       if (error.response && error.response.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
