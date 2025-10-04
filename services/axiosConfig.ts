@@ -3,9 +3,30 @@ import axios from 'axios';
 import { refreshTokenService } from './authService';
 import { API_CONFIG } from '@/constants/ApiConfig';
 
+// Función para obtener el token, primero intenta desde Redux store, si falla usa AsyncStorage
+const getAuthToken = async () => {
+  try {
+    // Importación dinámica para evitar ciclos de dependencia
+    const { store } = await import('@/store');
+    const state = store.getState();
+    return state.auth?.token || null;
+  } catch {
+    // Fallback a AsyncStorage si hay problemas con Redux
+    console.warn('⚠️ Could not get token from Redux store, falling back to AsyncStorage');
+    try {
+      return await AsyncStorage.getItem('token');
+    } catch (asyncError) {
+      console.error('❌ Error getting token from AsyncStorage:', asyncError);
+      return null;
+    }
+  }
+};
+
 const addAuthHeader = async (config: any) => {
   try {
-    const token = await AsyncStorage.getItem('token');
+    const token = await getAuthToken();
+    
+    console.log('Retrieved token:', token);
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -17,7 +38,7 @@ const addAuthHeader = async (config: any) => {
     });
     return config;
   } catch (error) {
-    console.error('❌ Error getting token from AsyncStorage:', error);
+    console.error('❌ Error getting token:', error);
     return config;
   }
 };
