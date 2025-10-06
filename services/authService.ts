@@ -1,10 +1,32 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { API_CONFIG } from '@/constants/ApiConfig';
 
 // Instancia específica para operaciones de autenticación (sin interceptores)
 const manufacturerAxios = axios.create({
-  baseURL: 'http://localhost:3001/api/manufacturers',
+  baseURL: `${API_CONFIG.API_URL_3001}/manufacturers`,
 });
+
+// Función para obtener el token, similar a la de axiosConfig.ts
+const getAuthToken = async () => {
+  try {
+    // Intentar obtener desde Redux store primero
+    const { store } = await import('@/store');
+    const state = store.getState();
+    const token = state.auth?.token;
+    return token || null;
+  } catch {
+    // Fallback a AsyncStorage si hay problemas con Redux
+    console.warn('⚠️ Could not get token from Redux store, falling back to AsyncStorage');
+    try {
+      const token = await AsyncStorage.getItem('token');
+      return token;
+    } catch (asyncError) {
+      console.error('❌ Error getting token from AsyncStorage:', asyncError);
+      return null;
+    }
+  }
+};
 
 /**
  * Servicio para refrescar el token de autenticación
@@ -12,17 +34,32 @@ const manufacturerAxios = axios.create({
  */
 export const refreshTokenService = async (): Promise<string> => {
   try {
-    console.log('Refreshing token...');
-    const currentToken = await AsyncStorage.getItem('token');
+    const currentToken = await getAuthToken();
+    
+    if (!currentToken) {
+      throw new Error('No token found for refresh');
+    }
+    
+    const headers = { Authorization: `Bearer ${currentToken}` };
     
     const response = await manufacturerAxios.post('/refresh-token', {}, {
-      headers: currentToken ? { Authorization: `Bearer ${currentToken}` } : {}
+      headers
     });
     
     const newToken = response.data.token;
+    
+    // Guardar el nuevo token en AsyncStorage
     await AsyncStorage.setItem('token', newToken);
     
-    console.log('Token refreshed successfully');
+    // También intentar actualizar Redux store si está disponible
+    try {
+      const { store } = await import('@/store');
+      const { setToken } = await import('@/store/slices/authSlice');
+      store.dispatch(setToken(newToken));
+    } catch {
+      console.warn('⚠️ Could not update Redux store, token saved in AsyncStorage only');
+    }
+    
     return newToken;
   } catch (error: any) {
     console.error('Error refreshing token:', error);

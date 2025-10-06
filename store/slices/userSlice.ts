@@ -84,7 +84,6 @@ export const fetchAuthUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await userInstance.get('/me');
-      console.log('🌐 Respuesta del servidor en fetchAuthUser:', response.data);
       return response.data;
     } catch(error: any) {
       return rejectWithValue(error.response?.data?.message || 'Error al obtener el usuario autenticado');
