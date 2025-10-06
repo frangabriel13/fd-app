@@ -69,6 +69,13 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => <SimpleLineIcons name="menu" size={28} color={color} />,
           }}
         />
+
+        <Tabs.Screen
+          name="mi-cuenta"
+          options={{
+            href: null,
+          }}
+        />
       </Tabs>
     </>
   );
