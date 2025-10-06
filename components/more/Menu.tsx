@@ -85,7 +85,11 @@ const Menu = () => {
           iconSize={18}
           iconStyle={{ transform: [{ rotate: '45deg' }] }}
         />
-        <MenuItem icon="user" label="Mi perfil" />
+        <MenuItem 
+          icon="user"
+          label="Mi perfil"
+          onPress={() => router.push('/(tabs)/mi-cuenta')}
+        />
       </View>
 
       {/* Primera línea divisoria */}
