@@ -26,16 +26,9 @@ const addAuthHeader = async (config: any) => {
   try {
     const token = await getAuthToken();
     
-    console.log('Retrieved token:', token);
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
-    console.log('🔑 API Request:', {
-      url: config.url,
-      baseURL: config.baseURL,
-      method: config.method,
-      hasToken: !!token
-    });
     return config;
   } catch (error) {
     console.error('❌ Error getting token:', error);
@@ -129,10 +122,6 @@ const instancesWithAuth = [
 instancesWithAuth.forEach(instance => {
   instance.interceptors.response.use(
     response => {
-      console.log('✅ API Response:', {
-        url: response.config.url,
-        status: response.status
-      });
       return response;
     },
     async error => {

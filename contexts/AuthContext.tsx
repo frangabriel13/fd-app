@@ -21,10 +21,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { token, user: authUser } = useAppSelector(state => state.auth);
   const { user: myUser } = useAppSelector(state => state.user);
   const router = useRouter();
-
-  console.log('AuthContext - token:', token);
-  console.log('user:', authUser);
-  console.log('myUser:', myUser);
   
   // Solo esperar a que redux-persist termine de hidratar
   useEffect(() => {
