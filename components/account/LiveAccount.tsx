@@ -2,10 +2,10 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 
 interface LiveAccountProps {
   image?: string;
-  name?: string;
+  live?: boolean;
 }
 
-const LiveAccount = ({ image, name }: LiveAccountProps) => {
+const LiveAccount = ({ image, live }: LiveAccountProps) => {
   return (
     <View style={styles.container}>
       {image && (
@@ -15,9 +15,6 @@ const LiveAccount = ({ image, name }: LiveAccountProps) => {
           resizeMode="cover"
         />
       )}
-      <Text style={styles.text}>
-        {name ? `Fabricante: ${name}` : 'LiveAccount'}
-      </Text>
     </View>
   );
 };
