@@ -18,6 +18,7 @@ interface Manufacturer {
   dniFront?: string | null;
   dniBack?: string | null;
   role?: string | null;
+  live?: boolean;
 }
 
 interface Wholesaler {

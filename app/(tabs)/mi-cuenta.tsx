@@ -9,11 +9,10 @@ const AccountScreen = () => {
 
   return (
     <Container type="page">
-      <H2>Mi cuenta</H2>
       {myUser?.role === 'manufacturer' && myUser?.manufacturer && (
         <LiveAccount 
           image={myUser.manufacturer.image}
-          name={myUser.manufacturer.name}
+          live={myUser.manufacturer.live}
         />
       )}
       <MenuAccount />
