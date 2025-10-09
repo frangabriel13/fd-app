@@ -40,9 +40,9 @@ const LiveAccount = ({ image, live }: LiveAccountProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: spacing.md,
-    alignItems: 'center',
-    justifyContent: 'center',
+    // padding: spacing.md,
+    // alignItems: 'center',
+    // justifyContent: 'center',
   },
   imageContainer: {
     position: 'relative',
