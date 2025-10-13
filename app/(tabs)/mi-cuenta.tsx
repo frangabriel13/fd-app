@@ -15,7 +15,7 @@ const AccountScreen = () => {
           live={myUser.manufacturer.live}
         />
       )}
-      <MenuAccount />
+      <MenuAccount userRole={myUser?.role} />
     </Container>
   );
 };
