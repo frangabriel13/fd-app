@@ -4,6 +4,8 @@ import { Colors } from '../../constants/Colors';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 interface MenuOption {
   id: string;
@@ -45,6 +47,24 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
             icon: <Feather name="package" size={24} color={Colors.light.tint} />,
             onPress: () => handleAction('Crear pack'),
           },
+          {
+            id: 'profile-settings',
+            title: 'Configuración de perfil',
+            icon: <FontAwesome name="user-o" size={24} color={Colors.light.tint} />,
+            onPress: () => handleAction('Configuración de perfil'),
+          },
+          {
+            id: 'view-store',
+            title: 'Ver mi tienda',
+            icon: <Ionicons name="storefront-outline" size={24} color={Colors.light.tint} />,
+            onPress: () => handleAction('Ver mi tienda'),
+          },
+          {
+            id: 'view-orders',
+            title: 'Ver órdenes',
+            icon: <Ionicons name="receipt-outline" size={24} color={Colors.light.tint} />,
+            onPress: () => handleAction('Ver órdenes'),
+          }
         ];
       
       case 'wholesaler':
