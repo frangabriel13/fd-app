@@ -32,37 +32,37 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
           {
             id: 'upload-product',
             title: 'Subir producto',
-            icon: <AntDesign name="upload" size={24} color={Colors.light.tint} />,
+            icon: <AntDesign name="upload" size={24} color={Colors.blue.default} />,
             onPress: () => handleAction('Subir producto'),
           },
           {
             id: 'edit-publications',
             title: 'Editar publicaciones',
-            icon: <MaterialIcons name="edit" size={24} color={Colors.light.tint} />,
+            icon: <MaterialIcons name="edit" size={24} color={Colors.blue.default} />,
             onPress: () => handleAction('Editar publicaciones'),
           },
           {
             id: 'create-pack',
             title: 'Crear pack',
-            icon: <Feather name="package" size={24} color={Colors.light.tint} />,
+            icon: <Feather name="package" size={24} color={Colors.blue.default} />,
             onPress: () => handleAction('Crear pack'),
           },
           {
             id: 'profile-settings',
             title: 'Configuración de perfil',
-            icon: <FontAwesome name="user-o" size={24} color={Colors.light.tint} />,
+            icon: <FontAwesome name="user-o" size={24} color={Colors.blue.default} />,
             onPress: () => handleAction('Configuración de perfil'),
           },
           {
             id: 'view-store',
             title: 'Ver mi tienda',
-            icon: <Ionicons name="storefront-outline" size={24} color={Colors.light.tint} />,
+            icon: <Ionicons name="storefront-outline" size={24} color={Colors.blue.default} />,
             onPress: () => handleAction('Ver mi tienda'),
           },
           {
             id: 'view-orders',
             title: 'Ver órdenes',
-            icon: <Ionicons name="receipt-outline" size={24} color={Colors.light.tint} />,
+            icon: <Ionicons name="receipt-outline" size={24} color={Colors.blue.default} />,
             onPress: () => handleAction('Ver órdenes'),
           }
         ];
@@ -72,7 +72,7 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
           {
             id: 'view-orders',
             title: 'Ver órdenes',
-            icon: <MaterialIcons name="shopping-bag" size={24} color={Colors.light.tint} />,
+            icon: <MaterialIcons name="shopping-bag" size={24} color={Colors.blue.default} />,
             onPress: () => handleAction('Ver órdenes'),
           },
         ];
@@ -82,7 +82,7 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
           {
             id: 'view-users',
             title: 'Ver usuarios',
-            icon: <Feather name="users" size={24} color={Colors.light.tint} />,
+            icon: <Feather name="users" size={24} color={Colors.blue.default} />,
             onPress: () => handleAction('Ver usuarios'),
           },
         ];
@@ -92,7 +92,7 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
           {
             id: 'default-option',
             title: 'Mi perfil',
-            icon: <Feather name="user" size={24} color={Colors.light.tint} />,
+            icon: <Feather name="user" size={24} color={Colors.blue.default} />,
             onPress: () => handleAction('Mi perfil'),
           },
         ];
@@ -103,7 +103,6 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Menú</Text>
       <View style={styles.menuContainer}>
         {menuOptions.map((option) => (
           <TouchableOpacity
@@ -126,18 +125,12 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: spacing.md,
+    // paddingHorizontal: spacing.md,
     paddingTop: spacing.lg,
-  },
-  title: {
-    fontSize: fontSize.lg,
-    fontWeight: 'bold',
-    color: Colors.light.text,
-    marginBottom: spacing.md,
   },
   menuContainer: {
     backgroundColor: '#fff',
-    borderRadius: borderRadius.lg,
+    borderRadius: borderRadius.md,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -164,5 +157,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
+
 
 export default MenuAccount;
