@@ -10,12 +10,12 @@ const SeleccionarCategoriaScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const categories = [
-    { id: 'ropa', label: 'Ropa', icon: '👕' },
-    { id: 'calzado', label: 'Calzado', icon: '👟' },
-    { id: 'accesorios', label: 'Accesorios', icon: '👜' },
-    { id: 'bijouterie', label: 'Bijouterie', icon: '💍' },
-    { id: 'textil', label: 'Textil', icon: '🧵' },
-    { id: 'otros', label: 'Otros', icon: '📦' }
+    { id: 'ropa', label: 'Indumentaria', icon: '👕' },
+    { id: 'calzado', label: 'Blanquería', icon: '�️' },
+    { id: 'accesorios', label: 'Bisutería', icon: '�' },
+    { id: 'bijouterie', label: 'Lencería', icon: '�' },
+    { id: 'textil', label: 'Calzados', icon: '👟' },
+    { id: 'otros', label: 'Artículos de confección', icon: '✂️' }
   ];
 
   const handleContinue = () => {
@@ -30,7 +30,6 @@ const SeleccionarCategoriaScreen = () => {
         styles.categoryCard,
         selectedCategory === category.id && styles.selectedCard
       ]}
-      className={selectedCategory === category.id ? 'border-primary' : 'border-gray-300'}
     >
       <Button
         variant={selectedCategory === category.id ? "primary" : "outline"}
@@ -40,8 +39,9 @@ const SeleccionarCategoriaScreen = () => {
         <View style={styles.categoryContent}>
           <Text style={styles.categoryIcon}>{category.icon}</Text>
           <Typography 
-            variant="body1" 
-            className={selectedCategory === category.id ? 'text-white' : 'text-gray-700'}
+            variant="caption" 
+            className={selectedCategory === category.id ? 'text-white text-center' : 'text-gray-700 text-center'}
+            style={styles.categoryLabel}
           >
             {category.label}
           </Typography>
@@ -62,9 +62,18 @@ const SeleccionarCategoriaScreen = () => {
         </Typography>
         
         <View style={styles.categoriesContainer}>
-          {categories.map((category) => (
-            <CategoryCard key={category.id} category={category} />
-          ))}
+          <View style={styles.row}>
+            <CategoryCard category={categories[0]} />
+            <CategoryCard category={categories[1]} />
+          </View>
+          <View style={styles.row}>
+            <CategoryCard category={categories[2]} />
+            <CategoryCard category={categories[3]} />
+          </View>
+          <View style={styles.row}>
+            <CategoryCard category={categories[4]} />
+            <CategoryCard category={categories[5]} />
+          </View>
         </View>
       </ScrollView>
 
@@ -97,28 +106,43 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xl,
   },
   categoriesContainer: {
+    gap: spacing.lg,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     gap: spacing.md,
   },
   categoryCard: {
+    flex: 1,
+    aspectRatio: 1, // Hace que sea cuadrado
     borderRadius: borderRadius.lg,
     borderWidth: 2,
+    borderColor: '#e5e7eb',
     overflow: 'hidden',
   },
   selectedCard: {
     borderColor: Colors.blue.default,
   },
   categoryButton: {
+    flex: 1,
     borderRadius: borderRadius.lg,
-    minHeight: 70,
+    height: '100%',
   },
   categoryContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flex: 1,
     justifyContent: 'center',
-    gap: spacing.md,
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.sm,
   },
   categoryIcon: {
-    fontSize: 24,
+    fontSize: 32,
+  },
+  categoryLabel: {
+    fontSize: 12,
+    lineHeight: 14,
+    textAlign: 'center',
   },
   footer: {
     paddingHorizontal: spacing.lg,
@@ -134,5 +158,6 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
 });
+
 
 export default SeleccionarCategoriaScreen;
