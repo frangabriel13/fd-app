@@ -141,8 +141,8 @@ const styles = StyleSheet.create({
     fontSize: 32,
   },
   categoryLabel: {
-    fontSize: 12,
-    lineHeight: 14,
+    fontSize: 18,
+    // lineHeight: 24,
     textAlign: 'center',
   },
   footer: {
