@@ -17,7 +17,11 @@ const TipoArticuloScreen = () => {
     { id: 'abrigo', label: 'Abrigo', icon: '🧥' },
     { id: 'accesorio', label: 'Accesorio', icon: '👜' },
     { id: 'ropa-interior', label: 'Ropa interior', icon: '🩲' },
-    { id: 'otro', label: 'Otro', icon: '📦' }
+    { id: 'otro', label: 'Otro', icon: '📦' },
+    { id: 'sudadera', label: 'Sudadera', icon: '�' },
+    { id: 'falda', label: 'Falda', icon: '👗' },
+    { id: 'shorts', label: 'Shorts', icon: '🩳' },
+    { id: 'medias', label: 'Medias', icon: '�' },
   ];
 
   const handleContinue = () => {
@@ -32,7 +36,6 @@ const TipoArticuloScreen = () => {
         styles.typeCard,
         selectedType === type.id && styles.selectedCard
       ]}
-      className={selectedType === type.id ? 'border-primary' : 'border-gray-300'}
     >
       <Button
         variant={selectedType === type.id ? "primary" : "outline"}
@@ -42,8 +45,8 @@ const TipoArticuloScreen = () => {
         <View style={styles.typeContent}>
           <Text style={styles.typeIcon}>{type.icon}</Text>
           <Typography 
-            variant="body1" 
-            className={selectedType === type.id ? 'text-white' : 'text-gray-700'}
+            variant="caption" 
+            className={selectedType === type.id ? 'text-white text-center' : 'text-gray-700 text-center'}
           >
             {type.label}
           </Typography>
@@ -55,17 +58,17 @@ const TipoArticuloScreen = () => {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Typography variant="h2" className="text-center text-gray-800 mb-2">
+        <Typography variant="h2" className="text-center text-gray-800 mb-8">
           Tipo de artículo
         </Typography>
         
-        <Typography variant="body2" className="text-center text-gray-600 mb-8">
-          ¿Qué tipo de artículo estás subiendo?
-        </Typography>
-        
         <View style={styles.typesContainer}>
-          {articleTypes.map((type) => (
-            <TypeCard key={type.id} type={type} />
+          {Array.from({ length: Math.ceil(articleTypes.length / 3) }, (_, rowIndex) => (
+            <View key={rowIndex} style={styles.row}>
+              {articleTypes.slice(rowIndex * 3, (rowIndex + 1) * 3).map((type) => (
+                <TypeCard key={type.id} type={type} />
+              ))}
+            </View>
           ))}
         </View>
       </ScrollView>
@@ -97,30 +100,42 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
+    paddingBottom: spacing.xl,
   },
   typesContainer: {
-    gap: spacing.md,
+    gap: spacing.xl,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: spacing.lg,
   },
   typeCard: {
+    flex: 1,
     borderRadius: borderRadius.lg,
     borderWidth: 2,
+    borderColor: Colors.orange.light,
     overflow: 'hidden',
+    backgroundColor: '#fff',
   },
   selectedCard: {
-    borderColor: Colors.blue.default,
+    borderColor: Colors.orange.light,
+    backgroundColor: Colors.orange.light,
   },
   typeButton: {
-    borderRadius: borderRadius.lg,
     minHeight: 70,
+    borderWidth: 0,
+    backgroundColor: 'transparent',
   },
   typeContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flex: 1,
     justifyContent: 'center',
-    gap: spacing.md,
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.sm,
   },
   typeIcon: {
-    fontSize: 24,
+    fontSize: 32,
   },
   footer: {
     paddingHorizontal: spacing.lg,
