@@ -17,7 +17,7 @@ const StepHeader = ({ title, step, totalSteps }: StepHeaderProps) => {
   const router = useRouter();
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 10 }]} className='bg-primary'>
+    <View style={[styles.container, { paddingTop: insets.top + 0 }]} className='bg-primary'>
       <TouchableOpacity
         onPress={() => router.back()}
         style={styles.backButton}
@@ -29,9 +29,9 @@ const StepHeader = ({ title, step, totalSteps }: StepHeaderProps) => {
         <Typography variant="h3" className="text-white font-mont-medium">
           {title}
         </Typography>
-        <Typography variant="caption" className="text-gray-200">
+        {/* <Typography variant="caption" className="text-gray-200">
           Paso {step} de {totalSteps}
-        </Typography>
+        </Typography> */}
       </View>
       
       <View style={styles.spacer} />
@@ -44,9 +44,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
-    backgroundColor: Colors.blue.default,
+    paddingHorizontal: spacing.xs,
+    paddingBottom: spacing.xs,
+    // backgroundColor: Colors.blue.default,
   },
   backButton: {
     padding: spacing.xs,
