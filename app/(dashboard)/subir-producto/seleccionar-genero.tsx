@@ -10,10 +10,11 @@ const SeleccionarGeneroScreen = () => {
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
 
   const genders = [
-    { id: 'hombre', label: 'Hombre', icon: '👨' },
     { id: 'mujer', label: 'Mujer', icon: '👩' },
-    { id: 'unisex', label: 'Unisex', icon: '👤' },
-    { id: 'ninos', label: 'Niños', icon: '👶' }
+    { id: 'hombre', label: 'Hombre', icon: '👨' },
+    { id: 'niña', label: 'Niña', icon: '👧' },
+    { id: 'niño', label: 'Niño', icon: '👦' },
+    { id: 'bebes', label: 'Bebés', icon: '👶' }
   ];
 
   const handleContinue = () => {
@@ -28,7 +29,6 @@ const SeleccionarGeneroScreen = () => {
         styles.genderCard,
         selectedGender === gender.id && styles.selectedCard
       ]}
-      className={selectedGender === gender.id ? 'border-primary' : 'border-gray-300'}
     >
       <Button
         variant={selectedGender === gender.id ? "primary" : "outline"}
@@ -38,7 +38,7 @@ const SeleccionarGeneroScreen = () => {
         <View style={styles.genderContent}>
           <Text style={styles.genderIcon}>{gender.icon}</Text>
           <Typography 
-            variant="body1" 
+            variant="body" 
             className={selectedGender === gender.id ? 'text-white' : 'text-gray-700'}
           >
             {gender.label}
@@ -51,12 +51,8 @@ const SeleccionarGeneroScreen = () => {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Typography variant="h2" className="text-center text-gray-800 mb-2">
+        <Typography variant="h2" className="text-center text-gray-800 mb-8">
           Selecciona el género
-        </Typography>
-        
-        <Typography variant="body2" className="text-center text-gray-600 mb-8">
-          ¿Para quién está dirigido tu producto?
         </Typography>
         
         <View style={styles.gendersContainer}>
@@ -93,21 +89,26 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
+    paddingBottom: spacing.xl,
   },
   gendersContainer: {
-    gap: spacing.md,
+    gap: spacing.xl,
   },
   genderCard: {
     borderRadius: borderRadius.lg,
     borderWidth: 2,
+    borderColor: Colors.orange.light,
     overflow: 'hidden',
+    backgroundColor: '#fff',
   },
   selectedCard: {
-    borderColor: Colors.blue.default,
+    borderColor: Colors.orange.light,
+    backgroundColor: Colors.orange.light,
   },
   genderButton: {
-    borderRadius: borderRadius.lg,
     minHeight: 70,
+    borderWidth: 0,
+    backgroundColor: 'transparent',
   },
   genderContent: {
     flexDirection: 'row',
