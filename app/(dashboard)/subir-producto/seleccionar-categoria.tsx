@@ -54,11 +54,7 @@ const SeleccionarCategoriaScreen = () => {
     <View style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <Typography variant="h2" className="text-center text-gray-800 mb-2">
-          Selecciona una categoría
-        </Typography>
-        
-        <Typography variant="body2" className="text-center text-gray-600 mb-8">
-          Elige la categoría que mejor describa tu producto
+          Elige la categoría de tu producto
         </Typography>
         
         <View style={styles.categoriesContainer}>
