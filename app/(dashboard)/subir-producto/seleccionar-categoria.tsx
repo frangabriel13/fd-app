@@ -53,7 +53,7 @@ const SeleccionarCategoriaScreen = () => {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Typography variant="h2" className="text-center text-gray-800 mb-2">
+        <Typography variant="h2" className="text-center text-gray-800 mb-8">
           Elige la categoría de tu producto
         </Typography>
         
@@ -100,14 +100,15 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
+    paddingBottom: spacing.xl,
   },
   categoriesContainer: {
-    gap: spacing.lg,
+    gap: spacing.xl,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: spacing.md,
+    gap: spacing.xl,
   },
   categoryCard: {
     flex: 1,
