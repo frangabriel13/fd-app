@@ -115,16 +115,20 @@ const styles = StyleSheet.create({
     aspectRatio: 1, // Hace que sea cuadrado
     borderRadius: borderRadius.lg,
     borderWidth: 2,
-    borderColor: '#e5e7eb',
+    borderColor: Colors.orange.light,
     overflow: 'hidden',
+    backgroundColor: '#fff',
   },
   selectedCard: {
-    borderColor: Colors.blue.default,
+    borderColor: Colors.orange.light,
+    backgroundColor: Colors.orange.light,
   },
   categoryButton: {
     flex: 1,
-    borderRadius: borderRadius.lg,
+    // borderRadius: borderRadius.lg,
     height: '100%',
+    borderWidth: 0,
+    backgroundColor: 'transparent',
   },
   categoryContent: {
     flex: 1,
@@ -137,8 +141,8 @@ const styles = StyleSheet.create({
     fontSize: 32,
   },
   categoryLabel: {
-    fontSize: 12,
-    lineHeight: 14,
+    fontSize: 18,
+    // lineHeight: 24,
     textAlign: 'center',
   },
   footer: {
