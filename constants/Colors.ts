@@ -27,5 +27,10 @@ export const Colors = {
     default: '#1e40af',
     light: '#3b82f6',
     dark: '#021344',
+  },
+  orange: {
+    default: '#f97316',
+    light: '#fb923c',
+    dark: '#f86f1a',
   }
 };
