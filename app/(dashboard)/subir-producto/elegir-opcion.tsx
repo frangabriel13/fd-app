@@ -36,7 +36,6 @@ const ElegirOpcionScreen = () => {
         styles.optionCard,
         selectedOption === option.id && styles.selectedCard
       ]}
-      className={selectedOption === option.id ? 'border-primary' : 'border-gray-300'}
     >
       <Button
         variant={selectedOption === option.id ? "primary" : "outline"}
@@ -47,7 +46,7 @@ const ElegirOpcionScreen = () => {
           <Text style={styles.optionIcon}>{option.icon}</Text>
           <View style={styles.textContainer}>
             <Typography 
-              variant="h4" 
+              variant="h3" 
               className={selectedOption === option.id ? 'text-white' : 'text-gray-800'}
             >
               {option.title}
@@ -67,12 +66,8 @@ const ElegirOpcionScreen = () => {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Typography variant="h2" className="text-center text-gray-800 mb-2">
+        <Typography variant="h2" className="text-center text-gray-800 mb-8">
           Elige una opción
-        </Typography>
-        
-        <Typography variant="body2" className="text-center text-gray-600 mb-8">
-          Selecciona cómo quieres configurar las variantes de tu producto
         </Typography>
         
         <View style={styles.optionsContainer}>
@@ -109,23 +104,28 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
+    paddingBottom: spacing.xl,
   },
   optionsContainer: {
-    gap: spacing.lg,
+    gap: spacing.xl,
   },
   optionCard: {
     borderRadius: borderRadius.lg,
     borderWidth: 2,
+    borderColor: Colors.orange.light,
     overflow: 'hidden',
+    backgroundColor: '#fff',
   },
   selectedCard: {
-    borderColor: Colors.blue.default,
+    borderColor: Colors.orange.light,
+    backgroundColor: Colors.orange.light,
   },
   optionButton: {
-    borderRadius: borderRadius.lg,
     minHeight: 100,
     paddingVertical: spacing.lg,
     paddingHorizontal: spacing.lg,
+    borderWidth: 0,
+    backgroundColor: 'transparent',
   },
   optionContent: {
     flexDirection: 'row',
