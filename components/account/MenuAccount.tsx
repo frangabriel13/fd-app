@@ -6,6 +6,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
 
 interface MenuOption {
   id: string;
@@ -19,9 +20,38 @@ interface MenuAccountProps {
 }
 
 const MenuAccount = ({ userRole }: MenuAccountProps) => {
-  // Función para manejar las acciones (por ahora solo alertas)
+  const router = useRouter();
+
+  // Función para manejar las acciones
   const handleAction = (action: string) => {
-    Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
+    switch (action) {
+      case 'Subir producto':
+        router.push('/(dashboard)/subir-producto/seleccionar-categoria');
+        break;
+      case 'Editar publicaciones':
+        Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
+        break;
+      case 'Crear pack':
+        Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
+        break;
+      case 'Configuración de perfil':
+        Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
+        break;
+      case 'Ver mi tienda':
+        Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
+        break;
+      case 'Ver órdenes':
+        Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
+        break;
+      case 'Ver usuarios':
+        Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
+        break;
+      case 'Mi perfil':
+        Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
+        break;
+      default:
+        Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
+    }
   };
 
   // Definir las opciones del menú según el rol
