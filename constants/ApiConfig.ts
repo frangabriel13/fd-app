@@ -13,7 +13,7 @@ const getBaseURL = () => {
       return config;
     } else {
       // En móvil usar la IP local de tu computadora
-      const LOCAL_IP = '192.168.1.70'; // Tu IP local
+      const LOCAL_IP = '192.168.1.43'; // Tu IP local
       const config = {
         API_URL_3001: `http://${LOCAL_IP}:3001/api`,
         API_URL_3000: `http://${LOCAL_IP}:3000/api`
