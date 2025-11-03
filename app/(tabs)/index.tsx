@@ -1,21 +1,20 @@
 import Slider from '@/components/slider/Slider';
 import Genders from '@/components/home/Genders';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, ScrollView } from 'react-native';
 
 const HomeScreen = () => {
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Slider />
       <Genders />
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,                    // ESENCIAL: Ocupa todo el espacio disponible
-    // backgroundColor: '#fff',
-    // paddingHorizontal: 10,
+    flex: 1,
+    backgroundColor: '#fff',
   },
   text: {
     fontSize: 18,

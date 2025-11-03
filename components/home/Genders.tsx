@@ -43,7 +43,6 @@ const Genders = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    marginTop: 0,
   },
   gendersGrid: {
     flexDirection: 'row',

@@ -51,30 +51,35 @@ const Slider = () => {
         
 
   return (
-    <ScrollView
-      ref={scrollRef}
-      horizontal
-      pagingEnabled
-      showsHorizontalScrollIndicator={false}
-      className="w-full"
-      onMomentumScrollEnd={onMomentumScrollEnd}
-      contentOffset={{ x: width, y: 0 }}
-    >
-      {loopedImages.map((img, idx) => (
-        <View key={idx} style={styles.slide}>
-          <Image
-            source={img}
-            className="w-full mb-2"
-            style={styles.image}
-            resizeMode="cover"
-          />
-        </View>
-      ))}
-    </ScrollView>
+    <View style={styles.sliderContainer}>
+      <ScrollView
+        ref={scrollRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        className="w-full"
+        onMomentumScrollEnd={onMomentumScrollEnd}
+        contentOffset={{ x: width, y: 0 }}
+      >
+        {loopedImages.map((img, idx) => (
+          <View key={idx} style={styles.slide}>
+            <Image
+              source={img}
+              className="w-full mb-2"
+              style={styles.image}
+              resizeMode="cover"
+            />
+          </View>
+        ))}
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  sliderContainer: {
+    marginBottom: 0,
+  },
   slide: {
     width: width,
   },
