@@ -17,12 +17,25 @@ interface Manufacturer {
   userId: number;
 }
 
+interface LiveManufacturer {
+  id: number;
+  name: string;
+  image: string | null;
+  live: boolean;
+  tiktokUrl: string | null;
+  user: {
+    id: number;
+    email: string;
+  };
+}
+
 interface ManufacturerState {
   loading: boolean;
   success: boolean;
   error: string | null;
   token: string | null;
   manufacturer: Manufacturer | null;
+  liveManufacturers: LiveManufacturer[];
 }
 
 interface ImageUpload {
@@ -38,6 +51,7 @@ const initialState: ManufacturerState = {
   error: null,
   token: null,
   manufacturer: null,
+  liveManufacturers: [],
 };
 
 // Thunk para refresh token
@@ -104,6 +118,21 @@ export const uploadDocuments = createAsyncThunk(
   }
 );
 
+// Traer fabricantes en vivo
+export const fetchLiveManufacturers = createAsyncThunk(
+  'manufacturer/fetchLiveManufacturers',
+  async ({ page, pageSize }: { page: number; pageSize: number }, { rejectWithValue }) => {
+    try {
+      const response = await manufacturerInstance.get('/live', {
+        params: { page, pageSize },
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al obtener fabricantes en vivo');
+    }
+  }
+);
+
 // Slice
 const manufacturerSlice = createSlice({
   name: 'manufacturer',
@@ -123,6 +152,9 @@ const manufacturerSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.token = null;
+    },
+    clearLiveManufacturers: (state) => {
+      state.liveManufacturers = [];
     },
   },
   extraReducers: (builder) => {
@@ -172,10 +204,27 @@ const manufacturerSlice = createSlice({
         state.loading = false;
         state.success = false;
         state.error = action.payload as string || 'Error al subir documentos';
+      })
+      // Fetch Live Manufacturers
+      .addCase(fetchLiveManufacturers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchLiveManufacturers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        // El backend devuelve directamente un array de fabricantes en vivo
+        state.liveManufacturers = action.payload;
+      })
+      .addCase(fetchLiveManufacturers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || 'Error al obtener fabricantes en vivo';
+        state.liveManufacturers = [];
       });
+
   },
 });
 
 
-export const { clearError, logout, setToken, resetManufacturerState } = manufacturerSlice.actions;
+export const { clearError, logout, setToken, resetManufacturerState, clearLiveManufacturers } = manufacturerSlice.actions;
 export default manufacturerSlice.reducer;
