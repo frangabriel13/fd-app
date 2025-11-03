@@ -13,10 +13,9 @@ const LiveManufacturers = () => {
   const manufacturerState = useAppSelector((state) => state.manufacturer);
 
   useEffect(() => {
-    if (manufacturerState) {
-      dispatch(fetchLiveManufacturers({ page: 1, pageSize: 20 }));
-    }
-  }, [dispatch, manufacturerState]);
+    // Solo hacer fetch una vez al montar el componente
+    dispatch(fetchLiveManufacturers({ page: 1, pageSize: 20 }));
+  }, [dispatch]);
 
   const handleSeeMore = () => {
     // TODO: Navegar a la pantalla completa de fabricantes en vivo
