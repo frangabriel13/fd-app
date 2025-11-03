@@ -1,5 +1,6 @@
 import Slider from '@/components/slider/Slider';
 import Genders from '@/components/home/Genders';
+import LiveManufacturers from '@/components/home/LiveManufacturers';
 import { StyleSheet, ScrollView, View } from 'react-native';
 
 const HomeScreen = () => {
@@ -8,6 +9,7 @@ const HomeScreen = () => {
       <Slider />
       <View style={styles.homeContent}>  
         <Genders />
+        <LiveManufacturers />
       </View>
     </ScrollView>
   );
