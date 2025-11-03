@@ -104,7 +104,10 @@ const LiveManufacturers = () => {
             <View style={styles.avatarContainer}>
               <Image
                 source={manufacturer.image ? { uri: manufacturer.image } : logoDefault}
-                style={styles.avatar}
+                style={[
+                  styles.avatar,
+                  manufacturer.live && styles.avatarLive // Aplica el borde si está en vivo
+                ]}
                 resizeMode="cover"
               />
               {manufacturer.live && <View style={styles.liveIndicator} />}
@@ -168,6 +171,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#e0e0e0',
     backgroundColor: '#f8f8f8',
+  },
+  avatarLive: {
+    borderColor: '#ff4444', // Cambia el color del borde si está en vivo
+    borderWidth: 3, // Aumenta el grosor del borde
   },
   liveIndicator: {
     position: 'absolute',
