@@ -1,10 +1,12 @@
 import Slider from '@/components/slider/Slider';
+import Genders from '@/components/home/Genders';
 import { StyleSheet, View } from 'react-native';
 
 const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <Slider />
+      <Genders />
     </View>
   );
 };
