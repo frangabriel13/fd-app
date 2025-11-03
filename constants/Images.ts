@@ -16,5 +16,9 @@ const documentsImages = {
   selfie: require('../assets/images/selfie1.png'),
 }
 
+const defaultImages = {
+  logoDefault: require('../assets/images/logo-default.png'),
+}
 
-export default { sliderImages, roleImages, documentsImages };
+
+export default { sliderImages, roleImages, documentsImages, defaultImages };
