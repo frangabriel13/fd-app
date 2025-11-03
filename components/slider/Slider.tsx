@@ -65,7 +65,7 @@ const Slider = () => {
           <View key={idx} style={styles.slide}>
             <Image
               source={img}
-              className="w-full mb-2"
+              className="w-full"
               style={styles.image}
               resizeMode="cover"
             />

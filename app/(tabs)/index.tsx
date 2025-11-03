@@ -1,12 +1,14 @@
 import Slider from '@/components/slider/Slider';
 import Genders from '@/components/home/Genders';
-import { StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet, ScrollView, View } from 'react-native';
 
 const HomeScreen = () => {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Slider />
-      <Genders />
+      <View style={styles.homeContent}>  
+        <Genders />
+      </View>
     </ScrollView>
   );
 };
@@ -15,6 +17,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  homeContent: {
+    paddingVertical: 16,
+    paddingHorizontal: 8,
   },
   text: {
     fontSize: 18,
