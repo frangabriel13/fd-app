@@ -11,7 +11,11 @@ const HomeScreen = () => {
       <View style={styles.homeContent}>  
         <Genders />
         <LiveManufacturers />
-        <ProductSlider />
+        <ProductSlider title="Productos Destacados" section="featured" />
+        <ProductSlider title="Nuevos Productos" section="newProducts" />
+        <ProductSlider title="En Oferta" section="sales" />
+        <ProductSlider title="Blanquería" section="blanqueria" />
+        <ProductSlider title="Lencería" section="lenceria" />
       </View>
     </ScrollView>
   );
