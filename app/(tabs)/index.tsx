@@ -12,10 +12,16 @@ const HomeScreen = () => {
         <Genders />
         <LiveManufacturers />
         <ProductSlider title="Productos Destacados" section="featured" />
-        <ProductSlider title="Nuevos Productos" section="newProducts" />
-        <ProductSlider title="En Oferta" section="sales" />
+        <ProductSlider title="Nuevos Ingresos" section="newProducts" />
+        <ProductSlider title="Packs/Combos" section="packs" />
+        <ProductSlider title="Liquidaciones/Ofertas" section="sales" />
         <ProductSlider title="Blanquería" section="blanqueria" />
         <ProductSlider title="Lencería" section="lenceria" />
+        <ProductSlider title="Calzado" section="calzado" />
+        <ProductSlider title="Bisutería" section="bisuteria" />
+        <ProductSlider title="Telas" section="telas" />
+        <ProductSlider title="Insumos" section="insumos" />
+        <ProductSlider title="Máquinas" section="maquinas" />
       </View>
     </ScrollView>
   );
