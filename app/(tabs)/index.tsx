@@ -3,8 +3,18 @@ import Genders from '@/components/home/Genders';
 import LiveManufacturers from '@/components/home/LiveManufacturers';
 import ProductSlider from '@/components/home/ProductSlider';
 import { StyleSheet, ScrollView, View } from 'react-native';
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { fetchMobileHomeProducts } from '@/store/slices/productSlice';
+import type { AppDispatch } from '@/store';
 
 const HomeScreen = () => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    dispatch(fetchMobileHomeProducts());
+  }, [dispatch]);
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Slider />

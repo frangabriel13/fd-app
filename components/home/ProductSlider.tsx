@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Alert } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchMobileHomeProducts } from '@/store/slices/productSlice';
-import type { RootState, AppDispatch } from '@/store';
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/store';
 import { Colors } from '@/constants/Colors';
 
 interface ProductSliderProps {
@@ -11,12 +10,7 @@ interface ProductSliderProps {
 }
 
 const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
-  const dispatch = useDispatch<AppDispatch>();
   const { [section]: products, loading, error } = useSelector((state: RootState) => state.product);
-
-  useEffect(() => {
-    dispatch(fetchMobileHomeProducts());
-  }, [dispatch]);
 
   const handleProductPress = (product: any) => {
     Alert.alert('Producto seleccionado', `Has seleccionado: ${product.name}`);
