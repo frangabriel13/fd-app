@@ -36,6 +36,10 @@ interface ManufacturerState {
   token: string | null;
   manufacturer: Manufacturer | null;
   liveManufacturers: LiveManufacturer[];
+  // Nuevos campos para paginación
+  currentPage: number;
+  hasMoreData: boolean;
+  isLoadingMore: boolean;
 }
 
 interface ImageUpload {
@@ -52,6 +56,9 @@ const initialState: ManufacturerState = {
   token: null,
   manufacturer: null,
   liveManufacturers: [],
+  currentPage: 1,
+  hasMoreData: true,
+  isLoadingMore: false,
 };
 
 // Thunk para refresh token
@@ -118,7 +125,38 @@ export const uploadDocuments = createAsyncThunk(
   }
 );
 
-// Traer fabricantes en vivo
+// Traer fabricantes en vivo con paginación mejorada
+export const fetchAllLiveManufacturers = createAsyncThunk(
+  'manufacturer/fetchAllLiveManufacturers',
+  async ({ 
+    page = 1, 
+    limit, 
+    isFirstLoad = false 
+  }: { 
+    page?: number; 
+    limit?: number; 
+    isFirstLoad?: boolean; 
+  }, { rejectWithValue }) => {
+    try {
+      const response = await manufacturerInstance.get('/all-live', {
+        params: { 
+          page, 
+          limit,
+          isFirstLoad: isFirstLoad.toString()
+        },
+      });
+      return {
+        data: response.data,
+        page,
+        isFirstLoad
+      };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al obtener fabricantes en vivo');
+    }
+  }
+);
+
+// Traer fabricantes en vivo (mantener compatibilidad)
 export const fetchLiveManufacturers = createAsyncThunk(
   'manufacturer/fetchLiveManufacturers',
   async ({ page, pageSize }: { page: number; pageSize: number }, { rejectWithValue }) => {
@@ -155,6 +193,14 @@ const manufacturerSlice = createSlice({
     },
     clearLiveManufacturers: (state) => {
       state.liveManufacturers = [];
+      state.currentPage = 1;
+      state.hasMoreData = true;
+      state.isLoadingMore = false;
+    },
+    resetPagination: (state) => {
+      state.currentPage = 1;
+      state.hasMoreData = true;
+      state.isLoadingMore = false;
     },
   },
   extraReducers: (builder) => {
@@ -205,7 +251,42 @@ const manufacturerSlice = createSlice({
         state.success = false;
         state.error = action.payload as string || 'Error al subir documentos';
       })
-      // Fetch Live Manufacturers
+      // Fetch All Live Manufacturers (con paginación mejorada)
+      .addCase(fetchAllLiveManufacturers.pending, (state, action) => {
+        const { isFirstLoad } = action.meta.arg;
+        if (isFirstLoad) {
+          state.loading = true;
+        } else {
+          state.isLoadingMore = true;
+        }
+        state.error = null;
+      })
+      .addCase(fetchAllLiveManufacturers.fulfilled, (state, action) => {
+        const { data, page, isFirstLoad } = action.payload;
+        state.loading = false;
+        state.isLoadingMore = false;
+        state.error = null;
+        
+        if (isFirstLoad || page === 1) {
+          // Primera carga o reset: reemplazar datos
+          state.liveManufacturers = data;
+        } else {
+          // Carga adicional: concatenar datos
+          state.liveManufacturers = [...state.liveManufacturers, ...data];
+        }
+        
+        state.currentPage = page;
+        // Si recibimos menos datos de lo esperado, no hay más datos
+        const expectedSize = isFirstLoad ? 40 : 20;
+        state.hasMoreData = data.length === expectedSize;
+      })
+      .addCase(fetchAllLiveManufacturers.rejected, (state, action) => {
+        state.loading = false;
+        state.isLoadingMore = false;
+        state.error = action.payload as string || 'Error al obtener fabricantes en vivo';
+        state.hasMoreData = false;
+      })
+      // Fetch Live Manufacturers (mantener compatibilidad)
       .addCase(fetchLiveManufacturers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -226,5 +307,5 @@ const manufacturerSlice = createSlice({
 });
 
 
-export const { clearError, logout, setToken, resetManufacturerState, clearLiveManufacturers } = manufacturerSlice.actions;
+export const { clearError, logout, setToken, resetManufacturerState, clearLiveManufacturers, resetPagination } = manufacturerSlice.actions;
 export default manufacturerSlice.reducer;
