@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { fetchLiveManufacturers } from '../../store/slices/manufacturerSlice';
+import { fetchAllLiveManufacturers } from '../../store/slices/manufacturerSlice';
 import Images from '@/constants/Images';
 
 const { width } = Dimensions.get('window');
@@ -14,7 +14,7 @@ const LiveManufacturers = () => {
 
   useEffect(() => {
     // Solo hacer fetch una vez al montar el componente
-    dispatch(fetchLiveManufacturers({ page: 1, pageSize: 20 }));
+    dispatch(fetchAllLiveManufacturers({ page: 1, limit: 8, isFirstLoad: true }));
   }, [dispatch]);
 
   const handleSeeMore = () => {
