@@ -1,51 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { View, Text } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import { Container } from '@/components/ui';
-
-interface StoreData {
-  id: string;
-  name: string;
-  description: string;
-  image?: string;
-  // Agrega más propiedades según necesites
-}
+import { getManufacturerById } from '@/store/slices/manufacturerSlice';
+import { RootState, AppDispatch } from '@/store';
 
 const StoreScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [storeData, setStoreData] = useState<StoreData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const { selectedManufacturer, loadingDetail } = useSelector((state: RootState) => state.manufacturer);
 
   useEffect(() => {
-    // Función para cargar los datos del fabricante/store usando el ID
-    const loadStoreData = async () => {
-      try {
-        setLoading(true);
-        // Aquí harías la llamada a la API para obtener los datos del fabricante
-        // const response = await getManufacturerById(id);
-        // setStoreData(response.data);
-        
-        console.log('Store ID:', id);
-        // Por ahora, datos mock para desarrollo
-        setStoreData({
-          id: id || '',
-          name: 'Nombre del Store',
-          description: 'Descripción del store',
-          // ... otros datos del store
-        });
-      } catch (error) {
-        console.error('Error loading store data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (id) {
-      loadStoreData();
+      console.log('🏪 Cargando fabricante con ID:', id);
+      dispatch(getManufacturerById(Number(id)));
     }
-  }, [id]);
+  }, [id, dispatch]);
 
-  if (loading) {
+  useEffect(() => {
+    if (selectedManufacturer) {
+      console.log('✅ Datos del fabricante cargados:', selectedManufacturer);
+    }
+  }, [selectedManufacturer]);
+
+  if (loadingDetail) {
     return (
       <Container type="page">
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -58,20 +37,7 @@ const StoreScreen = () => {
   return (
     <Container type="page">
       <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16 }}>
-          Store ID: {id}
-        </Text>
-        {storeData && (
-          <View>
-            <Text style={{ fontSize: 20, fontWeight: '600', marginBottom: 8 }}>
-              {storeData.name}
-            </Text>
-            <Text style={{ fontSize: 16, color: '#666' }}>
-              {storeData.description}
-            </Text>
-            {/* Agregar más componentes según necesites */}
-          </View>
-        )}
+        <Text>tienda</Text>
       </View>
     </Container>
   );
