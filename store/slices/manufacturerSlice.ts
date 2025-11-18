@@ -4,6 +4,31 @@ import { refreshTokenService } from '../../services/authService';
 import { manufacturerInstance } from '../../services/axiosConfig';
 
 // Tipos
+interface Review {
+  id: number;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  user: {
+    id: number;
+    wholesaler: {
+      id: number;
+      name: string;
+    };
+  };
+}
+
+interface ManufacturerDetail extends Manufacturer {
+  averageRating: number | null;
+  followersCount: number;
+  isFollowed: boolean;
+  reviews: Review[];
+  user: {
+    id: number;
+    email: string;
+  };
+}
+
 interface Manufacturer {
   id: number;
   name: string;
@@ -35,11 +60,14 @@ interface ManufacturerState {
   error: string | null;
   token: string | null;
   manufacturer: Manufacturer | null;
+  selectedManufacturer: ManufacturerDetail | null;
   liveManufacturers: LiveManufacturer[];
   // Nuevos campos para paginación
   currentPage: number;
   hasMoreData: boolean;
   isLoadingMore: boolean;
+  // Para el detalle del fabricante
+  loadingDetail: boolean;
 }
 
 interface ImageUpload {
@@ -55,10 +83,12 @@ const initialState: ManufacturerState = {
   error: null,
   token: null,
   manufacturer: null,
+  selectedManufacturer: null,
   liveManufacturers: [],
   currentPage: 1,
   hasMoreData: true,
   isLoadingMore: false,
+  loadingDetail: false,
 };
 
 // Thunk para refresh token
@@ -171,6 +201,19 @@ export const fetchLiveManufacturers = createAsyncThunk(
   }
 );
 
+// Obtener fabricante por ID
+export const getManufacturerById = createAsyncThunk(
+  'manufacturer/getManufacturerById',
+  async (manufacturerId: number, { rejectWithValue }) => {
+    try {
+      const response = await manufacturerInstance.get(`/by-id/${manufacturerId}`);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al obtener fabricante');
+    }
+  }
+);
+
 // Slice
 const manufacturerSlice = createSlice({
   name: 'manufacturer',
@@ -201,6 +244,10 @@ const manufacturerSlice = createSlice({
       state.currentPage = 1;
       state.hasMoreData = true;
       state.isLoadingMore = false;
+    },
+    clearSelectedManufacturer: (state) => {
+      state.selectedManufacturer = null;
+      state.loadingDetail = false;
     },
   },
   extraReducers: (builder) => {
@@ -301,11 +348,26 @@ const manufacturerSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string || 'Error al obtener fabricantes en vivo';
         state.liveManufacturers = [];
+      })
+      // Get Manufacturer By ID
+      .addCase(getManufacturerById.pending, (state) => {
+        state.loadingDetail = true;
+        state.error = null;
+      })
+      .addCase(getManufacturerById.fulfilled, (state, action: PayloadAction<ManufacturerDetail>) => {
+        state.loadingDetail = false;
+        state.error = null;
+        state.selectedManufacturer = action.payload;
+      })
+      .addCase(getManufacturerById.rejected, (state, action) => {
+        state.loadingDetail = false;
+        state.error = action.payload as string || 'Error al obtener fabricante';
+        state.selectedManufacturer = null;
       });
 
   },
 });
 
 
-export const { clearError, logout, setToken, resetManufacturerState, clearLiveManufacturers, resetPagination } = manufacturerSlice.actions;
+export const { clearError, logout, setToken, resetManufacturerState, clearLiveManufacturers, resetPagination, clearSelectedManufacturer } = manufacturerSlice.actions;
 export default manufacturerSlice.reducer;

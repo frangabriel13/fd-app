@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { useEffect } from 'react';
+import { useRouter } from 'expo-router';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { fetchAllLiveManufacturers } from '../../store/slices/manufacturerSlice';
 import Images from '@/constants/Images';
@@ -10,6 +11,7 @@ const logoDefault = Images.defaultImages.logoDefault;
 
 const LiveManufacturers = () => {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const manufacturerState = useAppSelector((state) => state.manufacturer);
 
   useEffect(() => {
@@ -23,8 +25,8 @@ const LiveManufacturers = () => {
   };
 
   const handleManufacturerPress = (manufacturer: any) => {
-    // TODO: Abrir el live del fabricante
-    console.log('Abrir live de:', manufacturer.name);
+    console.log('Navegando al store de:', manufacturer.name);
+    router.push(`/(tabs)/store/${manufacturer.id}`);
   };
 
   // Proteger contra estado undefined durante la hidratación de Redux Persist
@@ -49,7 +51,7 @@ const LiveManufacturers = () => {
         <View style={styles.header}>
           <Text style={styles.title}>Live Shopping</Text>
           <TouchableOpacity onPress={handleSeeMore}>
-            <Text style={styles.seeMore}>más{'>'}</Text>
+            <Text style={styles.seeMore}>más&gt;</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.loadingContainer}>
@@ -65,7 +67,7 @@ const LiveManufacturers = () => {
         <View style={styles.header}>
           <Text style={styles.title}>Live Shopping</Text>
           <TouchableOpacity onPress={handleSeeMore}>
-            <Text style={styles.seeMore}>más{'>'}</Text>
+            <Text style={styles.seeMore}>más&gt;</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.emptyContainer}>
@@ -80,7 +82,7 @@ const LiveManufacturers = () => {
       <View style={styles.header}>
         <Text style={styles.title}>Live Shopping</Text>
         <TouchableOpacity onPress={handleSeeMore}>
-          <Text style={styles.seeMore}>más{'>'}</Text>
+          <Text style={styles.seeMore}>más&gt;</Text>
         </TouchableOpacity>
       </View>
       
