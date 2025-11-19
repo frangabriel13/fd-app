@@ -5,6 +5,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Container } from '@/components/ui';
 import { getManufacturerById } from '@/store/slices/manufacturerSlice';
 import { RootState, AppDispatch } from '@/store';
+import HeaderProfile from '@/components/store/HeaderProfile';
+import Reviews from '@/components/store/Reviews';
+import StoreProducts from '@/components/store/StoreProducts';
 
 const StoreScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -36,8 +39,10 @@ const StoreScreen = () => {
 
   return (
     <Container type="page">
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text>tienda</Text>
+      <View>
+        <HeaderProfile />
+        <Reviews />
+        <StoreProducts />
       </View>
     </Container>
   );
