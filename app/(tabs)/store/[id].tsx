@@ -38,13 +38,13 @@ const StoreScreen = () => {
   }
 
   return (
-    <Container type="page">
+    // <Container type="page">
       <View>
         <HeaderProfile />
         <Reviews />
         <StoreProducts />
       </View>
-    </Container>
+    // </Container>
   );
 };
 
