@@ -70,80 +70,82 @@ const HeaderProfile = () => {
 
   return (
     <View style={styles.container}>
-      {/* Datos principales */}
-      <View style={styles.divData}>
-        {/* Perfil */}
-        <View style={styles.divProfile}>
-          <View style={styles.divImage}>
-            <TouchableOpacity
-              onPress={manufacturer.live && manufacturer.tiktokUrl ? handleTikTok : undefined}
-              disabled={!(manufacturer.live && manufacturer.tiktokUrl)}
-            >
-              <Image 
-                source={manufacturer.image ? { uri: manufacturer.image } : require('@/assets/images/react-logo.png')} 
-                style={styles.imgLogo}
-              />
-            </TouchableOpacity>
-            {manufacturer.live && (
-              <View style={styles.live}>
-                <Text style={styles.liveText}>LIVE</Text>
-              </View>
-            )}
-          </View>
-          <Text style={styles.name}>{manufacturer.name}</Text>
+      {/* Header con imagen y datos básicos */}
+      <View style={styles.headerSection}>
+        <View style={styles.profileImageContainer}>
+          <TouchableOpacity
+            onPress={manufacturer.live && manufacturer.tiktokUrl ? handleTikTok : undefined}
+            disabled={!(manufacturer.live && manufacturer.tiktokUrl)}
+          >
+            <Image 
+              source={manufacturer.image ? { uri: manufacturer.image } : require('@/assets/images/react-logo.png')} 
+              style={styles.profileImage}
+            />
+          </TouchableOpacity>
         </View>
-
-        {/* Social */}
-        <View style={styles.divSocial}>
-          {/* Seguimiento */}
-          <View style={styles.divFollow}>
-            <View style={styles.divFollowers}>
-              <Text style={styles.followersCount}>{followersCount}</Text>
-              <Text style={styles.followersText}>Seguidores</Text>
-            </View>
-            <View style={styles.divActions}>
-              <TouchableOpacity 
-                style={[styles.btnFollow, isFollowed && styles.following]} 
-                onPress={handleFollow}
-              >
-                <Text style={[styles.btnFollowText, isFollowed && styles.followingText]}>
-                  {isFollowed ? 'Siguiendo' : 'Seguir'}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.btnShare}>
-                <Text style={styles.btnShareText}>Compartir</Text>
-              </TouchableOpacity>
+        
+        <View style={styles.profileInfo}>
+          <Text style={styles.profileName}>{manufacturer.name}</Text>
+          <Text style={styles.profileOwner}>@{manufacturer.owner.toLowerCase().replace(/\s+/g, '')}</Text>
+          
+          <View style={styles.statsContainer}>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{followersCount}</Text>
+              <Text style={styles.statLabel}>seguidores</Text>
             </View>
           </View>
-
-          {/* Redes sociales */}
-          <View style={styles.divNetwork}>
-            {manufacturer.instagramNick && (
-              <TouchableOpacity 
-                style={[styles.iconShare, styles.instagramIcon]} 
-                onPress={handleInstagram}
-              >
-                <Ionicons name="logo-instagram" size={24} color="white" />
-              </TouchableOpacity>
-            )}
-            {manufacturer.tiktokUrl && (
-              <TouchableOpacity 
-                style={[styles.iconShare, styles.tiktokIcon]} 
-                onPress={handleTikTok}
-              >
-                <Ionicons name="logo-tiktok" size={24} color="white" />
-              </TouchableOpacity>
-            )}
-            {manufacturer.phone && (
-              <TouchableOpacity 
-                style={[styles.iconShare, styles.whatsappIcon]} 
-                onPress={handleWhatsApp}
-              >
-                <Ionicons name="logo-whatsapp" size={24} color="white" />
-              </TouchableOpacity>
-            )}
-          </View>
         </View>
+      </View>
+
+      {/* Botones de acción */}
+      <View style={styles.actionsContainer}>
+        <TouchableOpacity 
+          style={[styles.actionButton, styles.followButton, isFollowed && styles.followingButton]} 
+          onPress={handleFollow}
+        >
+          <Text style={[styles.actionButtonText, isFollowed && styles.followingText]}>
+            {isFollowed ? 'Siguiendo' : 'Seguir'}
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={[styles.actionButton, styles.shareButton]}>
+          <Text style={styles.shareButtonText}>Compartir</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Redes sociales */}
+      <View style={styles.socialNetworksContainer}>
+        {manufacturer.instagramNick && (
+          <TouchableOpacity 
+            style={[styles.socialIcon, styles.instagramIcon]} 
+            onPress={handleInstagram}
+          >
+            <Ionicons name="logo-instagram" size={20} color="white" />
+          </TouchableOpacity>
+        )}
+        {manufacturer.tiktokUrl && (
+          <TouchableOpacity 
+            style={[styles.socialIcon, styles.tiktokIcon]} 
+            onPress={handleTikTok}
+          >
+            <View style={styles.tiktokContainer}>
+              <Ionicons name="logo-tiktok" size={20} color="white" />
+              {manufacturer.live && (
+                <View style={styles.liveIndicator}>
+                  <Text style={styles.liveText}>LIVE</Text>
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
+        )}
+        {manufacturer.phone && (
+          <TouchableOpacity 
+            style={[styles.socialIcon, styles.whatsappIcon]} 
+            onPress={handleWhatsApp}
+          >
+            <Ionicons name="logo-whatsapp" size={20} color="white" />
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Descripción y calificación */}
@@ -175,106 +177,117 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 24,
-    elevation: 8,
-    padding: 24,
-    paddingTop: 32,
-    paddingBottom: 24,
-    marginVertical: 8,
-  },
-  divData: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-  },
-  divProfile: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    width: '30%',
-  },
-  divImage: {
-    position: 'relative',
-    width: 96,
-    height: 96,
-    marginBottom: 8,
-  },
-  imgLogo: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    borderWidth: 3,
-    borderColor: '#f2f2f2',
-    backgroundColor: '#fafafa',
-  },
-  live: {
-    position: 'absolute',
-    bottom: -12,
-    left: 24,
-    backgroundColor: '#E53935',
-    paddingHorizontal: 16,
-    paddingVertical: 3,
-    borderRadius: 6,
-    shadowColor: '#E53935',
-    shadowOffset: {
-      width: 0,
       height: 1,
     },
-    shadowOpacity: 0.18,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  liveText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  name: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: 'black',
-    textAlign: 'center',
-    marginTop: 4,
-  },
-  divSocial: {
-    flexDirection: 'column',
-    width: '70%',
-    gap: 16,
-  },
-  divFollow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+    paddingVertical: 20,
     paddingHorizontal: 16,
+    marginVertical: 4,
+    borderRadius: 0,
   },
-  divFollowers: {
-    alignItems: 'center',
+  // Nueva estructura tipo Instagram
+  headerSection: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 16,
   },
-  followersCount: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: 'black',
+  profileImageContainer: {
+    marginRight: 16,
   },
-  followersText: {
-    fontSize: 16,
-    color: '#666666',
+  profileImage: {
+    width: 86,
+    height: 86,
+    borderRadius: 43,
+    backgroundColor: '#f5f5f5',
+    borderWidth: 2,
+    borderColor: '#e1e1e1',
   },
-  divActions: {
-    flexDirection: 'column',
-    gap: 12,
+  profileInfo: {
     flex: 1,
-    marginLeft: 24,
+    justifyContent: 'center',
   },
-  divNetwork: {
+  profileName: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#262626',
+    marginBottom: 2,
+  },
+  profileOwner: {
+    fontSize: 16,
+    color: '#8e8e8e',
+    marginBottom: 12,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+  },
+  statItem: {
+    alignItems: 'flex-start',
+    marginRight: 24,
+  },
+  statNumber: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#262626',
+    lineHeight: 20,
+  },
+  statLabel: {
+    fontSize: 14,
+    color: '#8e8e8e',
+    lineHeight: 16,
+  },
+  // Botones de acción estilo Instagram
+  actionsContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+  },
+  actionButton: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  followButton: {
+    backgroundColor: '#0095f6',
+    borderColor: '#0095f6',
+  },
+  followingButton: {
+    backgroundColor: 'white',
+    borderColor: '#dbdbdb',
+  },
+  shareButton: {
+    backgroundColor: 'white',
+    borderColor: '#dbdbdb',
+  },
+  actionButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: 'white',
+  },
+  followingText: {
+    color: '#262626',
+  },
+  shareButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#262626',
+  },
+  // Redes sociales más compactas
+  socialNetworksContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 24,
+    gap: 20,
+    marginBottom: 16,
   },
-  iconShare: {
-    borderRadius: 25,
-    padding: 12,
+  socialIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -291,72 +304,55 @@ const styles = StyleSheet.create({
   },
   tiktokIcon: {
     backgroundColor: '#000000',
+    position: 'relative',
+  },
+  tiktokContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  liveIndicator: {
+    position: 'absolute',
+    top: -20,
+    backgroundColor: '#ff3040',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    shadowColor: '#ff3040',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 3,
+  },
+  liveText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
   whatsappIcon: {
     backgroundColor: '#25D366',
   },
-  btnFollow: {
-    backgroundColor: '#FFB347',
-    borderRadius: 6,
-    paddingVertical: 11,
-    paddingHorizontal: 18,
-    alignItems: 'center',
-    shadowColor: '#FFCC33',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.13,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  following: {
-    backgroundColor: '#f5f5f5',
-  },
-  btnFollowText: {
-    color: 'white',
-    fontWeight: '500',
-    fontSize: 18,
-  },
-  followingText: {
-    color: 'black',
-  },
-  btnShare: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 6,
-    paddingVertical: 11,
-    paddingHorizontal: 18,
-    alignItems: 'center',
-    shadowColor: '#FFCC33',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.13,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  btnShareText: {
-    color: 'black',
-    fontWeight: '500',
-    fontSize: 18,
-  },
+  // Descripción y rating más limpios
   divDescription: {
-    paddingTop: 8,
+    paddingTop: 4,
   },
   description: {
-    fontSize: 22,
-    color: 'black',
-    lineHeight: 28,
-    marginBottom: 18,
+    fontSize: 16,
+    color: '#262626',
+    lineHeight: 20,
+    marginBottom: 16,
   },
   divRating: {
-    gap: 12,
+    gap: 8,
   },
   pRating: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: '600',
-    color: '#666666',
+    color: '#8e8e8e',
   },
   divRatingStars: {
     flexDirection: 'row',
@@ -365,11 +361,11 @@ const styles = StyleSheet.create({
   },
   divStars: {
     flexDirection: 'row',
-    gap: 3,
+    gap: 2,
   },
   averageRating: {
-    fontSize: 20,
-    color: '#666666',
+    fontSize: 16,
+    color: '#8e8e8e',
     fontWeight: '600',
   },
 });
