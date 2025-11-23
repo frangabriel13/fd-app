@@ -86,7 +86,6 @@ const HeaderProfile = () => {
         
         <View style={styles.profileInfo}>
           <Text style={styles.profileName}>{manufacturer.name}</Text>
-          <Text style={styles.profileOwner}>@{manufacturer.owner.toLowerCase().replace(/\s+/g, '')}</Text>
           
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
@@ -182,19 +181,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 3,
-    paddingVertical: 20,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
     marginVertical: 4,
     borderRadius: 0,
   },
-  // Nueva estructura tipo Instagram
   headerSection: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 16,
+    marginBottom: 8,
   },
+  // Nueva estructura tipo Instagram
   profileImageContainer: {
-    marginRight: 16,
+    marginRight: 8,
   },
   profileImage: {
     width: 86,
@@ -209,15 +208,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   profileName: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
     color: '#262626',
-    marginBottom: 2,
-  },
-  profileOwner: {
-    fontSize: 16,
-    color: '#8e8e8e',
-    marginBottom: 12,
+    marginBottom: 4,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -240,13 +234,13 @@ const styles = StyleSheet.create({
   // Botones de acción estilo Instagram
   actionsContainer: {
     flexDirection: 'row',
-    gap: 8,
-    marginBottom: 16,
+    gap: 6,
+    marginBottom: 8,
   },
   actionButton: {
     flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     borderRadius: 6,
     alignItems: 'center',
     justifyContent: 'center',
@@ -281,8 +275,8 @@ const styles = StyleSheet.create({
   socialNetworksContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 20,
-    marginBottom: 16,
+    gap: 12,
+    marginBottom: 8,
   },
   socialIcon: {
     width: 44,
@@ -338,16 +332,16 @@ const styles = StyleSheet.create({
   },
   // Descripción y rating más limpios
   divDescription: {
-    paddingTop: 4,
+    paddingTop: 2,
   },
   description: {
     fontSize: 16,
     color: '#262626',
     lineHeight: 20,
-    marginBottom: 16,
+    marginBottom: 8,
   },
   divRating: {
-    gap: 8,
+    gap: 6,
   },
   pRating: {
     fontSize: 16,
