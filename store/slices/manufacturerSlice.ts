@@ -40,6 +40,24 @@ interface Manufacturer {
   phone: string;
   minPurchase: number;
   userId: number;
+  // Propiedades adicionales del fabricante
+  address?: string | null;
+  country?: string;
+  description?: string | null;
+  discount?: number;
+  dniBack?: string | null;
+  dniFront?: string | null;
+  image?: string | null;
+  instagramNick?: string | null;
+  live?: boolean;
+  number?: string | null;
+  postalCode?: number | null;
+  province?: string | null;
+  selfie?: string | null;
+  tiktokUrl?: string | null;
+  verificationStatus?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface LiveManufacturer {
