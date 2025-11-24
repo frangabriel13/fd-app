@@ -61,7 +61,7 @@ const HeaderProfile = () => {
           key={i}
           name={i <= ratingValue ? "star" : "star-outline"}
           size={18}
-          color={i <= ratingValue ? "#FFD700" : "#f86f1a"}
+          color={i <= ratingValue ? "#f86f1a" : "#f86f1a"}
         />
       );
     }
