@@ -61,7 +61,7 @@ const HeaderProfile = () => {
           key={i}
           name={i <= ratingValue ? "star" : "star-outline"}
           size={18}
-          color={i <= ratingValue ? "#FFD700" : "#E0E0E0"}
+          color={i <= ratingValue ? "#FFD700" : "#f86f1a"}
         />
       );
     }
@@ -253,16 +253,16 @@ const styles = StyleSheet.create({
     minWidth: 60,
   },
   followButton: {
-    backgroundColor: '#0095f6',
-    borderColor: '#0095f6',
+    backgroundColor: '#021344',
+    borderColor: '#021344',
   },
   followingButton: {
     backgroundColor: 'white',
     borderColor: '#dbdbdb',
   },
   shareButton: {
-    backgroundColor: 'white',
-    borderColor: '#dbdbdb',
+    backgroundColor: '#e5e7eb',
+    borderColor: '#e5e7eb',
   },
   actionButtonText: {
     fontSize: 12,
