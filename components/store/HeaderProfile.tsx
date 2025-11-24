@@ -347,10 +347,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   divRating: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 6,
   },
   pRating: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#8e8e8e',
   },
@@ -364,7 +366,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   averageRating: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#8e8e8e',
     fontWeight: '600',
   },
