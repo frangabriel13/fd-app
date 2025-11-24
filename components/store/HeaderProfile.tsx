@@ -183,13 +183,13 @@ const styles = StyleSheet.create({
     elevation: 3,
     paddingVertical: 12,
     paddingHorizontal: 8,
-    marginVertical: 4,
+    // marginVertical: 4,
     borderRadius: 0,
   },
   headerSection: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 4,
+    // marginBottom: 4,
   },
   // Nueva estructura tipo Instagram
   profileImageContainer: {
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#262626',
-    marginBottom: 2,
+    // marginBottom: 2,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   },
   statItem: {
     alignItems: 'flex-start',
-    marginRight: 24,
+    // marginRight: 24,
   },
   statNumber: {
     fontSize: 14,
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 6,
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 6,
   },
   actionButton: {
     flex: 1,
