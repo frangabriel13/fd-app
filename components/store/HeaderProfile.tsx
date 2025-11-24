@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   profileName: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
     color: '#262626',
     marginBottom: 4,
@@ -221,15 +221,15 @@ const styles = StyleSheet.create({
     marginRight: 24,
   },
   statNumber: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: '600',
     color: '#262626',
-    lineHeight: 20,
+    lineHeight: 14,
   },
   statLabel: {
     fontSize: 14,
     color: '#8e8e8e',
-    lineHeight: 16,
+    lineHeight: 14,
   },
   // Botones de acción estilo Instagram
   actionsContainer: {
