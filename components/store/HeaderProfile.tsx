@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   headerSection: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   // Nueva estructura tipo Instagram
   profileImageContainer: {
@@ -208,10 +208,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   profileName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     color: '#262626',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 12,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   socialIcon: {
     width: 44,
