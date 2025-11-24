@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   profileInfo: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   profileName: {
     fontSize: 16,
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   statsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+    flex: 0,
   },
   statItem: {
     alignItems: 'flex-start',
@@ -280,6 +280,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 12,
+    backgroundColor: 'blue',
     marginBottom: 6,
   },
   socialIcon: {
