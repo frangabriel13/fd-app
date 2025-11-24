@@ -92,24 +92,24 @@ const HeaderProfile = () => {
               <Text style={styles.statNumber}>{followersCount}</Text>
               <Text style={styles.statLabel}>seguidores</Text>
             </View>
+            
+            {/* Botones de acción al lado de estadísticas */}
+            <View style={styles.actionsContainer}>
+              <TouchableOpacity 
+                style={[styles.actionButton, styles.followButton, isFollowed && styles.followingButton]} 
+                onPress={handleFollow}
+              >
+                <Text style={[styles.actionButtonText, isFollowed && styles.followingText]}>
+                  {isFollowed ? 'Siguiendo' : 'Seguir'}
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity style={[styles.actionButton, styles.shareButton]}>
+                <Text style={styles.shareButtonText}>Compartir</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-
-      {/* Botones de acción */}
-      <View style={styles.actionsContainer}>
-        <TouchableOpacity 
-          style={[styles.actionButton, styles.followButton, isFollowed && styles.followingButton]} 
-          onPress={handleFollow}
-        >
-          <Text style={[styles.actionButtonText, isFollowed && styles.followingText]}>
-            {isFollowed ? 'Siguiendo' : 'Seguir'}
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={[styles.actionButton, styles.shareButton]}>
-          <Text style={styles.shareButtonText}>Compartir</Text>
-        </TouchableOpacity>
       </View>
 
       {/* Redes sociales */}
@@ -215,6 +215,8 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   statItem: {
     alignItems: 'flex-start',
@@ -235,16 +237,18 @@ const styles = StyleSheet.create({
   actionsContainer: {
     flexDirection: 'row',
     gap: 6,
-    marginBottom: 8,
+    flex: 1,
+    marginLeft: 12,
   },
   actionButton: {
     flex: 1,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 4,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
+    minWidth: 60,
   },
   followButton: {
     backgroundColor: '#0095f6',
@@ -259,7 +263,7 @@ const styles = StyleSheet.create({
     borderColor: '#dbdbdb',
   },
   actionButtonText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
     color: 'white',
   },
@@ -267,7 +271,7 @@ const styles = StyleSheet.create({
     color: '#262626',
   },
   shareButtonText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
     color: '#262626',
   },
