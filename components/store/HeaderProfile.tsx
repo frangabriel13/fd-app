@@ -109,42 +109,42 @@ const HeaderProfile = () => {
               </TouchableOpacity>
             </View>
           </View>
-        </View>
-      </View>
 
-      {/* Redes sociales */}
-      <View style={styles.socialNetworksContainer}>
-        {manufacturer.instagramNick && (
-          <TouchableOpacity 
-            style={[styles.socialIcon, styles.instagramIcon]} 
-            onPress={handleInstagram}
-          >
-            <Ionicons name="logo-instagram" size={20} color="white" />
-          </TouchableOpacity>
-        )}
-        {manufacturer.tiktokUrl && (
-          <TouchableOpacity 
-            style={[styles.socialIcon, styles.tiktokIcon]} 
-            onPress={handleTikTok}
-          >
-            <View style={styles.tiktokContainer}>
-              <Ionicons name="logo-tiktok" size={20} color="white" />
-              {manufacturer.live && (
-                <View style={styles.liveIndicator}>
-                  <Text style={styles.liveText}>LIVE</Text>
+          { /* Social Media */ }
+          <View style={styles.socialNetworksContainer}>
+            {manufacturer.instagramNick && (
+              <TouchableOpacity 
+                style={[styles.socialIcon, styles.instagramIcon]} 
+                onPress={handleInstagram}
+              >
+                <Ionicons name="logo-instagram" size={26} color="white" />
+              </TouchableOpacity>
+            )}
+            {manufacturer.tiktokUrl && (
+              <TouchableOpacity 
+                style={[styles.socialIcon, styles.tiktokIcon]} 
+                onPress={handleTikTok}
+              >
+                <View style={styles.tiktokContainer}>
+                  <Ionicons name="logo-tiktok" size={26} color="white" />
+                  {manufacturer.live && (
+                    <View style={styles.liveIndicator}>
+                      <Text style={styles.liveText}>LIVE</Text>
+                    </View>
+                  )}
                 </View>
-              )}
-            </View>
-          </TouchableOpacity>
-        )}
-        {manufacturer.phone && (
-          <TouchableOpacity 
-            style={[styles.socialIcon, styles.whatsappIcon]} 
-            onPress={handleWhatsApp}
-          >
-            <Ionicons name="logo-whatsapp" size={20} color="white" />
-          </TouchableOpacity>
-        )}
+              </TouchableOpacity>
+            )}
+            {manufacturer.phone && (
+              <TouchableOpacity 
+                style={[styles.socialIcon, styles.whatsappIcon]} 
+                onPress={handleWhatsApp}
+              >
+                <Ionicons name="logo-whatsapp" size={26} color="white" />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
       </View>
 
       {/* Descripción y calificación */}
@@ -217,6 +217,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 0,
+    marginTop: 4,
+    marginBottom: 4,
   },
   statItem: {
     alignItems: 'flex-start',
@@ -280,7 +282,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 12,
-    backgroundColor: 'blue',
     marginBottom: 6,
   },
   socialIcon: {
@@ -312,7 +313,7 @@ const styles = StyleSheet.create({
   },
   liveIndicator: {
     position: 'absolute',
-    top: -20,
+    top: 26,
     backgroundColor: '#ff3040',
     paddingHorizontal: 6,
     paddingVertical: 2,
