@@ -41,7 +41,7 @@ const Reviews = () => {
         <Ionicons
           key={i}
           name={i <= rating ? "star" : "star-outline"}
-          size={14}
+          size={15}
           color={i <= rating ? "#f86f1a" : "#d1d5db"}
         />
       );
@@ -101,8 +101,8 @@ const Reviews = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 0,
+    paddingHorizontal: 12,
     marginBottom: 8,
     shadowColor: '#000',
     shadowOffset: {
@@ -117,7 +117,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: '#262626',
-    marginBottom: 16,
   },
   noReviewsContainer: {
     paddingVertical: 24,
@@ -129,10 +128,12 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   reviewItem: {
-    marginBottom: 16,
-    paddingBottom: 16,
+    marginBottom: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#f3f4f6',
+    backgroundColor: '#f3f4f6',
   },
   reviewHeader: {
     flexDirection: 'row',
@@ -141,14 +142,15 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   reviewerInfo: {
+    flexDirection: 'row',
     flex: 1,
-    marginRight: 8,
+    alignItems: 'center',
+    gap: 8,
   },
   reviewerName: {
     fontSize: 15,
     fontWeight: '600',
     color: '#262626',
-    marginBottom: 4,
   },
   starsContainer: {
     flexDirection: 'row',
@@ -175,5 +177,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
 
 export default Reviews;
