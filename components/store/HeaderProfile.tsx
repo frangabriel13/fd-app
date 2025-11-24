@@ -117,7 +117,7 @@ const HeaderProfile = () => {
                 style={[styles.socialIcon, styles.instagramIcon]} 
                 onPress={handleInstagram}
               >
-                <Ionicons name="logo-instagram" size={20} color="white" />
+                <Ionicons name="logo-instagram" size={26} color="white" />
               </TouchableOpacity>
             )}
             {manufacturer.tiktokUrl && (
@@ -126,7 +126,7 @@ const HeaderProfile = () => {
                 onPress={handleTikTok}
               >
                 <View style={styles.tiktokContainer}>
-                  <Ionicons name="logo-tiktok" size={20} color="white" />
+                  <Ionicons name="logo-tiktok" size={26} color="white" />
                   {manufacturer.live && (
                     <View style={styles.liveIndicator}>
                       <Text style={styles.liveText}>LIVE</Text>
@@ -140,7 +140,7 @@ const HeaderProfile = () => {
                 style={[styles.socialIcon, styles.whatsappIcon]} 
                 onPress={handleWhatsApp}
               >
-                <Ionicons name="logo-whatsapp" size={20} color="white" />
+                <Ionicons name="logo-whatsapp" size={26} color="white" />
               </TouchableOpacity>
             )}
           </View>
@@ -217,6 +217,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 0,
+    marginTop: 4,
+    marginBottom: 4,
   },
   statItem: {
     alignItems: 'flex-start',
@@ -311,7 +313,7 @@ const styles = StyleSheet.create({
   },
   liveIndicator: {
     position: 'absolute',
-    top: -20,
+    top: 26,
     backgroundColor: '#ff3040',
     paddingHorizontal: 6,
     paddingVertical: 2,
