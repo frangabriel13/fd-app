@@ -22,6 +22,22 @@ interface Product {
   logo?: string;
 }
 
+interface Manufacturer {
+  id: number;
+  name: string;
+  image: string;
+  minPurchase: number;
+  phone: string;
+  street: string;
+}
+
+interface ProductWithManufacturerResponse {
+  product: Product;
+  manufacturer: Manufacturer;
+  manufacturerProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
+  categoryProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
+}
+
 interface ProductState {
   featured: Product[];
   newProducts: Product[];
@@ -34,6 +50,10 @@ interface ProductState {
   telas: Product[];
   insumos: Product[];
   maquinas: Product[];
+  currentProduct: Product | null;
+  currentManufacturer: Manufacturer | null;
+  manufacturerProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
+  categoryProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
   loading: boolean;
   error: string | null;
 }
@@ -50,6 +70,10 @@ const initialState: ProductState = {
   telas: [],
   insumos: [],
   maquinas: [],
+  currentProduct: null,
+  currentManufacturer: null,
+  manufacturerProducts: [],
+  categoryProducts: [],
   loading: false,
   error: null,
 };
@@ -66,6 +90,18 @@ export const fetchMobileHomeProducts = createAsyncThunk(
   }
 );
 
+export const fetchProductWithManufacturer = createAsyncThunk(
+  'product/fetchProductWithManufacturer',
+  async (productId: string, { rejectWithValue }) => {
+    try {
+      const response = await productInstance.get(`/with-manufacturer/${productId}`);
+      return response.data as ProductWithManufacturerResponse;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al obtener el producto con fabricante');
+    }
+  }
+);
+
 const productSlice = createSlice({
   name: 'product',
   initialState,
@@ -76,6 +112,12 @@ const productSlice = createSlice({
     setError: (state, action: PayloadAction<string>) => {
       state.error = action.payload;
       state.loading = false;
+    },
+    clearCurrentProduct: (state) => {
+      state.currentProduct = null;
+      state.currentManufacturer = null;
+      state.manufacturerProducts = [];
+      state.categoryProducts = [];
     },
   },
   extraReducers: (builder) => {
@@ -101,10 +143,25 @@ const productSlice = createSlice({
       .addCase(fetchMobileHomeProducts.rejected, (state, action: PayloadAction<any>) => {
         state.error = action.payload;
         state.loading = false;
+      })
+      .addCase(fetchProductWithManufacturer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProductWithManufacturer.fulfilled, (state, action: PayloadAction<ProductWithManufacturerResponse>) => {
+        state.currentProduct = action.payload.product;
+        state.currentManufacturer = action.payload.manufacturer;
+        state.manufacturerProducts = action.payload.manufacturerProducts;
+        state.categoryProducts = action.payload.categoryProducts;
+        state.loading = false;
+      })
+      .addCase(fetchProductWithManufacturer.rejected, (state, action: PayloadAction<any>) => {
+        state.error = action.payload;
+        state.loading = false;
       });
   },
 });
 
-export const { setLoading, setError } = productSlice.actions;
+export const { setLoading, setError, clearCurrentProduct } = productSlice.actions;
 
 export default productSlice.reducer;
