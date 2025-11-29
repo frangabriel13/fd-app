@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Alert } from 'react-native';
 import { useSelector } from 'react-redux';
+import { useRouter } from 'expo-router';
 import type { RootState } from '@/store';
 import { Colors } from '@/constants/Colors';
 
@@ -11,10 +12,11 @@ interface ProductSliderProps {
 
 const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
   const { [section]: products, loading, error } = useSelector((state: RootState) => state.product);
+  const router = useRouter();
 
   const handleProductPress = (product: any) => {
-    Alert.alert('Producto seleccionado', `Has seleccionado: ${product.name}`);
-    console.log('Producto seleccionado:', product);
+    console.log('🛍️ Navegando al producto:', product.id);
+    router.push(`/(tabs)/producto/${product.id}` as any);
   };
 
   const handleMorePress = () => {
