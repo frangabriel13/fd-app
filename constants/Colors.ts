@@ -32,5 +32,9 @@ export const Colors = {
     default: '#f97316',
     light: '#fb923c',
     dark: '#f86f1a',
-  }
+  },
+  general: {
+    error: '#b91c1c',
+    success: '#15803d',
+  },
 };

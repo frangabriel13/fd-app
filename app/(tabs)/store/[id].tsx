@@ -15,8 +15,8 @@ const StoreScreen = () => {
   const { selectedManufacturer, loadingDetail } = useSelector((state: RootState) => state.manufacturer);
 
   useEffect(() => {
-    if (id) {
-      console.log('🏪 Cargando fabricante con ID:', id);
+    if(id) {
+      // console.log('🏪 Cargando fabricante con ID:', id);
       dispatch(getManufacturerById(Number(id)));
     }
   }, [id, dispatch]);
