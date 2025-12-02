@@ -20,6 +20,7 @@ interface Product {
   onSale: boolean;
   stock: number;
   logo?: string;
+  minPurchase: number;
 }
 
 interface Manufacturer {

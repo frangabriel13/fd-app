@@ -18,8 +18,8 @@ const ProductoScreen = () => {
   } = useSelector((state: RootState) => state.product);
 
   useEffect(() => {
-    if (id) {
-      console.log('🛍️ Cargando producto con ID:', id);
+    if(id) {
+      // console.log('🛍️ Cargando producto con ID:', id);
       dispatch(fetchProductWithManufacturer(id));
     }
   }, [id, dispatch]);
@@ -49,7 +49,12 @@ const ProductoScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text>ProductoScreen - ID: {id}</Text>
+      <View style={styles.productContainer}>
+        <Text className="text-white text-center py-1 font-mont-bold text-base">Compra mínima de ${currentManufacturer?.minPurchase} en {currentManufacturer?.name}</Text>
+      </View>
+      <View>
+
+      </View>
     </View>
   );
 };
@@ -57,6 +62,10 @@ const ProductoScreen = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 0,
+  },
+
+  productContainer: {
+    backgroundColor: '#b91c1c',
   },
 });
 
