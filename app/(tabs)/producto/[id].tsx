@@ -29,9 +29,9 @@ const ProductoScreen = () => {
   useEffect(() => {
     if (currentProduct) {
       console.log('✅ Datos del producto cargados:', currentProduct);
-      console.log('🏭 Datos del fabricante:', currentManufacturer);
-      console.log('📦 Productos del fabricante:', manufacturerProducts);
-      console.log('🏷️ Productos de la categoría:', categoryProducts);
+      // console.log('🏭 Datos del fabricante:', currentManufacturer);
+      // console.log('📦 Productos del fabricante:', manufacturerProducts);
+      // console.log('🏷️ Productos de la categoría:', categoryProducts);
     }
   }, [currentProduct, currentManufacturer, manufacturerProducts, categoryProducts]);
 
@@ -55,7 +55,7 @@ const ProductoScreen = () => {
         <Text className="text-white text-center py-1 font-mont-bold text-base">Compra mínima de ${currentManufacturer?.minPurchase} en {currentManufacturer?.name}</Text>
       </View>
       <View style={styles.detailContainer}>  
-        <Gallery />
+        <Gallery images={currentProduct?.images} mainImage={currentProduct?.mainImage} />
         <DetailProduct />
       </View>
     </View>
