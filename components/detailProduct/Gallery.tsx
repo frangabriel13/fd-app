@@ -13,7 +13,9 @@ const Gallery = ({ images = [], mainImage }: GalleryProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   
   // Combinar imagen principal con el resto de imágenes
-  const allImages = mainImage ? [mainImage, ...images] : images;
+  const allImages = mainImage 
+    ? [mainImage, ...images.filter(image => image !== mainImage)] 
+    : images;
   
   const handleScroll = (event: any) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
@@ -155,5 +157,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
+
 
 export default Gallery;
