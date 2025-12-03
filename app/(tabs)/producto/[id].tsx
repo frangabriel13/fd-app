@@ -57,8 +57,8 @@ const ProductoScreen = () => {
       <View style={styles.detailContainer}>  
         <Gallery images={currentProduct?.images} mainImage={currentProduct?.mainImage} />
         <DetailProduct
-          product={currentProduct}
-          manufacturer={currentManufacturer}
+          product={currentProduct || undefined}
+          manufacturer={currentManufacturer || undefined}
         />
       </View>
     </View>
