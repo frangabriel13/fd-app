@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   },
 
   detailContainer: {
-    paddingVertical: 12,
+    // paddingVertical: 12,
     paddingHorizontal: 8,
     backgroundColor: 'white',
   },

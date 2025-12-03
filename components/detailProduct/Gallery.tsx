@@ -90,22 +90,21 @@ const Gallery = ({ images = [], mainImage }: GalleryProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    height: 300,
-    // backgroundColor: '#f8f8f8',
+    height: 400,
   },
   scrollView: {
     flex: 1,
   },
   imageContainer: {
     // width: screenWidth,
-    height: 300,
+    height: 400,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    // backgroundColor: 'black',
   },
   image: {
     width: screenWidth - 20,
-    height: 280,
+    height: 380,
   },
   placeholderContainer: {
     flex: 1,
@@ -115,7 +114,7 @@ const styles = StyleSheet.create({
   },
   placeholderImage: {
     width: screenWidth - 20,
-    height: 280,
+    height: 380,
   },
   indicatorContainer: {
     position: 'absolute',
