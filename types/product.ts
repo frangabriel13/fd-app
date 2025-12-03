@@ -1,5 +1,9 @@
 export interface Product {
   id: string;
+  category: {
+    id: number;
+    name: string;
+  };
   type: 'product' | 'service' | 'Vehicle' | 'Real Estate' | 'Other';
   name: string;
   description: string;
