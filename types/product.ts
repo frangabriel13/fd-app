@@ -22,6 +22,13 @@ export interface Product {
   stock: number;
   logo?: string;
   minPurchase: number;
+  inventories: {
+    id: number;
+    code: string | null;
+    color: string;
+    size: string;
+    stock: number;
+  }[];
 }
 
 export interface Manufacturer {

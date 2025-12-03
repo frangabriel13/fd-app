@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductWithManufacturer } from '@/store/slices/productSlice';
 import { RootState, AppDispatch } from '@/store';
 import DetailProduct from '@/components/detailProduct/DetailProduct';
 import Gallery from '@/components/detailProduct/Gallery';
+import Quantities from '@/components/detailProduct/Quantities';
 
 const ProductoScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -50,6 +51,7 @@ const ProductoScreen = () => {
   }
 
   return (
+    <ScrollView>
     <View style={styles.container}>
       <View style={styles.productContainer}>
         <Text className="text-white text-center py-1 font-mont-bold text-base">Compra mínima de ${currentManufacturer?.minPurchase} en {currentManufacturer?.name}</Text>
@@ -60,8 +62,10 @@ const ProductoScreen = () => {
           product={currentProduct || undefined}
           manufacturer={currentManufacturer || undefined}
         />
+        <Quantities isVariable={currentProduct?.isVariable} inventories={currentProduct?.inventories} />
       </View>
     </View>
+    </ScrollView>
   );
 };
 
