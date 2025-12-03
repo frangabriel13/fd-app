@@ -43,13 +43,41 @@ const Quantities = ({ isVariable, inventories = [], onQuantityChange }: Quantiti
     const displayLabel = isVariable ? inventory.color : inventory.size;
     const isOutOfStock = inventory.stock === 0;
 
+    // Formatear el color para asegurar compatibilidad
+    const getColorValue = (code: string | null) => {
+      if (!code) return '#ccc';
+      
+      // Si ya tiene formato hex, devolverlo tal como está
+      if (code.startsWith('#')) return code;
+      
+      // Si es un nombre de color CSS, devolverlo
+      if (/^[a-zA-Z]+$/.test(code)) return code;
+      
+      // Si es RGB/HSL, devolverlo
+      if (code.startsWith('rgb') || code.startsWith('hsl')) return code;
+      
+      // Si es solo hex sin #, añadir el #
+      if (/^[0-9A-Fa-f]{6}$/.test(code)) return `#${code}`;
+      
+      // Por defecto, gris claro
+      return '#ccc';
+    };
+
     return (
       <View key={inventory.id} style={styles.quantityRow}>
         {/* Talle/Color a la izquierda */}
         <View style={styles.labelContainer}>
-          <Text style={[styles.label, isOutOfStock && styles.labelDisabled]}>
-            {displayLabel}
-          </Text>
+          <View style={styles.labelRow}>
+            {isVariable && (
+              <View style={[
+                styles.colorIndicator, 
+                { backgroundColor: getColorValue(inventory.code) }
+              ]} />
+            )}
+            <Text style={[styles.label, isOutOfStock && styles.labelDisabled]}>
+              {displayLabel}
+            </Text>
+          </View>
           {/* <Text style={[styles.stockText, isOutOfStock && styles.stockTextDisabled]}>
             Stock: {inventory.stock}
           </Text> */}
@@ -127,6 +155,18 @@ const styles = StyleSheet.create({
   },
   labelContainer: {
     flex: 1,
+  },
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  colorIndicator: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   label: {
     fontSize: 16,
