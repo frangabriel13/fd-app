@@ -50,9 +50,9 @@ const Quantities = ({ isVariable, inventories = [], onQuantityChange }: Quantiti
           <Text style={[styles.label, isOutOfStock && styles.labelDisabled]}>
             {displayLabel}
           </Text>
-          <Text style={[styles.stockText, isOutOfStock && styles.stockTextDisabled]}>
+          {/* <Text style={[styles.stockText, isOutOfStock && styles.stockTextDisabled]}>
             Stock: {inventory.stock}
-          </Text>
+          </Text> */}
         </View>
 
         {/* Controles de cantidad a la derecha */}
@@ -107,19 +107,21 @@ const Quantities = ({ isVariable, inventories = [], onQuantityChange }: Quantiti
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    marginTop: 8,
+    // padding: 16,
   },
   title: {
     fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 16,
-    color: '#333',
+    fontWeight: '400',
+    // marginBottom: 16,
+    color: '#6b7280',
   },
   quantityRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
@@ -135,13 +137,13 @@ const styles = StyleSheet.create({
   labelDisabled: {
     color: '#999',
   },
-  stockText: {
-    fontSize: 12,
-    color: '#666',
-  },
-  stockTextDisabled: {
-    color: '#999',
-  },
+  // stockText: {
+  //   fontSize: 12,
+  //   color: '#666',
+  // },
+  // stockTextDisabled: {
+  //   color: '#999',
+  // },
   quantityControls: {
     flexDirection: 'row',
     alignItems: 'center',
