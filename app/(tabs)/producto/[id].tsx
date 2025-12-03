@@ -4,6 +4,8 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductWithManufacturer } from '@/store/slices/productSlice';
 import { RootState, AppDispatch } from '@/store';
+import DetailProduct from '@/components/detailProduct/DetailProduct';
+import Gallery from '@/components/detailProduct/Gallery';
 
 const ProductoScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -52,8 +54,9 @@ const ProductoScreen = () => {
       <View style={styles.productContainer}>
         <Text className="text-white text-center py-1 font-mont-bold text-base">Compra mínima de ${currentManufacturer?.minPurchase} en {currentManufacturer?.name}</Text>
       </View>
-      <View>
-
+      <View style={styles.detailContainer}>  
+        <Gallery />
+        <DetailProduct />
       </View>
     </View>
   );
@@ -66,6 +69,12 @@ const styles = StyleSheet.create({
 
   productContainer: {
     backgroundColor: '#b91c1c',
+  },
+
+  detailContainer: {
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    backgroundColor: 'white',
   },
 });
 
