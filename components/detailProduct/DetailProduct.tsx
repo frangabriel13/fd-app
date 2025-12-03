@@ -1,9 +1,15 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { Product, Manufacturer } from '@/types/product';
 
-const DetailProduct = () => {
+interface DetailProductProps {
+  product?: Product;
+  manufacturer?: Manufacturer;
+}
+
+const DetailProduct = ({ product, manufacturer }: DetailProductProps) => {
   return (
     <View style={styles.container}>
-      <Text>DetailProduct</Text>
+      <Text>{product?.name}</Text>
     </View>
   );
 };
