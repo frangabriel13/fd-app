@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Alert } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import type { RootState } from '@/store';
 import { Colors } from '@/constants/Colors';
 
@@ -112,8 +113,9 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
-        <TouchableOpacity onPress={handleMorePress}>
-          <Text style={styles.moreText}>más &gt;</Text>
+        <TouchableOpacity style={styles.moreButton} onPress={handleMorePress} activeOpacity={0.7}>
+          <Text style={styles.moreText}>Ver más</Text>
+          <Ionicons name="chevron-forward" size={16} color={Colors.blue.default} />
         </TouchableOpacity>
       </View>
       <FlatList
@@ -137,38 +139,51 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
-    // paddingHorizontal: 8,
+    marginBottom: 12,
+    paddingHorizontal: 4,
   },
   title: {
     fontSize: 18,
     fontWeight: '700',
     color: Colors.light.text,
   },
+  moreButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.2)',
+  },
   moreText: {
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.blue.default,
     fontWeight: '500',
+    marginRight: 2,
   },
   listContainer: {
-    // paddingHorizontal: 8,
+    paddingHorizontal: 4,
   },
   separator: {
-    width: 8,
+    width: 12,
   },
   productCard: {
     width: 180,
     backgroundColor: '#fff',
-    borderRadius: 8,
+    borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 4,
     overflow: 'hidden',
+    borderWidth: 0.5,
+    borderColor: 'rgba(0, 0, 0, 0.05)',
   },
   imageContainer: {
     position: 'relative',
