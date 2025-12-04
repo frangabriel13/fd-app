@@ -7,6 +7,7 @@ import { RootState, AppDispatch } from '@/store';
 import DetailProduct from '@/components/detailProduct/DetailProduct';
 import Gallery from '@/components/detailProduct/Gallery';
 import Quantities from '@/components/detailProduct/Quantities';
+import RelatedProductSlider from '@/components/detailProduct/RelatedProductSlider';
 
 const ProductoScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -63,6 +64,24 @@ const ProductoScreen = () => {
           manufacturer={currentManufacturer || undefined}
         />
         <Quantities isVariable={currentProduct?.isVariable} inventories={currentProduct?.inventories} />
+        
+        {/* Productos del mismo fabricante */}
+        {manufacturerProducts && manufacturerProducts.length > 0 && (
+          <RelatedProductSlider
+            title={`Más de ${currentManufacturer?.name || 'este fabricante'}`}
+            products={manufacturerProducts.filter(p => p.id !== currentProduct?.id)}
+            onMorePress={() => console.log('Ver más productos del fabricante')}
+          />
+        )}
+        
+        {/* Productos relacionados */}
+        {categoryProducts && categoryProducts.length > 0 && (
+          <RelatedProductSlider
+            title="Productos relacionados"
+            products={categoryProducts.filter(p => p.id !== currentProduct?.id)}
+            onMorePress={() => console.log('Ver más productos relacionados')}
+          />
+        )}
       </View>
     </View>
     </ScrollView>
