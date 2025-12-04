@@ -56,7 +56,7 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
         )}
       </View>
       <View style={styles.productInfo}>
-        <Text style={styles.productName} numberOfLines={2}>
+        <Text style={styles.productName} numberOfLines={1} ellipsizeMode="tail">
           {item.name}
         </Text>
         <View style={styles.priceContainer}>
