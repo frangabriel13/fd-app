@@ -201,11 +201,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 8,
-    width: 28,
-    height: 28,
+    width: 32,
+    height: 32,
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 14,
-    padding: 3,
+    borderRadius: 16,
+    // padding: 3,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -218,6 +218,8 @@ const styles = StyleSheet.create({
   logoImage: {
     width: '100%',
     height: '100%',
+    borderRadius: 16,
+    resizeMode: 'cover',
   },
   productInfo: {
     paddingVertical: 10,
