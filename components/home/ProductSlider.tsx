@@ -40,7 +40,7 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
     >
       <View style={styles.imageContainer}>
         <Image
-          source={{ uri: item.mainImage || 'https://via.placeholder.com/150' }}
+          source={{ uri: item.mainImage || 'https://via.placeholder.com/140x186' }}
           style={styles.productImage}
           resizeMode="cover"
         />
@@ -137,8 +137,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
-    paddingHorizontal: 8,
+    marginBottom: 8,
+    // paddingHorizontal: 8,
   },
   title: {
     fontSize: 18,
@@ -151,15 +151,15 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   listContainer: {
-    paddingHorizontal: 8,
+    // paddingHorizontal: 8,
   },
   separator: {
-    width: 12,
+    width: 8,
   },
   productCard: {
-    width: 160,
+    width: 180,
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -172,35 +172,50 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     position: 'relative',
+    width: '100%',
+    height: 240, // Proporción 3:4 para 180px de ancho (180 * 1.33)
+    backgroundColor: '#f5f5f5',
+    overflow: 'hidden',
   },
   productImage: {
     width: '100%',
-    height: 120,
+    height: '100%',
     backgroundColor: '#f5f5f5',
   },
   logoContainer: {
     position: 'absolute',
     top: 8,
     right: 8,
-    width: 24,
-    height: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 12,
-    padding: 2,
+    width: 28,
+    height: 28,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 14,
+    padding: 3,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   logoImage: {
     width: '100%',
     height: '100%',
   },
   productInfo: {
-    padding: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    minHeight: 70, // Altura mínima para mantener consistencia
   },
   productName: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '500',
     color: Colors.light.text,
-    marginBottom: 8,
-    lineHeight: 18,
+    // marginBottom: 6,
+    lineHeight: 16,
+    minHeight: 16, // Altura mínima para 2 líneas de texto
   },
   priceContainer: {
     flexDirection: 'row',
@@ -208,23 +223,23 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   price: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: Colors.blue.default,
+    fontSize: 20,
+    fontWeight: '400',
+    color: Colors.gray.semiDark,
   },
   originalPrice: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#999',
     textDecorationLine: 'line-through',
-    marginRight: 6,
+    marginRight: 4,
   },
   salePrice: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
     color: Colors.orange.default,
   },
   loadingContainer: {
-    height: 180,
+    height: 240,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -233,7 +248,7 @@ const styles = StyleSheet.create({
     color: Colors.light.icon,
   },
   errorContainer: {
-    height: 180,
+    height: 240,
     justifyContent: 'center',
     alignItems: 'center',
   },

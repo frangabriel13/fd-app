@@ -37,4 +37,10 @@ export const Colors = {
     error: '#b91c1c',
     success: '#15803d',
   },
+  gray: {
+    light: '#f3f4f6',
+    default: '#9ca3af',
+    semiDark: '#6b7280',
+    dark: '#4b5563',
+  },
 };
