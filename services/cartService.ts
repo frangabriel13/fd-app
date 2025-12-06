@@ -1,0 +1,109 @@
+import { productInstance } from './axiosConfig';
+import { CartManufacturerDisplay, CartItemDisplay } from '@/types/cart';
+
+// Estructura del request body que esperamos
+interface CartRequestItem {
+  manufacturerId: number;
+  products: {
+    productId: string;
+    variations: {
+      variationId: number;
+      quantity: number;
+    }[];
+  }[];
+}
+
+// Estructura de la respuesta del backend para fabricantes
+interface ManufacturerResponse {
+  userId: number; // Nota: el backend devuelve userId, pero nosotros lo mapeamos a manufacturerId
+  name?: string;
+  logo?: string;
+}
+
+// Estructura de la respuesta del backend para productos
+interface ProductResponse {
+  id: string;
+  name: string;
+  images?: string[];
+  price: number;
+  salePrice?: number;
+  inventories?: InventoryResponse[];
+}
+
+interface InventoryResponse {
+  id: number;
+  stock: number;
+  color?: string;
+  size?: string;
+  totalItem?: number; // Cantidad agregada por el usuario
+}
+
+/**
+ * Obtiene la información completa del carrito desde el backend
+ */
+export const getCartItemsService = async (cartItems: CartRequestItem[]): Promise<CartManufacturerDisplay[]> => {
+  try {
+    // Hacer la petición POST al backend
+    const response = await productInstance.post('/cart', cartItems);
+    
+    // Transformar la respuesta del backend al formato que necesita nuestra app
+    const transformedData: CartManufacturerDisplay[] = response.data.map((item: any) => {
+      // Transformar productos
+      const products: CartItemDisplay[] = item.products.map((product: ProductResponse) => {
+        // Obtener inventarios con cantidad
+        const inventoriesWithQuantity = product.inventories?.filter(inv => inv.totalItem !== undefined) || [];
+        
+        return inventoriesWithQuantity.map(inventory => ({
+          manufacturerId: item.manufacturer?.userId || 0,
+          productId: product.id,
+          inventoryId: inventory.id,
+          quantity: inventory.totalItem || 0,
+          productName: product.name,
+          productImage: product.images?.[0] || '',
+          price: product.price,
+          salePrice: product.salePrice,
+          color: inventory.color,
+          size: inventory.size,
+          stock: inventory.stock,
+        }));
+      }).flat();
+
+      // Calcular totales
+      const totalItems = products.reduce((sum: number, item: CartItemDisplay) => sum + item.quantity, 0);
+      const subtotal = products.reduce((sum: number, item: CartItemDisplay) => {
+        const itemPrice = item.salePrice || item.price || 0;
+        return sum + (itemPrice * item.quantity);
+      }, 0);
+
+      return {
+        manufacturerId: item.manufacturer?.userId || 0,
+        manufacturerName: item.manufacturer?.name,
+        manufacturerLogo: item.manufacturer?.logo,
+        items: products,
+        totalItems,
+        subtotal,
+      };
+    });
+
+    return transformedData;
+  } catch (error) {
+    console.error('❌ Error fetching cart items:', error);
+    throw new Error('Error al obtener los datos del carrito');
+  }
+};
+
+/**
+ * Convierte el estado del carrito de Redux al formato esperado por el backend
+ */
+export const transformCartStateToRequest = (manufacturers: Record<number, Record<string, { inventoryId: number; quantity: number }[]>>): CartRequestItem[] => {
+  return Object.entries(manufacturers).map(([manufacturerId, products]) => ({
+    manufacturerId: Number(manufacturerId),
+    products: Object.entries(products).map(([productId, inventories]) => ({
+      productId,
+      variations: inventories.map(inventory => ({
+        variationId: inventory.inventoryId,
+        quantity: inventory.quantity,
+      })),
+    })),
+  }));
+};

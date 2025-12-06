@@ -1,6 +1,10 @@
 // Importamos todas las instancias para poder exportarlas como objeto
 import * as axiosInstances from './axiosConfig';
 
+// Servicios específicos
+export * from './authService';
+export * from './cartService';
+
 // Re-export todas las instancias de axios para facilitar su uso
 export {
   adminInstance, authInstance, categoryInstance, colorInstance, favoriteInstance, genderInstance, imageInstance, manufacturerInstance, orderInstance, packInstance, productInstance, reviewInstance, sizeInstance, userInstance, wholesalerInstance
