@@ -106,6 +106,11 @@ export const adminInstance = axios.create({
 });
 adminInstance.interceptors.request.use(addAuthHeader);
 
+export const cartInstance = axios.create({
+  baseURL: `${API_CONFIG.API_URL_3001}/cart`,
+});
+cartInstance.interceptors.request.use(addAuthHeader);
+
 const instancesWithAuth = [
   manufacturerInstance,
   userInstance,
