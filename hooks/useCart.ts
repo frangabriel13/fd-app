@@ -8,7 +8,7 @@ export const useCart = () => {
   const cart = useSelector((state: RootState) => state.cart);
 
   // Estado básico
-  const isEmpty = isCartEmpty(cart.users);
+  const isEmpty = isCartEmpty(cart.manufacturers);
 
   // Acción principal
   const handleClearCart = () => {
@@ -17,7 +17,7 @@ export const useCart = () => {
 
   return {
     // Estado del carrito
-    users: cart.users,
+    manufacturers: cart.manufacturers,
     lastUpdated: cart.lastUpdated,
     isEmpty,
     

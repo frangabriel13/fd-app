@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { CartState } from '@/types/cart';
 
 const initialState: CartState = {
-  users: {},
+  manufacturers: {},
   lastUpdated: new Date().toISOString(),
 };
 
@@ -14,7 +14,7 @@ const cartSlice = createSlice({
      * Limpia todo el carrito
      */
     clearCart: (state) => {
-      state.users = {};
+      state.manufacturers = {};
       state.lastUpdated = new Date().toISOString();
     },
   },
