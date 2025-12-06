@@ -10,21 +10,21 @@ export interface CartProduct {
   inventories: CartInventoryItem[];
 }
 
-// Fabricante en el carrito
-export interface CartManufacturer {
-  manufacturerId: number;
+// Usuario en el carrito
+export interface CartUser {
+  userId: number;
   products: Record<string, CartInventoryItem[]>; // Mapa de productId -> lista de inventarios
 }
 
-// Estado del carrito agrupado por manufacturers
+// Estado del carrito agrupado por users
 export interface CartState {
-  manufacturers: Record<number, Record<string, CartInventoryItem[]>>; // manufacturerId -> productId -> lista de inventarios
+  users: Record<number, Record<string, CartInventoryItem[]>>; // userId -> productId -> lista de inventarios
   lastUpdated: string; // Fecha y hora de la última actualización del carrito
 }
 
 // Datos necesarios para agregar un item al carrito
 export interface AddToCartPayload {
-  manufacturerId: number;
+  userId: number;
   productId: string;
   inventoryId: number;
   quantity: number;
@@ -32,7 +32,7 @@ export interface AddToCartPayload {
 
 // Datos necesarios para actualizar un item en el carrito
 export interface UpdateCartItemPayload {
-  manufacturerId: number;
+  userId: number;
   productId: string;
   inventoryId: number;
   quantity: number;
@@ -40,14 +40,14 @@ export interface UpdateCartItemPayload {
 
 // Datos necesarios para eliminar un item del carrito
 export interface RemoveCartItemPayload {
-  manufacturerId: number;
+  userId: number;
   productId: string;
   inventoryId: number;
 }
 
 // Producto del carrito con datos adicionales obtenidos de la API
 export interface CartItemDisplay {
-  manufacturerId: number;
+  userId: number;
   productId: string;
   inventoryId: number;
   quantity: number;
@@ -61,11 +61,11 @@ export interface CartItemDisplay {
   stock?: number;
 }
 
-// Fabricante con sus productos y totales calculados
-export interface CartManufacturerDisplay {
-  manufacturerId: number;
-  manufacturerName?: string;
-  manufacturerLogo?: string;
+// Usuario con sus productos y totales calculados
+export interface CartUserDisplay {
+  userId: number;
+  userName?: string;
+  userLogo?: string;
   items: CartItemDisplay[];
   totalItems: number;
   subtotal: number;
