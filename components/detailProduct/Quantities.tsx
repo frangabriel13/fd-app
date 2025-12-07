@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import { useCart } from '@/hooks/useCart';
 
 interface Inventory {
   id: number;
@@ -14,10 +15,25 @@ interface QuantitiesProps {
   isVariable?: boolean;
   inventories?: Inventory[];
   onQuantityChange?: (inventoryId: number, quantity: number) => void;
+  manufacturerId: number;
+  productId: string;
 }
 
-const Quantities = ({ isVariable, inventories = [], onQuantityChange }: QuantitiesProps) => {
+const Quantities = ({ isVariable, inventories = [], onQuantityChange, manufacturerId, productId }: QuantitiesProps) => {
   const [quantities, setQuantities] = useState<Record<number, number>>({});
+  const { addToCart, updateCartItem, manufacturers } = useCart();
+
+  // Sincronizar con el carrito cuando cambie el estado del carrito
+  useEffect(() => {
+    const initialQuantities: Record<number, number> = {};
+    inventories.forEach(inventory => {
+      const product = manufacturers[manufacturerId]?.[productId];
+      const cartItem = product?.find(item => item.inventoryId === inventory.id);
+      const cartQuantity = cartItem?.quantity || 0;
+      initialQuantities[inventory.id] = cartQuantity;
+    });
+    setQuantities(initialQuantities);
+  }, [inventories, manufacturerId, productId, manufacturers]);
 
   const updateQuantity = (inventoryId: number, newQuantity: number) => {
     const inventory = inventories.find(inv => inv.id === inventoryId);
@@ -26,12 +42,48 @@ const Quantities = ({ isVariable, inventories = [], onQuantityChange }: Quantiti
     // No permitir cantidades negativas o mayor al stock
     const validQuantity = Math.max(0, Math.min(newQuantity, inventory.stock));
     
+    // Actualizar estado local
     setQuantities(prev => ({
       ...prev,
       [inventoryId]: validQuantity
     }));
 
+    // Actualizar carrito
+    if (validQuantity > 0) {
+      const product = manufacturers[manufacturerId]?.[productId];
+      const cartItem = product?.find(item => item.inventoryId === inventoryId);
+      const currentQuantity = cartItem?.quantity || 0;
+      
+      if (currentQuantity === 0) {
+        // Agregar al carrito
+        addToCart({
+          manufacturerId,
+          productId,
+          inventoryId,
+          quantity: validQuantity
+        });
+      } else {
+        // Actualizar cantidad
+        updateCartItem({
+          manufacturerId,
+          productId,
+          inventoryId,
+          quantity: validQuantity
+        });
+      }
+    } else {
+      // Eliminar del carrito si la cantidad es 0
+      updateCartItem({
+        manufacturerId,
+        productId,
+        inventoryId,
+        quantity: 0
+      });
+    }
+
+    // Callback opcional
     onQuantityChange?.(inventoryId, validQuantity);
+    // console.log('🛒 Estado del carrito actualizado:', JSON.stringify(manufacturers, null, 2));
   };
 
   const getQuantity = (inventoryId: number) => {

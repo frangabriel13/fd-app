@@ -31,7 +31,7 @@ const ProductoScreen = () => {
   useEffect(() => {
     if (currentProduct) {
       console.log('✅ Datos del producto cargados:', currentProduct);
-      // console.log('🏭 Datos del fabricante:', currentManufacturer);
+      console.log('🏭 Datos del fabricante:', currentManufacturer);
       // console.log('📦 Productos del fabricante:', manufacturerProducts);
       // console.log('🏷️ Productos de la categoría:', categoryProducts);
     }
@@ -63,7 +63,12 @@ const ProductoScreen = () => {
           product={currentProduct || undefined}
           manufacturer={currentManufacturer || undefined}
         />
-        <Quantities isVariable={currentProduct?.isVariable} inventories={currentProduct?.inventories} />
+        <Quantities 
+          isVariable={currentProduct?.isVariable} 
+          inventories={currentProduct?.inventories}
+          manufacturerId={currentManufacturer?.id || 0}
+          productId={currentProduct?.id?.toString() || ''}
+        />
         
         {/* Productos del mismo fabricante */}
         {manufacturerProducts && manufacturerProducts.length > 0 && (
