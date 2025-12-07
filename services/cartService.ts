@@ -7,7 +7,7 @@ interface CartRequestItem {
   products: {
     productId: string;
     variations: {
-      variationId: number;
+      inventoryId: number;
       quantity: number;
     }[];
   }[];
@@ -15,27 +15,28 @@ interface CartRequestItem {
 
 // Estructura de la respuesta del backend para fabricantes
 interface ManufacturerResponse {
-  userId: number; // Nota: el backend devuelve userId, pero nosotros lo mapeamos a manufacturerId
-  name?: string;
-  logo?: string;
+  id: number;
+  userId: number;
+  image?: string;
+  name: string;
+  minPurchase: number;
 }
 
 // Estructura de la respuesta del backend para productos
 interface ProductResponse {
-  id: string;
+  id: number;
   name: string;
-  images?: string[];
-  price: number;
-  salePrice?: number;
+  price: string; // Viene como string desde el backend
+  mainImage?: string;
   inventories?: InventoryResponse[];
 }
 
 interface InventoryResponse {
   id: number;
-  stock: number;
-  color?: string;
-  size?: string;
-  totalItem?: number; // Cantidad agregada por el usuario
+  size: string;
+  color: string;
+  code?: string;
+  totalItem: number; // Cantidad agregada por el usuario
 }
 
 /**
@@ -44,7 +45,9 @@ interface InventoryResponse {
 export const getCartItemsService = async (cartItems: CartRequestItem[]): Promise<CartManufacturerDisplay[]> => {
   try {
     // Hacer la petición POST al backend
-    const response = await productInstance.post('/cart', cartItems);
+    // console.log('📦 Enviando carrito al backend:', JSON.stringify(cartItems, null, 2));
+    const response = await productInstance.post('/mobile-cart', cartItems);
+    console.log('📦 Respuesta del backend del carrito:', response.data);
     
     // Transformar la respuesta del backend al formato que necesita nuestra app
     const transformedData: CartManufacturerDisplay[] = response.data.map((item: any) => {
@@ -55,16 +58,16 @@ export const getCartItemsService = async (cartItems: CartRequestItem[]): Promise
         
         return inventoriesWithQuantity.map(inventory => ({
           manufacturerId: item.manufacturer?.userId || 0,
-          productId: product.id,
+          productId: product.id.toString(),
           inventoryId: inventory.id,
           quantity: inventory.totalItem || 0,
           productName: product.name,
-          productImage: product.images?.[0] || '',
-          price: product.price,
-          salePrice: product.salePrice,
+          productImage: product.mainImage || '',
+          price: parseFloat(product.price) || 0,
+          salePrice: undefined, // No viene en esta respuesta
           color: inventory.color,
           size: inventory.size,
-          stock: inventory.stock,
+          stock: undefined, // No viene en esta respuesta
         }));
       }).flat();
 
@@ -78,7 +81,7 @@ export const getCartItemsService = async (cartItems: CartRequestItem[]): Promise
       return {
         manufacturerId: item.manufacturer?.userId || 0,
         manufacturerName: item.manufacturer?.name,
-        manufacturerLogo: item.manufacturer?.logo,
+        manufacturerLogo: item.manufacturer?.image,
         items: products,
         totalItems,
         subtotal,
@@ -101,7 +104,7 @@ export const transformCartStateToRequest = (manufacturers: Record<number, Record
     products: Object.entries(products).map(([productId, inventories]) => ({
       productId,
       variations: inventories.map(inventory => ({
-        variationId: inventory.inventoryId,
+        inventoryId: inventory.inventoryId,
         quantity: inventory.quantity,
       })),
     })),
