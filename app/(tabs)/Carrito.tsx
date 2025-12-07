@@ -9,7 +9,7 @@ const CartScreen = () => {
     if (!isEmpty) {
       fetchCartData()
         .then((data) => {
-          console.log('🛒 Cart Data:', data);
+          console.log('🛒 Cart Data:', JSON.stringify(data, null, 2));
         })
         .catch((error) => {
           console.error('❌ Error fetching cart:', error);
