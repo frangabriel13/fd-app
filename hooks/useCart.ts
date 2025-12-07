@@ -1,10 +1,10 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { RootState, AppDispatch } from '@/store';
-import { clearCart } from '@/store/slices/cartSlice';
+import { addToCart, updateCartItem, removeFromCart, clearCart } from '@/store/slices/cartSlice';
 import { isCartEmpty } from '@/utils/cartUtils';
 import { getCartItemsService, transformCartStateToRequest } from '@/services/cartService';
-import { CartManufacturerDisplay } from '@/types/cart';
+import { CartManufacturerDisplay, AddToCartPayload, UpdateCartItemPayload, RemoveCartItemPayload } from '@/types/cart';
 
 export const useCart = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -36,6 +36,46 @@ export const useCart = () => {
     }
   };
 
+  // Agregar al carrito
+  const handleAddToCart = (payload: AddToCartPayload) => {
+    dispatch(addToCart(payload));
+  };
+
+  // Actualizar cantidad
+  const handleUpdateCartItem = (payload: UpdateCartItemPayload) => {
+    dispatch(updateCartItem(payload));
+  };
+
+  // Eliminar del carrito
+  const handleRemoveFromCart = (payload: RemoveCartItemPayload) => {
+    dispatch(removeFromCart(payload));
+  };
+
+  // Obtener cantidad de un item específico
+  const getItemQuantity = useCallback((manufacturerId: number, productId: string, inventoryId: number): number => {
+    const product = cart.manufacturers[manufacturerId]?.[productId];
+    if (!product) return 0;
+    
+    const inventory = product.find(item => item.inventoryId === inventoryId);
+    return inventory?.quantity || 0;
+  }, [cart.manufacturers]);
+
+  // Verificar si un item está en el carrito
+  const isItemInCart = useCallback((manufacturerId: number, productId: string, inventoryId: number): boolean => {
+    return getItemQuantity(manufacturerId, productId, inventoryId) > 0;
+  }, [getItemQuantity]);
+
+  // Obtener total de items en el carrito
+  const getTotalItems = (): number => {
+    return Object.values(cart.manufacturers).reduce((total, manufacturer) => {
+      return total + Object.values(manufacturer).reduce((manufacturerTotal, product) => {
+        return manufacturerTotal + product.reduce((productTotal, inventory) => {
+          return productTotal + inventory.quantity;
+        }, 0);
+      }, 0);
+    }, 0);
+  };
+
   // Acción principal
   const handleClearCart = () => {
     dispatch(clearCart());
@@ -51,7 +91,15 @@ export const useCart = () => {
     cartData,
     
     // Acciones
+    addToCart: handleAddToCart,
+    updateCartItem: handleUpdateCartItem,
+    removeFromCart: handleRemoveFromCart,
     clearCart: handleClearCart,
     fetchCartData,
+    
+    // Utilidades
+    getItemQuantity,
+    isItemInCart,
+    getTotalItems,
   };
 };
