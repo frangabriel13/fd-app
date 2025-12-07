@@ -7,7 +7,7 @@ interface CartRequestItem {
   products: {
     productId: string;
     variations: {
-      variationId: number;
+      inventoryId: number;
       quantity: number;
     }[];
   }[];
@@ -44,6 +44,7 @@ interface InventoryResponse {
 export const getCartItemsService = async (cartItems: CartRequestItem[]): Promise<CartManufacturerDisplay[]> => {
   try {
     // Hacer la petición POST al backend
+    console.log('📦 Enviando carrito al backend:', JSON.stringify(cartItems, null, 2));
     const response = await productInstance.post('/cart', cartItems);
     
     // Transformar la respuesta del backend al formato que necesita nuestra app
@@ -101,7 +102,7 @@ export const transformCartStateToRequest = (manufacturers: Record<number, Record
     products: Object.entries(products).map(([productId, inventories]) => ({
       productId,
       variations: inventories.map(inventory => ({
-        variationId: inventory.inventoryId,
+        inventoryId: inventory.inventoryId,
         quantity: inventory.quantity,
       })),
     })),
