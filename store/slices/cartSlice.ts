@@ -104,6 +104,19 @@ const cartSlice = createSlice({
     },
 
     /**
+     * Elimina un fabricante completo del carrito
+     */
+    removeManufacturer: (state, action: PayloadAction<{ manufacturerId: number }>) => {
+      const { manufacturerId } = action.payload;
+      
+      if (state.manufacturers[manufacturerId]) {
+        delete state.manufacturers[manufacturerId];
+      }
+      
+      state.lastUpdated = new Date().toISOString();
+    },
+
+    /**
      * Limpia todo el carrito
      */
     clearCart: (state) => {
@@ -117,6 +130,7 @@ export const {
   addToCart,
   updateCartItem,
   removeFromCart,
+  removeManufacturer,
   clearCart,
 } = cartSlice.actions;
 

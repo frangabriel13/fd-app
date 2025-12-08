@@ -9,13 +9,13 @@ import UnifyOrder from '@/components/cart/UnifyOrder';
 import type { CartManufacturerDisplay } from '@/types/cart';
 
 const CartScreen = () => {
-  const { cartData, fetchCartData, isEmpty, addToCart } = useCart();
+  const { cartData, fetchCartData, isEmpty, addToCart, removeManufacturer, clearCart } = useCart();
 
   useEffect(() => {
     if (!isEmpty) {
       fetchCartData()
         .then((data) => {
-          console.log('🛒 Cart Data:', JSON.stringify(data, null, 2));
+          // console.log('🛒 Cart Data:', JSON.stringify(data, null, 2));
         })
         .catch((error) => {
           console.error('❌ Error fetching cart:', error);
@@ -35,6 +35,16 @@ const CartScreen = () => {
     });
   };
 
+  // Función para eliminar un fabricante específico del carrito
+  const handleRemoveManufacturer = (manufacturerId: number) => {
+    removeManufacturer(manufacturerId);
+  };
+
+  // Función para limpiar todo el carrito
+  const handleClearCart = () => {
+    clearCart();
+  };
+
 
 
   const calculateGrandTotal = () => {
@@ -51,7 +61,8 @@ const CartScreen = () => {
     return (
       <ManufacturerCart 
         key={manufacturer.manufacturerId} 
-        manufacturer={manufacturer} 
+        manufacturer={manufacturer}
+        onRemoveManufacturer={handleRemoveManufacturer}
       />
     );
   };
@@ -80,6 +91,7 @@ const CartScreen = () => {
       totalAmount={calculateGrandTotal()}
       totalItems={getTotalItems()}
       manufacturersCount={cartData.length}
+      onClearCart={handleClearCart}
     />
   );
 
@@ -178,5 +190,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
 
 export default CartScreen;

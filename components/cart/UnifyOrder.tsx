@@ -7,9 +7,15 @@ interface UnifyOrderProps {
   totalAmount: number;
   totalItems: number;
   manufacturersCount: number;
+  onClearCart?: () => void;
 }
 
-const UnifyOrder: React.FC<UnifyOrderProps> = ({ totalAmount, totalItems, manufacturersCount }) => {
+const UnifyOrder: React.FC<UnifyOrderProps> = ({ 
+  totalAmount, 
+  totalItems, 
+  manufacturersCount, 
+  onClearCart 
+}) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-AR', {
       style: 'currency',
@@ -30,12 +36,18 @@ const UnifyOrder: React.FC<UnifyOrderProps> = ({ totalAmount, totalItems, manufa
       </Text>
 
       <View style={styles.summaryActions}>
-        <TouchableOpacity style={styles.unifyOrderButton}>
+        <TouchableOpacity 
+          style={styles.unifyOrderButton}
+          onPress={onClearCart}
+        >
           <Ionicons name="package-outline" size={20} color="white" />
           <Text style={styles.unifyOrderButtonText}>Unificar pedido</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.clearCartButton}>
+        <TouchableOpacity 
+          style={styles.clearCartButton}
+          onPress={onClearCart}
+        >
           <Ionicons name="trash-outline" size={18} color={Colors.general.error} />
           <Text style={styles.clearCartButtonText}>Vaciar carrito</Text>
         </TouchableOpacity>

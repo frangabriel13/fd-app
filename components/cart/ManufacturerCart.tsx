@@ -7,9 +7,13 @@ import type { CartManufacturerDisplay } from '@/types/cart';
 
 interface ManufacturerCartProps {
   manufacturer: CartManufacturerDisplay;
+  onRemoveManufacturer?: (manufacturerId: number) => void;
 }
 
-const ManufacturerCart: React.FC<ManufacturerCartProps> = ({ manufacturer }) => {
+const ManufacturerCart: React.FC<ManufacturerCartProps> = ({ 
+  manufacturer, 
+  onRemoveManufacturer 
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const formatPrice = (price: number) => {
@@ -22,6 +26,12 @@ const ManufacturerCart: React.FC<ManufacturerCartProps> = ({ manufacturer }) => 
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const handleRemoveManufacturer = () => {
+    if (onRemoveManufacturer) {
+      onRemoveManufacturer(manufacturer.manufacturerId);
+    }
   };
 
   return (
@@ -63,15 +73,21 @@ const ManufacturerCart: React.FC<ManufacturerCartProps> = ({ manufacturer }) => 
 
       {/* Acciones del fabricante */}
       <View style={styles.manufacturerActions}>
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={handleRemoveManufacturer}
+        >
           <Ionicons name="trash-outline" size={16} color={Colors.general.error} />
           <Text style={styles.actionButtonTextDanger}>Eliminar</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
+        {/* <TouchableOpacity style={styles.actionButton}>
           <Ionicons name="eye-outline" size={16} color={Colors.blue.default} />
           <Text style={styles.actionButtonText}>Ver detalle</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionButton, styles.primaryActionButton]}>
+        </TouchableOpacity> */}
+        <TouchableOpacity 
+          style={[styles.actionButton, styles.primaryActionButton]}
+          onPress={handleRemoveManufacturer}
+        >
           <Ionicons name="send-outline" size={16} color="white" />
           <Text style={styles.primaryActionButtonText}>Enviar pedido</Text>
         </TouchableOpacity>
