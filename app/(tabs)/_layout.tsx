@@ -5,6 +5,8 @@ import { Platform } from 'react-native';
 import { HapticTab } from '@/components/HapticTab';
 import Header from '@/components/header/Header';
 import TabBarBackground from '@/components/ui/TabBarBackground';
+import TabBarBadge from '@/components/ui/TabBarBadge';
+import { useCartBadge } from '@/hooks/useCartBadge';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
@@ -12,6 +14,7 @@ import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 export default function TabLayout() {
   // const colorScheme = useColorScheme();
   // useAuth();
+  const cartBadgeCount = useCartBadge();
   
   return (
     <>
@@ -49,10 +52,14 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="carrito"
+          name="Carrito"
           options={{
             title: 'Carrito',
-            tabBarIcon: ({ color }) => <AntDesign name="shoppingcart" size={28} color={color} />,
+            tabBarIcon: ({ color }) => (
+              <TabBarBadge count={cartBadgeCount}>
+                <AntDesign name="shoppingcart" size={28} color={color} />
+              </TabBarBadge>
+            ),
           }}
         />
         <Tabs.Screen

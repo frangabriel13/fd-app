@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useCallback } from 'react';
 import { RootState, AppDispatch } from '@/store';
-import { addToCart, updateCartItem, removeFromCart, clearCart } from '@/store/slices/cartSlice';
+import { addToCart, updateCartItem, removeFromCart, removeManufacturer, clearCart } from '@/store/slices/cartSlice';
 import { isCartEmpty } from '@/utils/cartUtils';
 import { getCartItemsService, transformCartStateToRequest } from '@/services/cartService';
 import { CartManufacturerDisplay, AddToCartPayload, UpdateCartItemPayload, RemoveCartItemPayload } from '@/types/cart';
@@ -51,6 +51,13 @@ export const useCart = () => {
     dispatch(removeFromCart(payload));
   };
 
+  // Eliminar fabricante completo
+  const handleRemoveManufacturer = (manufacturerId: number) => {
+    dispatch(removeManufacturer({ manufacturerId }));
+    // Actualizar cartData eliminando el fabricante
+    setCartData(prevData => prevData.filter(item => item.manufacturerId !== manufacturerId));
+  };
+
   // Obtener cantidad de un item específico
   const getItemQuantity = useCallback((manufacturerId: number, productId: string, inventoryId: number): number => {
     const product = cart.manufacturers[manufacturerId]?.[productId];
@@ -94,6 +101,7 @@ export const useCart = () => {
     addToCart: handleAddToCart,
     updateCartItem: handleUpdateCartItem,
     removeFromCart: handleRemoveFromCart,
+    removeManufacturer: handleRemoveManufacturer,
     clearCart: handleClearCart,
     fetchCartData,
     
