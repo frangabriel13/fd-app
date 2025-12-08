@@ -40,7 +40,7 @@ const UnifyOrder: React.FC<UnifyOrderProps> = ({
           style={styles.unifyOrderButton}
           onPress={onClearCart}
         >
-          <Ionicons name="package-outline" size={20} color="white" />
+          <Ionicons name="bag-outline" size={20} color="white" />
           <Text style={styles.unifyOrderButtonText}>Unificar pedido</Text>
         </TouchableOpacity>
         
