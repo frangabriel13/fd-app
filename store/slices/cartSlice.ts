@@ -67,14 +67,15 @@ const cartSlice = createSlice({
                 delete state.manufacturers[manufacturerId];
               }
             }
+            // NO actualizamos lastUpdated cuando eliminamos (quantity <= 0)
           } else {
             // Actualizamos la cantidad
             state.manufacturers[manufacturerId][productId][inventoryIndex].quantity = quantity;
+            // Solo actualizamos lastUpdated cuando hay un cambio de cantidad real
+            state.lastUpdated = new Date().toISOString();
           }
         }
       }
-      
-      state.lastUpdated = new Date().toISOString();
     },
 
     /**
@@ -100,7 +101,7 @@ const cartSlice = createSlice({
         }
       }
       
-      state.lastUpdated = new Date().toISOString();
+      // NO actualizamos lastUpdated porque es una operación local que no requiere recarga del backend
     },
 
     /**
@@ -113,7 +114,7 @@ const cartSlice = createSlice({
         delete state.manufacturers[manufacturerId];
       }
       
-      state.lastUpdated = new Date().toISOString();
+      // NO actualizamos lastUpdated porque es una operación local que no requiere recarga del backend
     },
 
     /**
