@@ -7,6 +7,7 @@ import Header from '@/components/header/Header';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import TabBarBadge from '@/components/ui/TabBarBadge';
 import { useCartBadge } from '@/hooks/useCartBadge';
+import { CartAnimationProvider } from '@/contexts/CartAnimationContext';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
@@ -17,7 +18,7 @@ export default function TabLayout() {
   const cartBadgeCount = useCartBadge();
   
   return (
-    <>
+    <CartAnimationProvider>
       <Header />
       <Tabs
         screenOptions={{
@@ -96,6 +97,6 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-    </>
+    </CartAnimationProvider>
   );
 }

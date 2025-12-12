@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from '@/hooks/useCart';
+import { useCartAnimationContext } from '@/contexts/CartAnimationContext';
 
 interface Inventory {
   id: number;
@@ -22,6 +23,7 @@ interface QuantitiesProps {
 const Quantities = ({ isVariable, inventories = [], onQuantityChange, manufacturerId, productId }: QuantitiesProps) => {
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const { addToCart, updateCartItem, manufacturers } = useCart();
+  const { triggerAnimation } = useCartAnimationContext();
 
   // Sincronizar con el carrito cuando cambie el estado del carrito
   useEffect(() => {
@@ -62,6 +64,8 @@ const Quantities = ({ isVariable, inventories = [], onQuantityChange, manufactur
           inventoryId,
           quantity: validQuantity
         });
+        // Disparar animación solo cuando se agrega algo nuevo o se incrementa
+        triggerAnimation();
       } else {
         // Actualizar cantidad
         updateCartItem({
@@ -70,6 +74,10 @@ const Quantities = ({ isVariable, inventories = [], onQuantityChange, manufactur
           inventoryId,
           quantity: validQuantity
         });
+        // Disparar animación solo si incrementamos la cantidad
+        if (validQuantity > currentQuantity) {
+          triggerAnimation();
+        }
       }
     } else {
       // Eliminar del carrito si la cantidad es 0
