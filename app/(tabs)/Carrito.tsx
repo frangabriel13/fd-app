@@ -1,5 +1,7 @@
 import { Text, View, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from '@/hooks/useCart';
 import { Colors } from '@/constants/Colors';
@@ -9,21 +11,24 @@ import UnifyOrder from '@/components/cart/UnifyOrder';
 import type { CartManufacturerDisplay } from '@/types/cart';
 
 const CartScreen = () => {
-  const { cartData, fetchCartData, isEmpty, addToCart, removeManufacturer, clearCart } = useCart();
+  const { cartData, fetchCartData, isEmpty, addToCart, removeManufacturer, clearCart, lastUpdated } = useCart();
 
-  useEffect(() => {
-    if (!isEmpty) {
-      fetchCartData()
-        .then((data) => {
-          // console.log('🛒 Cart Data:', JSON.stringify(data, null, 2));
-        })
-        .catch((error) => {
-          console.error('❌ Error fetching cart:', error);
-        });
-    } else {
-      console.log('🛒 Cart is empty');
-    }
-  }, [isEmpty]);
+  // Usar useFocusEffect para recargar datos cada vez que la pantalla recibe foco O cuando cambie el carrito
+  useFocusEffect(
+    useCallback(() => {
+      if (!isEmpty) {
+        fetchCartData()
+          .then((data) => {
+            // console.log('🛒 Cart Data:', JSON.stringify(data, null, 2));
+          })
+          .catch((error) => {
+            console.error('❌ Error fetching cart:', error);
+          });
+      } else {
+        console.log('🛒 Cart is empty');
+      }
+    }, [isEmpty, lastUpdated])
+  );
 
   // Función para agregar un item de prueba al carrito
   const handleAddTestItem = () => {
