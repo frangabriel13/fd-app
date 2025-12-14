@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 import { spacing, borderRadius, shadows } from '@/constants/Styles';
 import type { CartManufacturerDisplay } from '@/types/cart';
+import DetailCart from './DetailCart';
 
 interface ManufacturerCartProps {
   manufacturer: CartManufacturerDisplay;
@@ -93,12 +94,13 @@ const ManufacturerCart: React.FC<ManufacturerCartProps> = ({
         </TouchableOpacity>
       </View>
 
-      {/* Detalle expandible (placeholder para futura implementación) */}
+      {/* Detalle expandible */}
       {isExpanded && (
         <View style={styles.manufacturerDetail}>
-          <Text style={styles.detailPlaceholder}>
-            Aquí se mostrará el detalle de los productos ({manufacturer.items.length} items)
-          </Text>
+          <DetailCart 
+            manufacturer={manufacturer} 
+            onRemoveManufacturer={onRemoveManufacturer} 
+          />
         </View>
       )}
     </View>
@@ -201,18 +203,11 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   manufacturerDetail: {
-    marginTop: spacing.sm,
-    padding: spacing.md,
+    // marginTop: spacing.sm,
     backgroundColor: Colors.gray.light,
     borderRadius: borderRadius.md,
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-  },
-  detailPlaceholder: {
-    fontSize: 14,
-    color: Colors.gray.semiDark,
-    fontStyle: 'italic',
-    textAlign: 'center',
   },
 });
 
