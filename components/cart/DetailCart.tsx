@@ -153,6 +153,9 @@ const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => 
   const renderProduct = (product: GroupedProduct) => {
     const hasColorVariations = product.variations.some(v => v.color && v.color.trim() !== '');
     const isVariable = hasColorVariations;
+    
+    // Obtener el precio del producto (todas las variaciones tienen el mismo precio)
+    const productPrice = product.variations[0]?.salePrice || product.variations[0]?.price || 0;
 
     return (
       <View key={product.productId} style={styles.productContainer}>
@@ -177,6 +180,9 @@ const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => 
           <View style={styles.productInfo}>
             <Text style={styles.productName} numberOfLines={2}>
               {product.productName || 'Producto sin nombre'}
+            </Text>
+            <Text style={styles.productPrice}>
+              ${productPrice.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
             </Text>
           </View>
         </View>
@@ -239,6 +245,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
     lineHeight: 20,
+    marginBottom: 4,
+  },
+  productPrice: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#666',
   },
   variationsContainer: {
     borderTopWidth: 1,
