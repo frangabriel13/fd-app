@@ -72,7 +72,11 @@ const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => 
   };
 
   const renderVariationRow = (item: CartItemDisplay, isVariable: boolean) => {
-    const displayLabel = isVariable ? item.color : item.size;
+    // Si el color es "Sin color" o está vacío, mostrar el size en su lugar
+    const shouldShowSize = !item.color || item.color.trim() === '' || item.color.toLowerCase() === 'sin color';
+    const displayLabel = shouldShowSize ? item.size : item.color;
+    const showColorIndicator = isVariable && !shouldShowSize && item.color;
+    
     const currentQuantity = item.quantity;
     const displayPrice = item.salePrice || item.price || 0;
 
@@ -103,7 +107,7 @@ const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => 
         {/* Información de la variación a la izquierda */}
         <View style={styles.variationInfo}>
           <View style={styles.variationLabel}>
-            {isVariable && item.color && (
+            {showColorIndicator && (
               <View style={[
                 styles.colorIndicator, 
                 { backgroundColor: getColorValue(item.color) }
