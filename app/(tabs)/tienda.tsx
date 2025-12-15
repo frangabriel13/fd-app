@@ -1,9 +1,12 @@
 import { View, Text, StyleSheet } from 'react-native';
+import MenuGender from '@/components/shop/MenuGender';
+import SelectCategory from '@/components/shop/SelectCategory';
 
 const ShopScreen = () => {
   return (
     <View style={styles.container}>
-      <Text>ShopScreen</Text>
+      <MenuGender />
+      <SelectCategory />
     </View>
   );
 };
