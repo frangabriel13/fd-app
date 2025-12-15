@@ -17,11 +17,16 @@ const genders: Gender[] = [
   { id: 7, name: 'Otros', url: 'otros' },
 ];
 
-const MenuGender = () => {
+type MenuGenderProps = {
+  onGenderSelect?: (genderId: number) => void;
+};
+
+const MenuGender = ({ onGenderSelect }: MenuGenderProps) => {
   const [selectedGender, setSelectedGender] = useState<number>(3); // Mujer por defecto
 
   const handleGenderSelect = (genderId: number) => {
     setSelectedGender(genderId);
+    onGenderSelect?.(genderId);
   };
 
   return (
