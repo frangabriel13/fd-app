@@ -17,12 +17,14 @@ const SelectCategory = ({ selectedGenderId }: SelectCategoryProps) => {
 
   return (
     <View style={styles.container}>
-      {selectedGender?.categories.map((category, index) => (
-        <View key={index} style={styles.categoryContainer}>
-          <Image source={category.img} style={styles.image} />
-          <Text style={styles.categoryName}>{category.name}</Text>
-        </View>
-      ))}
+      <View style={styles.grid}>
+        {selectedGender?.categories.map((category, index) => (
+          <View key={index} style={styles.card}>
+            <Image source={category.img} style={styles.cardImage} />
+            <Text style={styles.cardText}>{category.name}</Text>
+          </View>
+        ))}
+      </View>
     </View>
   );
 };
@@ -30,25 +32,43 @@ const SelectCategory = ({ selectedGenderId }: SelectCategoryProps) => {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    backgroundColor: '#f5f5f5',
+    flex: 1,
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 16,
+    textAlign: 'center',
   },
-  categoryContainer: {
+  grid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  card: {
+    width: '30%',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 8,
+    marginBottom: 16,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cardImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
     marginBottom: 8,
   },
-  image: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
-  },
-  categoryName: {
-    fontSize: 16,
+  cardText: {
+    fontSize: 14,
+    color: '#000',
+    textAlign: 'center',
   },
 });
 
