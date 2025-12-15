@@ -76,7 +76,12 @@ const Menu = () => {
       {/* Primera lista */}
       <View>
         <MenuItem icon="home" label="Inicio" />
-        <MenuItem icon="storefront-outline" label="Tienda" IconComponent={Ionicons} />
+        <MenuItem 
+          icon="storefront-outline" 
+          label="Tienda" 
+          IconComponent={Ionicons}
+          onPress={() => router.push('/(tabs)/tienda')}
+        />
         <MenuItem icon="package" label="Packs/Combos" IconComponent={Octicons} />
         <MenuItem 
           icon="wifi" 
