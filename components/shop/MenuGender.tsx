@@ -1,21 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Colors } from '@/constants/Colors';
-
-type Gender = {
-  id: number;
-  name: string;
-  url: string;
-};
-
-const genders: Gender[] = [
-  { id: 2, name: 'Hombre', url: 'hombre' },
-  { id: 3, name: 'Mujer', url: 'mujer' },
-  { id: 4, name: 'Niño', url: 'niño' },
-  { id: 5, name: 'Niña', url: 'niña' },
-  { id: 6, name: 'Bebés', url: 'bebes' },
-  { id: 7, name: 'Otros', url: 'otros' },
-];
+import { genders } from '@/utils/hardcode';
 
 type MenuGenderProps = {
   onGenderSelect?: (genderId: number) => void;
@@ -41,12 +27,21 @@ const MenuGender = ({ onGenderSelect }: MenuGenderProps) => {
             key={gender.id}
             style={[
               styles.genderButton,
-              selectedGender === gender.id && styles.selectedButton,
               index === 0 && styles.firstButton,
               index === genders.length - 1 && styles.lastButton,
             ]}
             onPress={() => handleGenderSelect(gender.id)}
           >
+            <View style={[
+              styles.imageContainer,
+              selectedGender === gender.id && styles.selectedImageContainer
+            ]}>
+              <Image 
+                source={gender.image} 
+                style={styles.genderImage}
+                resizeMode="cover"
+              />
+            </View>
             <Text style={[
               styles.genderText,
               selectedGender === gender.id && styles.selectedText
@@ -62,34 +57,53 @@ const MenuGender = ({ onGenderSelect }: MenuGenderProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.orange.default,
+    backgroundColor: '#ffffff',
+    paddingVertical: 12,
   },
   scrollContent: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 8,
   },
   genderButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 3,
-    borderBottomColor: 'transparent',
+    alignItems: 'center',
+    paddingHorizontal: 8,
   },
   firstButton: {
-    paddingLeft: 20,
+    paddingLeft: 16,
   },
   lastButton: {
-    paddingRight: 20,
+    paddingRight: 16,
   },
-  selectedButton: {
-    borderBottomColor: Colors.blue.default,
+  imageContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 2,
+    borderColor: '#e5e5e5',
+    overflow: 'hidden',
+    marginBottom: 6,
+    backgroundColor: '#f8f8f8',
+  },
+  selectedImageContainer: {
+    borderColor: Colors.blue.default,
+    borderWidth: 2.5,
+  },
+  genderImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 26,
   },
   genderText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#666666',
+    textAlign: 'center',
+    maxWidth: 60,
   },
   selectedText: {
     color: Colors.blue.default,
+    fontWeight: '600',
   },
 });
 

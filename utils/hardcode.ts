@@ -50,6 +50,7 @@ export const genders = [
     id: 2, 
     name: 'Hombre', 
     url: 'hombre',
+    image: image,
     categories: [
       { id: 135, name: 'Jeans', image, url: 'jeans', img: jeansHombre },
       { id: 136, name: 'Pantalones', image, url: 'pantalones', img: pantalonesHombre },
@@ -69,6 +70,7 @@ export const genders = [
     id: 3, 
     name: 'Mujer', 
     url: 'mujer',
+    image: image,
     categories: [
       { id: 135, name: 'Jeans', image, url: 'jeans', img: jeansMujer },
       { id: 137, name: 'Pantalones y calzas', image, url: 'pantalones-y-calzas', img: pantalonesCalzasMujer },
@@ -88,6 +90,7 @@ export const genders = [
     id: 4, 
     name: 'Niño', 
     url: 'niño',
+    image: image,
     categories: [
       { id: 135, name: 'Jeans', image, url: 'jeans', img: jeansHombre },
       { id: 136, name: 'Pantalones', image, url: 'pantalones', img: pantalonesHombre },
@@ -107,6 +110,7 @@ export const genders = [
     id: 5, 
     name: 'Niña', 
     url: 'niña',
+    image: image,
     categories: [
       { id: 135, name: 'Jeans', image, url: 'jeans', img: jeansMujer },
       { id: 137, name: 'Pantalones y calzas', image, url: 'pantalones-y-calzas', img: pantalonesCalzasMujer },
@@ -126,6 +130,7 @@ export const genders = [
     id: 6, 
     name: 'Bebés', 
     url: 'bebes',
+    image: image,
     categories: [
       { id: 145, name: 'Bodys', image, url: 'bodys', img: bodysBebe },
       { id: 142, name: 'Remeras', image, url: 'remeras', img: remerasBebe },
@@ -145,6 +150,7 @@ export const genders = [
     id: 7, 
     name: 'Más', 
     url: 'mas',
+    image: image,
     categories: [
       { id: 130, name: 'Blanquería', image, url: 'blanqueria', img: bisuteriaImg },
       { id: 131, name: 'Bisutería', image, url: 'bisuteria', img: blanqueriaImg },
