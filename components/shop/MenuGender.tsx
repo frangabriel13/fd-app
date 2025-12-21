@@ -58,7 +58,7 @@ const MenuGender = ({ onGenderSelect }: MenuGenderProps) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#ffffff',
-    paddingVertical: 12,
+    paddingVertical: 6,
   },
   scrollContent: {
     flexDirection: 'row',
