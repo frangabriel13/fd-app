@@ -2,6 +2,34 @@ import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { productInstance } from '@/services';
 import { Product, Manufacturer, ProductWithManufacturerResponse } from '@/types/product';
 
+interface ShopPagination {
+  currentPage: number;
+  limit: number;
+  totalProducts: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+interface ShopFilters {
+  genderId: number | null;
+  categoryId: number | null;
+  searchTerm: string | null;
+}
+
+interface ShopProduct extends Pick<Product, 'id' | 'name' | 'price' | 'mainImage' | 'userId' | 'priceUSD' | 'onSale' | 'description'> {
+  logo?: string | null;
+  category?: {
+    id: number;
+    name: string;
+    parentId?: number;
+  };
+  gender?: {
+    id: number;
+    name: string;
+  };
+}
+
 interface ProductState {
   featured: Product[];
   newProducts: Product[];
@@ -18,6 +46,9 @@ interface ProductState {
   currentManufacturer: Manufacturer | null;
   manufacturerProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
   categoryProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
+  shopProducts: ShopProduct[];
+  shopPagination: ShopPagination | null;
+  shopFilters: ShopFilters;
   loading: boolean;
   error: string | null;
 }
@@ -38,9 +69,41 @@ const initialState: ProductState = {
   currentManufacturer: null,
   manufacturerProducts: [],
   categoryProducts: [],
+  shopProducts: [],
+  shopPagination: null,
+  shopFilters: {
+    genderId: null,
+    categoryId: null,
+    searchTerm: null
+  },
   loading: false,
   error: null,
 };
+
+export const fetchShopProducts = createAsyncThunk(
+  'product/fetchShopProducts',
+  async ({ genderId, categoryId, searchTerm, page = 1, limit = 10 }: {
+    genderId?: number;
+    categoryId?: number;
+    searchTerm?: string;
+    page?: number;
+    limit?: number;
+  }, { rejectWithValue }) => {
+    try {
+      const params = new URLSearchParams();
+      if (genderId) params.append('genderId', genderId.toString());
+      if (categoryId) params.append('categoryId', categoryId.toString());
+      if (searchTerm) params.append('searchTerm', searchTerm);
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+
+      const response = await productInstance.get(`/shop?${params.toString()}`);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al obtener los productos de la tienda');
+    }
+  }
+);
 
 export const fetchMobileHomeProducts = createAsyncThunk(
   'product/fetchMobileHomeProducts',
@@ -83,9 +146,41 @@ const productSlice = createSlice({
       state.manufacturerProducts = [];
       state.categoryProducts = [];
     },
+    setShopFilters: (state, action: PayloadAction<Partial<ShopFilters>>) => {
+      state.shopFilters = { ...state.shopFilters, ...action.payload };
+    },
+    clearShopProducts: (state) => {
+      state.shopProducts = [];
+      state.shopPagination = null;
+    },
+    resetShopFilters: (state) => {
+      state.shopFilters = {
+        genderId: null,
+        categoryId: null,
+        searchTerm: null
+      };
+    },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchShopProducts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchShopProducts.fulfilled, (state, action: PayloadAction<{
+        products: ShopProduct[];
+        pagination: ShopPagination;
+        filters: ShopFilters;
+      }>) => {
+        state.shopProducts = action.payload.products;
+        state.shopPagination = action.payload.pagination;
+        state.shopFilters = action.payload.filters;
+        state.loading = false;
+      })
+      .addCase(fetchShopProducts.rejected, (state, action: PayloadAction<any>) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
       .addCase(fetchMobileHomeProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -126,6 +221,6 @@ const productSlice = createSlice({
   },
 });
 
-export const { setLoading, setError, clearCurrentProduct } = productSlice.actions;
+export const { setLoading, setError, clearCurrentProduct, setShopFilters, clearShopProducts, resetShopFilters } = productSlice.actions;
 
 export default productSlice.reducer;
