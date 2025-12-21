@@ -72,26 +72,26 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
+    // paddingHorizontal: 8,
   },
   categoryButton: {
     alignItems: 'center',
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
   },
   firstButton: {
-    paddingLeft: 16,
+    paddingLeft: 8,
   },
   lastButton: {
-    paddingRight: 16,
+    paddingRight: 8,
   },
   imageContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     borderWidth: 2,
     borderColor: '#e5e5e5',
     overflow: 'hidden',
-    marginBottom: 6,
+    // marginBottom: 6,
     backgroundColor: '#f8f8f8',
   },
   selectedImageContainer: {
