@@ -1,30 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Colors } from '@/constants/Colors';
-
-// Importar imágenes
-import jeansHombre from '@/assets/images/categorias/hombre/jeans.png';
-import jeansMujer from '@/assets/images/categorias/mujer/jeans.png';
-import buzosNino from '@/assets/images/categorias/nino/buzos.png';
-import vestidosNina from '@/assets/images/categorias/nina/vestidos.png';
-import bodysBebe from '@/assets/images/categorias/bebes/bodys.png';
-import bisuteriaImg from '@/assets/images/categorias/otros/BISUTERIA.png';
-
-type Gender = {
-  id: number;
-  name: string;
-  url: string;
-  image: any;
-};
-
-const genders: Gender[] = [
-  { id: 2, name: 'Hombre', url: 'hombre', image: jeansHombre },
-  { id: 3, name: 'Mujer', url: 'mujer', image: jeansMujer },
-  { id: 4, name: 'Niño', url: 'niño', image: buzosNino },
-  { id: 5, name: 'Niña', url: 'niña', image: vestidosNina },
-  { id: 6, name: 'Bebés', url: 'bebes', image: bodysBebe },
-  { id: 7, name: 'Otros', url: 'otros', image: bisuteriaImg },
-];
+import { genders } from '@/utils/hardcode';
 
 type MenuGenderProps = {
   onGenderSelect?: (genderId: number) => void;
@@ -80,47 +57,53 @@ const MenuGender = ({ onGenderSelect }: MenuGenderProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.orange.default,
-    paddingVertical: 15,
+    backgroundColor: '#ffffff',
+    paddingVertical: 12,
   },
   scrollContent: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 8,
   },
   genderButton: {
     alignItems: 'center',
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
   },
   firstButton: {
-    paddingLeft: 20,
+    paddingLeft: 16,
   },
   lastButton: {
-    paddingRight: 20,
+    paddingRight: 16,
   },
   imageContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 3,
-    borderColor: 'transparent',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 2,
+    borderColor: '#e5e5e5',
     overflow: 'hidden',
-    marginBottom: 8,
+    marginBottom: 6,
+    backgroundColor: '#f8f8f8',
   },
   selectedImageContainer: {
     borderColor: Colors.blue.default,
+    borderWidth: 2.5,
   },
   genderImage: {
     width: '100%',
     height: '100%',
+    borderRadius: 26,
   },
   genderText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#666666',
     textAlign: 'center',
+    maxWidth: 60,
   },
   selectedText: {
     color: Colors.blue.default,
+    fontWeight: '600',
   },
 });
 
