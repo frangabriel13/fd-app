@@ -17,6 +17,17 @@ interface ShopFilters {
   searchTerm: string | null;
 }
 
+interface StorePagination {
+  currentPage: number;
+  limit: number;
+  totalProducts: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+interface StoreProduct extends Pick<Product, 'id' | 'name' | 'price' | 'mainImage'> {}
+
 interface ShopProduct extends Pick<Product, 'id' | 'name' | 'price' | 'mainImage' | 'userId' | 'priceUSD' | 'onSale' | 'description'> {
   logo?: string | null;
   category?: {
@@ -49,6 +60,8 @@ interface ProductState {
   shopProducts: ShopProduct[];
   shopPagination: ShopPagination | null;
   shopFilters: ShopFilters;
+  storeProducts: StoreProduct[];
+  storePagination: StorePagination | null;
   loading: boolean;
   error: string | null;
 }
@@ -76,6 +89,8 @@ const initialState: ProductState = {
     categoryId: null,
     searchTerm: null
   },
+  storeProducts: [],
+  storePagination: null,
   loading: false,
   error: null,
 };
@@ -103,6 +118,28 @@ export const fetchShopProducts = createAsyncThunk(
       return { ...response.data, append };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Error al obtener los productos de la tienda');
+    }
+  }
+);
+
+export const fetchStoreProducts = createAsyncThunk(
+  'product/fetchStoreProducts',
+  async ({ userId, page = 1, limit = 10, append = false }: {
+    userId: string;
+    page?: number;
+    limit?: number;
+    append?: boolean;
+  }, { rejectWithValue }) => {
+    try {
+      const params = new URLSearchParams();
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+
+      console.log(`Obteniendo productos del fabricante ${userId} con params:`, params.toString());
+      const response = await productInstance.get(`/store/${userId}?${params.toString()}`);
+      return { ...response.data, append };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al obtener los productos del fabricante');
     }
   }
 );
@@ -161,6 +198,10 @@ const productSlice = createSlice({
         categoryId: null,
         searchTerm: null
       };
+    },
+    clearStoreProducts: (state) => {
+      state.storeProducts = [];
+      state.storePagination = null;
     },
   },
   extraReducers: (builder) => {
@@ -228,10 +269,35 @@ const productSlice = createSlice({
       .addCase(fetchProductWithManufacturer.rejected, (state, action: PayloadAction<any>) => {
         state.error = action.payload;
         state.loading = false;
+      })
+      .addCase(fetchStoreProducts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchStoreProducts.fulfilled, (state, action: PayloadAction<{
+        products: StoreProduct[];
+        pagination: StorePagination;
+        append: boolean;
+      }>) => {
+        if (action.payload.append) {
+          // Filtrar productos duplicados antes de agregar
+          const existingIds = state.storeProducts.map(p => p.id);
+          const newProducts = action.payload.products.filter(p => !existingIds.includes(p.id));
+          state.storeProducts = [...state.storeProducts, ...newProducts];
+        } else {
+          // Reemplazar toda la lista de productos
+          state.storeProducts = action.payload.products;
+        }
+        state.storePagination = action.payload.pagination;
+        state.loading = false;
+      })
+      .addCase(fetchStoreProducts.rejected, (state, action: PayloadAction<any>) => {
+        state.error = action.payload;
+        state.loading = false;
       });
   },
 });
 
-export const { setLoading, setError, clearCurrentProduct, setShopFilters, clearShopProducts, resetShopFilters } = productSlice.actions;
+export const { setLoading, setError, clearCurrentProduct, setShopFilters, clearShopProducts, resetShopFilters, clearStoreProducts } = productSlice.actions;
 
 export default productSlice.reducer;
