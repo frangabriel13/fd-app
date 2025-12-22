@@ -32,7 +32,7 @@ const ShopScreen = () => {
     dispatch(fetchShopProducts({ 
       genderId: selectedGender,
       page: 1,
-      limit: 10,
+      limit: 16,
       append: false
     }));
   }, [dispatch, selectedGender]);
@@ -69,7 +69,7 @@ const ShopScreen = () => {
     dispatch(fetchShopProducts({ 
       genderId,
       page: 1,
-      limit: 10,
+      limit: 16,
       append: false
     }));
   };
@@ -93,7 +93,7 @@ const ShopScreen = () => {
     dispatch(fetchShopProducts({ 
       genderId: selectedGender,
       page: nextPage,
-      limit: 10,
+      limit: 16,
       append: true // Agregar productos en lugar de reemplazarlos
     })).finally(() => {
       setLoadingMore(false);
