@@ -85,15 +85,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </Text>
         <View style={styles.priceContainer}>
           <Text style={styles.price}>{formatPrice(product.price)}</Text>
-          {product.priceUSD && (
-            <Text style={styles.priceUSD}>{formatPriceUSD(product.priceUSD)}</Text>
-          )}
         </View>
-        {product.category && (
-          <Text style={styles.categoryText} numberOfLines={1}>
-            {product.category.name}
-          </Text>
-        )}
       </View>
     </TouchableOpacity>
   );
@@ -101,7 +93,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
 const styles = StyleSheet.create({
   productCard: {
-    width: 180,
+    width: 192,
     backgroundColor: '#fff',
     borderRadius: 12,
     shadowColor: '#000',
@@ -111,11 +103,11 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.08,
     shadowRadius: 6,
-    elevation: 4,
+    elevation: 2,
     overflow: 'hidden',
     borderWidth: 0.5,
     borderColor: 'rgba(0, 0, 0, 0.05)',
-    marginBottom: 16,
+    // marginBottom: 16,
   },
   imageContainer: {
     position: 'relative',
@@ -167,38 +159,27 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   productInfo: {
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    minHeight: 85,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
+    // minHeight: 85,
   },
   productName: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 16,
+    fontWeight: '400',
     color: Colors.light.text,
-    marginBottom: 6,
-    lineHeight: 18,
-    minHeight: 36,
+    // marginBottom: 6,
+    // lineHeight: 18,
+    // minHeight: 36,
   },
   priceContainer: {
     flexDirection: 'column',
     alignItems: 'flex-start',
-    marginBottom: 4,
+    // marginBottom: 4,
   },
   price: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: Colors.gray.semiDark,
-  },
-  priceUSD: {
-    fontSize: 12,
-    color: Colors.blue.default,
+    fontSize: 20,
     fontWeight: '500',
-    marginTop: 2,
-  },
-  categoryText: {
-    fontSize: 11,
-    color: Colors.light.icon,
-    fontStyle: 'italic',
+    color: Colors.gray.semiDark,
   },
 });
 

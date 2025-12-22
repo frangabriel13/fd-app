@@ -165,14 +165,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   productsContainer: {
-    padding: 16,
+    padding: 8,
   },
   row: {
     justifyContent: 'space-between',
     paddingHorizontal: 0,
   },
   separator: {
-    height: 16,
+    height: 10,
   },
   loadingContainer: {
     flex: 1,
