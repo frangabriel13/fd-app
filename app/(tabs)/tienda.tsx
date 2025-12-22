@@ -24,6 +24,7 @@ const ShopScreen = () => {
   }, []);
   
   const [selectedGender, setSelectedGender] = useState<number>(3); // Mujer por defecto
+  const [selectedCategory, setSelectedCategory] = useState<number | undefined>(undefined);
   const [loadingMore, setLoadingMore] = useState(false);
 
   // Llamada inicial al cargar el componente
@@ -61,13 +62,31 @@ const ShopScreen = () => {
   const handleGenderChange = (genderId: number) => {
     // console.log('👤 Cambiando género a:', genderId);
     setSelectedGender(genderId);
+    setSelectedCategory(undefined); // Reset category when gender changes
     
     // Actualizar filtros en Redux
-    dispatch(setShopFilters({ genderId }));
+    dispatch(setShopFilters({ genderId, categoryId: null }));
     
     // Hacer nueva llamada con el género seleccionado (reemplazar productos, no agregar)
     dispatch(fetchShopProducts({ 
       genderId,
+      page: 1,
+      limit: 16,
+      append: false
+    }));
+  };
+
+  const handleCategoryChange = (categoryId: number) => {
+    // console.log('🏷️ Cambiando categoría a:', categoryId);
+    setSelectedCategory(categoryId);
+    
+    // Actualizar filtros en Redux
+    dispatch(setShopFilters({ genderId: selectedGender, categoryId }));
+    
+    // Hacer nueva llamada con la categoría seleccionada (reemplazar productos, no agregar)
+    dispatch(fetchShopProducts({ 
+      genderId: selectedGender,
+      categoryId,
       page: 1,
       limit: 16,
       append: false
@@ -92,6 +111,7 @@ const ShopScreen = () => {
     
     dispatch(fetchShopProducts({ 
       genderId: selectedGender,
+      categoryId: selectedCategory,
       page: nextPage,
       limit: 16,
       append: true // Agregar productos en lugar de reemplazarlos
@@ -158,7 +178,10 @@ const ShopScreen = () => {
   return (
     <View style={styles.container}>
       <MenuGender onGenderSelect={handleGenderChange} />
-      <SelectCategory selectedGenderId={selectedGender} />
+      <SelectCategory 
+        selectedGenderId={selectedGender} 
+        onCategorySelect={handleCategoryChange}
+      />
       
       {/* Información de resultados */}
       {shopPagination && (
