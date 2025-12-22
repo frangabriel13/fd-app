@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { fetchStoreProducts } from '@/store/slices/productSlice';
@@ -38,8 +38,15 @@ const StoreProducts = () => {
 
   const renderProduct = ({ item }: { item: any }) => (
     <View style={styles.productItem}>
-      <Text style={styles.productName}>{item.name}</Text>
-      <Text style={styles.productPrice}>${item.price}</Text>
+      <Image
+        source={{ uri: item.mainImage || 'https://via.placeholder.com/60x60' }}
+        style={styles.productImage}
+        resizeMode="cover"
+      />
+      <View style={styles.productInfo}>
+        <Text style={styles.productName} numberOfLines={2}>{item.name}</Text>
+        <Text style={styles.productPrice}>${item.price}</Text>
+      </View>
     </View>
   );
 
@@ -52,6 +59,8 @@ const StoreProducts = () => {
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderProduct}
           showsVerticalScrollIndicator={false}
+          scrollEnabled={false}
+          nestedScrollEnabled={true}
         />
       ) : (
         <View style={styles.centered}>
@@ -82,12 +91,24 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 8,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  productImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    marginRight: 12,
+    backgroundColor: '#e0e0e0',
+  },
+  productInfo: {
+    flex: 1,
+    justifyContent: 'center',
   },
   productName: {
     fontSize: 16,
-    flex: 1,
+    fontWeight: '500',
+    marginBottom: 4,
+    color: '#333',
   },
   productPrice: {
     fontSize: 14,
@@ -99,5 +120,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
 
 export default StoreProducts;

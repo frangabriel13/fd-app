@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import { View, Text } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Container } from '@/components/ui';
 import { getManufacturerById } from '@/store/slices/manufacturerSlice';
@@ -38,13 +38,11 @@ const StoreScreen = () => {
   }
 
   return (
-    // <Container type="page">
-      <View>
-        <HeaderProfile />
-        <Reviews />
-        <StoreProducts />
-      </View>
-    // </Container>
+    <ScrollView style={{ flex: 1 }}>
+      <HeaderProfile />
+      <Reviews />
+      <StoreProducts />
+    </ScrollView>
   );
 };
 
