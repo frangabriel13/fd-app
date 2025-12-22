@@ -97,6 +97,7 @@ export const fetchShopProducts = createAsyncThunk(
       params.append('page', page.toString());
       params.append('limit', limit.toString());
 
+      console.log('llamando al backend con params:', params.toString());
       const response = await productInstance.get(`/shop?${params.toString()}`);
       return response.data;
     } catch (error: any) {
