@@ -16,14 +16,14 @@ const StoreScreen = () => {
 
   useEffect(() => {
     if(id) {
-      // console.log('🏪 Cargando fabricante con ID:', id);
+      // console.log('🏪 Cargando fabricante con ID:', selectedManufacturer?.user.id);
       dispatch(getManufacturerById(Number(id)));
     }
   }, [id, dispatch]);
 
   useEffect(() => {
     if (selectedManufacturer) {
-      console.log('✅ Datos del fabricante cargados:', selectedManufacturer);
+      console.log('✅ Datos del fabricante cargados:', selectedManufacturer?.user.id);
     }
   }, [selectedManufacturer]);
 
