@@ -30,12 +30,12 @@ const StoreProducts = () => {
     const totalPages = storePagination?.totalPages || 1;
     
     if (currentPage >= totalPages) {
-      console.log('📄 No hay más páginas para cargar en la tienda');
+      // console.log('📄 No hay más páginas para cargar en la tienda');
       return;
     }
     
     const nextPage = currentPage + 1;
-    console.log('📄 Cargando página:', nextPage, 'para tienda del fabricante:', selectedManufacturer.user.id);
+    // console.log('📄 Cargando página:', nextPage, 'para tienda del fabricante:', selectedManufacturer.user.id);
     
     setLoadingMore(true);
     

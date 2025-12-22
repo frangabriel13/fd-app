@@ -23,7 +23,7 @@ const StoreScreen = () => {
 
   useEffect(() => {
     if (selectedManufacturer) {
-      console.log('✅ Datos del fabricante cargados:', selectedManufacturer?.user.id);
+      // console.log('✅ Datos del fabricante cargados:', selectedManufacturer?.user.id);
     }
   }, [selectedManufacturer]);
 

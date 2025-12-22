@@ -22,7 +22,7 @@ const ProductCard: React.FC<StoreProductCardProps> = ({ product }) => {
   }
 
   const handleProductPress = () => {
-    console.log('🛍️ Navegando al producto desde store:', product.id);
+    // console.log('🛍️ Navegando al producto desde store:', product.id);
     router.push(`/(tabs)/producto/${product.id}` as any);
   };
 
@@ -40,7 +40,7 @@ const ProductCard: React.FC<StoreProductCardProps> = ({ product }) => {
   };
 
   const handleImageLoad = () => {
-    console.log('✅ Imagen cargada correctamente para producto de store:', product.id);
+    // console.log('✅ Imagen cargada correctamente para producto de store:', product.id);
   };
 
   return (
