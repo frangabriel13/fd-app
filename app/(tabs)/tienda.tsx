@@ -24,6 +24,7 @@ const ShopScreen = () => {
   }, []);
   
   const [selectedGender, setSelectedGender] = useState<number>(3); // Mujer por defecto
+  const [loadingMore, setLoadingMore] = useState(false);
 
   // Llamada inicial al cargar el componente
   useEffect(() => {
@@ -31,7 +32,8 @@ const ShopScreen = () => {
     dispatch(fetchShopProducts({ 
       genderId: selectedGender,
       page: 1,
-      limit: 10 
+      limit: 10,
+      append: false
     }));
   }, [dispatch, selectedGender]);
 
@@ -63,12 +65,50 @@ const ShopScreen = () => {
     // Actualizar filtros en Redux
     dispatch(setShopFilters({ genderId }));
     
-    // Hacer nueva llamada con el género seleccionado
+    // Hacer nueva llamada con el género seleccionado (reemplazar productos, no agregar)
     dispatch(fetchShopProducts({ 
       genderId,
       page: 1,
-      limit: 10 
+      limit: 10,
+      append: false
     }));
+  };
+
+  const loadMoreProducts = () => {
+    if (loadingMore || loading) return;
+    
+    const currentPage = shopPagination?.currentPage || 1;
+    const totalPages = shopPagination?.totalPages || 1;
+    
+    if (currentPage >= totalPages) {
+      // console.log('📄 No hay más páginas para cargar');
+      return;
+    }
+    
+    const nextPage = currentPage + 1;
+    // console.log('📄 Cargando página:', nextPage);
+    
+    setLoadingMore(true);
+    
+    dispatch(fetchShopProducts({ 
+      genderId: selectedGender,
+      page: nextPage,
+      limit: 10,
+      append: true // Agregar productos en lugar de reemplazarlos
+    })).finally(() => {
+      setLoadingMore(false);
+    });
+  };
+
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+    
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" color={Colors.blue.default} />
+        <Text style={styles.footerText}>Cargando más productos...</Text>
+      </View>
+    );
   };
 
   const renderProduct = ({ item }: { item: any }) => (
@@ -102,12 +142,15 @@ const ShopScreen = () => {
       <FlatList
         data={shopProducts}
         renderItem={renderProduct}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item, index) => `product-${item.id}-${index}`}
         numColumns={2}
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.productsContainer}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
+        onEndReached={loadMoreProducts}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={renderFooter}
       />
     );
   };
@@ -201,6 +244,16 @@ const styles = StyleSheet.create({
   },
   emptySubText: {
     fontSize: 14,
+    color: Colors.light.icon,
+    textAlign: 'center',
+  },
+  footerLoader: {
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  footerText: {
+    marginTop: 8,
+    fontSize: 12,
     color: Colors.light.icon,
     textAlign: 'center',
   },

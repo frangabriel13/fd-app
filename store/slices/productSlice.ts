@@ -82,12 +82,13 @@ const initialState: ProductState = {
 
 export const fetchShopProducts = createAsyncThunk(
   'product/fetchShopProducts',
-  async ({ genderId, categoryId, searchTerm, page = 1, limit = 10 }: {
+  async ({ genderId, categoryId, searchTerm, page = 1, limit = 10, append = false }: {
     genderId?: number;
     categoryId?: number;
     searchTerm?: string;
     page?: number;
     limit?: number;
+    append?: boolean;
   }, { rejectWithValue }) => {
     try {
       const params = new URLSearchParams();
@@ -99,7 +100,7 @@ export const fetchShopProducts = createAsyncThunk(
 
       console.log('llamando al backend con params:', params.toString());
       const response = await productInstance.get(`/shop?${params.toString()}`);
-      return response.data;
+      return { ...response.data, append };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Error al obtener los productos de la tienda');
     }
@@ -172,8 +173,17 @@ const productSlice = createSlice({
         products: ShopProduct[];
         pagination: ShopPagination;
         filters: ShopFilters;
+        append: boolean;
       }>) => {
-        state.shopProducts = action.payload.products;
+        if (action.payload.append) {
+          // Filtrar productos duplicados antes de agregar
+          const existingIds = state.shopProducts.map(p => p.id);
+          const newProducts = action.payload.products.filter(p => !existingIds.includes(p.id));
+          state.shopProducts = [...state.shopProducts, ...newProducts];
+        } else {
+          // Reemplazar toda la lista de productos
+          state.shopProducts = action.payload.products;
+        }
         state.shopPagination = action.payload.pagination;
         state.shopFilters = action.payload.filters;
         state.loading = false;
