@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { AppDispatch, RootState } from '@/store';
 import { fetchShopProducts, setShopFilters } from '@/store/slices/productSlice';
 import { Colors } from '@/constants/Colors';
@@ -25,22 +25,47 @@ const ShopScreen = () => {
     // });
   }, []);
   
-  const [selectedGender, setSelectedGender] = useState<number>(3); // Mujer por defecto
+  const [selectedGender, setSelectedGender] = useState<number | null>(null); // Sin género seleccionado inicialmente
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>(undefined);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  // Llamada inicial al cargar el componente
+  // Resetear filtros cada vez que se entra a la tienda
+  useFocusEffect(
+    React.useCallback(() => {
+      // console.log('🔄 Reseteando filtros al entrar a tienda');
+      setSelectedGender(null);
+      setSelectedCategory(undefined);
+      
+      // Resetear filtros en Redux
+      dispatch(setShopFilters({ genderId: null, categoryId: null }));
+      
+      // Cargar productos sin filtros
+      const params = {
+        page: 1,
+        limit: 16,
+        append: false,
+        ...(searchTerm && { searchTerm }) // Incluir searchTerm si existe
+      };
+      
+      dispatch(fetchShopProducts(params));
+    }, [dispatch, searchTerm])
+  );
+
+  // Llamada inicial al cargar el componente (solo para cambios de selectedGender después del focus)
   useEffect(() => {
-    // console.log('🚀 Cargando productos iniciales para género:', selectedGender);
-    const params = {
-      genderId: selectedGender,
-      page: 1,
-      limit: 16,
-      append: false,
-      ...(searchTerm && { searchTerm }) // Incluir searchTerm si existe
-    };
-    
-    dispatch(fetchShopProducts(params));
+    // Solo hacer llamada si hay un género seleccionado (esto evita doble llamada con useFocusEffect)
+    if (selectedGender) {
+      // console.log('🚀 Cargando productos para género seleccionado:', selectedGender);
+      const params = {
+        genderId: selectedGender,
+        page: 1,
+        limit: 16,
+        append: false,
+        ...(searchTerm && { searchTerm }) // Incluir searchTerm si existe
+      };
+      
+      dispatch(fetchShopProducts(params));
+    }
   }, [dispatch, selectedGender, searchTerm]);
 
   // Escuchar cambios en el estado del Redux para hacer console.log
@@ -66,16 +91,19 @@ const ShopScreen = () => {
   }, [error]);
 
   const handleGenderChange = (genderId: number) => {
-    // console.log('👤 Cambiando género a:', genderId);
-    setSelectedGender(genderId);
+    // Si el género ya está seleccionado, deseleccionarlo
+    const newGenderId = selectedGender === genderId ? null : genderId;
+    
+    // console.log('👤 Cambiando género a:', newGenderId);
+    setSelectedGender(newGenderId);
     setSelectedCategory(undefined); // Reset category when gender changes
     
     // Actualizar filtros en Redux
-    dispatch(setShopFilters({ genderId, categoryId: null }));
+    dispatch(setShopFilters({ genderId: newGenderId, categoryId: null }));
     
     // Hacer nueva llamada con el género seleccionado (reemplazar productos, no agregar)
     const params = {
-      genderId,
+      ...(newGenderId && { genderId: newGenderId }), // Solo incluir genderId si no es null
       page: 1,
       limit: 16,
       append: false,
@@ -94,7 +122,7 @@ const ShopScreen = () => {
     
     // Hacer nueva llamada con la categoría seleccionada (reemplazar productos, no agregar)
     const params = {
-      genderId: selectedGender,
+      ...(selectedGender && { genderId: selectedGender }), // Solo incluir genderId si no es null
       categoryId,
       page: 1,
       limit: 16,
@@ -122,8 +150,8 @@ const ShopScreen = () => {
     setLoadingMore(true);
     
     const params = {
-      genderId: selectedGender,
-      categoryId: selectedCategory,
+      ...(selectedGender && { genderId: selectedGender }), // Solo incluir genderId si no es null
+      ...(selectedCategory && { categoryId: selectedCategory }),
       page: nextPage,
       limit: 16,
       append: true, // Agregar productos en lugar de reemplazarlos
@@ -192,11 +220,16 @@ const ShopScreen = () => {
 
   return (
     <View style={styles.container}>
-      <MenuGender onGenderSelect={handleGenderChange} />
-      <SelectCategory 
-        selectedGenderId={selectedGender} 
-        onCategorySelect={handleCategoryChange}
+      <MenuGender 
+        selectedGender={selectedGender}
+        onGenderSelect={handleGenderChange} 
       />
+      {selectedGender && (
+        <SelectCategory 
+          selectedGenderId={selectedGender} 
+          onCategorySelect={handleCategoryChange}
+        />
+      )}
       
       {/* Información de búsqueda */}
       {searchInfo && searchTerm && (
