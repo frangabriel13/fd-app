@@ -48,6 +48,22 @@ interface ShopProduct extends Pick<Product, 'id' | 'name' | 'price' | 'mainImage
   };
 }
 
+interface SearchResultProduct {
+  id: string;
+  name: string;
+}
+
+interface SearchResultManufacturer {
+  id: string;
+  name: string;
+  userId: string;
+}
+
+interface SearchResults {
+  product: SearchResultProduct[];
+  user: SearchResultManufacturer[];
+}
+
 interface ProductState {
   featured: Product[];
   newProducts: Product[];
@@ -70,6 +86,8 @@ interface ProductState {
   searchInfo: SearchInfo | null;
   storeProducts: StoreProduct[];
   storePagination: StorePagination | null;
+  searchResults: SearchResults | null;
+  searchLoading: boolean;
   loading: boolean;
   error: string | null;
 }
@@ -100,6 +118,8 @@ const initialState: ProductState = {
   searchInfo: null,
   storeProducts: [],
   storePagination: null,
+  searchResults: null,
+  searchLoading: false,
   loading: false,
   error: null,
 };
@@ -149,6 +169,22 @@ export const fetchStoreProducts = createAsyncThunk(
       return { ...response.data, append };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Error al obtener los productos del fabricante');
+    }
+  }
+);
+
+export const fetchSearchResults = createAsyncThunk(
+  'product/fetchSearchResults',
+  async (search: string, { rejectWithValue }) => {
+    try {
+      const params = new URLSearchParams();
+      params.append('search', search);
+
+      console.log('Realizando búsqueda global con término:', search);
+      const response = await productInstance.get(`/results-search?${params.toString()}`);
+      return response.data as SearchResults;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al realizar la búsqueda');
     }
   }
 );
@@ -212,6 +248,10 @@ const productSlice = createSlice({
     clearStoreProducts: (state) => {
       state.storeProducts = [];
       state.storePagination = null;
+    },
+    clearSearchResults: (state) => {
+      state.searchResults = null;
+      state.searchLoading = false;
     },
   },
   extraReducers: (builder) => {
@@ -306,10 +346,23 @@ const productSlice = createSlice({
       .addCase(fetchStoreProducts.rejected, (state, action: PayloadAction<any>) => {
         state.error = action.payload;
         state.loading = false;
+      })
+      .addCase(fetchSearchResults.pending, (state) => {
+        state.searchLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchSearchResults.fulfilled, (state, action: PayloadAction<SearchResults>) => {
+        state.searchResults = action.payload;
+        state.searchLoading = false;
+      })
+      .addCase(fetchSearchResults.rejected, (state, action: PayloadAction<any>) => {
+        state.error = action.payload;
+        state.searchLoading = false;
+        state.searchResults = null;
       });
   },
 });
 
-export const { setLoading, setError, clearCurrentProduct, setShopFilters, clearShopProducts, resetShopFilters, clearStoreProducts } = productSlice.actions;
+export const { setLoading, setError, clearCurrentProduct, setShopFilters, clearShopProducts, resetShopFilters, clearStoreProducts, clearSearchResults } = productSlice.actions;
 
 export default productSlice.reducer;
