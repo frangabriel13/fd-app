@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocalSearchParams } from 'expo-router';
 import { AppDispatch, RootState } from '@/store';
 import { fetchShopProducts, setShopFilters } from '@/store/slices/productSlice';
 import { Colors } from '@/constants/Colors';
@@ -10,7 +11,8 @@ import ProductCard from '@/components/shop/ProductCard';
 
 const ShopScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { shopProducts, shopPagination, shopFilters, loading, error } = useSelector((state: RootState) => state.product);
+  const { searchTerm } = useLocalSearchParams<{ searchTerm?: string }>();
+  const { shopProducts, shopPagination, shopFilters, searchInfo, loading, error } = useSelector((state: RootState) => state.product);
   
   // Debug: Verificar el estado inicial
   useEffect(() => {
@@ -30,13 +32,16 @@ const ShopScreen = () => {
   // Llamada inicial al cargar el componente
   useEffect(() => {
     // console.log('🚀 Cargando productos iniciales para género:', selectedGender);
-    dispatch(fetchShopProducts({ 
+    const params = {
       genderId: selectedGender,
       page: 1,
       limit: 16,
-      append: false
-    }));
-  }, [dispatch, selectedGender]);
+      append: false,
+      ...(searchTerm && { searchTerm }) // Incluir searchTerm si existe
+    };
+    
+    dispatch(fetchShopProducts(params));
+  }, [dispatch, selectedGender, searchTerm]);
 
   // Escuchar cambios en el estado del Redux para hacer console.log
   useEffect(() => {
@@ -44,8 +49,9 @@ const ShopScreen = () => {
       // console.log('✅ Productos cargados:', shopProducts);
       // console.log('📄 Paginación:', shopPagination);
       // console.log('🔍 Filtros aplicados:', shopFilters);
+      // console.log('🔎 Info de búsqueda:', searchInfo);
     }
-  }, [shopProducts, shopPagination, shopFilters]);
+  }, [shopProducts, shopPagination, shopFilters, searchInfo]);
 
   useEffect(() => {
     if (loading) {
@@ -68,12 +74,15 @@ const ShopScreen = () => {
     dispatch(setShopFilters({ genderId, categoryId: null }));
     
     // Hacer nueva llamada con el género seleccionado (reemplazar productos, no agregar)
-    dispatch(fetchShopProducts({ 
+    const params = {
       genderId,
       page: 1,
       limit: 16,
-      append: false
-    }));
+      append: false,
+      ...(searchTerm && { searchTerm }) // Mantener searchTerm si existe
+    };
+    
+    dispatch(fetchShopProducts(params));
   };
 
   const handleCategoryChange = (categoryId: number) => {
@@ -84,13 +93,16 @@ const ShopScreen = () => {
     dispatch(setShopFilters({ genderId: selectedGender, categoryId }));
     
     // Hacer nueva llamada con la categoría seleccionada (reemplazar productos, no agregar)
-    dispatch(fetchShopProducts({ 
+    const params = {
       genderId: selectedGender,
       categoryId,
       page: 1,
       limit: 16,
-      append: false
-    }));
+      append: false,
+      ...(searchTerm && { searchTerm }) // Mantener searchTerm si existe
+    };
+    
+    dispatch(fetchShopProducts(params));
   };
 
   const loadMoreProducts = () => {
@@ -109,13 +121,16 @@ const ShopScreen = () => {
     
     setLoadingMore(true);
     
-    dispatch(fetchShopProducts({ 
+    const params = {
       genderId: selectedGender,
       categoryId: selectedCategory,
       page: nextPage,
       limit: 16,
-      append: true // Agregar productos en lugar de reemplazarlos
-    })).finally(() => {
+      append: true, // Agregar productos en lugar de reemplazarlos
+      ...(searchTerm && { searchTerm }) // Mantener searchTerm si existe
+    };
+    
+    dispatch(fetchShopProducts(params)).finally(() => {
       setLoadingMore(false);
     });
   };
@@ -183,6 +198,26 @@ const ShopScreen = () => {
         onCategorySelect={handleCategoryChange}
       />
       
+      {/* Información de búsqueda */}
+      {searchInfo && searchTerm && (
+        <View style={styles.searchInfo}>
+          <Text style={styles.searchTitle}>
+            Resultados para "{searchTerm}"
+          </Text>
+          <View style={styles.searchStats}>
+            <Text style={styles.searchStat}>
+              Total: {searchInfo.totalMatches}
+            </Text>
+            <Text style={styles.searchStat}>
+              Directos: {searchInfo.directMatches}
+            </Text>
+            <Text style={styles.searchStat}>
+              Otros fabricantes: {searchInfo.manufacturerMatches}
+            </Text>
+          </View>
+        </View>
+      )}
+      
       {/* Información de resultados */}
       {shopPagination && (
         <View style={styles.resultsInfo}>
@@ -207,6 +242,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  searchInfo: {
+    backgroundColor: Colors.blue.light,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e9ecef',
+  },
+  searchTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.blue.dark,
+    marginBottom: 8,
+  },
+  searchStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  searchStat: {
+    fontSize: 12,
+    color: Colors.blue.default,
+    fontWeight: '500',
   },
   resultsInfo: {
     flexDirection: 'row',

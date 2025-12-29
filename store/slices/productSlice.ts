@@ -11,6 +11,13 @@ interface ShopPagination {
   hasPreviousPage: boolean;
 }
 
+interface SearchInfo {
+  searchTerm: string;
+  directMatches: number;
+  manufacturerMatches: number;
+  totalMatches: number;
+}
+
 interface ShopFilters {
   genderId: number | null;
   categoryId: number | null;
@@ -60,6 +67,7 @@ interface ProductState {
   shopProducts: ShopProduct[];
   shopPagination: ShopPagination | null;
   shopFilters: ShopFilters;
+  searchInfo: SearchInfo | null;
   storeProducts: StoreProduct[];
   storePagination: StorePagination | null;
   loading: boolean;
@@ -89,6 +97,7 @@ const initialState: ProductState = {
     categoryId: null,
     searchTerm: null
   },
+  searchInfo: null,
   storeProducts: [],
   storePagination: null,
   loading: false,
@@ -191,6 +200,7 @@ const productSlice = createSlice({
     clearShopProducts: (state) => {
       state.shopProducts = [];
       state.shopPagination = null;
+      state.searchInfo = null;
     },
     resetShopFilters: (state) => {
       state.shopFilters = {
@@ -214,6 +224,7 @@ const productSlice = createSlice({
         products: ShopProduct[];
         pagination: ShopPagination;
         filters: ShopFilters;
+        searchInfo?: SearchInfo;
         append: boolean;
       }>) => {
         if (action.payload.append) {
@@ -227,6 +238,7 @@ const productSlice = createSlice({
         }
         state.shopPagination = action.payload.pagination;
         state.shopFilters = action.payload.filters;
+        state.searchInfo = action.payload.searchInfo || null;
         state.loading = false;
       })
       .addCase(fetchShopProducts.rejected, (state, action: PayloadAction<any>) => {
