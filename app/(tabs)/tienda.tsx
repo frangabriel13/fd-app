@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocalSearchParams, useFocusEffect } from 'expo-router';
+import { useLocalSearchParams, useFocusEffect, router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { AppDispatch, RootState } from '@/store';
 import { fetchShopProducts, setShopFilters } from '@/store/slices/productSlice';
 import { Colors } from '@/constants/Colors';
@@ -232,22 +233,19 @@ const ShopScreen = () => {
       )}
       
       {/* Información de búsqueda */}
-      {searchInfo && searchTerm && (
+      {searchTerm && (
         <View style={styles.searchInfo}>
           <Text style={styles.searchTitle}>
             Resultados para "{searchTerm}"
           </Text>
-          <View style={styles.searchStats}>
-            <Text style={styles.searchStat}>
-              Total: {searchInfo.totalMatches}
-            </Text>
-            <Text style={styles.searchStat}>
-              Directos: {searchInfo.directMatches}
-            </Text>
-            <Text style={styles.searchStat}>
-              Otros fabricantes: {searchInfo.manufacturerMatches}
-            </Text>
-          </View>
+          <TouchableOpacity 
+            style={styles.clearSearchButton}
+            onPress={() => {
+              router.replace('/(tabs)/tienda');
+            }}
+          >
+            <Ionicons name="close" size={20} color="#6b7280" />
+          </TouchableOpacity>
         </View>
       )}
       
@@ -277,26 +275,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   searchInfo: {
-    backgroundColor: Colors.blue.light,
+    backgroundColor: 'transparent',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#e9ecef',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   searchTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.blue.dark,
-    marginBottom: 8,
+    color: Colors.light.text,
+    flex: 1,
   },
-  searchStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  searchStat: {
-    fontSize: 12,
-    color: Colors.blue.default,
-    fontWeight: '500',
+  clearSearchButton: {
+    padding: 4,
+    borderRadius: 4,
   },
   resultsInfo: {
     flexDirection: 'row',
