@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRef, useState } from 'react';
 import { TextInput, TouchableOpacity, View } from 'react-native';
+import { router } from 'expo-router';
 
 interface SearchProps {
   isExpanded: boolean;
@@ -49,8 +50,14 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
           onBlur={handleBlur}
           returnKeyType="search"
           onSubmitEditing={() => {
-            console.log('Buscar:', searchText);
-            // Aquí irá tu lógica de búsqueda
+            if (searchText.trim()) {
+              console.log('Buscar:', searchText);
+              // Redirigir a la tienda con el searchTerm
+              router.push({
+                pathname: '/(tabs)/tienda',
+                params: { searchTerm: searchText.trim() }
+              });
+            }
           }}
         />
       </View>
