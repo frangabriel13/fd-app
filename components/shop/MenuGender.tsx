@@ -4,14 +4,12 @@ import { Colors } from '@/constants/Colors';
 import { genders } from '@/utils/hardcode';
 
 type MenuGenderProps = {
+  selectedGender?: number | null;
   onGenderSelect?: (genderId: number) => void;
 };
 
-const MenuGender = ({ onGenderSelect }: MenuGenderProps) => {
-  const [selectedGender, setSelectedGender] = useState<number>(3); // Mujer por defecto
-
+const MenuGender = ({ selectedGender, onGenderSelect }: MenuGenderProps) => {
   const handleGenderSelect = (genderId: number) => {
-    setSelectedGender(genderId);
     onGenderSelect?.(genderId);
   };
 
