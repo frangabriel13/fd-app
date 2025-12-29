@@ -5,6 +5,8 @@ import { RootState, AppDispatch } from '@/store';
 import { fetchStoreProducts } from '@/store/slices/productSlice';
 import { Colors } from '@/constants/Colors';
 import ProductCard from '@/components/store/ProductCard';
+import HeaderProfile from '@/components/store/HeaderProfile';
+import Reviews from '@/components/store/Reviews';
 
 const StoreProducts = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -30,12 +32,12 @@ const StoreProducts = () => {
     const totalPages = storePagination?.totalPages || 1;
     
     if (currentPage >= totalPages) {
-      // console.log('📄 No hay más páginas para cargar en la tienda');
+      console.log('📄 No hay más páginas para cargar en la tienda');
       return;
     }
     
     const nextPage = currentPage + 1;
-    // console.log('📄 Cargando página:', nextPage, 'para tienda del fabricante:', selectedManufacturer.user.id);
+    console.log('📄 Cargando página:', nextPage, 'para tienda del fabricante:', selectedManufacturer.user.id);
     
     setLoadingMore(true);
     
@@ -78,13 +80,36 @@ const StoreProducts = () => {
     </View>
   );
 
+  const renderHeader = () => (
+    <View>
+      <HeaderProfile />
+      <Reviews />
+      <View style={styles.header}>
+        <Text style={styles.title}>Productos de la tienda</Text>
+        {storePagination && (
+          <Text style={styles.resultsText}>
+            {storePagination.totalProducts} productos
+          </Text>
+        )}
+      </View>
+    </View>
+  );
+
   const renderProductGrid = () => {
     if (loading && (!storeProducts || storeProducts.length === 0)) {
       return renderLoadingProducts();
     }
 
     if (!loading && (!storeProducts || storeProducts.length === 0)) {
-      return renderEmptyProducts();
+      return (
+        <View style={styles.containerWithHeader}>
+          <View>
+            <HeaderProfile />
+            <Reviews />
+          </View>
+          {renderEmptyProducts()}
+        </View>
+      );
     }
 
     return (
@@ -98,10 +123,10 @@ const StoreProducts = () => {
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         onEndReached={loadMoreProducts}
-        onEndReachedThreshold={0.5}
+        onEndReachedThreshold={0.3}
         ListFooterComponent={renderFooter}
-        scrollEnabled={false}
-        nestedScrollEnabled={true}
+        ListHeaderComponent={renderHeader}
+        style={{ flex: 1 }}
       />
     );
   };
@@ -118,23 +143,17 @@ const StoreProducts = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Productos de la tienda</Text>
-        {storePagination && (
-          <Text style={styles.resultsText}>
-            {storePagination.totalProducts} productos
-          </Text>
-        )}
-      </View>
-      <View style={styles.productsWrapper}>
-        {renderProductGrid()}
-      </View>
+      {renderProductGrid()}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  containerWithHeader: {
     flex: 1,
     backgroundColor: '#fff',
   },

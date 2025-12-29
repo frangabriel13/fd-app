@@ -38,11 +38,9 @@ const StoreScreen = () => {
   }
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <HeaderProfile />
-      <Reviews />
+    <View style={{ flex: 1 }}>
       <StoreProducts />
-    </ScrollView>
+    </View>
   );
 };
 
