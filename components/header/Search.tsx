@@ -56,6 +56,24 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
     onExpandChange(false);
   };
 
+  const handleSearchNavigation = () => {
+    const searchTerm = searchText.trim();
+    if (searchTerm) {
+      // Cancelar la búsqueda actual
+      setSearchText('');
+      setShowResults(false);
+      dispatch(clearSearchResults());
+      textInputRef.current?.blur();
+      onExpandChange(false);
+      
+      // Navegar a la tienda con el término de búsqueda
+      router.push({
+        pathname: '/(tabs)/tienda',
+        params: { searchTerm }
+      });
+    }
+  };
+
   const handleProductPress = (productId: string, productName: string) => {
     setShowResults(false);
     textInputRef.current?.blur();
@@ -93,11 +111,7 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
             onSubmitEditing={() => {
               if (searchText.trim()) {
                 console.log('Buscar:', searchText);
-                setShowResults(false);
-                router.push({
-                  pathname: '/(tabs)/tienda',
-                  params: { searchTerm: searchText.trim() }
-                });
+                handleSearchNavigation();
               }
             }}
           />
@@ -162,13 +176,7 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
             {/* Opción para ver todos los resultados */}
             {searchText.trim() && (
               <TouchableOpacity
-                onPress={() => {
-                  setShowResults(false);
-                  router.push({
-                    pathname: '/(tabs)/tienda',
-                    params: { searchTerm: searchText.trim() }
-                  });
-                }}
+                onPress={handleSearchNavigation}
                 className="px-4 py-3 bg-blue-50 border-t border-gray-200"
               >
                 <Text className="font-mont-medium text-blue-600 text-center">
