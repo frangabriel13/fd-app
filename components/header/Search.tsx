@@ -147,7 +147,7 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
                 {searchResults.user.map((manufacturer) => (
                   <TouchableOpacity
                     key={`manufacturer-${manufacturer.id}`}
-                    onPress={() => handleManufacturerPress(manufacturer.userId, manufacturer.name)}
+                    onPress={() => handleManufacturerPress(manufacturer.id, manufacturer.name)}
                     className="px-4 py-3 border-b border-gray-100 flex-row items-center"
                   >
                     <Ionicons name="business-outline" size={16} color="#6b7280" />
