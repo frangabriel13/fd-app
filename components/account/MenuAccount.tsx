@@ -100,10 +100,28 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
       case 'wholesaler':
         return [
           {
-            id: 'view-orders',
-            title: 'Ver órdenes',
+            id: 'favourites',
+            title: 'Favoritos',
+            icon: <AntDesign name="heart" size={24} color={Colors.blue.default} />,
+            onPress: () => handleAction('Favoritos'),
+          },
+          {
+            id: 'view-purchases',
+            title: 'Mis compras',
             icon: <MaterialIcons name="shopping-bag" size={24} color={Colors.blue.default} />,
-            onPress: () => handleAction('Ver órdenes'),
+            onPress: () => handleAction('Mis compras'),
+          },
+          {
+            id: 'followed',
+            title: 'Seguidos',
+            icon: <Feather name="user-plus" size={24} color={Colors.blue.default} />,
+            onPress: () => handleAction('Seguidos'),
+          },
+          {
+            id: 'view-data',
+            title: 'Mis datos',
+            icon: <Feather name="user" size={24} color={Colors.blue.default} />,
+            onPress: () => handleAction('Mis datos'),
           },
         ];
       
@@ -114,6 +132,12 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
             title: 'Ver usuarios',
             icon: <Feather name="users" size={24} color={Colors.blue.default} />,
             onPress: () => handleAction('Ver usuarios'),
+          },
+          {
+            id: 'unify-orders',
+            title: 'Pedidos unificados',
+            icon: <Feather name="clipboard" size={24} color={Colors.blue.default} />,
+            onPress: () => handleAction('Pedidos unificados'),
           },
         ];
       
