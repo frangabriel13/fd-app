@@ -44,7 +44,7 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
         Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
         break;
       case 'Ver usuarios':
-        Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
+        router.navigate('/(dashboard)/ver-usuarios/' as any);
         break;
       case 'Mi perfil':
         Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
