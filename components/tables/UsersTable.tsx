@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { 
   fetchApprovedManufacturers, 
   fetchPendingManufacturers,
+  toggleLiveManufacturer,
   clearApprovedManufacturers,
   clearPendingManufacturers 
 } from '../../store/slices/manufacturerSlice';
@@ -167,6 +168,23 @@ export default function UsersTable() {
     });
   };
 
+  const handleToggleLive = (manufacturer: ApprovedManufacturer) => {
+    const action = manufacturer.live ? 'desactivar' : 'activar';
+    Alert.alert(
+      `${action.charAt(0).toUpperCase() + action.slice(1)} Estado Live`,
+      `¿Estás seguro de que deseas ${action} el estado live de ${manufacturer.name}?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: action.charAt(0).toUpperCase() + action.slice(1), 
+          onPress: () => {
+            dispatch(toggleLiveManufacturer(manufacturer.id));
+          }
+        }
+      ]
+    );
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', {
@@ -230,9 +248,13 @@ export default function UsersTable() {
           </View>
           
           {/* Live/Estado Column */}
-          <TouchableOpacity className={isApproved ? "w-12 items-center" : "w-20 items-center"}>
+          <TouchableOpacity 
+            className={isApproved ? "w-12 items-center" : "w-20 items-center"}
+            onPress={isApproved ? () => handleToggleLive(manufacturer as ApprovedManufacturer) : undefined}
+            disabled={!isApproved}
+          >
             {isApproved ? (
-              // Para fabricantes aprobados: mostrar estado live
+              // Para fabricantes aprobados: mostrar estado live clickeable
               (manufacturer as ApprovedManufacturer).live ? (
                 <View className="w-3 h-3 bg-red-500 rounded-full" />
               ) : (

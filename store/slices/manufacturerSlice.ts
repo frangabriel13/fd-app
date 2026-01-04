@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { refreshTokenService } from '../../services/authService';
-import { manufacturerInstance } from '../../services/axiosConfig';
+import { manufacturerInstance, adminInstance } from '../../services/axiosConfig';
 
 // Tipos
 interface Review {
@@ -339,6 +339,22 @@ export const fetchPendingManufacturers = createAsyncThunk(
   }
 );
 
+// Toggle Live Status
+export const toggleLiveManufacturer = createAsyncThunk(
+  'manufacturer/toggleLiveManufacturer',
+  async (manufacturerId: number, { rejectWithValue }) => {
+    try {
+      const response = await adminInstance.put(`/toggle-live/${manufacturerId}`);
+      return {
+        manufacturerId,
+        manufacturer: response.data.manufacturer
+      };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al cambiar estado live');
+    }
+  }
+);
+
 // Slice
 const manufacturerSlice = createSlice({
   name: 'manufacturer',
@@ -542,6 +558,28 @@ const manufacturerSlice = createSlice({
       .addCase(fetchPendingManufacturers.rejected, (state, action) => {
         state.loadingPending = false;
         state.error = action.payload as string || 'Error al obtener fabricantes pendientes';
+      })
+      // Toggle Live Status
+      .addCase(toggleLiveManufacturer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(toggleLiveManufacturer.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        // Actualizar el manufacturer en la lista de aprobados
+        const { manufacturerId, manufacturer } = action.payload;
+        const index = state.approvedManufacturers.findIndex(m => m.id === manufacturerId);
+        if (index !== -1) {
+          state.approvedManufacturers[index] = {
+            ...state.approvedManufacturers[index],
+            live: manufacturer.live
+          };
+        }
+      })
+      .addCase(toggleLiveManufacturer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || 'Error al cambiar estado live';
       });
 
   },
