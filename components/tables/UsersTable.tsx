@@ -42,7 +42,7 @@ export default function UsersTable() {
   const [activeTab, setActiveTab] = useState<'active' | 'pending'>('active');
   const [currentPageApproved, setCurrentPageApproved] = useState(1);
   const [currentPagePending, setCurrentPagePending] = useState(1);
-  const pageSize = 10;
+  const pageSize = 15;
 
   // Cargar datos cuando el componente se monta
   useEffect(() => {

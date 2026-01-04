@@ -44,9 +44,9 @@ export default function Pagination({
 
   const getVisiblePages = () => {
     const visiblePages: (number | 'ellipsis')[] = [];
-    const maxVisiblePages = 5;
+    const maxVisiblePages = 3; // Reducido para mejor ajuste en móvil
     
-    if (totalPages <= maxVisiblePages) {
+    if (totalPages <= maxVisiblePages + 2) { // Ajustado para mostrar todas si son pocas
       // Mostrar todas las páginas si son pocas
       for (let i = 1; i <= totalPages; i++) {
         visiblePages.push(i);
@@ -103,12 +103,12 @@ export default function Pagination({
       </View>
 
       {/* Pagination Controls */}
-      <View className="flex-row justify-between items-center">
+      <View className="flex-row justify-center items-center space-x-2">
         {/* Previous Button */}
         <TouchableOpacity
           onPress={handlePrevious}
           disabled={!canGoPrevious}
-          className={`flex-row items-center px-3 py-2 rounded-md ${
+          className={`p-2 rounded-md ${
             canGoPrevious
               ? 'bg-white border border-gray-300'
               : 'bg-gray-100 border border-gray-200'
@@ -116,23 +116,18 @@ export default function Pagination({
         >
           <Ionicons 
             name="chevron-back" 
-            size={16} 
+            size={18} 
             color={canGoPrevious ? '#374151' : '#9CA3AF'} 
           />
-          <Text className={`ml-1 text-sm ${
-            canGoPrevious ? 'text-gray-700' : 'text-gray-400'
-          }`}>
-            Anterior
-          </Text>
         </TouchableOpacity>
 
         {/* Page Numbers */}
-        <View className="flex-row space-x-1">
+        <View className="flex-row space-x-1 mx-2">
           {getVisiblePages().map((page, index) => {
             if (page === 'ellipsis') {
               return (
-                <View key={`ellipsis-${index}`} className="px-3 py-2">
-                  <Text className="text-gray-400">...</Text>
+                <View key={`ellipsis-${index}`} className="px-2 py-2">
+                  <Text className="text-gray-400 text-sm">...</Text>
                 </View>
               );
             }
@@ -144,10 +139,10 @@ export default function Pagination({
                 key={page}
                 onPress={() => handlePageClick(page)}
                 disabled={loading || isCurrentPage}
-                className={`px-3 py-2 rounded-md min-w-[40px] items-center ${
+                className={`px-3 py-2 rounded-md min-w-[36px] items-center ${
                   isCurrentPage
                     ? 'bg-blue-600 border border-blue-600'
-                    : 'bg-white border border-gray-300 hover:bg-gray-50'
+                    : 'bg-white border border-gray-300'
                 }`}
               >
                 <Text className={`text-sm font-medium ${
@@ -164,20 +159,15 @@ export default function Pagination({
         <TouchableOpacity
           onPress={handleNext}
           disabled={!canGoNext}
-          className={`flex-row items-center px-3 py-2 rounded-md ${
+          className={`p-2 rounded-md ${
             canGoNext
               ? 'bg-white border border-gray-300'
               : 'bg-gray-100 border border-gray-200'
           }`}
         >
-          <Text className={`mr-1 text-sm ${
-            canGoNext ? 'text-gray-700' : 'text-gray-400'
-          }`}>
-            Siguiente
-          </Text>
           <Ionicons 
             name="chevron-forward" 
-            size={16} 
+            size={18} 
             color={canGoNext ? '#374151' : '#9CA3AF'} 
           />
         </TouchableOpacity>
