@@ -42,11 +42,18 @@ export default function UsersTable() {
   const [activeTab, setActiveTab] = useState<'active' | 'pending'>('active');
   const [currentPageApproved, setCurrentPageApproved] = useState(1);
   const [currentPagePending, setCurrentPagePending] = useState(1);
+  const [sortBy, setSortBy] = useState('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const pageSize = 15;
 
   // Cargar datos cuando el componente se monta
   useEffect(() => {
-    dispatch(fetchApprovedManufacturers({ page: currentPageApproved, pageSize }));
+    dispatch(fetchApprovedManufacturers({ 
+      page: currentPageApproved, 
+      pageSize, 
+      sortBy, 
+      sortOrder 
+    }));
     dispatch(fetchPendingManufacturers({ page: currentPagePending, pageSize }));
 
     // Cleanup al desmontar el componente
@@ -59,9 +66,14 @@ export default function UsersTable() {
   // Actualizar datos cuando cambia la página de aprobados
   useEffect(() => {
     if (activeTab === 'active') {
-      dispatch(fetchApprovedManufacturers({ page: currentPageApproved, pageSize }));
+      dispatch(fetchApprovedManufacturers({ 
+        page: currentPageApproved, 
+        pageSize, 
+        sortBy, 
+        sortOrder 
+      }));
     }
-  }, [currentPageApproved, dispatch, activeTab]);
+  }, [currentPageApproved, dispatch, activeTab, sortBy, sortOrder]);
 
   // Actualizar datos cuando cambia la página de pendientes
   useEffect(() => {
@@ -79,6 +91,28 @@ export default function UsersTable() {
 
   const handlePageChangePending = (page: number) => {
     setCurrentPagePending(page);
+  };
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      // Si ya estamos ordenando por este campo, invertir el orden
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Si es un campo nuevo, establecer orden ascendente
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+    // Resetear a la primera página cuando cambiamos el ordenamiento
+    setCurrentPageApproved(1);
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortBy !== field) {
+      return <Ionicons name="swap-vertical" size={14} color="#9CA3AF" />;
+    }
+    return sortOrder === 'asc' 
+      ? <Ionicons name="chevron-up" size={14} color="#3B82F6" />
+      : <Ionicons name="chevron-down" size={14} color="#3B82F6" />;
   };
 
   const handleEdit = (manufacturer: ApprovedManufacturer | PendingManufacturer) => {
@@ -219,20 +253,32 @@ export default function UsersTable() {
         {/* Table Header */}
         <View className="bg-gray-50 border-b border-gray-200">
           <View className="flex-row items-center py-3 px-4">
-            <TouchableOpacity className="flex-1">
+            <TouchableOpacity 
+              className="flex-1 flex-row items-center"
+              onPress={() => activeTab === 'active' && handleSort('name')}
+            >
               <Text className="text-gray-600 font-semibold text-sm">Name</Text>
+              {activeTab === 'active' && <View className="ml-1">{getSortIcon('name')}</View>}
             </TouchableOpacity>
             
-            <TouchableOpacity className="w-24 items-center">
+            <TouchableOpacity 
+              className="w-24 items-center flex-row justify-center"
+              onPress={() => activeTab === 'active' && handleSort('createdAt')}
+            >
               <Text className="text-gray-600 font-semibold text-sm">Creado</Text>
+              {activeTab === 'active' && <View className="ml-1">{getSortIcon('createdAt')}</View>}
             </TouchableOpacity>
             
             <View className="w-32 items-center">
               <Text className="text-gray-600 font-semibold text-sm">Actions</Text>
             </View>
             
-            <TouchableOpacity className="w-12 items-center">
+            <TouchableOpacity 
+              className="w-12 items-center flex-row justify-center"
+              onPress={() => activeTab === 'active' && handleSort('live')}
+            >
               <Text className="text-gray-600 font-semibold text-sm">Live</Text>
+              {activeTab === 'active' && <View className="ml-1">{getSortIcon('live')}</View>}
             </TouchableOpacity>
           </View>
         </View>

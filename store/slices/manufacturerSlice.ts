@@ -92,6 +92,8 @@ interface ManufacturersResponse<T> {
   currentPage: number;
   pageSize: number;
   manufacturers: T[];
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 interface ManufacturerState {
@@ -113,6 +115,8 @@ interface ManufacturerState {
   approvedManufacturersTotal: number;
   approvedCurrentPage: number;
   approvedPageSize: number;
+  approvedSortBy: string;
+  approvedSortOrder: string;
   loadingApproved: boolean;
   // Estados para fabricantes pendientes
   pendingManufacturers: PendingManufacturer[];
@@ -146,6 +150,8 @@ const initialState: ManufacturerState = {
   approvedManufacturersTotal: 0,
   approvedCurrentPage: 1,
   approvedPageSize: 10,
+  approvedSortBy: 'createdAt',
+  approvedSortOrder: 'desc',
   loadingApproved: false,
   // Estados para fabricantes pendientes
   pendingManufacturers: [],
@@ -281,10 +287,20 @@ export const getManufacturerById = createAsyncThunk(
 // Obtener fabricantes aprobados
 export const fetchApprovedManufacturers = createAsyncThunk(
   'manufacturer/fetchApprovedManufacturers',
-  async ({ page = 1, pageSize = 10 }: { page?: number; pageSize?: number }, { rejectWithValue }) => {
+  async ({ 
+    page = 1, 
+    pageSize = 10, 
+    sortBy = 'createdAt', 
+    sortOrder = 'desc' 
+  }: { 
+    page?: number; 
+    pageSize?: number; 
+    sortBy?: string; 
+    sortOrder?: string; 
+  }, { rejectWithValue }) => {
     try {
       const response = await manufacturerInstance.get('/approved', {
-        params: { page, pageSize },
+        params: { page, pageSize, sortBy, sortOrder },
       });
       return response.data;
     } catch (error: any) {
@@ -347,6 +363,8 @@ const manufacturerSlice = createSlice({
       state.approvedManufacturers = [];
       state.approvedManufacturersTotal = 0;
       state.approvedCurrentPage = 1;
+      state.approvedSortBy = 'createdAt';
+      state.approvedSortOrder = 'desc';
       state.loadingApproved = false;
     },
     clearPendingManufacturers: (state) => {
@@ -482,6 +500,8 @@ const manufacturerSlice = createSlice({
         state.approvedManufacturersTotal = action.payload.totalManufacturers;
         state.approvedCurrentPage = action.payload.currentPage;
         state.approvedPageSize = action.payload.pageSize;
+        state.approvedSortBy = action.payload.sortBy || 'createdAt';
+        state.approvedSortOrder = action.payload.sortOrder || 'desc';
       })
       .addCase(fetchApprovedManufacturers.rejected, (state, action) => {
         state.loadingApproved = false;
