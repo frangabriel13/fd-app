@@ -72,6 +72,28 @@ interface LiveManufacturer {
   };
 }
 
+interface ApprovedManufacturer {
+  id: number;
+  name: string;
+  createdAt: string;
+  live: boolean;
+  userId: number;
+}
+
+interface PendingManufacturer {
+  id: number;
+  name: string;
+  createdAt: string;
+  userId: number;
+}
+
+interface ManufacturersResponse<T> {
+  totalManufacturers: number;
+  currentPage: number;
+  pageSize: number;
+  manufacturers: T[];
+}
+
 interface ManufacturerState {
   loading: boolean;
   success: boolean;
@@ -86,6 +108,18 @@ interface ManufacturerState {
   isLoadingMore: boolean;
   // Para el detalle del fabricante
   loadingDetail: boolean;
+  // Estados para fabricantes aprobados
+  approvedManufacturers: ApprovedManufacturer[];
+  approvedManufacturersTotal: number;
+  approvedCurrentPage: number;
+  approvedPageSize: number;
+  loadingApproved: boolean;
+  // Estados para fabricantes pendientes
+  pendingManufacturers: PendingManufacturer[];
+  pendingManufacturersTotal: number;
+  pendingCurrentPage: number;
+  pendingPageSize: number;
+  loadingPending: boolean;
 }
 
 interface ImageUpload {
@@ -107,6 +141,18 @@ const initialState: ManufacturerState = {
   hasMoreData: true,
   isLoadingMore: false,
   loadingDetail: false,
+  // Estados para fabricantes aprobados
+  approvedManufacturers: [],
+  approvedManufacturersTotal: 0,
+  approvedCurrentPage: 1,
+  approvedPageSize: 10,
+  loadingApproved: false,
+  // Estados para fabricantes pendientes
+  pendingManufacturers: [],
+  pendingManufacturersTotal: 0,
+  pendingCurrentPage: 1,
+  pendingPageSize: 10,
+  loadingPending: false,
 };
 
 // Thunk para refresh token
@@ -232,6 +278,36 @@ export const getManufacturerById = createAsyncThunk(
   }
 );
 
+// Obtener fabricantes aprobados
+export const fetchApprovedManufacturers = createAsyncThunk(
+  'manufacturer/fetchApprovedManufacturers',
+  async ({ page = 1, pageSize = 10 }: { page?: number; pageSize?: number }, { rejectWithValue }) => {
+    try {
+      const response = await manufacturerInstance.get('/approved', {
+        params: { page, pageSize },
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al obtener fabricantes aprobados');
+    }
+  }
+);
+
+// Obtener fabricantes pendientes
+export const fetchPendingManufacturers = createAsyncThunk(
+  'manufacturer/fetchPendingManufacturers',
+  async ({ page = 1, pageSize = 10 }: { page?: number; pageSize?: number }, { rejectWithValue }) => {
+    try {
+      const response = await manufacturerInstance.get('/pending', {
+        params: { page, pageSize },
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al obtener fabricantes pendientes');
+    }
+  }
+);
+
 // Slice
 const manufacturerSlice = createSlice({
   name: 'manufacturer',
@@ -266,6 +342,18 @@ const manufacturerSlice = createSlice({
     clearSelectedManufacturer: (state) => {
       state.selectedManufacturer = null;
       state.loadingDetail = false;
+    },
+    clearApprovedManufacturers: (state) => {
+      state.approvedManufacturers = [];
+      state.approvedManufacturersTotal = 0;
+      state.approvedCurrentPage = 1;
+      state.loadingApproved = false;
+    },
+    clearPendingManufacturers: (state) => {
+      state.pendingManufacturers = [];
+      state.pendingManufacturersTotal = 0;
+      state.pendingCurrentPage = 1;
+      state.loadingPending = false;
     },
   },
   extraReducers: (builder) => {
@@ -381,11 +469,55 @@ const manufacturerSlice = createSlice({
         state.loadingDetail = false;
         state.error = action.payload as string || 'Error al obtener fabricante';
         state.selectedManufacturer = null;
+      })
+      // Fetch Approved Manufacturers
+      .addCase(fetchApprovedManufacturers.pending, (state) => {
+        state.loadingApproved = true;
+        state.error = null;
+      })
+      .addCase(fetchApprovedManufacturers.fulfilled, (state, action: PayloadAction<ManufacturersResponse<ApprovedManufacturer>>) => {
+        state.loadingApproved = false;
+        state.error = null;
+        state.approvedManufacturers = action.payload.manufacturers;
+        state.approvedManufacturersTotal = action.payload.totalManufacturers;
+        state.approvedCurrentPage = action.payload.currentPage;
+        state.approvedPageSize = action.payload.pageSize;
+      })
+      .addCase(fetchApprovedManufacturers.rejected, (state, action) => {
+        state.loadingApproved = false;
+        state.error = action.payload as string || 'Error al obtener fabricantes aprobados';
+      })
+      // Fetch Pending Manufacturers
+      .addCase(fetchPendingManufacturers.pending, (state) => {
+        state.loadingPending = true;
+        state.error = null;
+      })
+      .addCase(fetchPendingManufacturers.fulfilled, (state, action: PayloadAction<ManufacturersResponse<PendingManufacturer>>) => {
+        state.loadingPending = false;
+        state.error = null;
+        state.pendingManufacturers = action.payload.manufacturers;
+        state.pendingManufacturersTotal = action.payload.totalManufacturers;
+        state.pendingCurrentPage = action.payload.currentPage;
+        state.pendingPageSize = action.payload.pageSize;
+      })
+      .addCase(fetchPendingManufacturers.rejected, (state, action) => {
+        state.loadingPending = false;
+        state.error = action.payload as string || 'Error al obtener fabricantes pendientes';
       });
 
   },
 });
 
 
-export const { clearError, logout, setToken, resetManufacturerState, clearLiveManufacturers, resetPagination, clearSelectedManufacturer } = manufacturerSlice.actions;
+export const { 
+  clearError, 
+  logout, 
+  setToken, 
+  resetManufacturerState, 
+  clearLiveManufacturers, 
+  resetPagination, 
+  clearSelectedManufacturer,
+  clearApprovedManufacturers,
+  clearPendingManufacturers
+} = manufacturerSlice.actions;
 export default manufacturerSlice.reducer;
