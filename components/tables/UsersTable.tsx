@@ -9,6 +9,7 @@ import {
   clearApprovedManufacturers,
   clearPendingManufacturers 
 } from '../../store/slices/manufacturerSlice';
+import Pagination from './Pagination';
 
 // Tipos locales basados en los del slice
 interface ApprovedManufacturer {
@@ -39,11 +40,14 @@ export default function UsersTable() {
   } = useAppSelector(state => state.manufacturer);
   
   const [activeTab, setActiveTab] = useState<'active' | 'pending'>('active');
+  const [currentPageApproved, setCurrentPageApproved] = useState(1);
+  const [currentPagePending, setCurrentPagePending] = useState(1);
+  const pageSize = 10;
 
   // Cargar datos cuando el componente se monta
   useEffect(() => {
-    dispatch(fetchApprovedManufacturers({ page: 1, pageSize: 20 }));
-    dispatch(fetchPendingManufacturers({ page: 1, pageSize: 20 }));
+    dispatch(fetchApprovedManufacturers({ page: currentPageApproved, pageSize }));
+    dispatch(fetchPendingManufacturers({ page: currentPagePending, pageSize }));
 
     // Cleanup al desmontar el componente
     return () => {
@@ -52,17 +56,30 @@ export default function UsersTable() {
     };
   }, [dispatch]);
 
-  // Actualizar datos cuando cambia el tab
+  // Actualizar datos cuando cambia la página de aprobados
   useEffect(() => {
-    if (activeTab === 'active' && (!approvedManufacturers || approvedManufacturers.length === 0)) {
-      dispatch(fetchApprovedManufacturers({ page: 1, pageSize: 20 }));
-    } else if (activeTab === 'pending' && (!pendingManufacturers || pendingManufacturers.length === 0)) {
-      dispatch(fetchPendingManufacturers({ page: 1, pageSize: 20 }));
+    if (activeTab === 'active') {
+      dispatch(fetchApprovedManufacturers({ page: currentPageApproved, pageSize }));
     }
-  }, [activeTab, dispatch, approvedManufacturers?.length, pendingManufacturers?.length]);
+  }, [currentPageApproved, dispatch, activeTab]);
+
+  // Actualizar datos cuando cambia la página de pendientes
+  useEffect(() => {
+    if (activeTab === 'pending') {
+      dispatch(fetchPendingManufacturers({ page: currentPagePending, pageSize }));
+    }
+  }, [currentPagePending, dispatch, activeTab]);
 
   const activeUsers = approvedManufacturers || [];
   const pendingUsers = pendingManufacturers || [];
+
+  const handlePageChangeApproved = (page: number) => {
+    setCurrentPageApproved(page);
+  };
+
+  const handlePageChangePending = (page: number) => {
+    setCurrentPagePending(page);
+  };
 
   const handleEdit = (manufacturer: ApprovedManufacturer | PendingManufacturer) => {
     router.push({
@@ -256,6 +273,25 @@ export default function UsersTable() {
             </View>
           )}
         </ScrollView>
+        
+        {/* Pagination */}
+        {activeTab === 'active' ? (
+          <Pagination
+            currentPage={currentPageApproved}
+            totalItems={approvedManufacturersTotal || 0}
+            pageSize={pageSize}
+            onPageChange={handlePageChangeApproved}
+            loading={loadingApproved}
+          />
+        ) : (
+          <Pagination
+            currentPage={currentPagePending}
+            totalItems={pendingManufacturersTotal || 0}
+            pageSize={pageSize}
+            onPageChange={handlePageChangePending}
+            loading={loadingPending}
+          />
+        )}
       </View>
     </View>
   );
