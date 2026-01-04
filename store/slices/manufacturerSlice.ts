@@ -85,6 +85,7 @@ interface PendingManufacturer {
   name: string;
   createdAt: string;
   userId: number;
+  verificationStatus: string;
 }
 
 interface ManufacturersResponse<T> {
@@ -123,6 +124,8 @@ interface ManufacturerState {
   pendingManufacturersTotal: number;
   pendingCurrentPage: number;
   pendingPageSize: number;
+  pendingSortBy: string;
+  pendingSortOrder: string;
   loadingPending: boolean;
 }
 
@@ -158,6 +161,8 @@ const initialState: ManufacturerState = {
   pendingManufacturersTotal: 0,
   pendingCurrentPage: 1,
   pendingPageSize: 10,
+  pendingSortBy: 'createdAt',
+  pendingSortOrder: 'desc',
   loadingPending: false,
 };
 
@@ -312,10 +317,20 @@ export const fetchApprovedManufacturers = createAsyncThunk(
 // Obtener fabricantes pendientes
 export const fetchPendingManufacturers = createAsyncThunk(
   'manufacturer/fetchPendingManufacturers',
-  async ({ page = 1, pageSize = 10 }: { page?: number; pageSize?: number }, { rejectWithValue }) => {
+  async ({ 
+    page = 1, 
+    pageSize = 10, 
+    sortBy = 'createdAt', 
+    sortOrder = 'desc' 
+  }: { 
+    page?: number; 
+    pageSize?: number; 
+    sortBy?: string; 
+    sortOrder?: string; 
+  }, { rejectWithValue }) => {
     try {
       const response = await manufacturerInstance.get('/pending', {
-        params: { page, pageSize },
+        params: { page, pageSize, sortBy, sortOrder },
       });
       return response.data;
     } catch (error: any) {
@@ -371,6 +386,8 @@ const manufacturerSlice = createSlice({
       state.pendingManufacturers = [];
       state.pendingManufacturersTotal = 0;
       state.pendingCurrentPage = 1;
+      state.pendingSortBy = 'createdAt';
+      state.pendingSortOrder = 'desc';
       state.loadingPending = false;
     },
   },
@@ -519,6 +536,8 @@ const manufacturerSlice = createSlice({
         state.pendingManufacturersTotal = action.payload.totalManufacturers;
         state.pendingCurrentPage = action.payload.currentPage;
         state.pendingPageSize = action.payload.pageSize;
+        state.pendingSortBy = action.payload.sortBy || 'createdAt';
+        state.pendingSortOrder = action.payload.sortOrder || 'desc';
       })
       .addCase(fetchPendingManufacturers.rejected, (state, action) => {
         state.loadingPending = false;
