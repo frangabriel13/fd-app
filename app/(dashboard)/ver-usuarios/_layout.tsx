@@ -11,15 +11,7 @@ export default function VerUsuariosLayout() {
       <Stack.Screen
         name="index"
         options={{
-          headerTitle: "Gestión de Usuarios",
-          headerStyle: {
-            backgroundColor: '#fff',
-          },
-          headerTitleStyle: {
-            fontWeight: 'bold',
-            fontSize: 18,
-            color: '#1f2937'
-          },
+          header: () => <StepHeader title="Gestión de Usuarios" />,
         }}
       />
       <Stack.Screen
