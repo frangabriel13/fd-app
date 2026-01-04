@@ -25,6 +25,7 @@ interface PendingManufacturer {
   name: string;
   createdAt: string;
   userId: number;
+  verificationStatus: string;
 }
 
 export default function UsersTable() {
@@ -42,8 +43,12 @@ export default function UsersTable() {
   const [activeTab, setActiveTab] = useState<'active' | 'pending'>('active');
   const [currentPageApproved, setCurrentPageApproved] = useState(1);
   const [currentPagePending, setCurrentPagePending] = useState(1);
+  // Estados de ordenamiento para fabricantes activos
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  // Estados de ordenamiento para fabricantes pendientes
+  const [sortByPending, setSortByPending] = useState('createdAt');
+  const [sortOrderPending, setSortOrderPending] = useState<'asc' | 'desc'>('desc');
   const pageSize = 15;
 
   // Cargar datos cuando el componente se monta
@@ -54,7 +59,12 @@ export default function UsersTable() {
       sortBy, 
       sortOrder 
     }));
-    dispatch(fetchPendingManufacturers({ page: currentPagePending, pageSize }));
+    dispatch(fetchPendingManufacturers({ 
+      page: currentPagePending, 
+      pageSize, 
+      sortBy: sortByPending, 
+      sortOrder: sortOrderPending 
+    }));
 
     // Cleanup al desmontar el componente
     return () => {
@@ -78,9 +88,14 @@ export default function UsersTable() {
   // Actualizar datos cuando cambia la página de pendientes
   useEffect(() => {
     if (activeTab === 'pending') {
-      dispatch(fetchPendingManufacturers({ page: currentPagePending, pageSize }));
+      dispatch(fetchPendingManufacturers({ 
+        page: currentPagePending, 
+        pageSize, 
+        sortBy: sortByPending, 
+        sortOrder: sortOrderPending 
+      }));
     }
-  }, [currentPagePending, dispatch, activeTab]);
+  }, [currentPagePending, dispatch, activeTab, sortByPending, sortOrderPending]);
 
   const activeUsers = approvedManufacturers || [];
   const pendingUsers = pendingManufacturers || [];
@@ -94,23 +109,35 @@ export default function UsersTable() {
   };
 
   const handleSort = (field: string) => {
-    if (sortBy === field) {
-      // Si ya estamos ordenando por este campo, invertir el orden
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    if (activeTab === 'active') {
+      // Manejo para fabricantes activos
+      if (sortBy === field) {
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+      } else {
+        setSortBy(field);
+        setSortOrder('asc');
+      }
+      setCurrentPageApproved(1);
     } else {
-      // Si es un campo nuevo, establecer orden ascendente
-      setSortBy(field);
-      setSortOrder('asc');
+      // Manejo para fabricantes pendientes
+      if (sortByPending === field) {
+        setSortOrderPending(sortOrderPending === 'asc' ? 'desc' : 'asc');
+      } else {
+        setSortByPending(field);
+        setSortOrderPending(field === 'verificationStatus' ? 'desc' : 'asc'); // pending primero por defecto
+      }
+      setCurrentPagePending(1);
     }
-    // Resetear a la primera página cuando cambiamos el ordenamiento
-    setCurrentPageApproved(1);
   };
 
   const getSortIcon = (field: string) => {
-    if (sortBy !== field) {
+    const currentSortBy = activeTab === 'active' ? sortBy : sortByPending;
+    const currentSortOrder = activeTab === 'active' ? sortOrder : sortOrderPending;
+    
+    if (currentSortBy !== field) {
       return <Ionicons name="swap-vertical" size={14} color="#9CA3AF" />;
     }
-    return sortOrder === 'asc' 
+    return currentSortOrder === 'asc' 
       ? <Ionicons name="chevron-up" size={14} color="#3B82F6" />
       : <Ionicons name="chevron-down" size={14} color="#3B82F6" />;
   };
@@ -202,12 +229,32 @@ export default function UsersTable() {
             )}
           </View>
           
-          {/* Live Column */}
-          <TouchableOpacity className="w-12 items-center">
-            {isApproved && (manufacturer as ApprovedManufacturer).live ? (
-              <View className="w-3 h-3 bg-red-500 rounded-full" />
+          {/* Live/Estado Column */}
+          <TouchableOpacity className={isApproved ? "w-12 items-center" : "w-20 items-center"}>
+            {isApproved ? (
+              // Para fabricantes aprobados: mostrar estado live
+              (manufacturer as ApprovedManufacturer).live ? (
+                <View className="w-3 h-3 bg-red-500 rounded-full" />
+              ) : (
+                <View className="w-3 h-3 bg-gray-300 rounded-full" />
+              )
             ) : (
-              <View className="w-3 h-3 bg-gray-300 rounded-full" />
+              // Para fabricantes pendientes: mostrar verificationStatus
+              <View className="px-2 py-1 rounded-full min-w-[60px] items-center" 
+                style={{
+                  backgroundColor: (manufacturer as PendingManufacturer).verificationStatus === 'pending' 
+                    ? '#FEF3C7' : '#F3F4F6'
+                }}
+              >
+                <Text className="text-xs font-medium" 
+                  style={{
+                    color: (manufacturer as PendingManufacturer).verificationStatus === 'pending' 
+                      ? '#D97706' : '#6B7280'
+                  }}
+                >
+                  {(manufacturer as PendingManufacturer).verificationStatus === 'pending' ? 'Pendiente' : 'No iniciado'}
+                </Text>
+              </View>
             )}
           </TouchableOpacity>
         </View>
@@ -255,18 +302,18 @@ export default function UsersTable() {
           <View className="flex-row items-center py-3 px-4">
             <TouchableOpacity 
               className="flex-1 flex-row items-center"
-              onPress={() => activeTab === 'active' && handleSort('name')}
+              onPress={() => handleSort('name')}
             >
               <Text className="text-gray-600 font-semibold text-sm">Name</Text>
-              {activeTab === 'active' && <View className="ml-1">{getSortIcon('name')}</View>}
+              <View className="ml-1">{getSortIcon('name')}</View>
             </TouchableOpacity>
             
             <TouchableOpacity 
               className="w-24 items-center flex-row justify-center"
-              onPress={() => activeTab === 'active' && handleSort('createdAt')}
+              onPress={() => handleSort('createdAt')}
             >
               <Text className="text-gray-600 font-semibold text-sm">Creado</Text>
-              {activeTab === 'active' && <View className="ml-1">{getSortIcon('createdAt')}</View>}
+              <View className="ml-1">{getSortIcon('createdAt')}</View>
             </TouchableOpacity>
             
             <View className="w-32 items-center">
@@ -274,11 +321,15 @@ export default function UsersTable() {
             </View>
             
             <TouchableOpacity 
-              className="w-12 items-center flex-row justify-center"
-              onPress={() => activeTab === 'active' && handleSort('live')}
+              className={activeTab === 'active' ? "w-12 items-center flex-row justify-center" : "w-20 items-center flex-row justify-center"}
+              onPress={() => handleSort(activeTab === 'active' ? 'live' : 'verificationStatus')}
             >
-              <Text className="text-gray-600 font-semibold text-sm">Live</Text>
-              {activeTab === 'active' && <View className="ml-1">{getSortIcon('live')}</View>}
+              <Text className="text-gray-600 font-semibold text-sm">
+                {activeTab === 'active' ? 'Live' : 'Estado'}
+              </Text>
+              <View className="ml-1">
+                {getSortIcon(activeTab === 'active' ? 'live' : 'verificationStatus')}
+              </View>
             </TouchableOpacity>
           </View>
         </View>
