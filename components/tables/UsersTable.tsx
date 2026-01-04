@@ -88,66 +88,63 @@ export default function UsersTable() {
   };
 
   const renderUserRow = (user: User) => (
-    <View key={user.id} className="bg-white rounded-lg mb-3 shadow-sm border border-gray-100">
-      <View className="flex-row items-center justify-between p-4">
-        {/* User Info */}
-        <View className="flex-1">
-          <View className="flex-row items-center mb-2">
-            <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mr-3">
-              <Text className="text-blue-600 font-semibold text-base">
-                {user.name.charAt(0).toUpperCase()}
-              </Text>
-            </View>
-            <View className="flex-1">
-              <Text className="text-gray-900 font-semibold text-base">
-                {user.name}
-              </Text>
-              <Text className="text-gray-500 text-sm">
-                {user.email}
-              </Text>
-            </View>
-            {user.isActive && user.isLive && (
-              <View className="ml-2">
-                <View className="w-3 h-3 bg-red-500 rounded-full" />
-              </View>
-            )}
+    <View key={user.id} className="bg-white border-b border-gray-100">
+      <View className="flex-row items-center py-3 px-4">
+        {/* Name Column */}
+        <TouchableOpacity className="flex-1 flex-row items-center">
+          <View className="flex-1">
+            <Text className="text-gray-900 font-medium text-base">
+              {user.name}
+            </Text>
           </View>
-          
-          <Text className="text-gray-500 text-sm mb-3">
-            Creado: {formatDate(user.createdAt)}
+        </TouchableOpacity>
+        
+        {/* Creado Column */}
+        <TouchableOpacity className="w-24 items-center">
+          <Text className="text-gray-700 font-medium text-sm">
+            {formatDate(user.createdAt)}
           </Text>
-          
-          {/* Actions */}
-          <View className="flex-row space-x-2">
-            {user.isActive ? (
-              <>
-                <TouchableOpacity 
-                  onPress={() => handleEdit(user)}
-                  className="bg-blue-50 px-4 py-2 rounded-full flex-row items-center"
-                >
-                  <Ionicons name="pencil" size={14} color="#3b82f6" />
-                  <Text className="text-blue-600 font-medium ml-1 text-sm">Editar</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  onPress={() => handleDelete(user)}
-                  className="bg-red-50 px-4 py-2 rounded-full flex-row items-center"
-                >
-                  <Ionicons name="trash" size={14} color="#ef4444" />
-                  <Text className="text-red-600 font-medium ml-1 text-sm">Eliminar</Text>
-                </TouchableOpacity>
-              </>
-            ) : (
+        </TouchableOpacity>
+        
+        {/* Actions Column */}
+        <View className="w-32 flex-row justify-center space-x-1">
+          {user.isActive ? (
+            <>
               <TouchableOpacity 
-                onPress={() => handleVerify(user)}
-                className="bg-green-50 px-4 py-2 rounded-full flex-row items-center"
+                onPress={() => handleEdit(user)}
+                className="bg-blue-50 px-2 py-1 rounded flex-row items-center"
               >
-                <Ionicons name="checkmark-circle" size={14} color="#10b981" />
-                <Text className="text-green-600 font-medium ml-1 text-sm">Verificar</Text>
+                <Ionicons name="pencil" size={12} color="#3b82f6" />
+                <Text className="text-blue-600 font-medium ml-1 text-xs">Edit</Text>
               </TouchableOpacity>
-            )}
-          </View>
+              
+              <TouchableOpacity 
+                onPress={() => handleDelete(user)}
+                className="bg-red-50 px-2 py-1 rounded flex-row items-center"
+              >
+                <Ionicons name="trash" size={12} color="#ef4444" />
+                <Text className="text-red-600 font-medium ml-1 text-xs">Del</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <TouchableOpacity 
+              onPress={() => handleVerify(user)}
+              className="bg-green-50 px-3 py-1 rounded flex-row items-center"
+            >
+              <Ionicons name="checkmark-circle" size={12} color="#10b981" />
+              <Text className="text-green-600 font-medium ml-1 text-xs">Verify</Text>
+            </TouchableOpacity>
+          )}
         </View>
+        
+        {/* Live Column */}
+        <TouchableOpacity className="w-12 items-center">
+          {user.isActive && user.isLive ? (
+            <View className="w-3 h-3 bg-red-500 rounded-full" />
+          ) : (
+            <View className="w-3 h-3 bg-gray-300 rounded-full" />
+          )}
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -166,7 +163,7 @@ export default function UsersTable() {
             <Text className={`font-semibold ${
               activeTab === 'active' ? 'text-blue-600' : 'text-gray-500'
             }`}>
-              Activos ({activeUsers.length})
+              Activos
             </Text>
           </TouchableOpacity>
           
@@ -179,34 +176,58 @@ export default function UsersTable() {
             <Text className={`font-semibold ${
               activeTab === 'pending' ? 'text-blue-600' : 'text-gray-500'
             }`}>
-              Pendientes ({pendingUsers.length})
+              Pendientes
             </Text>
           </TouchableOpacity>
         </View>
       </View>
 
       {/* Content */}
-      <ScrollView className="flex-1 px-4 pt-4">
-        {activeTab === 'active' ? (
-          activeUsers.length > 0 ? (
-            activeUsers.map(renderUserRow)
-          ) : (
-            <View className="bg-white rounded-lg p-8 items-center">
-              <Ionicons name="people-outline" size={48} color="#d1d5db" />
-              <Text className="text-gray-500 mt-4 text-center">No hay usuarios activos</Text>
+      <View className="flex-1">
+        {/* Table Header */}
+        <View className="bg-gray-50 border-b border-gray-200">
+          <View className="flex-row items-center py-3 px-4">
+            <TouchableOpacity className="flex-1">
+              <Text className="text-gray-600 font-semibold text-sm">Name</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity className="w-24 items-center">
+              <Text className="text-gray-600 font-semibold text-sm">Creado</Text>
+            </TouchableOpacity>
+            
+            <View className="w-32 items-center">
+              <Text className="text-gray-600 font-semibold text-sm">Actions</Text>
             </View>
-          )
-        ) : (
-          pendingUsers.length > 0 ? (
-            pendingUsers.map(renderUserRow)
+            
+            <TouchableOpacity className="w-12 items-center">
+              <Text className="text-gray-600 font-semibold text-sm">Live</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Table Content */}
+        <ScrollView className="flex-1">
+          {activeTab === 'active' ? (
+            activeUsers.length > 0 ? (
+              activeUsers.map(renderUserRow)
+            ) : (
+              <View className="bg-white p-8 items-center">
+                <Ionicons name="people-outline" size={48} color="#d1d5db" />
+                <Text className="text-gray-500 mt-4 text-center">No hay usuarios activos</Text>
+              </View>
+            )
           ) : (
-            <View className="bg-white rounded-lg p-8 items-center">
-              <Ionicons name="time-outline" size={48} color="#d1d5db" />
-              <Text className="text-gray-500 mt-4 text-center">No hay usuarios pendientes</Text>
-            </View>
-          )
-        )}
-      </ScrollView>
+            pendingUsers.length > 0 ? (
+              pendingUsers.map(renderUserRow)
+            ) : (
+              <View className="bg-white p-8 items-center">
+                <Ionicons name="time-outline" size={48} color="#d1d5db" />
+                <Text className="text-gray-500 mt-4 text-center">No hay usuarios pendientes</Text>
+              </View>
+            )
+          )}
+        </ScrollView>
+      </View>
     </View>
   );
 }
