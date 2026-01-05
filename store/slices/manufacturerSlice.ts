@@ -78,6 +78,7 @@ interface ApprovedManufacturer {
   createdAt: string;
   live: boolean;
   userId: number;
+  street: string | null;
 }
 
 interface PendingManufacturer {

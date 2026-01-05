@@ -19,6 +19,7 @@ interface ApprovedManufacturer {
   createdAt: string;
   live: boolean;
   userId: number;
+  street: string;
 }
 
 interface PendingManufacturer {
@@ -27,6 +28,7 @@ interface PendingManufacturer {
   createdAt: string;
   userId: number;
   verificationStatus: string;
+  street: string;
 }
 
 export default function UsersTable() {
@@ -145,8 +147,12 @@ export default function UsersTable() {
 
   const handleEdit = (manufacturer: ApprovedManufacturer | PendingManufacturer) => {
     router.push({
-      pathname: '/editar-usuario',
-      params: { userId: manufacturer.id.toString(), userName: manufacturer.name }
+      pathname: '/(dashboard)/ver-usuarios/editar-usuario',
+      params: { 
+        userId: manufacturer.id.toString(), 
+        userName: manufacturer.name,
+        street: manufacturer.street || ''
+      }
     });
   };
 
