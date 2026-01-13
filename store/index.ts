@@ -9,6 +9,7 @@ import authSlice from './slices/authSlice';
 import wholesalerSlice from './slices/wholesalerSlice';
 import ProductSlice from './slices/productSlice';
 import cartSlice from './slices/cartSlice';
+import orderSlice from './slices/orderSlice';
 
 // Combine all reducers
 const rootReducer = combineReducers({
@@ -18,13 +19,14 @@ const rootReducer = combineReducers({
   wholesaler: wholesalerSlice,
   product: ProductSlice,
   cart: cartSlice,
+  order: orderSlice,
 });
 
 // Persist configuration
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['user', 'manufacturer', 'auth', 'wholesaler', 'product', 'cart'], // Only persist these reducers
+  whitelist: ['user', 'manufacturer', 'auth', 'wholesaler', 'product', 'cart', 'order'], // Only persist these reducers
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

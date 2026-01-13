@@ -10,6 +10,7 @@ export default function DashboardLayout() {
     >
       <Stack.Screen name="subir-producto" />
       <Stack.Screen name="ver-usuarios" />
+      <Stack.Screen name="pedidos-unificados" />
     </Stack>
   )
 }
