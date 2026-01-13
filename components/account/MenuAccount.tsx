@@ -41,7 +41,10 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
         Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
         break;
       case 'Ver órdenes':
-        Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
+        router.push('/(dashboard)/ver-ordenes' as any);
+        break;
+      case 'Ver pedidos':
+        router.push('/(dashboard)/ver-pedidos' as any);
         break;
       case 'Ver usuarios':
         router.navigate('/(dashboard)/ver-usuarios/' as any);
@@ -102,6 +105,12 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
       
       case 'wholesaler':
         return [
+          {
+            id: 'view-orders',
+            title: 'Ver pedidos',
+            icon: <Ionicons name="receipt-outline" size={24} color={Colors.blue.default} />,
+            onPress: () => handleAction('Ver pedidos'),
+          },
           {
             id: 'favourites',
             title: 'Favoritos',
