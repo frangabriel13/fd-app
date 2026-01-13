@@ -44,6 +44,25 @@ interface UnifiedOrdersResponse {
   page: number;
 }
 
+interface Order {
+  id: number;
+  unifique: boolean;
+  total: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  user: User;
+  subOrders: SubOrder[];
+}
+
+interface MyOrdersResponse {
+  orders: Order[];
+}
+
+interface MySubOrdersResponse {
+  subOrders: SubOrder[];
+}
+
 interface OrderState {
   // Estados para pedidos unificados
   unifiedOrders: UnifiedOrder[];
@@ -52,6 +71,16 @@ interface OrderState {
   unifiedOrdersCurrentPage: number;
   loadingUnifiedOrders: boolean;
   errorUnifiedOrders: string | null;
+  
+  // Estados para mis pedidos
+  myOrders: Order[];
+  loadingMyOrders: boolean;
+  errorMyOrders: string | null;
+  
+  // Estados para mis sub-pedidos
+  mySubOrders: SubOrder[];
+  loadingMySubOrders: boolean;
+  errorMySubOrders: string | null;
   
   // Estados generales
   loading: boolean;
@@ -68,6 +97,16 @@ const initialState: OrderState = {
   unifiedOrdersCurrentPage: 1,
   loadingUnifiedOrders: false,
   errorUnifiedOrders: null,
+  
+  // Estados para mis pedidos
+  myOrders: [],
+  loadingMyOrders: false,
+  errorMyOrders: null,
+  
+  // Estados para mis sub-pedidos
+  mySubOrders: [],
+  loadingMySubOrders: false,
+  errorMySubOrders: null,
   
   // Estados generales
   loading: false,
@@ -110,6 +149,48 @@ export const fetchUnifiedOrders = createAsyncThunk(
   }
 );
 
+// Thunk para obtener mis pedidos
+export const fetchMyOrders = createAsyncThunk(
+  'order/fetchMyOrders',
+  async (_, { rejectWithValue }) => {
+    try {
+      console.log('🔄 Fetching my orders');
+      
+      const response = await orderInstance.get('/my-orders');
+
+      console.log('✅ My orders fetched successfully:', {
+        ordersCount: response.data.orders?.length || 0
+      });
+
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Error fetching my orders:', error);
+      return rejectWithValue(error.response?.data?.message || 'Error al obtener mis pedidos');
+    }
+  }
+);
+
+// Thunk para obtener mis sub-pedidos
+export const fetchMySubOrders = createAsyncThunk(
+  'order/fetchMySubOrders',
+  async (_, { rejectWithValue }) => {
+    try {
+      console.log('🔄 Fetching my sub-orders');
+      
+      const response = await orderInstance.get('/my-suborders');
+
+      console.log('✅ My sub-orders fetched successfully:', {
+        subOrdersCount: response.data.subOrders?.length || 0
+      });
+
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Error fetching my sub-orders:', error);
+      return rejectWithValue(error.response?.data?.message || 'Error al obtener mis sub-pedidos');
+    }
+  }
+);
+
 // Slice
 const orderSlice = createSlice({
   name: 'order',
@@ -118,6 +199,8 @@ const orderSlice = createSlice({
     clearError: (state) => {
       state.error = null;
       state.errorUnifiedOrders = null;
+      state.errorMyOrders = null;
+      state.errorMySubOrders = null;
     },
     clearUnifiedOrders: (state) => {
       state.unifiedOrders = [];
@@ -125,6 +208,14 @@ const orderSlice = createSlice({
       state.unifiedOrdersTotalPages = 0;
       state.unifiedOrdersCurrentPage = 1;
       state.errorUnifiedOrders = null;
+    },
+    clearMyOrders: (state) => {
+      state.myOrders = [];
+      state.errorMyOrders = null;
+    },
+    clearMySubOrders: (state) => {
+      state.mySubOrders = [];
+      state.errorMySubOrders = null;
     },
     setUnifiedOrdersPage: (state, action: PayloadAction<number>) => {
       state.unifiedOrdersCurrentPage = action.payload;
@@ -153,6 +244,40 @@ const orderSlice = createSlice({
         state.loadingUnifiedOrders = false;
         state.errorUnifiedOrders = action.payload as string;
         state.success = false;
+      })
+      
+      // Fetch My Orders
+      .addCase(fetchMyOrders.pending, (state) => {
+        state.loadingMyOrders = true;
+        state.errorMyOrders = null;
+      })
+      .addCase(fetchMyOrders.fulfilled, (state, action: PayloadAction<MyOrdersResponse>) => {
+        state.loadingMyOrders = false;
+        state.myOrders = action.payload.orders || [];
+        state.errorMyOrders = null;
+        state.success = true;
+      })
+      .addCase(fetchMyOrders.rejected, (state, action) => {
+        state.loadingMyOrders = false;
+        state.errorMyOrders = action.payload as string;
+        state.success = false;
+      })
+      
+      // Fetch My Sub Orders
+      .addCase(fetchMySubOrders.pending, (state) => {
+        state.loadingMySubOrders = true;
+        state.errorMySubOrders = null;
+      })
+      .addCase(fetchMySubOrders.fulfilled, (state, action: PayloadAction<MySubOrdersResponse>) => {
+        state.loadingMySubOrders = false;
+        state.mySubOrders = action.payload.subOrders || [];
+        state.errorMySubOrders = null;
+        state.success = true;
+      })
+      .addCase(fetchMySubOrders.rejected, (state, action) => {
+        state.loadingMySubOrders = false;
+        state.errorMySubOrders = action.payload as string;
+        state.success = false;
       });
   },
 });
@@ -160,6 +285,8 @@ const orderSlice = createSlice({
 export const { 
   clearError, 
   clearUnifiedOrders, 
+  clearMyOrders,
+  clearMySubOrders,
   setUnifiedOrdersPage, 
   resetOrderState 
 } = orderSlice.actions;
