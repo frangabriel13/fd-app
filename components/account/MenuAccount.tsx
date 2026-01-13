@@ -46,6 +46,9 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
       case 'Ver usuarios':
         router.navigate('/(dashboard)/ver-usuarios/' as any);
         break;
+      case 'Pedidos unificados':
+        router.push('/(dashboard)/pedidos-unificados');
+        break;
       case 'Mi perfil':
         Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
         break;
