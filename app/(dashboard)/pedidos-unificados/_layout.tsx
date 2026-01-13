@@ -15,7 +15,7 @@ export default function PedidosUnificadosLayout() {
         }}
       />
       <Stack.Screen
-        name="ver-pedido"
+        name="ver-orden"
         options={{
           header: () => <StepHeader title="Visualizar Orden" />,
         }}
