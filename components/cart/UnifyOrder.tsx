@@ -2,19 +2,22 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 import { spacing, borderRadius, shadows } from '@/constants/Styles';
+import type { CartManufacturerDisplay } from '@/types/cart';
 
 interface UnifyOrderProps {
   totalAmount: number;
   totalItems: number;
   manufacturersCount: number;
   onClearCart?: () => void;
+  onUnifyOrder?: () => void;
 }
 
 const UnifyOrder: React.FC<UnifyOrderProps> = ({ 
   totalAmount, 
   totalItems, 
   manufacturersCount, 
-  onClearCart 
+  onClearCart,
+  onUnifyOrder
 }) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-AR', {
@@ -38,7 +41,7 @@ const UnifyOrder: React.FC<UnifyOrderProps> = ({
       <View style={styles.summaryActions}>
         <TouchableOpacity 
           style={styles.unifyOrderButton}
-          onPress={onClearCart}
+          onPress={onUnifyOrder}
         >
           <Ionicons name="bag-outline" size={20} color="white" />
           <Text style={styles.unifyOrderButtonText}>Unificar pedido</Text>

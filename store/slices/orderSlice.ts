@@ -1,6 +1,33 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { orderInstance } from '@/services/axiosConfig';
 
+// Tipos para crear órdenes
+interface CreateOrderCart {
+  manufacturer: {
+    userId: number;
+    id: number;
+    name: string;
+  };
+  products: any[];
+  packs: any[];
+  totalCart: number;
+}
+
+interface CreateOrderPayload {
+  carts: CreateOrderCart[];
+}
+
+interface CreateOrderResponse {
+  id: number;
+  userId: number;
+  total: number;
+  subOrders: number[];
+  unifique: boolean;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Tipos
 interface User {
   id: number;
@@ -82,6 +109,11 @@ interface OrderState {
   loadingMySubOrders: boolean;
   errorMySubOrders: string | null;
   
+  // Estados para crear órdenes
+  createdOrder: CreateOrderResponse | null;
+  loadingCreateOrder: boolean;
+  errorCreateOrder: string | null;
+  
   // Estados generales
   loading: boolean;
   error: string | null;
@@ -107,6 +139,11 @@ const initialState: OrderState = {
   mySubOrders: [],
   loadingMySubOrders: false,
   errorMySubOrders: null,
+  
+  // Estados para crear órdenes
+  createdOrder: null,
+  loadingCreateOrder: false,
+  errorCreateOrder: null,
   
   // Estados generales
   loading: false,
@@ -191,6 +228,29 @@ export const fetchMySubOrders = createAsyncThunk(
   }
 );
 
+// Thunk para crear una nueva orden
+export const createOrder = createAsyncThunk(
+  'order/createOrder',
+  async (orderData: CreateOrderPayload, { rejectWithValue }) => {
+    try {
+      console.log('🔄 Creating order:', orderData);
+      
+      const response = await orderInstance.post('/', orderData);
+
+      console.log('✅ Order created successfully:', {
+        orderId: response.data.id,
+        total: response.data.total,
+        subOrders: response.data.subOrders
+      });
+
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Error creating order:', error);
+      return rejectWithValue(error.response?.data?.message || 'Error al crear la orden');
+    }
+  }
+);
+
 // Slice
 const orderSlice = createSlice({
   name: 'order',
@@ -201,6 +261,7 @@ const orderSlice = createSlice({
       state.errorUnifiedOrders = null;
       state.errorMyOrders = null;
       state.errorMySubOrders = null;
+      state.errorCreateOrder = null;
     },
     clearUnifiedOrders: (state) => {
       state.unifiedOrders = [];
@@ -216,6 +277,10 @@ const orderSlice = createSlice({
     clearMySubOrders: (state) => {
       state.mySubOrders = [];
       state.errorMySubOrders = null;
+    },
+    clearCreatedOrder: (state) => {
+      state.createdOrder = null;
+      state.errorCreateOrder = null;
     },
     setUnifiedOrdersPage: (state, action: PayloadAction<number>) => {
       state.unifiedOrdersCurrentPage = action.payload;
@@ -278,6 +343,23 @@ const orderSlice = createSlice({
         state.loadingMySubOrders = false;
         state.errorMySubOrders = action.payload as string;
         state.success = false;
+      })
+      
+      // Create Order
+      .addCase(createOrder.pending, (state) => {
+        state.loadingCreateOrder = true;
+        state.errorCreateOrder = null;
+      })
+      .addCase(createOrder.fulfilled, (state, action: PayloadAction<CreateOrderResponse>) => {
+        state.loadingCreateOrder = false;
+        state.createdOrder = action.payload;
+        state.errorCreateOrder = null;
+        state.success = true;
+      })
+      .addCase(createOrder.rejected, (state, action) => {
+        state.loadingCreateOrder = false;
+        state.errorCreateOrder = action.payload as string;
+        state.success = false;
       });
   },
 });
@@ -287,6 +369,7 @@ export const {
   clearUnifiedOrders, 
   clearMyOrders,
   clearMySubOrders,
+  clearCreatedOrder,
   setUnifiedOrdersPage, 
   resetOrderState 
 } = orderSlice.actions;

@@ -9,11 +9,13 @@ import DetailCart from './DetailCart';
 interface ManufacturerCartProps {
   manufacturer: CartManufacturerDisplay;
   onRemoveManufacturer?: (manufacturerId: number) => void;
+  onCreateOrder?: (manufacturer: CartManufacturerDisplay) => void;
 }
 
 const ManufacturerCart: React.FC<ManufacturerCartProps> = ({ 
   manufacturer, 
-  onRemoveManufacturer 
+  onRemoveManufacturer,
+  onCreateOrder
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -27,6 +29,12 @@ const ManufacturerCart: React.FC<ManufacturerCartProps> = ({
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const handleCreateOrder = () => {
+    if (onCreateOrder) {
+      onCreateOrder(manufacturer);
+    }
   };
 
   const handleRemoveManufacturer = () => {
@@ -87,7 +95,7 @@ const ManufacturerCart: React.FC<ManufacturerCartProps> = ({
         </TouchableOpacity> */}
         <TouchableOpacity 
           style={[styles.actionButton, styles.primaryActionButton]}
-          onPress={handleRemoveManufacturer}
+          onPress={handleCreateOrder}
         >
           <Ionicons name="send-outline" size={16} color="white" />
           <Text style={styles.primaryActionButtonText}>Enviar pedido</Text>
