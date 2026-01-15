@@ -1,17 +1,24 @@
 import { Text, View, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from '@/hooks/useCart';
+import { useAppSelector } from '@/hooks/redux';
 import { Colors } from '@/constants/Colors';
 import { spacing, shadows } from '@/constants/Styles';
 import ManufacturerCart from '@/components/cart/ManufacturerCart';
 import UnifyOrder from '@/components/cart/UnifyOrder';
+import OrderConfirmationModal from '@/components/cart/OrderConfirmationModal';
 import type { CartManufacturerDisplay } from '@/types/cart';
 
 const CartScreen = () => {
   const { cartData, fetchCartData, isEmpty, addToCart, removeManufacturer, clearCart, lastUpdated } = useCart();
+  const { user: myUser } = useAppSelector(state => state.user);
+  
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [orderType, setOrderType] = useState<'single' | 'unified'>('single');
+  const [selectedManufacturer, setSelectedManufacturer] = useState<CartManufacturerDisplay | undefined>();
 
   // Usar useFocusEffect para recargar datos cada vez que la pantalla recibe foco O cuando cambie el carrito
   useFocusEffect(
@@ -50,6 +57,29 @@ const CartScreen = () => {
     clearCart();
   };
 
+  // Función para crear pedido individual por fabricante
+  const handleCreateSingleOrder = (manufacturer: CartManufacturerDisplay) => {
+    setSelectedManufacturer(manufacturer);
+    setOrderType('single');
+    setShowOrderModal(true);
+  };
+
+  // Función para crear pedido unificado
+  const handleCreateUnifiedOrder = () => {
+    setSelectedManufacturer(undefined);
+    setOrderType('unified');
+    setShowOrderModal(true);
+  };
+
+  // Función para manejar cuando se crea exitosamente una orden
+  const handleOrderCreated = () => {
+    // Opcional: limpiar el carrito después de crear la orden
+    // clearCart();
+    
+    // Opcional: refrescar datos del carrito
+    fetchCartData();
+  };
+
 
 
   const calculateGrandTotal = () => {
@@ -68,6 +98,7 @@ const CartScreen = () => {
         key={manufacturer.manufacturerId} 
         manufacturer={manufacturer}
         onRemoveManufacturer={handleRemoveManufacturer}
+        onCreateOrder={handleCreateSingleOrder}
       />
     );
   };
@@ -97,6 +128,7 @@ const CartScreen = () => {
       totalItems={getTotalItems()}
       manufacturersCount={cartData.length}
       onClearCart={handleClearCart}
+      onUnifyOrder={handleCreateUnifiedOrder}
     />
   );
 
@@ -125,6 +157,16 @@ const CartScreen = () => {
           {renderCartSummary()}
         </ScrollView>
       )}
+      
+      {/* Modal de confirmación de orden */}
+      <OrderConfirmationModal
+        visible={showOrderModal}
+        onClose={() => setShowOrderModal(false)}
+        orderType={orderType}
+        cartData={cartData}
+        selectedManufacturer={selectedManufacturer}
+        onOrderCreated={handleOrderCreated}
+      />
     </View>
   );
 }
