@@ -26,7 +26,9 @@ const ElegirOpcionScreen = () => {
 
   const handleContinue = () => {
     if (selectedOption) {
-      const isVariable = selectedOption === 'talle-unico-varios-colores' || selectedOption === 'varios-talles-unico-color';
+      // talle-unico-varios-colores = true (muestra colores)
+      // varios-talles-unico-color = false (muestra talles)
+      const isVariable = selectedOption === 'talle-unico-varios-colores';
       router.push({
         pathname: '/(dashboard)/subir-producto/seleccionar-genero',
         params: { isVariable: isVariable.toString() }
