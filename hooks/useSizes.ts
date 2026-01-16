@@ -1,12 +1,12 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { 
-  getSizes, 
-  clearError, 
+import {
+  getSizes,
+  clearError,
   resetSizes,
   selectSizes,
   selectSizesLoading,
-  selectSizesError 
+  selectSizesError,
 } from '@/store/slices/sizeSlice';
 
 export const useSizes = () => {

@@ -28,9 +28,12 @@ export const getColors = createAsyncThunk(
   'colors/getColors',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await colorInstance.get('/colors');
+      console.log('🎨 Fetching colors from API...');
+      const response = await colorInstance.get('/');
+      console.log('🎨 Colors response:', response.data);
       return response.data as Color[];
     } catch (error: any) {
+      console.error('❌ Error fetching colors:', error);
       if (error.response?.data?.message) {
         return rejectWithValue(error.response.data.message);
       }

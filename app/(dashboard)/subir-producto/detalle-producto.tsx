@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Switch } fro
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Button, Typography } from '@/components/ui';
 import { spacing, borderRadius } from '@/constants/Styles';
+import SelectColors from '@/components/createProduct/SelectColors';
 
 const DetalleProductoScreen = () => {
   const router = useRouter();
@@ -21,6 +22,8 @@ const DetalleProductoScreen = () => {
     colors: [] as string[],
     sizes: [] as string[]
   });
+
+  const [showColorModal, setShowColorModal] = useState(false);
 
   // Consoleguear los parámetros recibidos
   useEffect(() => {
@@ -49,20 +52,19 @@ const DetalleProductoScreen = () => {
     console.log('Seleccionar imágenes');
   };
 
-  const handleAddColor = (color: string) => {
-    if (!productData.colors.includes(color)) {
-      setProductData(prev => ({
-        ...prev,
-        colors: [...prev.colors, color]
-      }));
-    }
-  };
-
-  const handleRemoveColor = (color: string) => {
+  const handleColorsChange = (colors: string[]) => {
     setProductData(prev => ({
       ...prev,
-      colors: prev.colors.filter(c => c !== color)
+      colors: colors
     }));
+  };
+
+  const handleOpenColorModal = () => {
+    setShowColorModal(true);
+  };
+
+  const handleCloseColorModal = () => {
+    setShowColorModal(false);
   };
 
   const handleAddSize = (size: string) => {
@@ -80,12 +82,6 @@ const DetalleProductoScreen = () => {
       sizes: prev.sizes.filter(s => s !== size)
     }));
   };
-
-  // Colores disponibles
-  const availableColors = ['Negro', 'Blanco', 'Gris', 'Azul', 'Rojo', 'Verde', 'Rosa', 'Amarillo', 'Marrón', 'Beige'];
-  
-  // Talles disponibles
-  const availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
 
   const handleFinish = () => {
     if (isFormValid()) {
@@ -189,10 +185,7 @@ const DetalleProductoScreen = () => {
                 Colores disponibles
               </Typography>
               <TouchableOpacity 
-                onPress={() => {
-                  // Implementar modal o navegación para seleccionar colores
-                  console.log('Seleccionar colores');
-                }}
+                onPress={handleOpenColorModal}
                 className="border border-dashed border-gray-300 bg-gray-50 rounded-md px-4 py-8 mb-4 items-center justify-center"
               >
                 <Typography variant="body" className="text-gray-500 text-center">
@@ -204,11 +197,6 @@ const DetalleProductoScreen = () => {
                     : 'Toca para elegir los colores disponibles'
                   }
                 </Typography>
-                {productData.colors.length > 0 && (
-                  <Typography variant="caption" className="text-gray-600 text-center mt-1">
-                    {productData.colors.join(', ')}
-                  </Typography>
-                )}
               </TouchableOpacity>
             </View>
           )}
@@ -260,6 +248,14 @@ const DetalleProductoScreen = () => {
           Finalizar
         </Button>
       </View>
+
+      {/* Modal de selección de colores */}
+      <SelectColors
+        visible={showColorModal}
+        onClose={handleCloseColorModal}
+        selectedColors={productData.colors}
+        onSelectionChange={handleColorsChange}
+      />
     </View>
   );
 };
