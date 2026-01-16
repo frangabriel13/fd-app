@@ -5,6 +5,7 @@ import { Button, Typography } from '@/components/ui';
 import { spacing, borderRadius } from '@/constants/Styles';
 import SelectColors from '@/components/createProduct/SelectColors';
 import SelectSizes from '@/components/createProduct/SelectSizes';
+import SelectImages from '@/components/createProduct/SelectImages';
 
 const DetalleProductoScreen = () => {
   const router = useRouter();
@@ -26,6 +27,7 @@ const DetalleProductoScreen = () => {
 
   const [showColorModal, setShowColorModal] = useState(false);
   const [showSizeModal, setShowSizeModal] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
 
   // Consoleguear los parámetros recibidos
   useEffect(() => {
@@ -50,8 +52,18 @@ const DetalleProductoScreen = () => {
   };
 
   const handleSelectImage = () => {
-    // Implementar selección de imágenes
-    console.log('Seleccionar imágenes');
+    setShowImageModal(true);
+  };
+
+  const handleImagesChange = (images: string[]) => {
+    setProductData(prev => ({
+      ...prev,
+      images: images
+    }));
+  };
+
+  const handleCloseImageModal = () => {
+    setShowImageModal(false);
   };
 
   const handleColorsChange = (colors: string[]) => {
@@ -190,7 +202,10 @@ const DetalleProductoScreen = () => {
                 📷 Seleccionar imágenes
               </Typography>
               <Typography variant="caption" className="text-gray-400 text-center mt-1">
-                Toca para agregar fotos del producto
+                {productData.images.length > 0 
+                  ? `${productData.images.length} imagen(es) seleccionada(s)` 
+                  : 'Toca para agregar fotos del producto'
+                }
               </Typography>
             </TouchableOpacity>
           </View>
@@ -262,6 +277,14 @@ const DetalleProductoScreen = () => {
           Finalizar
         </Button>
       </View>
+
+      {/* Modal de selección de imágenes */}
+      <SelectImages
+        visible={showImageModal}
+        onClose={handleCloseImageModal}
+        selectedImages={productData.images}
+        onSelectionChange={handleImagesChange}
+      />
 
       {/* Modal de selección de colores */}
       <SelectColors
