@@ -117,11 +117,13 @@ const instancesWithAuth = [
   productInstance,
   wholesalerInstance,
   imageInstance,
+  colorInstance,
   packInstance,
   orderInstance,
   reviewInstance,
   favoriteInstance,
-  adminInstance
+  adminInstance,
+  cartInstance
 ];
 
 instancesWithAuth.forEach(instance => {
