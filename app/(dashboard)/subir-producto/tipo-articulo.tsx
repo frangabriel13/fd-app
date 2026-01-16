@@ -1,28 +1,52 @@
 import { useState } from 'react';
 import { View, StyleSheet, ScrollView, Text } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Button, Typography } from '@/components/ui';
 import { spacing, borderRadius } from '@/constants/Styles';
 import { Colors } from '@/constants/Colors';
+import { genders } from '@/utils/hardcode';
 
 const TipoArticuloScreen = () => {
   const router = useRouter();
-  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const { genderId } = useLocalSearchParams<{ genderId: string }>();
+  const [selectedType, setSelectedType] = useState<number | null>(null);
 
-  const articleTypes = [
-    { id: 'remera', label: 'Remera', icon: '👕' },
-    { id: 'pantalon', label: 'Pantalón', icon: '👖' },
-    { id: 'vestido', label: 'Vestido', icon: '👗' },
-    { id: 'zapatos', label: 'Zapatos', icon: '👟' },
-    { id: 'abrigo', label: 'Abrigo', icon: '🧥' },
-    { id: 'accesorio', label: 'Accesorio', icon: '👜' },
-    { id: 'ropa-interior', label: 'Ropa interior', icon: '🩲' },
-    { id: 'otro', label: 'Otro', icon: '📦' },
-    { id: 'sudadera', label: 'Sudadera', icon: '�' },
-    { id: 'falda', label: 'Falda', icon: '👗' },
-    { id: 'shorts', label: 'Shorts', icon: '🩳' },
-    { id: 'medias', label: 'Medias', icon: '�' },
-  ];
+  // Obtener el género seleccionado y sus categorías
+  const selectedGender = genders.find(gender => gender.id === parseInt(genderId || '0'));
+  const categories = selectedGender?.categories || [];
+  
+  // Mapear las categorías con iconos apropiados
+  const articleTypes = categories.map(category => {
+    let icon = '📦'; // Icono por defecto
+    
+    const categoryName = category.name.toLowerCase();
+    
+    if (categoryName.includes('jean')) icon = '👖';
+    else if (categoryName.includes('pantalon') || categoryName.includes('calza')) icon = '👖';
+    else if (categoryName.includes('bermuda') || categoryName.includes('short')) icon = '🩳';
+    else if (categoryName.includes('campera') || categoryName.includes('abrigo')) icon = '🧥';
+    else if (categoryName.includes('remera')) icon = '👕';
+    else if (categoryName.includes('camisa')) icon = '👔';
+    else if (categoryName.includes('chomba')) icon = '👕';
+    else if (categoryName.includes('buzo')) icon = '👘';
+    else if (categoryName.includes('sweater')) icon = '🧥';
+    else if (categoryName.includes('vestido')) icon = '👗';
+    else if (categoryName.includes('pollera')) icon = '👗';
+    else if (categoryName.includes('interior') || categoryName.includes('lenceria') || categoryName.includes('malla')) icon = '🩲';
+    else if (categoryName.includes('calzado')) icon = '👟';
+    else if (categoryName.includes('body')) icon = '👶';
+    else if (categoryName.includes('conjunto')) icon = '👕';
+    else if (categoryName.includes('enterizo')) icon = '👶';
+    else if (categoryName.includes('media')) icon = '🧦';
+    else if (categoryName.includes('accesorio')) icon = '👜';
+    else icon = '📦';
+    
+    return {
+      id: category.id,
+      label: category.name,
+      icon
+    };
+  });
 
   const handleContinue = () => {
     if (selectedType) {
@@ -59,17 +83,25 @@ const TipoArticuloScreen = () => {
     <View style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <Typography variant="h2" className="text-center text-gray-800 mb-8">
-          Tipo de artículo
+          Tipo de artículo - {selectedGender?.name || 'Género'}
         </Typography>
         
         <View style={styles.typesContainer}>
-          {Array.from({ length: Math.ceil(articleTypes.length / 3) }, (_, rowIndex) => (
-            <View key={rowIndex} style={styles.row}>
-              {articleTypes.slice(rowIndex * 3, (rowIndex + 1) * 3).map((type) => (
-                <TypeCard key={type.id} type={type} />
-              ))}
+          {articleTypes.length > 0 ? (
+            Array.from({ length: Math.ceil(articleTypes.length / 3) }, (_, rowIndex) => (
+              <View key={rowIndex} style={styles.row}>
+                {articleTypes.slice(rowIndex * 3, (rowIndex + 1) * 3).map((type) => (
+                  <TypeCard key={type.id} type={type} />
+                ))}
+              </View>
+            ))
+          ) : (
+            <View style={styles.noDataContainer}>
+              <Typography variant="body" className="text-center text-gray-500">
+                No hay categorías disponibles para este género
+              </Typography>
             </View>
-          ))}
+          )}
         </View>
       </ScrollView>
 
@@ -149,6 +181,10 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     opacity: 0.5,
+  },
+  noDataContainer: {
+    paddingVertical: spacing.xl,
+    alignItems: 'center',
   },
 });
 

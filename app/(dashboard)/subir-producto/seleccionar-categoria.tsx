@@ -4,24 +4,45 @@ import { useRouter } from 'expo-router';
 import { Button, Typography } from '@/components/ui';
 import { spacing, borderRadius } from '@/constants/Styles';
 import { Colors } from '@/constants/Colors';
+import { parentCategories } from '@/utils/hardcode';
 
 const SeleccionarCategoriaScreen = () => {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
 
-  const categories = [
-    { id: 'ropa', label: 'Indumentaria', icon: '👕' },
-    { id: 'calzado', label: 'Blanquería', icon: '�️' },
-    { id: 'accesorios', label: 'Bisutería', icon: '�' },
-    { id: 'bijouterie', label: 'Lencería', icon: '�' },
-    { id: 'textil', label: 'Calzados', icon: '👟' },
-    { id: 'otros', label: 'Artículos de confección', icon: '✂️' }
-  ];
+  // Mapear las categorías con iconos apropiados
+  const categories = parentCategories.map(category => {
+    let icon = '📦'; // Icono por defecto
+    
+    switch (category.name) {
+      case 'Indumentaria':
+        icon = '👕';
+        break;
+      case 'Blanquería':
+        icon = '🛏️';
+        break;
+      case 'Bisutería':
+        icon = '💍';
+        break;
+      case 'Artículos de confección':
+        icon = '✂️';
+        break;
+      default:
+        icon = '📦';
+        break;
+    }
+    
+    return {
+      id: category.id,
+      label: category.name,
+      icon
+    };
+  });
 
   const handleContinue = () => {
     if (selectedCategory) {
-      // Si se selecciona "Indumentaria" (ropa), sigue el flujo normal
-      if (selectedCategory === 'ropa') {
+      // Si se selecciona "Indumentaria" (id: 88), sigue el flujo normal
+      if (selectedCategory === 88) {
         router.push('/(dashboard)/subir-producto/elegir-opcion');
       } else {
         // Para cualquier otra categoría, va directamente a detalles del producto
@@ -65,17 +86,23 @@ const SeleccionarCategoriaScreen = () => {
         
         <View style={styles.categoriesContainer}>
           <View style={styles.row}>
-            <CategoryCard category={categories[0]} />
-            <CategoryCard category={categories[1]} />
+            {categories.slice(0, 2).map(category => (
+              <CategoryCard key={category.id} category={category} />
+            ))}
           </View>
           <View style={styles.row}>
-            <CategoryCard category={categories[2]} />
-            <CategoryCard category={categories[3]} />
+            {categories.slice(2, 4).map(category => (
+              <CategoryCard key={category.id} category={category} />
+            ))}
           </View>
-          <View style={styles.row}>
-            <CategoryCard category={categories[4]} />
-            <CategoryCard category={categories[5]} />
-          </View>
+          {/* Agregar más filas si hay más de 4 categorías */}
+          {categories.length > 4 && (
+            <View style={styles.row}>
+              {categories.slice(4).map(category => (
+                <CategoryCard key={category.id} category={category} />
+              ))}
+            </View>
+          )}
         </View>
       </ScrollView>
 

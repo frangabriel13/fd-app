@@ -43,6 +43,7 @@ export const parentCategories = [
   { id: 88, name: 'Indumentaria' },
   { id: 130, name: 'Blanquería' },
   { id: 131, name: 'Bisutería' },
+  { id: 132, name: 'Artículos de confección' }, // Debo crear la categoría
 ];
 
 export const genders = [
