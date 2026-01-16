@@ -213,7 +213,7 @@ const SelectImages: React.FC<SelectImagesProps> = ({
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Typography variant="body" className="text-gray-600">
-              ✕ Cancelar
+              Cancelar
             </Typography>
           </TouchableOpacity>
           
@@ -242,9 +242,6 @@ const SelectImages: React.FC<SelectImagesProps> = ({
             </View>
             <Typography variant="h3" className="text-gray-800 text-center mb-2">
               Agregá fotos a tu publicación
-            </Typography>
-            <Typography variant="body2" className="text-gray-600 text-center mb-4">
-              Las publicaciones con fotos reciben hasta 5 veces más consultas.
             </Typography>
             <View style={styles.progressContainer}>
               <Typography variant="caption" className="text-blue-600 font-semibold">
@@ -312,7 +309,7 @@ const SelectImages: React.FC<SelectImagesProps> = ({
               </View>
 
               {/* Upload Button */}
-              {canUpload && (
+              {/* {canUpload && (
                 <Button
                   variant="secondary"
                   onPress={handleUploadImages}
@@ -323,10 +320,10 @@ const SelectImages: React.FC<SelectImagesProps> = ({
                     {isUploading ? '⏳ Subiendo...' : '☁️ Subir a AWS'}
                   </Typography>
                 </Button>
-              )}
+              )} */}
 
               {/* Upload Status */}
-              {localImages.length > 0 && (
+              {/* {localImages.length > 0 && (
                 <View style={styles.statusSection}>
                   <View style={styles.statusRow}>
                     <View style={styles.statusItem}>
@@ -343,7 +340,7 @@ const SelectImages: React.FC<SelectImagesProps> = ({
                     </View>
                   </View>
                 </View>
-              )}
+              )} */}
             </View>
           )}
 
