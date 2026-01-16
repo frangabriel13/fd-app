@@ -20,7 +20,13 @@ const SeleccionarCategoriaScreen = () => {
 
   const handleContinue = () => {
     if (selectedCategory) {
-      router.push('/(dashboard)/subir-producto/elegir-opcion');
+      // Si se selecciona "Indumentaria" (ropa), sigue el flujo normal
+      if (selectedCategory === 'ropa') {
+        router.push('/(dashboard)/subir-producto/elegir-opcion');
+      } else {
+        // Para cualquier otra categoría, va directamente a detalles del producto
+        router.push('/(dashboard)/subir-producto/detalle-producto');
+      }
     }
   };
 
