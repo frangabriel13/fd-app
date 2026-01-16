@@ -7,8 +7,10 @@ import {
   ScrollView, 
   Image,
   Alert,
-  Dimensions
+  Dimensions,
+  Platform
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { Typography, Button } from '@/components/ui';
 import { spacing, borderRadius } from '@/constants/Styles';
 
@@ -39,36 +41,84 @@ const SelectImages: React.FC<SelectImagesProps> = ({
 
   const MAX_IMAGES = 3;
 
-  const handleSelectFromGallery = () => {
-    // TODO: Implementar selección de galería
-    console.log('Seleccionar de galería');
-    // Simulando selección de imagen
-    if (localImages.length < MAX_IMAGES) {
-      const newImage: LocalImage = {
-        uri: `https://picsum.photos/900/1200?random=${Date.now()}`,
-        id: Date.now().toString(),
-        uploaded: false,
-        uploading: false
-      };
-      setLocalImages(prev => [...prev, newImage]);
-    } else {
+  const requestPermissions = async () => {
+    if (Platform.OS !== 'web') {
+      const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+      const { status: mediaLibraryStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (cameraStatus !== 'granted' || mediaLibraryStatus !== 'granted') {
+        Alert.alert(
+          'Permisos necesarios',
+          'Necesitamos permisos para acceder a la cámara y galería de fotos.',
+          [{ text: 'OK' }]
+        );
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const handleSelectFromGallery = async () => {
+    if (localImages.length >= MAX_IMAGES) {
       Alert.alert('Límite alcanzado', 'Solo puedes seleccionar hasta 3 imágenes');
+      return;
+    }
+
+    const hasPermissions = await requestPermissions();
+    if (!hasPermissions) return;
+
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [3, 4], // 900x1200 ratio
+        quality: 0.8,
+        allowsMultipleSelection: false,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const newImage: LocalImage = {
+          uri: result.assets[0].uri,
+          id: Date.now().toString(),
+          uploaded: false,
+          uploading: false
+        };
+        setLocalImages(prev => [...prev, newImage]);
+      }
+    } catch (error) {
+      console.error('Error selecting from gallery:', error);
+      Alert.alert('Error', 'No se pudo seleccionar la imagen');
     }
   };
 
-  const handleTakePhoto = () => {
-    // TODO: Implementar cámara
-    console.log('Tomar foto');
-    if (localImages.length < MAX_IMAGES) {
-      const newImage: LocalImage = {
-        uri: `https://picsum.photos/900/1200?random=${Date.now() + 1}`,
-        id: (Date.now() + 1).toString(),
-        uploaded: false,
-        uploading: false
-      };
-      setLocalImages(prev => [...prev, newImage]);
-    } else {
+  const handleTakePhoto = async () => {
+    if (localImages.length >= MAX_IMAGES) {
       Alert.alert('Límite alcanzado', 'Solo puedes seleccionar hasta 3 imágenes');
+      return;
+    }
+
+    const hasPermissions = await requestPermissions();
+    if (!hasPermissions) return;
+
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [3, 4], // 900x1200 ratio
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const newImage: LocalImage = {
+          uri: result.assets[0].uri,
+          id: Date.now().toString(),
+          uploaded: false,
+          uploading: false
+        };
+        setLocalImages(prev => [...prev, newImage]);
+      }
+    } catch (error) {
+      console.error('Error taking photo:', error);
+      Alert.alert('Error', 'No se pudo tomar la foto');
     }
   };
 
@@ -162,13 +212,13 @@ const SelectImages: React.FC<SelectImagesProps> = ({
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Typography variant="body" className="text-gray-500">
-              Cancelar
+            <Typography variant="body" className="text-gray-600">
+              ✕ Cancelar
             </Typography>
           </TouchableOpacity>
           
           <Typography variant="h3" className="text-gray-800 text-center flex-1">
-            Seleccionar imágenes
+            Fotos
           </Typography>
           
           <TouchableOpacity 
@@ -176,52 +226,77 @@ const SelectImages: React.FC<SelectImagesProps> = ({
             style={[styles.saveButton, !allUploaded && styles.disabledButton]}
             disabled={!allUploaded}
           >
-            <Typography variant="body" className={allUploaded ? "text-orange-500 font-semibold" : "text-gray-400"}>
-              Guardar
+            <Typography variant="body" className={allUploaded ? "text-blue-600 font-semibold" : "text-gray-400"}>
+              Listo
             </Typography>
           </TouchableOpacity>
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Info Section */}
-          <View style={styles.infoSection}>
-            <Typography variant="h4" className="text-gray-700 mb-2">
-              📷 Agregar imágenes del producto
+          {/* Hero Section - Estilo MercadoLibre */}
+          <View style={styles.heroSection}>
+            <View style={styles.heroIcon}>
+              <Typography variant="h1" className="text-blue-500 text-center">
+                📸
+              </Typography>
+            </View>
+            <Typography variant="h3" className="text-gray-800 text-center mb-2">
+              Agregá fotos a tu publicación
             </Typography>
-            <Typography variant="body2" className="text-gray-600 mb-4">
-              Selecciona hasta {MAX_IMAGES} imágenes (900x1200px). Las imágenes deben subirse a AWS antes de guardar.
+            <Typography variant="body2" className="text-gray-600 text-center mb-4">
+              Las publicaciones con fotos reciben hasta 5 veces más consultas.
             </Typography>
-            <Typography variant="caption" className="text-gray-500">
-              {localImages.length}/{MAX_IMAGES} imágenes seleccionadas
-            </Typography>
+            <View style={styles.progressContainer}>
+              <Typography variant="caption" className="text-blue-600 font-semibold">
+                {localImages.length} de {MAX_IMAGES} fotos
+              </Typography>
+              <View style={styles.progressBar}>
+                <View 
+                  style={[
+                    styles.progressFill, 
+                    { width: `${(localImages.length / MAX_IMAGES) * 100}%` }
+                  ]} 
+                />
+              </View>
+            </View>
           </View>
 
-          {/* Action Buttons */}
-          <View style={styles.actionsSection}>
+          {/* Action Buttons - Estilo MercadoLibre */}
+          <View style={styles.actionsContainer}>
             <TouchableOpacity
-              style={[styles.actionButton, localImages.length >= MAX_IMAGES && styles.disabledActionButton]}
+              style={[styles.mlActionButton, styles.primaryAction, localImages.length >= MAX_IMAGES && styles.disabledAction]}
               onPress={handleSelectFromGallery}
               disabled={localImages.length >= MAX_IMAGES}
             >
-              <Typography variant="body" className="text-white font-semibold mb-1">
-                📱 Seleccionar de galería
-              </Typography>
-              <Typography variant="caption" className="text-white opacity-80">
-                Elige fotos existentes
-              </Typography>
+              <View style={styles.actionIconContainer}>
+                <Typography variant="h4" className="text-white mb-1">📱</Typography>
+              </View>
+              <View style={styles.actionTextContainer}>
+                <Typography variant="h4" className="text-white font-semibold mb-1">
+                  Elegir de galería
+                </Typography>
+                <Typography variant="caption" className="text-blue-100">
+                  Seleccioná desde tu galería
+                </Typography>
+              </View>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.actionButton, localImages.length >= MAX_IMAGES && styles.disabledActionButton]}
+              style={[styles.mlActionButton, styles.secondaryAction, localImages.length >= MAX_IMAGES && styles.disabledAction]}
               onPress={handleTakePhoto}
               disabled={localImages.length >= MAX_IMAGES}
             >
-              <Typography variant="body" className="text-white font-semibold mb-1">
-                📸 Tomar foto
-              </Typography>
-              <Typography variant="caption" className="text-white opacity-80">
-                Captura una nueva imagen
-              </Typography>
+              <View style={styles.actionIconContainer}>
+                <Typography variant="h4" className="text-blue-600 mb-1">📷</Typography>
+              </View>
+              <View style={styles.actionTextContainer}>
+                <Typography variant="h4" className="text-blue-600 font-semibold mb-1">
+                  Sacar foto
+                </Typography>
+                <Typography variant="caption" className="text-blue-500">
+                  Usá la cámara de tu teléfono
+                </Typography>
+              </View>
             </TouchableOpacity>
           </View>
 
@@ -295,7 +370,7 @@ const SelectImages: React.FC<SelectImagesProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#fff',
   },
   header: {
     flexDirection: 'row',
@@ -305,7 +380,12 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: '#e0e0e0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   closeButton: {
     paddingVertical: spacing.sm,
@@ -320,35 +400,71 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: spacing.lg,
   },
-  infoSection: {
-    paddingVertical: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-    marginBottom: spacing.lg,
-  },
-  actionsSection: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    marginBottom: spacing.lg,
-  },
-  actionButton: {
-    flex: 1,
-    backgroundColor: '#f97316',
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing.lg,
-    paddingHorizontal: spacing.md,
+  // Nuevo: Hero Section estilo MercadoLibre
+  heroSection: {
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: spacing.xl * 2,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    marginBottom: spacing.lg,
+  },
+  heroIcon: {
+    marginBottom: spacing.lg,
+  },
+  progressContainer: {
+    alignItems: 'center',
+    marginTop: spacing.md,
+  },
+  progressBar: {
+    width: 120,
+    height: 4,
+    backgroundColor: '#e3f2fd',
+    borderRadius: 2,
+    marginTop: spacing.sm,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#2196f3',
+    borderRadius: 2,
+  },
+  // Nuevo: Action Buttons estilo MercadoLibre
+  actionsContainer: {
+    marginBottom: spacing.xl,
+    gap: spacing.md,
+  },
+  mlActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
     elevation: 3,
   },
-  disabledActionButton: {
-    backgroundColor: '#d1d5db',
+  primaryAction: {
+    backgroundColor: '#2196f3',
+  },
+  secondaryAction: {
+    backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: '#2196f3',
+  },
+  disabledAction: {
+    backgroundColor: '#f5f5f5',
+    borderColor: '#e0e0e0',
     opacity: 0.6,
   },
+  actionIconContainer: {
+    marginRight: spacing.md,
+  },
+  actionTextContainer: {
+    flex: 1,
+  },
+  // Resto de estilos actualizados
   imagesSection: {
     marginBottom: spacing.xl,
   },
@@ -361,12 +477,15 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: 'relative',
     width: (screenWidth - spacing.lg * 2 - spacing.md * 2) / 3,
-    height: 120,
-    borderRadius: borderRadius.md,
+    height: 140,
+    borderRadius: 12,
     overflow: 'hidden',
     backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   imagePreview: {
     width: '100%',
@@ -375,56 +494,63 @@ const styles = StyleSheet.create({
   },
   removeButton: {
     position: 'absolute',
-    top: spacing.xs,
-    right: spacing.xs,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  statusContainer: {
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
+    right: 8,
+  },
+  statusBadge: {
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  uploadingBadge: {
+    backgroundColor: '#e3f2fd',
+  },
+  uploadedBadge: {
+    backgroundColor: '#e8f5e8',
+  },
+  pendingBadge: {
+    backgroundColor: '#fff3e0',
+  },
+  imageNumber: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: '#2196f3',
     borderRadius: 10,
     width: 20,
     height: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  statusContainer: {
-    position: 'absolute',
-    bottom: spacing.xs,
-    left: spacing.xs,
-    right: spacing.xs,
-  },
-  statusBadge: {
-    borderRadius: borderRadius.sm,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 2,
-  },
-  uploadingBadge: {
-    backgroundColor: '#dbeafe',
-  },
-  uploadedBadge: {
-    backgroundColor: '#d1fae5',
-  },
-  pendingBadge: {
-    backgroundColor: '#fed7aa',
-  },
-  imageNumber: {
-    position: 'absolute',
-    top: spacing.xs,
-    left: spacing.xs,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    borderRadius: 8,
-    width: 16,
-    height: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   uploadButton: {
     marginBottom: spacing.md,
+    backgroundColor: '#2196f3',
+    borderRadius: 8,
   },
   statusSection: {
-    backgroundColor: '#fff',
-    borderRadius: borderRadius.md,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 8,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#e9ecef',
   },
   statusRow: {
     flexDirection: 'row',
@@ -441,10 +567,10 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   pendingDot: {
-    backgroundColor: '#f97316',
+    backgroundColor: '#ff9800',
   },
   uploadedDot: {
-    backgroundColor: '#10b981',
+    backgroundColor: '#4caf50',
   },
   emptyState: {
     flex: 1,
