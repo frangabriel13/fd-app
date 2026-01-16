@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Button, Typography, Input } from '@/components/ui';
 import { spacing, borderRadius } from '@/constants/Styles';
 
 const DetalleProductoScreen = () => {
   const router = useRouter();
+  const { categoryId, genderId, isVariable } = useLocalSearchParams<{
+    categoryId?: string;
+    genderId?: string;
+    isVariable?: string;
+  }>();
   const [productData, setProductData] = useState({
     name: '',
     description: '',
@@ -14,6 +19,15 @@ const DetalleProductoScreen = () => {
     material: '',
     care: ''
   });
+
+  // Consoleguear los parámetros recibidos
+  useEffect(() => {
+    console.log('=== PARÁMETROS RECIBIDOS EN DETALLE-PRODUCTO ===');
+    console.log('categoryId:', categoryId);
+    console.log('genderId:', genderId);
+    console.log('isVariable:', isVariable);
+    console.log('===============================================');
+  }, [categoryId, genderId, isVariable]);
 
   const handleInputChange = (field: string, value: string) => {
     setProductData(prev => ({

@@ -26,7 +26,11 @@ const ElegirOpcionScreen = () => {
 
   const handleContinue = () => {
     if (selectedOption) {
-      router.push('/(dashboard)/subir-producto/seleccionar-genero');
+      const isVariable = selectedOption === 'talle-unico-varios-colores' || selectedOption === 'varios-talles-unico-color';
+      router.push({
+        pathname: '/(dashboard)/subir-producto/seleccionar-genero',
+        params: { isVariable: isVariable.toString() }
+      });
     }
   };
 

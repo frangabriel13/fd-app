@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, StyleSheet, ScrollView, Text } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Button, Typography } from '@/components/ui';
 import { spacing, borderRadius } from '@/constants/Styles';
 import { Colors } from '@/constants/Colors';
@@ -8,6 +8,7 @@ import { genders } from '@/utils/hardcode';
 
 const SeleccionarGeneroScreen = () => {
   const router = useRouter();
+  const { isVariable } = useLocalSearchParams<{ isVariable: string }>();
   const [selectedGender, setSelectedGender] = useState<number | null>(null);
 
   // Filtrar los géneros para excluir "Más" (id: 7) y mapear con iconos apropiados
@@ -48,7 +49,10 @@ const SeleccionarGeneroScreen = () => {
     if (selectedGender) {
       router.push({
         pathname: '/(dashboard)/subir-producto/tipo-articulo',
-        params: { genderId: selectedGender.toString() }
+        params: { 
+          genderId: selectedGender.toString(),
+          isVariable: isVariable || 'false'
+        }
       });
     }
   };
