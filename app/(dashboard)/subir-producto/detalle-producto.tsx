@@ -188,30 +188,28 @@ const DetalleProductoScreen = () => {
               <Typography variant="h4" className="text-gray-700 mb-2">
                 Colores disponibles
               </Typography>
-              <View style={styles.colorContainer}>
-                {availableColors.map((color) => (
-                  <TouchableOpacity
-                    key={color}
-                    onPress={() => 
-                      productData.colors.includes(color) 
-                        ? handleRemoveColor(color) 
-                        : handleAddColor(color)
-                    }
-                    className={`border rounded-md px-3 py-2 mr-2 mb-2 ${
-                      productData.colors.includes(color)
-                        ? 'bg-orange-500 border-orange-500'
-                        : 'bg-white border-gray-200'
-                    }`}
-                  >
-                    <Typography 
-                      variant="caption" 
-                      className={productData.colors.includes(color) ? 'text-white' : 'text-gray-700'}
-                    >
-                      {color}
-                    </Typography>
-                  </TouchableOpacity>
-                ))}
-              </View>
+              <TouchableOpacity 
+                onPress={() => {
+                  // Implementar modal o navegación para seleccionar colores
+                  console.log('Seleccionar colores');
+                }}
+                className="border border-dashed border-gray-300 bg-gray-50 rounded-md px-4 py-8 mb-4 items-center justify-center"
+              >
+                <Typography variant="body" className="text-gray-500 text-center">
+                  🎨 Seleccionar colores
+                </Typography>
+                <Typography variant="caption" className="text-gray-400 text-center mt-1">
+                  {productData.colors.length > 0 
+                    ? `${productData.colors.length} color(es) seleccionado(s)` 
+                    : 'Toca para elegir los colores disponibles'
+                  }
+                </Typography>
+                {productData.colors.length > 0 && (
+                  <Typography variant="caption" className="text-gray-600 text-center mt-1">
+                    {productData.colors.join(', ')}
+                  </Typography>
+                )}
+              </TouchableOpacity>
             </View>
           )}
 
@@ -221,30 +219,28 @@ const DetalleProductoScreen = () => {
               <Typography variant="h4" className="text-gray-700 mb-2">
                 Talles disponibles
               </Typography>
-              <View style={styles.colorContainer}>
-                {availableSizes.map((size) => (
-                  <TouchableOpacity
-                    key={size}
-                    onPress={() => 
-                      productData.sizes.includes(size) 
-                        ? handleRemoveSize(size) 
-                        : handleAddSize(size)
-                    }
-                    className={`border rounded-md px-3 py-2 mr-2 mb-2 ${
-                      productData.sizes.includes(size)
-                        ? 'bg-orange-500 border-orange-500'
-                        : 'bg-white border-gray-200'
-                    }`}
-                  >
-                    <Typography 
-                      variant="caption" 
-                      className={productData.sizes.includes(size) ? 'text-white' : 'text-gray-700'}
-                    >
-                      {size}
-                    </Typography>
-                  </TouchableOpacity>
-                ))}
-              </View>
+              <TouchableOpacity 
+                onPress={() => {
+                  // Implementar modal o navegación para seleccionar talles
+                  console.log('Seleccionar talles');
+                }}
+                className="border border-dashed border-gray-300 bg-gray-50 rounded-md px-4 py-8 mb-4 items-center justify-center"
+              >
+                <Typography variant="body" className="text-gray-500 text-center">
+                  📏 Seleccionar talles
+                </Typography>
+                <Typography variant="caption" className="text-gray-400 text-center mt-1">
+                  {productData.sizes.length > 0 
+                    ? `${productData.sizes.length} talle(s) seleccionado(s)` 
+                    : 'Toca para elegir los talles disponibles'
+                  }
+                </Typography>
+                {productData.sizes.length > 0 && (
+                  <Typography variant="caption" className="text-gray-600 text-center mt-1">
+                    {productData.sizes.join(', ')}
+                  </Typography>
+                )}
+              </TouchableOpacity>
             </View>
           )}
         </View>
