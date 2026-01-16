@@ -8,7 +8,7 @@ import { genders } from '@/utils/hardcode';
 
 const TipoArticuloScreen = () => {
   const router = useRouter();
-  const { genderId } = useLocalSearchParams<{ genderId: string }>();
+  const { genderId, isVariable } = useLocalSearchParams<{ genderId: string; isVariable: string }>();
   const [selectedType, setSelectedType] = useState<number | null>(null);
 
   // Obtener el género seleccionado y sus categorías
@@ -50,7 +50,14 @@ const TipoArticuloScreen = () => {
 
   const handleContinue = () => {
     if (selectedType) {
-      router.push('/(dashboard)/subir-producto/detalle-producto');
+      router.push({
+        pathname: '/(dashboard)/subir-producto/detalle-producto',
+        params: {
+          categoryId: selectedType.toString(),
+          genderId: genderId || '',
+          isVariable: isVariable || 'false'
+        }
+      });
     }
   };
 

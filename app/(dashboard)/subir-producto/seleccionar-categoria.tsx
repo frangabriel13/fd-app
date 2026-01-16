@@ -46,7 +46,10 @@ const SeleccionarCategoriaScreen = () => {
         router.push('/(dashboard)/subir-producto/elegir-opcion');
       } else {
         // Para cualquier otra categoría, va directamente a detalles del producto
-        router.push('/(dashboard)/subir-producto/detalle-producto');
+        router.push({
+          pathname: '/(dashboard)/subir-producto/detalle-producto',
+          params: { categoryId: selectedCategory.toString() }
+        });
       }
     }
   };
