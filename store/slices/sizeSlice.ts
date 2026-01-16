@@ -28,9 +28,12 @@ export const getSizes = createAsyncThunk(
   'sizes/getSizes',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await sizeInstance.get('/sizes');
+      console.log('📏 Fetching sizes from API...');
+      const response = await sizeInstance.get('/');
+      console.log('📏 Sizes response:', response.data);
       return response.data as Record<string, Size[]>;
     } catch (error: any) {
+      console.error('❌ Error fetching sizes:', error);
       if (error.response?.data?.message) {
         return rejectWithValue(error.response.data.message);
       }
