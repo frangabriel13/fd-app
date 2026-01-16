@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Button, Typography } from '@/components/ui';
 import { spacing, borderRadius } from '@/constants/Styles';
 import SelectColors from '@/components/createProduct/SelectColors';
+import SelectSizes from '@/components/createProduct/SelectSizes';
 
 const DetalleProductoScreen = () => {
   const router = useRouter();
@@ -24,6 +25,7 @@ const DetalleProductoScreen = () => {
   });
 
   const [showColorModal, setShowColorModal] = useState(false);
+  const [showSizeModal, setShowSizeModal] = useState(false);
 
   // Consoleguear los parámetros recibidos
   useEffect(() => {
@@ -65,6 +67,21 @@ const DetalleProductoScreen = () => {
 
   const handleCloseColorModal = () => {
     setShowColorModal(false);
+  };
+
+  const handleSizesChange = (sizes: string[]) => {
+    setProductData(prev => ({
+      ...prev,
+      sizes: sizes
+    }));
+  };
+
+  const handleOpenSizeModal = () => {
+    setShowSizeModal(true);
+  };
+
+  const handleCloseSizeModal = () => {
+    setShowSizeModal(false);
   };
 
   const handleAddSize = (size: string) => {
@@ -208,10 +225,7 @@ const DetalleProductoScreen = () => {
                 Talles disponibles
               </Typography>
               <TouchableOpacity 
-                onPress={() => {
-                  // Implementar modal o navegación para seleccionar talles
-                  console.log('Seleccionar talles');
-                }}
+                onPress={handleOpenSizeModal}
                 className="border border-dashed border-gray-300 bg-gray-50 rounded-md px-4 py-8 mb-4 items-center justify-center"
               >
                 <Typography variant="body" className="text-gray-500 text-center">
@@ -255,6 +269,14 @@ const DetalleProductoScreen = () => {
         onClose={handleCloseColorModal}
         selectedColors={productData.colors}
         onSelectionChange={handleColorsChange}
+      />
+
+      {/* Modal de selección de talles */}
+      <SelectSizes
+        visible={showSizeModal}
+        onClose={handleCloseSizeModal}
+        selectedSizes={productData.sizes}
+        onSelectionChange={handleSizesChange}
       />
     </View>
   );
