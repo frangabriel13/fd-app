@@ -4,26 +4,56 @@ import { useRouter } from 'expo-router';
 import { Button, Typography } from '@/components/ui';
 import { spacing, borderRadius } from '@/constants/Styles';
 import { Colors } from '@/constants/Colors';
+import { genders } from '@/utils/hardcode';
 
 const SeleccionarGeneroScreen = () => {
   const router = useRouter();
-  const [selectedGender, setSelectedGender] = useState<string | null>(null);
+  const [selectedGender, setSelectedGender] = useState<number | null>(null);
 
-  const genders = [
-    { id: 'mujer', label: 'Mujer', icon: '👩' },
-    { id: 'hombre', label: 'Hombre', icon: '👨' },
-    { id: 'niña', label: 'Niña', icon: '👧' },
-    { id: 'niño', label: 'Niño', icon: '👦' },
-    { id: 'bebes', label: 'Bebés', icon: '👶' }
-  ];
+  // Filtrar los géneros para excluir "Más" (id: 7) y mapear con iconos apropiados
+  const genderOptions = genders
+    .filter(gender => gender.id !== 7) // Excluir "Más"
+    .map(gender => {
+      let icon = '👤'; // Icono por defecto
+      
+      switch (gender.name) {
+        case 'Mujer':
+          icon = '👩';
+          break;
+        case 'Hombre':
+          icon = '👨';
+          break;
+        case 'Niña':
+          icon = '👧';
+          break;
+        case 'Niño':
+          icon = '👦';
+          break;
+        case 'Bebés':
+          icon = '👶';
+          break;
+        default:
+          icon = '👤';
+          break;
+      }
+      
+      return {
+        id: gender.id,
+        label: gender.name,
+        icon
+      };
+    });
 
   const handleContinue = () => {
     if (selectedGender) {
-      router.push('/(dashboard)/subir-producto/tipo-articulo');
+      router.push({
+        pathname: '/(dashboard)/subir-producto/tipo-articulo',
+        params: { genderId: selectedGender.toString() }
+      });
     }
   };
 
-  const GenderCard = ({ gender }: { gender: typeof genders[0] }) => (
+  const GenderCard = ({ gender }: { gender: typeof genderOptions[0] }) => (
     <View
       style={[
         styles.genderCard,
@@ -56,7 +86,7 @@ const SeleccionarGeneroScreen = () => {
         </Typography>
         
         <View style={styles.gendersContainer}>
-          {genders.map((gender) => (
+          {genderOptions.map((gender) => (
             <GenderCard key={gender.id} gender={gender} />
           ))}
         </View>
