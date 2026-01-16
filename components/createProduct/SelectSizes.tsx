@@ -190,7 +190,7 @@ const SelectSizes: React.FC<SelectSizesProps> = ({
               renderItem={renderSizeItem}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.sizesList}
-              numColumns={2}
+              numColumns={4}
               columnWrapperStyle={styles.row}
               ListEmptyComponent={
                 <View style={styles.centerContent}>
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.lg,
   },
   row: {
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
   sizeItem: {
     backgroundColor: '#fff',
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    flex: 0.48,
+    flex: 0.23,
   },
   selectedSizeItem: {
     borderColor: '#f97316',
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   sizeItemContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.sm,
     paddingVertical: spacing.lg,
     justifyContent: 'center',
   },
