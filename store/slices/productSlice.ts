@@ -64,6 +64,45 @@ interface SearchResults {
   user: SearchResultManufacturer[];
 }
 
+interface CreateSimpleProductData {
+  name: string;
+  description?: string;
+  price: number;
+  priceUSD?: number;
+  onSale?: boolean;
+  tags?: string[];
+  mainImage: string;
+  images?: string[];
+  imgIds?: number[];
+  sizes: number[];
+  genderId: number;
+  categoryId: number;
+  isVariable: false;
+}
+
+interface CreateVariableProductData {
+  name: string;
+  description?: string;
+  price: number;
+  priceUSD?: number;
+  onSale?: boolean;
+  tags?: string[];
+  mainImage: string;
+  images?: string[];
+  imgIds?: number[];
+  sizes: number[];
+  genderId: number;
+  categoryId: number;
+  isVariable: true;
+  variations: {
+    colorId: number;
+    mainImage: string;
+    images?: string[];
+  }[];
+}
+
+type CreateProductData = CreateSimpleProductData | CreateVariableProductData;
+
 interface ProductState {
   featured: Product[];
   newProducts: Product[];
@@ -88,6 +127,9 @@ interface ProductState {
   storePagination: StorePagination | null;
   searchResults: SearchResults | null;
   searchLoading: boolean;
+  createdProduct: Product | null;
+  isCreating: boolean;
+  createError: string | null;
   loading: boolean;
   error: string | null;
 }
@@ -120,6 +162,9 @@ const initialState: ProductState = {
   storePagination: null,
   searchResults: null,
   searchLoading: false,
+  createdProduct: null,
+  isCreating: false,
+  createError: null,
   loading: false,
   error: null,
 };
@@ -189,6 +234,19 @@ export const fetchSearchResults = createAsyncThunk(
   }
 );
 
+export const createProduct = createAsyncThunk(
+  'product/createProduct',
+  async (productData: CreateProductData, { rejectWithValue }) => {
+    try {
+      console.log('Creando producto:', productData);
+      const response = await productInstance.post('/', productData);
+      return response.data as Product;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al crear el producto');
+    }
+  }
+);
+
 export const fetchMobileHomeProducts = createAsyncThunk(
   'product/fetchMobileHomeProducts',
   async (_, { rejectWithValue }) => {
@@ -252,6 +310,15 @@ const productSlice = createSlice({
     clearSearchResults: (state) => {
       state.searchResults = null;
       state.searchLoading = false;
+    },
+    clearCreatedProduct: (state) => {
+      state.createdProduct = null;
+      state.createError = null;
+    },
+    resetCreateState: (state) => {
+      state.createdProduct = null;
+      state.isCreating = false;
+      state.createError = null;
     },
   },
   extraReducers: (builder) => {
@@ -359,10 +426,38 @@ const productSlice = createSlice({
         state.error = action.payload;
         state.searchLoading = false;
         state.searchResults = null;
+      })
+      .addCase(createProduct.pending, (state) => {
+        state.isCreating = true;
+        state.createError = null;
+        state.createdProduct = null;
+      })
+      .addCase(createProduct.fulfilled, (state, action: PayloadAction<Product>) => {
+        state.createdProduct = action.payload;
+        state.isCreating = false;
+        state.createError = null;
+        // Opcional: agregar el producto creado a las listas correspondientes si es necesario
+        // state.newProducts.unshift(action.payload);
+      })
+      .addCase(createProduct.rejected, (state, action: PayloadAction<any>) => {
+        state.createError = action.payload;
+        state.isCreating = false;
+        state.createdProduct = null;
       });
   },
 });
 
-export const { setLoading, setError, clearCurrentProduct, setShopFilters, clearShopProducts, resetShopFilters, clearStoreProducts, clearSearchResults } = productSlice.actions;
+export const { 
+  setLoading, 
+  setError, 
+  clearCurrentProduct, 
+  setShopFilters, 
+  clearShopProducts, 
+  resetShopFilters, 
+  clearStoreProducts, 
+  clearSearchResults,
+  clearCreatedProduct,
+  resetCreateState
+} = productSlice.actions;
 
 export default productSlice.reducer;
