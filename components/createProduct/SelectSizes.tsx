@@ -15,8 +15,8 @@ import { spacing, borderRadius } from '@/constants/Styles';
 interface SelectSizesProps {
   visible: boolean;
   onClose: () => void;
-  selectedSizes: string[];
-  onSelectionChange: (sizes: string[]) => void;
+  selectedSizes: number[];
+  onSelectionChange: (sizes: number[]) => void;
 }
 
 type SizeType = 'Numéricos' | 'Alfanuméricos';
@@ -39,23 +39,23 @@ const SelectSizes: React.FC<SelectSizesProps> = ({
   // Obtener tamaños de la pestaña activa
   const currentSizes = sizes[activeTab] || [];
 
-  const handleSizeToggle = (sizeName: string) => {
-    if (selectedSizes.includes(sizeName)) {
+  const handleSizeToggle = (sizeId: number) => {
+    if (selectedSizes.includes(sizeId)) {
       // Deseleccionar
-      onSelectionChange(selectedSizes.filter(s => s !== sizeName));
+      onSelectionChange(selectedSizes.filter(s => s !== sizeId));
     } else {
       // Seleccionar
-      onSelectionChange([...selectedSizes, sizeName]);
+      onSelectionChange([...selectedSizes, sizeId]);
     }
   };
 
   const renderSizeItem = ({ item }: { item: Size }) => {
-    const isSelected = selectedSizes.includes(item.name);
+    const isSelected = selectedSizes.includes(item.id);
     
     return (
       <TouchableOpacity
         style={[styles.sizeItem, isSelected && styles.selectedSizeItem]}
-        onPress={() => handleSizeToggle(item.name)}
+        onPress={() => handleSizeToggle(item.id)}
       >
         <View style={styles.sizeItemContent}>
           <Typography variant="body" className="text-gray-800 flex-1">
@@ -73,16 +73,20 @@ const SelectSizes: React.FC<SelectSizesProps> = ({
     );
   };
 
-  const renderSelectedSize = (sizeName: string, index: number) => {
+  const renderSelectedSize = (sizeId: number, index: number) => {
+    // Buscar el nombre del talle por su ID
+    const size = currentSizes.find(s => s.id === sizeId);
+    if (!size) return null;
+    
     return (
       <TouchableOpacity
         key={index}
         style={styles.selectedChip}
-        onPress={() => handleSizeToggle(sizeName)}
+        onPress={() => handleSizeToggle(sizeId)}
       >
         <View style={styles.selectedChipContent}>
           <Typography variant="caption" className="text-gray-700 mr-2">
-            {sizeName}
+            {size.name}
           </Typography>
           <Typography variant="caption" className="text-red-500 font-bold">
             ✕
