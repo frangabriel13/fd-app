@@ -139,12 +139,11 @@ const DetalleProductoScreen = () => {
     setShowColorModal(false);
   };
 
-  const handleSizesChange = (sizes: string[]) => {
-    // Los sizes ya vienen como IDs desde SelectSizes
-    const sizeIds = sizes.map(size => parseInt(size)).filter(size => !isNaN(size));
+  const handleSizesChange = (sizes: number[]) => {
+    // Los sizes ya vienen como IDs directamente desde SelectSizes
     setProductData(prev => ({
       ...prev,
-      sizes: sizeIds
+      sizes: sizes
     }));
   };
 
@@ -154,26 +153,6 @@ const DetalleProductoScreen = () => {
 
   const handleCloseSizeModal = () => {
     setShowSizeModal(false);
-  };
-
-  const handleAddSize = (size: string) => {
-    const sizeId = parseInt(size);
-    if (!isNaN(sizeId) && !productData.sizes.includes(sizeId)) {
-      setProductData(prev => ({
-        ...prev,
-        sizes: [...prev.sizes, sizeId]
-      }));
-    }
-  };
-
-  const handleRemoveSize = (size: string) => {
-    const sizeId = parseInt(size);
-    if (!isNaN(sizeId)) {
-      setProductData(prev => ({
-        ...prev,
-        sizes: prev.sizes.filter(s => s !== sizeId)
-      }));
-    }
   };
 
   const handleFinish = async () => {
