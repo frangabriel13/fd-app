@@ -12,7 +12,7 @@ const DetailProduct = ({ product, manufacturer }: DetailProductProps) => {
     <View className="p-0">
       {/* Categoría y Género */}
       <Text className="text-base font-mont-regular text-gray-600">
-        {product?.category.name} | {product?.attributes.genre}
+        {product?.category.name} | {product?.gender?.name ?? 'Sin género'}
       </Text>
       
       {/* Nombre del producto con iconos de compartir y favorito */}

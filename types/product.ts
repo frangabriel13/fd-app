@@ -4,6 +4,10 @@ export interface Product {
     id: number;
     name: string;
   };
+  gender?: {
+    id: number;
+    name: string;
+  };
   type: 'product' | 'service' | 'Vehicle' | 'Real Estate' | 'Other';
   name: string;
   description: string;
