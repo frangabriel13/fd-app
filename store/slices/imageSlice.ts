@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { productInstance } from '@/services';
+import { imageInstance } from '@/services';
 
 interface Image {
   id: number;
@@ -32,18 +32,27 @@ const initialState: ImageState = {
 
 export const uploadImages = createAsyncThunk(
   'image/uploadImages',
-  async (files: File[], { rejectWithValue }) => {
+  async (imageUris: string[], { rejectWithValue }) => {
     try {
       const formData = new FormData();
       
-      // Agregar todos los archivos al FormData
-      files.forEach((file) => {
-        formData.append('images', file);
+      // En React Native, creamos objetos que simulan archivos
+      imageUris.forEach((uri, index) => {
+        const fileName = `product-image-${Date.now()}-${index}.jpg`;
+        
+        // Crear objeto compatible con FormData de React Native
+        const imageFile = {
+          uri: uri,
+          type: 'image/jpeg',
+          name: fileName,
+        } as any; // React Native FormData acepta este formato
+        
+        formData.append('images', imageFile);
       });
 
-      console.log('Subiendo imágenes:', files.length, 'archivos');
+      console.log('Subiendo imágenes:', imageUris.length, 'archivos');
 
-      const response = await productInstance.post('/images/', formData, {
+      const response = await imageInstance.post('/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

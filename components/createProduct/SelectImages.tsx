@@ -11,8 +11,12 @@ import {
   Platform
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { useDispatch, useSelector } from 'react-redux';
 import { Typography, Button } from '@/components/ui';
 import { spacing, borderRadius } from '@/constants/Styles';
+import { uploadImages, resetUploadState, clearUploadedImages } from '@/store/slices/imageSlice';
+import { RootState } from '@/store';
+import type { AppDispatch } from '@/store';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -36,8 +40,12 @@ const SelectImages: React.FC<SelectImagesProps> = ({
   selectedImages,
   onSelectionChange
 }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { uploadedImages, isUploading, uploadError, uploadProgress } = useSelector(
+    (state: RootState) => state.image
+  );
+  
   const [localImages, setLocalImages] = useState<LocalImage[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
 
   const MAX_IMAGES = 3;
 
@@ -127,31 +135,92 @@ const SelectImages: React.FC<SelectImagesProps> = ({
   };
 
   const handleUploadImages = async () => {
-    // TODO: Implementar subida a AWS
-    console.log('Subir imágenes a AWS');
-    setIsUploading(true);
-    
-    // Simular proceso de subida
-    const updatedImages = localImages.map(img => ({ ...img, uploading: !img.uploaded }));
-    setLocalImages(updatedImages);
-    
-    setTimeout(() => {
-      const uploadedImages = localImages.map(img => ({ ...img, uploaded: true, uploading: false }));
-      setLocalImages(uploadedImages);
-      setIsUploading(false);
-    }, 2000);
+    if (localImages.length === 0) {
+      Alert.alert('Sin imágenes', 'Selecciona al menos una imagen para subir');
+      return;
+    }
+
+    try {
+      // Marcar imágenes como "subiendo"
+      const updatedImages = localImages.map(img => ({ ...img, uploading: true }));
+      setLocalImages(updatedImages);
+
+      // Obtener URIs de imágenes no subidas
+      const imageUris = localImages
+        .filter(img => !img.uploaded)
+        .map(img => img.uri);
+
+      if (imageUris.length > 0) {
+        // Llamar al thunk de Redux con URIs
+        const result = await dispatch(uploadImages(imageUris)).unwrap();
+        
+        // Marcar imágenes como subidas
+        const successImages = localImages.map(img => ({
+          ...img,
+          uploaded: true,
+          uploading: false
+        }));
+        setLocalImages(successImages);
+
+        // Mostrar mensaje de éxito
+        Alert.alert(
+          '¡Éxito!',
+          `Se subieron ${result.length} imágenes correctamente`,
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error: any) {
+      console.error('Error al subir imágenes:', error);
+      
+      // Revertir estado de subida en caso de error
+      const revertedImages = localImages.map(img => ({
+        ...img,
+        uploaded: false,
+        uploading: false
+      }));
+      setLocalImages(revertedImages);
+      
+      Alert.alert(
+        'Error',
+        error || 'No se pudieron subir las imágenes. Intenta nuevamente.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
+  const handleClose = () => {
+    // Limpiar estado local
+    setLocalImages([]);
+    // Limpiar estado de Redux si hay errores
+    if (uploadError) {
+      dispatch(resetUploadState());
+    }
+    onClose();
   };
 
   const handleSave = () => {
-    const uploadedImageUrls = localImages
-      .filter(img => img.uploaded)
-      .map(img => img.uri);
-    onSelectionChange(uploadedImageUrls);
+    // Si hay imágenes en el store de Redux, usarlas
+    if (uploadedImages.length > 0) {
+      const imageUrls = uploadedImages.map(img => img.url);
+      onSelectionChange(imageUrls);
+    } else {
+      // Fallback a imágenes locales subidas
+      const uploadedImageUrls = localImages
+        .filter(img => img.uploaded)
+        .map(img => img.uri);
+      onSelectionChange(uploadedImageUrls);
+    }
+    
+    // Limpiar estado al cerrar
+    dispatch(clearUploadedImages());
     onClose();
   };
 
   const canUpload = localImages.some(img => !img.uploaded) && !isUploading;
-  const allUploaded = localImages.length > 0 && localImages.every(img => img.uploaded);
+  const allUploaded = (localImages.length > 0 && localImages.every(img => img.uploaded)) || uploadedImages.length > 0;
+  const hasLocalImages = localImages.length > 0;
+  const totalImages = uploadedImages.length > 0 ? uploadedImages.length : localImages.length;
+  const isDisabled = isUploading; // Deshabilitar acciones durante la subida
 
   const renderImagePreview = (image: LocalImage, index: number) => {
     return (
@@ -170,10 +239,12 @@ const SelectImages: React.FC<SelectImagesProps> = ({
 
         {/* Status indicator */}
         <View style={styles.statusContainer}>
-          {image.uploading ? (
+          {image.uploading || isUploading ? (
             <View style={[styles.statusBadge, styles.uploadingBadge]}>
               <Typography variant="caption" className="text-blue-700 font-semibold text-xs">
-                Subiendo...
+                {isUploading && uploadProgress > 0 
+                  ? `${Math.round(uploadProgress)}%` 
+                  : 'Subiendo...'}
               </Typography>
             </View>
           ) : image.uploaded ? (
@@ -206,12 +277,12 @@ const SelectImages: React.FC<SelectImagesProps> = ({
       visible={visible}
       animationType="slide"
       presentationStyle="pageSheet"
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
     >
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
             <Typography variant="body" className="text-gray-600">
               Cancelar
             </Typography>
@@ -245,13 +316,13 @@ const SelectImages: React.FC<SelectImagesProps> = ({
             </Typography>
             <View style={styles.progressContainer}>
               <Typography variant="caption" className="text-blue-600 font-semibold">
-                {localImages.length} de {MAX_IMAGES} fotos
+                {totalImages} de {MAX_IMAGES} fotos
               </Typography>
               <View style={styles.progressBar}>
                 <View 
                   style={[
                     styles.progressFill, 
-                    { width: `${(localImages.length / MAX_IMAGES) * 100}%` }
+                    { width: ((totalImages / MAX_IMAGES) * 100) + '%' }
                   ]} 
                 />
               </View>
@@ -261,37 +332,41 @@ const SelectImages: React.FC<SelectImagesProps> = ({
           {/* Action Buttons - Estilo MercadoLibre */}
           <View style={styles.actionsContainer}>
             <TouchableOpacity
-              style={[styles.mlActionButton, styles.primaryAction, localImages.length >= MAX_IMAGES && styles.disabledAction]}
+              style={[styles.mlActionButton, styles.primaryAction, (localImages.length >= MAX_IMAGES || isDisabled) && styles.disabledAction]}
               onPress={handleSelectFromGallery}
-              disabled={localImages.length >= MAX_IMAGES}
+              disabled={localImages.length >= MAX_IMAGES || isDisabled}
             >
               <View style={styles.actionIconContainer}>
-                <Typography variant="h4" className="text-white mb-1">📱</Typography>
+                <Typography variant="h4" className="text-white mb-1">
+                  📱
+                </Typography>
               </View>
               <View style={styles.actionTextContainer}>
                 <Typography variant="h4" className="text-white font-semibold mb-1">
-                  Elegir de galería
+                  {isDisabled ? 'Subiendo...' : 'Elegir de galería'}
                 </Typography>
                 <Typography variant="caption" className="text-blue-100">
-                  Seleccioná desde tu galería
+                  {isDisabled ? 'Espera un momento' : 'Seleccioná desde tu galería'}
                 </Typography>
               </View>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.mlActionButton, styles.secondaryAction, localImages.length >= MAX_IMAGES && styles.disabledAction]}
+              style={[styles.mlActionButton, styles.secondaryAction, (localImages.length >= MAX_IMAGES || isDisabled) && styles.disabledAction]}
               onPress={handleTakePhoto}
-              disabled={localImages.length >= MAX_IMAGES}
+              disabled={localImages.length >= MAX_IMAGES || isDisabled}
             >
               <View style={styles.actionIconContainer}>
-                <Typography variant="h4" className="text-blue-600 mb-1">📷</Typography>
+                <Typography variant="h4" className="text-blue-600 mb-1">
+                  📷
+                </Typography>
               </View>
               <View style={styles.actionTextContainer}>
                 <Typography variant="h4" className="text-blue-600 font-semibold mb-1">
-                  Sacar foto
+                  {isDisabled ? 'Subiendo...' : 'Sacar foto'}
                 </Typography>
                 <Typography variant="caption" className="text-blue-500">
-                  Usá la cámara de tu teléfono
+                  {isDisabled ? 'Espera un momento' : 'Usá la cámara de tu teléfono'}
                 </Typography>
               </View>
             </TouchableOpacity>
@@ -309,7 +384,7 @@ const SelectImages: React.FC<SelectImagesProps> = ({
               </View>
 
               {/* Upload Button */}
-              {/* {canUpload && (
+              {canUpload && (
                 <Button
                   variant="secondary"
                   onPress={handleUploadImages}
@@ -317,10 +392,28 @@ const SelectImages: React.FC<SelectImagesProps> = ({
                   disabled={isUploading}
                 >
                   <Typography variant="body" className="font-semibold">
-                    {isUploading ? '⏳ Subiendo...' : '☁️ Subir a AWS'}
+                    {isUploading ? '⏳ Subiendo...' : '☁️ Subir imágenes'}
                   </Typography>
                 </Button>
-              )} */}
+              )}
+              
+              {/* Error Message */}
+              {uploadError && (
+                <View style={styles.errorContainer}>
+                  <Typography variant="caption" className="text-red-600 text-center">
+                    ❌ {uploadError}
+                  </Typography>
+                </View>
+              )}
+
+              {/* Success Message */}
+              {uploadedImages.length > 0 && (
+                <View style={styles.successContainer}>
+                  <Typography variant="caption" className="text-green-600 text-center">
+                    ✅ {uploadedImages.length} imagen(es) subida(s) exitosamente
+                  </Typography>
+                </View>
+              )}
 
               {/* Upload Status */}
               {/* {localImages.length > 0 && (
@@ -540,6 +633,24 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     backgroundColor: '#2196f3',
     borderRadius: 8,
+  },
+  errorContainer: {
+    backgroundColor: '#fef2f2',
+    borderRadius: 8,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderWidth: 1,
+    borderColor: '#fecaca',
+    marginBottom: spacing.md,
+  },
+  successContainer: {
+    backgroundColor: '#f0f9ff',
+    borderRadius: 8,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderWidth: 1,
+    borderColor: '#a7f3d0',
+    marginBottom: spacing.md,
   },
   statusSection: {
     backgroundColor: '#f8f9fa',
