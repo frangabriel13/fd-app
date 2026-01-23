@@ -109,6 +109,11 @@ const SelectImages: React.FC<SelectImagesProps> = ({
     if (!hasPermissions) return;
 
     try {
+      // Pequeño delay para asegurar que el ActivityResultLauncher esté registrado en Android
+      if (Platform.OS === 'android') {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
         aspect: [3, 4], // 900x1200 ratio
@@ -124,9 +129,12 @@ const SelectImages: React.FC<SelectImagesProps> = ({
         };
         setLocalImages(prev => [...prev, newImage]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error taking photo:', error);
-      Alert.alert('Error', 'No se pudo tomar la foto');
+      const errorMessage = error?.message || 'No se pudo tomar la foto';
+      Alert.alert('Error', errorMessage.includes('unregistered') 
+        ? 'Por favor, cierra y vuelve a abrir el selector de imágenes' 
+        : 'No se pudo tomar la foto');
     }
   };
 
