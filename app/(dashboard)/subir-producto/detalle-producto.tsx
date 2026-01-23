@@ -140,11 +140,11 @@ const DetalleProductoScreen = () => {
   };
 
   const handleSizesChange = (sizes: string[]) => {
-    // Convertir strings a números para que coincidan con la API
-    const sizeNumbers = sizes.map(size => parseInt(size)).filter(size => !isNaN(size));
+    // Los sizes ya vienen como IDs desde SelectSizes
+    const sizeIds = sizes.map(size => parseInt(size)).filter(size => !isNaN(size));
     setProductData(prev => ({
       ...prev,
-      sizes: sizeNumbers
+      sizes: sizeIds
     }));
   };
 
@@ -157,21 +157,21 @@ const DetalleProductoScreen = () => {
   };
 
   const handleAddSize = (size: string) => {
-    const sizeNumber = parseInt(size);
-    if (!isNaN(sizeNumber) && !productData.sizes.includes(sizeNumber)) {
+    const sizeId = parseInt(size);
+    if (!isNaN(sizeId) && !productData.sizes.includes(sizeId)) {
       setProductData(prev => ({
         ...prev,
-        sizes: [...prev.sizes, sizeNumber]
+        sizes: [...prev.sizes, sizeId]
       }));
     }
   };
 
   const handleRemoveSize = (size: string) => {
-    const sizeNumber = parseInt(size);
-    if (!isNaN(sizeNumber)) {
+    const sizeId = parseInt(size);
+    if (!isNaN(sizeId)) {
       setProductData(prev => ({
         ...prev,
-        sizes: prev.sizes.filter(s => s !== sizeNumber)
+        sizes: prev.sizes.filter(s => s !== sizeId)
       }));
     }
   };
