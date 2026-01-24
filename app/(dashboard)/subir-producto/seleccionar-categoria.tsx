@@ -8,7 +8,6 @@ import { parentCategories } from '@/utils/hardcode';
 
 const SeleccionarCategoriaScreen = () => {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
 
   // Mapear las categorías con iconos apropiados
   const categories = parentCategories.map(category => {
@@ -39,38 +38,31 @@ const SeleccionarCategoriaScreen = () => {
     };
   });
 
-  const handleContinue = () => {
-    if (selectedCategory) {
-      // Si se selecciona "Indumentaria" (id: 88), sigue el flujo normal
-      if (selectedCategory === 88) {
-        router.push('/(dashboard)/subir-producto/elegir-opcion');
-      } else {
-        // Para cualquier otra categoría, va directamente a detalles del producto
-        router.push({
-          pathname: '/(dashboard)/subir-producto/detalle-producto',
-          params: { categoryId: selectedCategory.toString() }
-        });
-      }
+  const handleCategorySelect = (categoryId: number) => {
+    // Si se selecciona "Indumentaria" (id: 88), sigue el flujo normal
+    if (categoryId === 88) {
+      router.push('/(dashboard)/subir-producto/elegir-opcion');
+    } else {
+      // Para cualquier otra categoría, va directamente a detalles del producto
+      router.push({
+        pathname: '/(dashboard)/subir-producto/detalle-producto',
+        params: { categoryId: categoryId.toString() }
+      });
     }
   };
 
   const CategoryCard = ({ category }: { category: typeof categories[0] }) => (
-    <View
-      style={[
-        styles.categoryCard,
-        selectedCategory === category.id && styles.selectedCard
-      ]}
-    >
+    <View style={styles.categoryCard}>
       <Button
-        variant={selectedCategory === category.id ? "primary" : "outline"}
-        onPress={() => setSelectedCategory(category.id)}
+        variant="outline"
+        onPress={() => handleCategorySelect(category.id)}
         style={styles.categoryButton}
       >
         <View style={styles.categoryContent}>
           <Text style={styles.categoryIcon}>{category.icon}</Text>
           <Typography 
             variant="caption" 
-            className={selectedCategory === category.id ? 'text-white text-center' : 'text-gray-700 text-center'}
+            className="text-gray-700 text-center"
             style={styles.categoryLabel}
           >
             {category.label}
@@ -108,21 +100,6 @@ const SeleccionarCategoriaScreen = () => {
           )}
         </View>
       </ScrollView>
-
-      <View style={styles.footer}>
-        <Button
-          variant="primary"
-          onPress={handleContinue}
-          disabled={!selectedCategory}
-          style={[
-            styles.continueButton,
-            !selectedCategory && styles.disabledButton
-          ]}
-          className="bg-primary"
-        >
-          Continuar
-        </Button>
-      </View>
     </View>
   );
 };
@@ -155,10 +132,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#fff',
   },
-  selectedCard: {
-    borderColor: Colors.orange.light,
-    backgroundColor: Colors.orange.light,
-  },
   categoryButton: {
     flex: 1,
     // borderRadius: borderRadius.lg,
@@ -180,19 +153,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     // lineHeight: 24,
     textAlign: 'center',
-  },
-  footer: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-  },
-  continueButton: {
-    minHeight: 50,
-  },
-  disabledButton: {
-    opacity: 0.5,
   },
 });
 
