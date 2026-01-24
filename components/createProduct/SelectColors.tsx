@@ -19,8 +19,8 @@ const { height: screenHeight } = Dimensions.get('window');
 interface SelectColorsProps {
   visible: boolean;
   onClose: () => void;
-  selectedColors: string[];
-  onSelectionChange: (colors: string[]) => void;
+  selectedColors: number[];
+  onSelectionChange: (colors: number[]) => void;
 }
 
 const SelectColors: React.FC<SelectColorsProps> = ({
@@ -46,23 +46,23 @@ const SelectColors: React.FC<SelectColorsProps> = ({
     );
   }, [colors, searchQuery]);
 
-  const handleColorToggle = (colorName: string) => {
-    if (selectedColors.includes(colorName)) {
+  const handleColorToggle = (colorId: number) => {
+    if (selectedColors.includes(colorId)) {
       // Deseleccionar
-      onSelectionChange(selectedColors.filter(c => c !== colorName));
+      onSelectionChange(selectedColors.filter(c => c !== colorId));
     } else {
       // Seleccionar
-      onSelectionChange([...selectedColors, colorName]);
+      onSelectionChange([...selectedColors, colorId]);
     }
   };
 
   const renderColorItem = ({ item }: { item: Color }) => {
-    const isSelected = selectedColors.includes(item.name);
+    const isSelected = selectedColors.includes(item.id);
     
     return (
       <TouchableOpacity
         style={[styles.colorItem, isSelected && styles.selectedColorItem]}
-        onPress={() => handleColorToggle(item.name)}
+        onPress={() => handleColorToggle(item.id)}
       >
         <View style={styles.colorItemContent}>
           <View 
@@ -89,14 +89,14 @@ const SelectColors: React.FC<SelectColorsProps> = ({
     );
   };
 
-  const renderSelectedColor = (colorName: string, index: number) => {
-    const color = colors.find(c => c.name === colorName);
+  const renderSelectedColor = (colorId: number, index: number) => {
+    const color = colors.find(c => c.id === colorId);
     
     return (
       <TouchableOpacity
         key={index}
         style={styles.selectedChip}
-        onPress={() => handleColorToggle(colorName)}
+        onPress={() => handleColorToggle(colorId)}
       >
         <View style={styles.selectedChipContent}>
           {color && (
@@ -108,7 +108,7 @@ const SelectColors: React.FC<SelectColorsProps> = ({
             />
           )}
           <Typography variant="caption" className="text-gray-700 mr-2">
-            {colorName}
+            {color?.name || 'Color desconocido'}
           </Typography>
           <Typography variant="caption" className="text-red-500 font-bold">
             ✕
@@ -172,8 +172,8 @@ const SelectColors: React.FC<SelectColorsProps> = ({
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.selectedContainer}
             >
-              {selectedColors.map((colorName, index) => 
-                renderSelectedColor(colorName, index)
+              {selectedColors.map((colorId, index) => 
+                renderSelectedColor(colorId, index)
               )}
             </ScrollView>
           </View>
