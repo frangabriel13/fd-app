@@ -9,7 +9,6 @@ import { genders } from '@/utils/hardcode';
 const SeleccionarGeneroScreen = () => {
   const router = useRouter();
   const { isVariable } = useLocalSearchParams<{ isVariable: string }>();
-  const [selectedGender, setSelectedGender] = useState<number | null>(null);
 
   // Filtrar los géneros para excluir "Más" (id: 7) y mapear con iconos apropiados
   const genderOptions = genders
@@ -45,35 +44,28 @@ const SeleccionarGeneroScreen = () => {
       };
     });
 
-  const handleContinue = () => {
-    if (selectedGender) {
-      router.push({
-        pathname: '/(dashboard)/subir-producto/tipo-articulo',
-        params: { 
-          genderId: selectedGender.toString(),
-          isVariable: isVariable || 'false'
-        }
-      });
-    }
+  const handleGenderSelect = (genderId: number) => {
+    router.push({
+      pathname: '/(dashboard)/subir-producto/tipo-articulo',
+      params: { 
+        genderId: genderId.toString(),
+        isVariable: isVariable || 'false'
+      }
+    });
   };
 
   const GenderCard = ({ gender }: { gender: typeof genderOptions[0] }) => (
-    <View
-      style={[
-        styles.genderCard,
-        selectedGender === gender.id && styles.selectedCard
-      ]}
-    >
+    <View style={styles.genderCard}>
       <Button
-        variant={selectedGender === gender.id ? "primary" : "outline"}
-        onPress={() => setSelectedGender(gender.id)}
+        variant="outline"
+        onPress={() => handleGenderSelect(gender.id)}
         style={styles.genderButton}
       >
         <View style={styles.genderContent}>
           <Text style={styles.genderIcon}>{gender.icon}</Text>
           <Typography 
             variant="body" 
-            className={selectedGender === gender.id ? 'text-white' : 'text-gray-700'}
+            className="text-gray-700"
           >
             {gender.label}
           </Typography>
@@ -95,21 +87,6 @@ const SeleccionarGeneroScreen = () => {
           ))}
         </View>
       </ScrollView>
-
-      <View style={styles.footer}>
-        <Button
-          variant="primary"
-          onPress={handleContinue}
-          disabled={!selectedGender}
-          style={[
-            styles.continueButton,
-            !selectedGender && styles.disabledButton
-          ]}
-          className="bg-primary"
-        >
-          Continuar
-        </Button>
-      </View>
     </View>
   );
 };
@@ -135,10 +112,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#fff',
   },
-  selectedCard: {
-    borderColor: Colors.orange.light,
-    backgroundColor: Colors.orange.light,
-  },
   genderButton: {
     minHeight: 70,
     borderWidth: 0,
@@ -152,19 +125,6 @@ const styles = StyleSheet.create({
   },
   genderIcon: {
     fontSize: 24,
-  },
-  footer: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-  },
-  continueButton: {
-    minHeight: 50,
-  },
-  disabledButton: {
-    opacity: 0.5,
   },
 });
 

@@ -9,7 +9,6 @@ import { genders } from '@/utils/hardcode';
 const TipoArticuloScreen = () => {
   const router = useRouter();
   const { genderId, isVariable } = useLocalSearchParams<{ genderId: string; isVariable: string }>();
-  const [selectedType, setSelectedType] = useState<number | null>(null);
 
   // Obtener el género seleccionado y sus categorías
   const selectedGender = genders.find(gender => gender.id === parseInt(genderId || '0'));
@@ -48,36 +47,29 @@ const TipoArticuloScreen = () => {
     };
   });
 
-  const handleContinue = () => {
-    if (selectedType) {
-      router.push({
-        pathname: '/(dashboard)/subir-producto/detalle-producto',
-        params: {
-          categoryId: selectedType.toString(),
-          genderId: genderId || '',
-          isVariable: isVariable || 'false'
-        }
-      });
-    }
+  const handleTypeSelect = (typeId: number) => {
+    router.push({
+      pathname: '/(dashboard)/subir-producto/detalle-producto',
+      params: {
+        categoryId: typeId.toString(),
+        genderId: genderId || '',
+        isVariable: isVariable || 'false'
+      }
+    });
   };
 
   const TypeCard = ({ type }: { type: typeof articleTypes[0] }) => (
-    <View
-      style={[
-        styles.typeCard,
-        selectedType === type.id && styles.selectedCard
-      ]}
-    >
+    <View style={styles.typeCard}>
       <Button
-        variant={selectedType === type.id ? "primary" : "outline"}
-        onPress={() => setSelectedType(type.id)}
+        variant="outline"
+        onPress={() => handleTypeSelect(type.id)}
         style={styles.typeButton}
       >
         <View style={styles.typeContent}>
           <Text style={styles.typeIcon}>{type.icon}</Text>
           <Typography 
             variant="caption" 
-            className={selectedType === type.id ? 'text-white text-center' : 'text-gray-700 text-center'}
+            className="text-gray-700 text-center"
           >
             {type.label}
           </Typography>
@@ -111,21 +103,6 @@ const TipoArticuloScreen = () => {
           )}
         </View>
       </ScrollView>
-
-      <View style={styles.footer}>
-        <Button
-          variant="primary"
-          onPress={handleContinue}
-          disabled={!selectedType}
-          style={[
-            styles.continueButton,
-            !selectedType && styles.disabledButton
-          ]}
-          className="bg-primary"
-        >
-          Continuar
-        </Button>
-      </View>
     </View>
   );
 };
@@ -157,10 +134,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#fff',
   },
-  selectedCard: {
-    borderColor: Colors.orange.light,
-    backgroundColor: Colors.orange.light,
-  },
   typeButton: {
     minHeight: 70,
     borderWidth: 0,
@@ -175,19 +148,6 @@ const styles = StyleSheet.create({
   },
   typeIcon: {
     fontSize: 32,
-  },
-  footer: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-  },
-  continueButton: {
-    minHeight: 50,
-  },
-  disabledButton: {
-    opacity: 0.5,
   },
   noDataContainer: {
     paddingVertical: spacing.xl,

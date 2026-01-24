@@ -64,6 +64,33 @@ interface SearchResults {
   user: SearchResultManufacturer[];
 }
 
+interface MyProductsPagination {
+  currentPage: number;
+  pageSize: number;
+  myTotalProducts: number;
+}
+
+interface MyProduct extends Pick<Product, 'id' | 'name' | 'price' | 'mainImage' | 'userId' | 'onSale' | 'priceUSD' | 'type' | 'isVariable' | 'tags' | 'description'> {
+  category?: {
+    id: number;
+    name: string;
+    parent?: {
+      id: number;
+      name: string;
+    };
+  };
+  inventories?: {
+    id: number;
+    size: string;
+    color: string;
+    stock: number;
+  }[];
+  gender?: {
+    id: number;
+    name: string;
+  };
+}
+
 interface CreateSimpleProductData {
   name: string;
   description?: string;
@@ -127,6 +154,9 @@ interface ProductState {
   storePagination: StorePagination | null;
   searchResults: SearchResults | null;
   searchLoading: boolean;
+  myProducts: MyProduct[];
+  myProductsPagination: MyProductsPagination | null;
+  myProductsLoading: boolean;
   createdProduct: Product | null;
   isCreating: boolean;
   createError: string | null;
@@ -162,6 +192,9 @@ const initialState: ProductState = {
   storePagination: null,
   searchResults: null,
   searchLoading: false,
+  myProducts: [],
+  myProductsPagination: null,
+  myProductsLoading: false,
   createdProduct: null,
   isCreating: false,
   createError: null,
@@ -230,6 +263,27 @@ export const fetchSearchResults = createAsyncThunk(
       return response.data as SearchResults;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Error al realizar la búsqueda');
+    }
+  }
+);
+
+export const fetchMyProducts = createAsyncThunk(
+  'product/fetchMyProducts',
+  async ({ page = 1, pageSize = 10, append = false }: {
+    page?: number;
+    pageSize?: number;
+    append?: boolean;
+  }, { rejectWithValue }) => {
+    try {
+      const params = new URLSearchParams();
+      params.append('page', page.toString());
+      params.append('pageSize', pageSize.toString());
+
+      console.log('Obteniendo mis productos con params:', params.toString());
+      const response = await productInstance.get(`/createdbyMe?${params.toString()}`);
+      return { ...response.data, append };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al obtener mis productos');
     }
   }
 );
@@ -310,6 +364,11 @@ const productSlice = createSlice({
     clearSearchResults: (state) => {
       state.searchResults = null;
       state.searchLoading = false;
+    },
+    clearMyProducts: (state) => {
+      state.myProducts = [];
+      state.myProductsPagination = null;
+      state.myProductsLoading = false;
     },
     clearCreatedProduct: (state) => {
       state.createdProduct = null;
@@ -443,6 +502,37 @@ const productSlice = createSlice({
         state.createError = action.payload;
         state.isCreating = false;
         state.createdProduct = null;
+      })
+      .addCase(fetchMyProducts.pending, (state) => {
+        state.myProductsLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchMyProducts.fulfilled, (state, action: PayloadAction<{
+        myProducts: MyProduct[];
+        currentPage: number;
+        pageSize: number;
+        myTotalProducts: number;
+        append: boolean;
+      }>) => {
+        if (action.payload.append) {
+          // Filtrar productos duplicados antes de agregar
+          const existingIds = state.myProducts.map(p => p.id);
+          const newProducts = action.payload.myProducts.filter(p => !existingIds.includes(p.id));
+          state.myProducts = [...state.myProducts, ...newProducts];
+        } else {
+          // Reemplazar toda la lista de productos
+          state.myProducts = action.payload.myProducts;
+        }
+        state.myProductsPagination = {
+          currentPage: action.payload.currentPage,
+          pageSize: action.payload.pageSize,
+          myTotalProducts: action.payload.myTotalProducts
+        };
+        state.myProductsLoading = false;
+      })
+      .addCase(fetchMyProducts.rejected, (state, action: PayloadAction<any>) => {
+        state.error = action.payload;
+        state.myProductsLoading = false;
       });
   },
 });
@@ -456,6 +546,7 @@ export const {
   resetShopFilters, 
   clearStoreProducts, 
   clearSearchResults,
+  clearMyProducts,
   clearCreatedProduct,
   resetCreateState
 } = productSlice.actions;

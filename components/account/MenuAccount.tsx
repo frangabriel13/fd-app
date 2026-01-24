@@ -28,8 +28,8 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
       case 'Subir producto':
         router.push('/(dashboard)/subir-producto/seleccionar-categoria');
         break;
-      case 'Editar publicaciones':
-        Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
+      case 'Mis publicaciones':
+        router.push('/(dashboard)/mis-publicaciones' as any);
         break;
       case 'Crear pack':
         Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
@@ -72,10 +72,10 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
             onPress: () => handleAction('Subir producto'),
           },
           {
-            id: 'edit-publications',
-            title: 'Editar publicaciones',
+            id: 'my-publications',
+            title: 'Mis publicaciones',
             icon: <MaterialIcons name="edit" size={24} color={Colors.blue.default} />,
-            onPress: () => handleAction('Editar publicaciones'),
+            onPress: () => handleAction('Mis publicaciones'),
           },
           {
             id: 'create-pack',

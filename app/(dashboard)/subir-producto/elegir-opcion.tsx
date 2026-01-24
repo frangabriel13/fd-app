@@ -7,7 +7,6 @@ import { Colors } from '@/constants/Colors';
 
 const ElegirOpcionScreen = () => {
   const router = useRouter();
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   const options = [
     {
@@ -24,28 +23,21 @@ const ElegirOpcionScreen = () => {
     }
   ];
 
-  const handleContinue = () => {
-    if (selectedOption) {
-      // talle-unico-varios-colores = true (muestra colores)
-      // varios-talles-unico-color = false (muestra talles)
-      const isVariable = selectedOption === 'talle-unico-varios-colores';
-      router.push({
-        pathname: '/(dashboard)/subir-producto/seleccionar-genero',
-        params: { isVariable: isVariable.toString() }
-      });
-    }
+  const handleOptionSelect = (optionId: string) => {
+    // talle-unico-varios-colores = true (muestra colores)
+    // varios-talles-unico-color = false (muestra talles)
+    const isVariable = optionId === 'talle-unico-varios-colores';
+    router.push({
+      pathname: '/(dashboard)/subir-producto/seleccionar-genero',
+      params: { isVariable: isVariable.toString() }
+    });
   };
 
   const OptionCard = ({ option }: { option: typeof options[0] }) => (
-    <View
-      style={[
-        styles.optionCard,
-        selectedOption === option.id && styles.selectedCard
-      ]}
-    >
+    <View style={styles.optionCard}>
       <Button
-        variant={selectedOption === option.id ? "primary" : "outline"}
-        onPress={() => setSelectedOption(option.id)}
+        variant="outline"
+        onPress={() => handleOptionSelect(option.id)}
         style={styles.optionButton}
       >
         <View style={styles.optionContent}>
@@ -53,13 +45,13 @@ const ElegirOpcionScreen = () => {
           <View style={styles.textContainer}>
             <Typography 
               variant="h3" 
-              className={selectedOption === option.id ? 'text-white' : 'text-gray-800'}
+              className="text-gray-800"
             >
               {option.title}
             </Typography>
             <Typography 
               variant="caption" 
-              className={selectedOption === option.id ? 'text-gray-100' : 'text-gray-600'}
+              className="text-gray-600"
             >
               {option.description}
             </Typography>
@@ -82,21 +74,6 @@ const ElegirOpcionScreen = () => {
           ))}
         </View>
       </ScrollView>
-
-      <View style={styles.footer}>
-        <Button
-          variant="primary"
-          onPress={handleContinue}
-          disabled={!selectedOption}
-          style={[
-            styles.continueButton,
-            !selectedOption && styles.disabledButton
-          ]}
-          className="bg-primary"
-        >
-          Continuar
-        </Button>
-      </View>
     </View>
   );
 };
@@ -122,10 +99,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#fff',
   },
-  selectedCard: {
-    borderColor: Colors.orange.light,
-    backgroundColor: Colors.orange.light,
-  },
   optionButton: {
     minHeight: 100,
     paddingVertical: spacing.lg,
@@ -145,19 +118,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'flex-start',
     gap: spacing.xs,
-  },
-  footer: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-  },
-  continueButton: {
-    minHeight: 50,
-  },
-  disabledButton: {
-    opacity: 0.5,
   },
 });
 
