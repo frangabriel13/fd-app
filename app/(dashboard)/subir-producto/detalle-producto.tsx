@@ -94,7 +94,12 @@ const DetalleProductoScreen = () => {
     const hasImages = productData.images.length > 0 || uploadedImages.length > 0;
     if (!hasImages) return false;
 
-    // Validaciones específicas según tipo de producto
+    // Para categorías que no son indumentaria (no tienen genderId), solo validar datos básicos
+    if (!genderId) {
+      return true; // Solo necesita datos básicos e imágenes
+    }
+
+    // Validaciones específicas según tipo de producto (solo para indumentaria)
     if (isVariable === 'true') {
       // Para productos variables, necesitamos al menos un color seleccionado
       return productData.colors.length > 0;
@@ -172,11 +177,14 @@ const DetalleProductoScreen = () => {
       }
 
       // Validar parámetros necesarios
-      if (!categoryId || !genderId || !isVariable) {
-        Alert.alert('Error', 'Faltan parámetros necesarios para crear el producto');
+      if (!categoryId) {
+        Alert.alert('Error', 'Falta el parámetro de categoría para crear el producto');
         return;
       }
 
+      // Para categorías que no son indumentaria, usar valores por defecto
+      const isNonApparelCategory = !genderId; // Si no hay genderId, no es indumentaria
+      
       const mainImage = availableImages[0] || '';
       const additionalImages = availableImages; // Incluir todas las imágenes, incluyendo la principal
       // Para imgIds, usar los del Redux si están disponibles, sino generar IDs temporales
@@ -185,18 +193,38 @@ const DetalleProductoScreen = () => {
                     availableImages.map((_, index) => Date.now() + index);
 
       console.log('=== DEBUG COMPLETO ===');
+      console.log('categoryId:', categoryId);
+      console.log('genderId:', genderId);
+      console.log('isVariable:', isVariable);
+      console.log('isNonApparelCategory:', isNonApparelCategory);
       console.log('productData.images:', productData.images);
       console.log('uploadedImages:', uploadedImages);
-      console.log('uploadedImages.length:', uploadedImages.length);
-      console.log('uploadedImages URLs:', uploadedImages.map(img => img.url));
       console.log('availableImages:', availableImages);
       console.log('mainImage:', mainImage);
-      console.log('additionalImages (todas incluyendo main):', additionalImages);
+      console.log('additionalImages:', additionalImages);
       console.log('imgIds:', imgIds);
       console.log('========================');
 
-      if (isVariable === 'true') {
-        // Crear producto variable
+      if (isNonApparelCategory) {
+        // Crear producto para categorías que no son indumentaria (bisutería, blanquería, etc.)
+        const productPayload = {
+          name: productData.name.trim(),
+          description: productData.description.trim(),
+          price: parseFloat(productData.price),
+          onSale: productData.isOnSale,
+          tags: [],
+          mainImage: mainImage,
+          images: additionalImages,
+          imgIds: imgIds,
+          sizes: [76], // Talle único para productos que no son indumentaria
+          categoryId: parseInt(categoryId),
+          isVariable: false as const
+        };
+
+        console.log('Creando producto de categoría no indumentaria:', productPayload);
+        await dispatch(createProduct(productPayload)).unwrap();
+      } else if (isVariable === 'true') {
+        // Crear producto variable de indumentaria
         const productPayload = {
           name: productData.name.trim(),
           description: productData.description.trim(),
@@ -217,10 +245,10 @@ const DetalleProductoScreen = () => {
           }))
         };
 
-        console.log('Creando producto variable:', productPayload);
+        console.log('Creando producto variable de indumentaria:', productPayload);
         await dispatch(createProduct(productPayload)).unwrap();
       } else {
-        // Crear producto simple
+        // Crear producto simple de indumentaria
         const productPayload = {
           name: productData.name.trim(),
           description: productData.description.trim(),
@@ -236,7 +264,7 @@ const DetalleProductoScreen = () => {
           isVariable: false as const
         };
 
-        console.log('Creando producto simple:', productPayload);
+        console.log('Creando producto simple de indumentaria:', productPayload);
         await dispatch(createProduct(productPayload)).unwrap();
       }
 
@@ -354,8 +382,8 @@ const DetalleProductoScreen = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Mostrar selección de colores si isVariable es "true" */}
-          {isVariable === 'true' && (
+          {/* Mostrar selección de colores si isVariable es "true" Y es categoría de indumentaria */}
+          {isVariable === 'true' && genderId && (
             <View style={styles.inputGroup}>
               <Typography variant="h4" className="text-gray-700 mb-2">
                 Colores disponibles
@@ -377,8 +405,8 @@ const DetalleProductoScreen = () => {
             </View>
           )}
 
-          {/* Mostrar selección de talles si isVariable es "false" */}
-          {isVariable === 'false' && (
+          {/* Mostrar selección de talles si isVariable es "false" Y es categoría de indumentaria */}
+          {isVariable === 'false' && genderId && (
             <View style={styles.inputGroup}>
               <Typography variant="h4" className="text-gray-700 mb-2">
                 Talles disponibles
