@@ -206,7 +206,7 @@ const DetalleProductoScreen = () => {
           mainImage: mainImage,
           images: additionalImages,
           imgIds: imgIds,
-          sizes: productData.sizes,
+          sizes: [76], // Talle único hardcodeado para productos variables
           genderId: parseInt(genderId),
           categoryId: parseInt(categoryId),
           isVariable: true as const,
