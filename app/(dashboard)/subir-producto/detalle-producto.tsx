@@ -30,7 +30,7 @@ const DetalleProductoScreen = () => {
     isOnSale: false,
     tags: [] as string[],
     images: [] as string[],
-    colors: [] as string[],
+    colors: [] as number[],
     sizes: [] as number[], // Changed to number[] to match API
     colorVariations: [] as Array<{ colorId: number; mainImage: string; images: string[] }>
   });
@@ -61,7 +61,7 @@ const DetalleProductoScreen = () => {
       if (availableImages.length > 0) {
         // Crear variaciones de color automáticamente cuando se seleccionan colores
         const variations = productData.colors.map((colorId, index) => ({
-          colorId: parseInt(colorId),
+          colorId: colorId,
           mainImage: availableImages[0] || '',
           images: availableImages // Incluir todas las imágenes, incluyendo la principal
         }));
@@ -124,7 +124,7 @@ const DetalleProductoScreen = () => {
     setShowImageModal(false);
   };
 
-  const handleColorsChange = (colors: string[]) => {
+  const handleColorsChange = (colors: number[]) => {
     setProductData(prev => ({
       ...prev,
       colors: colors
