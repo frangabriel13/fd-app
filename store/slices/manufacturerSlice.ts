@@ -417,6 +417,19 @@ export const updateManufacturer = createAsyncThunk(
   }
 );
 
+// Activate/Deactivate Live Status (for authenticated manufacturer)
+export const activateLiveManufacturer = createAsyncThunk(
+  'manufacturer/activateLiveManufacturer',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await manufacturerInstance.put('/activate');
+      return response.data.manufacturer;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al cambiar estado live');
+    }
+  }
+);
+
 // Slice
 const manufacturerSlice = createSlice({
   name: 'manufacturer',
@@ -725,6 +738,48 @@ const manufacturerSlice = createSlice({
         state.loading = false;
         state.success = false;
         state.error = action.payload as string || 'Error al actualizar fabricante';
+      })
+      // Activate/Deactivate Live Status
+      .addCase(activateLiveManufacturer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(activateLiveManufacturer.fulfilled, (state, action: PayloadAction<Manufacturer>) => {
+        state.loading = false;
+        state.error = null;
+        const updatedManufacturer = action.payload;
+        
+        // Actualizar el manufacturer actual
+        if (state.manufacturer) {
+          state.manufacturer.live = updatedManufacturer.live;
+        }
+        
+        // Actualizar selectedManufacturer si coincide
+        if (state.selectedManufacturer && state.selectedManufacturer.id === updatedManufacturer.id) {
+          state.selectedManufacturer.live = updatedManufacturer.live;
+        }
+        
+        // Actualizar en la lista de fabricantes en vivo
+        const liveIndex = state.liveManufacturers.findIndex(m => m.id === updatedManufacturer.id);
+        if (liveIndex !== -1) {
+          state.liveManufacturers[liveIndex] = {
+            ...state.liveManufacturers[liveIndex],
+            live: updatedManufacturer.live
+          };
+        }
+        
+        // Actualizar en la lista de fabricantes aprobados
+        const approvedIndex = state.approvedManufacturers.findIndex(m => m.id === updatedManufacturer.id);
+        if (approvedIndex !== -1) {
+          state.approvedManufacturers[approvedIndex] = {
+            ...state.approvedManufacturers[approvedIndex],
+            live: updatedManufacturer.live
+          };
+        }
+      })
+      .addCase(activateLiveManufacturer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || 'Error al cambiar estado live';
       });
 
   },
