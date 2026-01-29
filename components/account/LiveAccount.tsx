@@ -3,9 +3,10 @@ import { spacing, borderRadius, fontSize } from '../../constants/Styles';
 import { Colors } from '../../constants/Colors';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { updateManufacturerLogo } from '@/store/slices/manufacturerSlice';
+import { updateManufacturerLogo, activateLiveManufacturer } from '@/store/slices/manufacturerSlice';
+import { fetchAuthUser } from '@/store/slices/userSlice';
 
 interface LiveAccountProps {
   image?: string;
@@ -17,6 +18,13 @@ const LiveAccount = ({ image, live }: LiveAccountProps) => {
   const { user } = useAppSelector(state => state.user);
   const { loading } = useAppSelector(state => state.manufacturer);
   const [localImage, setLocalImage] = useState<string | undefined>(image);
+  const [localLive, setLocalLive] = useState<boolean>(live || false);
+  const [isTogglingLive, setIsTogglingLive] = useState(false);
+
+  // Actualizar estado local cuando cambian las props
+  useEffect(() => {
+    setLocalLive(live || false);
+  }, [live]);
 
   const requestPermissions = async () => {
     if (Platform.OS !== 'web') {
@@ -131,6 +139,33 @@ const LiveAccount = ({ image, live }: LiveAccountProps) => {
     );
   };
 
+  const handleToggleLive = async () => {
+    if (isTogglingLive) return;
+
+    try {
+      setIsTogglingLive(true);
+      
+      const result = await dispatch(activateLiveManufacturer()).unwrap();
+      setLocalLive(result.live);
+      
+      // Refrescar datos del usuario para que se refleje en toda la app
+      await dispatch(fetchAuthUser()).unwrap();
+      
+      Alert.alert(
+        'Estado actualizado',
+        result.live 
+          ? '¡Tu tienda ahora está LIVE! Los clientes pueden verte.' 
+          : 'Tu tienda ya no está en vivo.',
+        [{ text: 'OK' }]
+      );
+    } catch (error: any) {
+      console.error('Error toggling live status:', error);
+      Alert.alert('Error', error || 'No se pudo cambiar el estado');
+    } finally {
+      setIsTogglingLive(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
@@ -166,11 +201,17 @@ const LiveAccount = ({ image, live }: LiveAccountProps) => {
         <TouchableOpacity 
           style={[
             styles.liveButton, 
-            { backgroundColor: live ? '#ff4444' : '#666666' }
+            { backgroundColor: localLive ? '#ff4444' : '#666666' }
           ]}
           activeOpacity={0.8}
+          onPress={handleToggleLive}
+          disabled={isTogglingLive}
         >
-          <Text style={styles.liveText}>LIVE</Text>
+          {isTogglingLive ? (
+            <ActivityIndicator size="small" color="#ffffff" />
+          ) : (
+            <Text style={styles.liveText}>LIVE</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>
