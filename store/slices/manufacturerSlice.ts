@@ -385,6 +385,38 @@ export const updateManufacturerLogo = createAsyncThunk(
   }
 );
 
+// Update Manufacturer Data
+export const updateManufacturer = createAsyncThunk(
+  'manufacturer/updateManufacturer',
+  async (
+    { 
+      id, 
+      data 
+    }: { 
+      id: number; 
+      data: {
+        name?: string;
+        owner?: string;
+        phone?: string;
+        pointOfSale?: boolean;
+        street?: string | null;
+        minPurchase?: number;
+        tiktokUrl?: string | null;
+        instagramNick?: string | null;
+        description?: string | null;
+      }
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await manufacturerInstance.put(`/${id}`, data);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al actualizar fabricante');
+    }
+  }
+);
+
 // Slice
 const manufacturerSlice = createSlice({
   name: 'manufacturer',
@@ -646,6 +678,53 @@ const manufacturerSlice = createSlice({
         state.loading = false;
         state.success = false;
         state.error = action.payload as string || 'Error al actualizar logo';
+      })
+      // Update Manufacturer Data
+      .addCase(updateManufacturer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(updateManufacturer.fulfilled, (state, action: PayloadAction<Manufacturer>) => {
+        state.loading = false;
+        state.success = true;
+        state.error = null;
+        const updatedManufacturer = action.payload;
+        
+        // Actualizar el manufacturer actual si coincide
+        if (state.manufacturer && state.manufacturer.id === updatedManufacturer.id) {
+          state.manufacturer = { ...state.manufacturer, ...updatedManufacturer };
+        }
+        
+        // Actualizar selectedManufacturer si coincide
+        if (state.selectedManufacturer && state.selectedManufacturer.id === updatedManufacturer.id) {
+          state.selectedManufacturer = { ...state.selectedManufacturer, ...updatedManufacturer };
+        }
+        
+        // Actualizar en la lista de fabricantes en vivo
+        const liveIndex = state.liveManufacturers.findIndex(m => m.id === updatedManufacturer.id);
+        if (liveIndex !== -1) {
+          state.liveManufacturers[liveIndex] = {
+            ...state.liveManufacturers[liveIndex],
+            name: updatedManufacturer.name,
+            tiktokUrl: updatedManufacturer.tiktokUrl
+          };
+        }
+        
+        // Actualizar en la lista de fabricantes aprobados
+        const approvedIndex = state.approvedManufacturers.findIndex(m => m.id === updatedManufacturer.id);
+        if (approvedIndex !== -1) {
+          state.approvedManufacturers[approvedIndex] = {
+            ...state.approvedManufacturers[approvedIndex],
+            name: updatedManufacturer.name,
+            street: updatedManufacturer.street
+          };
+        }
+      })
+      .addCase(updateManufacturer.rejected, (state, action) => {
+        state.loading = false;
+        state.success = false;
+        state.error = action.payload as string || 'Error al actualizar fabricante';
       });
 
   },
