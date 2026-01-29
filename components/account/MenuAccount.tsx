@@ -35,7 +35,7 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
         Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
         break;
       case 'Configuración de perfil':
-        Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
+        router.push('/(dashboard)/editar-perfil');
         break;
       case 'Ver mi tienda':
         Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
