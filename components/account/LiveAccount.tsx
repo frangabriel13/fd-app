@@ -150,14 +150,6 @@ const LiveAccount = ({ image, live }: LiveAccountProps) => {
       
       // Refrescar datos del usuario para que se refleje en toda la app
       await dispatch(fetchAuthUser()).unwrap();
-      
-      Alert.alert(
-        'Estado actualizado',
-        result.live 
-          ? '¡Tu tienda ahora está LIVE! Los clientes pueden verte.' 
-          : 'Tu tienda ya no está en vivo.',
-        [{ text: 'OK' }]
-      );
     } catch (error: any) {
       console.error('Error toggling live status:', error);
       Alert.alert('Error', error || 'No se pudo cambiar el estado');
@@ -179,7 +171,10 @@ const LiveAccount = ({ image, live }: LiveAccountProps) => {
           <View>
             <Image 
               source={{ uri: localImage || image }} 
-              style={styles.image}
+              style={[
+                styles.image,
+                { borderColor: localLive ? '#ff4444' : Colors.light.tint }
+              ]}
               resizeMode="cover"
             />
             {loading && (
@@ -187,6 +182,10 @@ const LiveAccount = ({ image, live }: LiveAccountProps) => {
                 <ActivityIndicator size="large" color={Colors.light.tint} />
               </View>
             )}
+            {/* Badge de edición */}
+            <View style={styles.editBadge}>
+              <AntDesign name="camera" size={14} color="#ffffff" />
+            </View>
           </View>
         ) : (
           <View style={styles.placeholderContainer}>
@@ -298,6 +297,19 @@ const styles = StyleSheet.create({
   liveSubtext: {
     fontSize: fontSize.sm,
     color: '#6b7280',
+  },
+  editBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: Colors.light.tint,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#ffffff',
   },
 });
 
