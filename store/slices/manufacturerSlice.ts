@@ -356,6 +356,35 @@ export const toggleLiveManufacturer = createAsyncThunk(
   }
 );
 
+// Update Manufacturer Logo
+export const updateManufacturerLogo = createAsyncThunk(
+  'manufacturer/updateManufacturerLogo',
+  async (
+    { id, logo }: { id: number; logo: ImageUpload },
+    { rejectWithValue }
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append('logo', {
+        uri: logo.uri,
+        type: logo.type,
+        name: logo.name,
+      } as any);
+
+      const response = await manufacturerInstance.put(`/logo/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      return {
+        id,
+        image: response.data.image
+      };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al actualizar logo');
+    }
+  }
+);
+
 // Slice
 const manufacturerSlice = createSlice({
   name: 'manufacturer',
@@ -581,6 +610,42 @@ const manufacturerSlice = createSlice({
       .addCase(toggleLiveManufacturer.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string || 'Error al cambiar estado live';
+      })
+      // Update Manufacturer Logo
+      .addCase(updateManufacturerLogo.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(updateManufacturerLogo.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.error = null;
+        const { id, image } = action.payload;
+        
+        // Actualizar el logo en el manufacturer actual si coincide
+        if (state.manufacturer && state.manufacturer.id === id) {
+          state.manufacturer.image = image;
+        }
+        
+        // Actualizar el logo en selectedManufacturer si coincide
+        if (state.selectedManufacturer && state.selectedManufacturer.id === id) {
+          state.selectedManufacturer.image = image;
+        }
+        
+        // Actualizar en la lista de fabricantes en vivo
+        const liveIndex = state.liveManufacturers.findIndex(m => m.id === id);
+        if (liveIndex !== -1) {
+          state.liveManufacturers[liveIndex] = {
+            ...state.liveManufacturers[liveIndex],
+            image
+          };
+        }
+      })
+      .addCase(updateManufacturerLogo.rejected, (state, action) => {
+        state.loading = false;
+        state.success = false;
+        state.error = action.payload as string || 'Error al actualizar logo';
       });
 
   },
