@@ -7,6 +7,7 @@ import Feather from '@expo/vector-icons/Feather';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
+import { useAppSelector } from '@/hooks/redux';
 
 interface MenuOption {
   id: string;
@@ -21,6 +22,7 @@ interface MenuAccountProps {
 
 const MenuAccount = ({ userRole }: MenuAccountProps) => {
   const router = useRouter();
+  const { user } = useAppSelector(state => state.user);
 
   // Función para manejar las acciones
   const handleAction = (action: string) => {
@@ -35,10 +37,14 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
         Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
         break;
       case 'Configuración de perfil':
-        router.push('/(dashboard)/editar-perfil');
+        router.push('/(dashboard)/editar-perfil' as any);
         break;
       case 'Ver mi tienda':
-        Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
+        if (user?.manufacturer?.id) {
+          router.push(`/(tabs)/store/${user.manufacturer.id}` as any);
+        } else {
+          Alert.alert('Error', 'No se pudo obtener la información del fabricante');
+        }
         break;
       case 'Ver órdenes':
         router.push('/(dashboard)/ver-ordenes' as any);
