@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, Platform, ActivityIndicator, Switch } from 'react-native';
 import { spacing, borderRadius, fontSize } from '../../constants/Styles';
 import { Colors } from '../../constants/Colors';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -168,51 +168,60 @@ const LiveAccount = ({ image, live }: LiveAccountProps) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.imageContainer}>
-        <TouchableOpacity 
-          onPress={handleImagePress}
-          activeOpacity={0.8}
-          disabled={loading}
-        >
-          {localImage || image ? (
-            <View>
-              <Image 
-                source={{ uri: localImage || image }} 
-                style={styles.image}
-                resizeMode="cover"
-              />
-              {loading && (
-                <View style={styles.loadingOverlay}>
-                  <ActivityIndicator size="large" color={Colors.light.tint} />
-                </View>
-              )}
-            </View>
-          ) : (
-            <View style={styles.placeholderContainer}>
-              {loading ? (
+      {/* Logo - Clickeable para cambiar imagen */}
+      <TouchableOpacity 
+        onPress={handleImagePress}
+        activeOpacity={0.8}
+        disabled={loading}
+        style={styles.imageContainer}
+      >
+        {localImage || image ? (
+          <View>
+            <Image 
+              source={{ uri: localImage || image }} 
+              style={styles.image}
+              resizeMode="cover"
+            />
+            {loading && (
+              <View style={styles.loadingOverlay}>
                 <ActivityIndicator size="large" color={Colors.light.tint} />
-              ) : (
+              </View>
+            )}
+          </View>
+        ) : (
+          <View style={styles.placeholderContainer}>
+            {loading ? (
+              <ActivityIndicator size="large" color={Colors.light.tint} />
+            ) : (
+              <>
                 <AntDesign name="upload" size={32} color={Colors.light.icon} />
-              )}
-            </View>
-          )}
-        </TouchableOpacity>
+                <Text style={styles.uploadText}>Toca para agregar logo</Text>
+              </>
+            )}
+          </View>
+        )}
+      </TouchableOpacity>
+
+      {/* Control de estado LIVE - Separado y claro */}
+      <View style={styles.liveControlContainer}>
+        <View style={styles.liveTextContainer}>
+          <Text style={styles.liveLabel}>¿Estás en vivo?</Text>
+          <Text style={styles.liveSubtext}>
+            {localLive ? 'Los clientes pueden verte' : 'Tu tienda no está en vivo'}
+          </Text>
+        </View>
         
-        <TouchableOpacity 
-          style={[
-            styles.liveButton, 
-            { backgroundColor: localLive ? '#ff4444' : '#666666' }
-          ]}
-          activeOpacity={0.8}
-          onPress={handleToggleLive}
-          disabled={isTogglingLive}
-        >
-          {isTogglingLive ? (
-            <ActivityIndicator size="small" color="#ffffff" />
-          ) : (
-            <Text style={styles.liveText}>LIVE</Text>
-          )}
-        </TouchableOpacity>
+        {isTogglingLive ? (
+          <ActivityIndicator size="small" color={Colors.light.tint} />
+        ) : (
+          <Switch
+            value={localLive}
+            onValueChange={handleToggleLive}
+            trackColor={{ false: '#d1d5db', true: Colors.light.tint }}
+            thumbColor={localLive ? '#ffffff' : '#f3f4f6'}
+            ios_backgroundColor="#d1d5db"
+          />
+        )}
       </View>
     </View>
   );
@@ -220,14 +229,12 @@ const LiveAccount = ({ image, live }: LiveAccountProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    // padding: spacing.md,
-    // alignItems: 'center',
-    // justifyContent: 'center',
+    alignItems: 'center',
   },
   imageContainer: {
-    position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: spacing.lg,
   },
   image: {
     width: 80,
@@ -245,6 +252,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 4,
+  },
+  uploadText: {
+    fontSize: fontSize.xs,
+    color: Colors.light.icon,
+    textAlign: 'center',
+    marginTop: 4,
+    maxWidth: 70,
   },
   loadingOverlay: {
     position: 'absolute',
@@ -259,23 +274,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  liveButton: {
-    position: 'absolute',
-    bottom: -8,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: borderRadius.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 3,
+  liveControlContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#f9fafb',
+    padding: spacing.md,
+    borderRadius: borderRadius.lg,
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
-  liveText: {
-    color: '#ffffff',
-    fontSize: fontSize.xs,
-    fontWeight: 'bold',
-    textAlign: 'center',
+  liveTextContainer: {
+    flex: 1,
+    marginRight: spacing.md,
+  },
+  liveLabel: {
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  liveSubtext: {
+    fontSize: fontSize.sm,
+    color: '#6b7280',
   },
 });
 
