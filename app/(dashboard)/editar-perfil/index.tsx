@@ -1,13 +1,17 @@
-import { View, ScrollView, TextInput, StyleSheet, Switch, TouchableOpacity, Alert } from 'react-native';
+import { View, ScrollView, TextInput, StyleSheet, Switch, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useState, useEffect } from 'react';
-import { useAppSelector } from '@/hooks/redux';
+import { useAppSelector, useAppDispatch } from '@/hooks/redux';
 import { Typography, Button } from '@/components/ui';
 import { spacing, borderRadius } from '@/constants/Styles';
 import { useRouter } from 'expo-router';
+import { updateManufacturer } from '@/store/slices/manufacturerSlice';
+import { fetchAuthUser } from '@/store/slices/userSlice';
 
 const EditProfileScreen = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const { user } = useAppSelector(state => state.user);
+  const { loading } = useAppSelector(state => state.manufacturer);
   
   // Estado para wholesaler
   const [wholesalerData, setWholesalerData] = useState({
@@ -36,17 +40,12 @@ const EditProfileScreen = () => {
         phone: '', // Agregar phone cuando esté disponible en el modelo
       });
     } else if (user?.role === 'manufacturer' && user?.manufacturer) {
-      setManufacturerData({
-        name: user.manufacturer.name || '',
-        owner: '', // Agregar owner cuando esté disponible
-        phone: '', // Agregar phone cuando esté disponible
-        pointOfSale: false, // Agregar pointOfSale cuando esté disponible
-        street: '', // Agregar street cuando esté disponible
-        minPurchase: '', // Agregar minPurchase cuando esté disponible
-        tiktokUrl: '', // Agregar tiktokUrl cuando esté disponible
-        instagramNick: '', // Agregar instagramNick cuando esté disponible
-        description: '', // Agregar description cuando esté disponible
-      });
+      // Necesitamos obtener los datos completos del manufacturer
+      // Por ahora usamos los datos básicos disponibles
+      setManufacturerData(prev => ({
+        ...prev,
+        name: user.manufacturer?.name || '',
+      }));
     }
   }, [user]);
 
@@ -80,19 +79,69 @@ const EditProfileScreen = () => {
     return false;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!isFormValid()) {
       Alert.alert('Formulario incompleto', 'Por favor completa todos los campos requeridos');
       return;
     }
 
-    // TODO: Implementar guardado con el slice
-    Alert.alert('Éxito', 'Los cambios se guardarán próximamente', [
-      {
-        text: 'OK',
-        onPress: () => router.back()
+    if (user?.role === 'manufacturer' && user?.manufacturer?.id) {
+      try {
+        // Preparar datos para enviar
+        const updateData: any = {
+          name: manufacturerData.name.trim(),
+          owner: manufacturerData.owner.trim(),
+          phone: manufacturerData.phone.trim(),
+          pointOfSale: manufacturerData.pointOfSale,
+          street: manufacturerData.pointOfSale ? manufacturerData.street.trim() : null,
+        };
+
+        // Agregar campos opcionales solo si tienen valor
+        if (manufacturerData.minPurchase.trim() !== '') {
+          updateData.minPurchase = parseFloat(manufacturerData.minPurchase);
+        }
+
+        if (manufacturerData.tiktokUrl.trim() !== '') {
+          updateData.tiktokUrl = manufacturerData.tiktokUrl.trim();
+        } else {
+          updateData.tiktokUrl = null;
+        }
+
+        if (manufacturerData.instagramNick.trim() !== '') {
+          updateData.instagramNick = manufacturerData.instagramNick.trim();
+        } else {
+          updateData.instagramNick = null;
+        }
+
+        if (manufacturerData.description.trim() !== '') {
+          updateData.description = manufacturerData.description.trim();
+        } else {
+          updateData.description = null;
+        }
+
+        // Actualizar manufacturer
+        await dispatch(updateManufacturer({
+          id: parseInt(user.manufacturer.id),
+          data: updateData
+        })).unwrap();
+
+        // Refrescar datos del usuario para reflejar los cambios
+        await dispatch(fetchAuthUser()).unwrap();
+
+        Alert.alert('¡Éxito!', 'Tus datos se han actualizado correctamente', [
+          {
+            text: 'OK',
+            onPress: () => router.back()
+          }
+        ]);
+      } catch (error: any) {
+        console.error('Error al actualizar perfil:', error);
+        Alert.alert('Error', error || 'No se pudo actualizar el perfil. Intenta nuevamente.');
       }
-    ]);
+    } else if (user?.role === 'wholesaler') {
+      // TODO: Implementar actualización para wholesaler cuando esté disponible en el backend
+      Alert.alert('Información', 'La actualización de datos para mayoristas estará disponible próximamente');
+    }
   };
 
   return (
@@ -275,14 +324,23 @@ const EditProfileScreen = () => {
         <Button
           variant="primary"
           onPress={handleSave}
-          disabled={!isFormValid()}
+          disabled={!isFormValid() || loading}
           style={[
             styles.saveButton,
-            !isFormValid() && styles.disabledButton
+            (!isFormValid() || loading) && styles.disabledButton
           ]}
           className="bg-primary"
         >
-          Guardar cambios
+          {loading ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <ActivityIndicator size="small" color="#fff" />
+              <Typography variant="body" className="text-white">
+                Guardando...
+              </Typography>
+            </View>
+          ) : (
+            'Guardar cambios'
+          )}
         </Button>
       </View>
     </View>
