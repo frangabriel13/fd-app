@@ -19,6 +19,14 @@ interface Manufacturer {
   dniBack?: string | null;
   role?: string | null;
   live?: boolean;
+  owner?: string | null;
+  phone?: string | null;
+  pointOfSale?: boolean;
+  street?: string | null;
+  minPurchase?: number | null;
+  tiktokUrl?: string | null;
+  instagramNick?: string | null;
+  description?: string | null;
 }
 
 interface Wholesaler {

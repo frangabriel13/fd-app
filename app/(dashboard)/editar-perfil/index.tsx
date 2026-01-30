@@ -12,6 +12,8 @@ const EditProfileScreen = () => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector(state => state.user);
   const { loading } = useAppSelector(state => state.manufacturer);
+
+  console.log('Usuario actual:', user);
   
   // Estado para wholesaler
   const [wholesalerData, setWholesalerData] = useState({
@@ -40,12 +42,17 @@ const EditProfileScreen = () => {
         phone: '', // Agregar phone cuando esté disponible en el modelo
       });
     } else if (user?.role === 'manufacturer' && user?.manufacturer) {
-      // Necesitamos obtener los datos completos del manufacturer
-      // Por ahora usamos los datos básicos disponibles
-      setManufacturerData(prev => ({
-        ...prev,
-        name: user.manufacturer?.name || '',
-      }));
+      setManufacturerData({
+        name: user.manufacturer.name || '',
+        owner: user.manufacturer.owner || '',
+        phone: user.manufacturer.phone || '',
+        pointOfSale: user.manufacturer.pointOfSale || false,
+        street: user.manufacturer.street || '',
+        minPurchase: user.manufacturer.minPurchase ? user.manufacturer.minPurchase.toString() : '',
+        tiktokUrl: user.manufacturer.tiktokUrl || '',
+        instagramNick: user.manufacturer.instagramNick || '',
+        description: user.manufacturer.description || '',
+      });
     }
   }, [user]);
 
