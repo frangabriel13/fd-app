@@ -43,7 +43,10 @@ export const parentCategories = [
   { id: 88, name: 'Indumentaria' },
   { id: 130, name: 'Blanquería' },
   { id: 131, name: 'Bisutería' },
-  { id: 132, name: 'Artículos de confección' }, // Debo crear la categoría
+  { id: 161, name: 'Packs' },
+  { id: 162, name: 'Telas textiles' },
+  { id: 163, name: 'Artículos de confección' },
+  { id: 164, name: 'Máquinas textiles' },
 ];
 
 export const genders = [
@@ -158,7 +161,7 @@ export const genders = [
       { id: 161, name: 'Packs', image, url: 'packs', img: image },
       { id: 162, name: 'Telas textiles', image, url: 'telas-textiles', img: image },
       { id: 163, name: 'Costura y confección', image, url: 'costura-y-confeccion', img: image },
-      { id: 164, name: 'Máquinas-textiles', image, url: 'maquinas-textiles', img: image },
+      { id: 164, name: 'Máquinas textiles', image, url: 'maquinas-textiles', img: image },
     ],
   },
 ];
