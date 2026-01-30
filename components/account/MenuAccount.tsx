@@ -33,9 +33,9 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
       case 'Mis publicaciones':
         router.push('/(dashboard)/mis-publicaciones' as any);
         break;
-      case 'Crear pack':
-        Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
-        break;
+      // case 'Crear pack':
+      //   Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
+      //   break;
       case 'Configuración de perfil':
         router.push('/(dashboard)/editar-perfil' as any);
         break;
@@ -86,12 +86,12 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
             icon: <MaterialIcons name="edit" size={24} color={Colors.blue.default} />,
             onPress: () => handleAction('Mis publicaciones'),
           },
-          {
-            id: 'create-pack',
-            title: 'Crear pack',
-            icon: <Feather name="package" size={24} color={Colors.blue.default} />,
-            onPress: () => handleAction('Crear pack'),
-          },
+          // {
+          //   id: 'create-pack',
+          //   title: 'Crear pack',
+          //   icon: <Feather name="package" size={24} color={Colors.blue.default} />,
+          //   onPress: () => handleAction('Crear pack'),
+          // },
           {
             id: 'profile-settings',
             title: 'Configuración de perfil',
