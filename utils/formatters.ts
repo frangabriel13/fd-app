@@ -71,3 +71,25 @@ export const formatInstagramNickForStorage = (input: string): string => {
   const cleanInput = input.trim();
   return cleanInput.startsWith('@') ? cleanInput.substring(1) : cleanInput;
 };
+
+/**
+ * Normaliza una descripción de texto preservando saltos de línea pero eliminando espacios excesivos
+ * @param input - Texto a normalizar
+ * @returns Texto normalizado con saltos de línea preservados
+ * @example normalizeDescription('Hola\n\n\nMundo   con   espacios  ') // 'Hola\n\nMundo con espacios'
+ */
+export const normalizeDescription = (input: string): string => {
+  if (!input || input.trim() === '') {
+    return '';
+  }
+
+  return input
+    // Quitar espacios al inicio y final de todo el texto
+    .trim()
+    // Reducir múltiples espacios consecutivos a uno solo (pero preservar saltos de línea)
+    .replace(/ +/g, ' ')
+    // Reducir más de 2 saltos de línea consecutivos a solo 2 (para evitar demasiado espacio vertical)
+    .replace(/\n{3,}/g, '\n\n')
+    // Quitar espacios antes y después de saltos de línea
+    .replace(/ *\n */g, '\n');
+};
