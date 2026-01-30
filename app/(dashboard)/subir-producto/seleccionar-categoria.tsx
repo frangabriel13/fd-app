@@ -23,8 +23,17 @@ const SeleccionarCategoriaScreen = () => {
       case 'Bisutería':
         icon = '💍';
         break;
+      case 'Packs':
+        icon = '🎁';
+        break;
+      case 'Telas textiles':
+        icon = '🧵';
+        break;
       case 'Artículos de confección':
         icon = '✂️';
+        break;
+      case 'Máquinas-textiles':
+        icon = '🧶';
         break;
       default:
         icon = '📦';
