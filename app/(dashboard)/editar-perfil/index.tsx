@@ -5,7 +5,7 @@ import { Typography, Button } from '@/components/ui';
 import { spacing, borderRadius } from '@/constants/Styles';
 import { useRouter } from 'expo-router';
 import { updateManufacturer } from '@/store/slices/manufacturerSlice';
-import { updateWholesaler, Wholesaler } from '@/store/slices/wholesalerSlice';
+import { updateWholesaler } from '@/store/slices/wholesalerSlice';
 import { fetchAuthUser } from '@/store/slices/userSlice';
 import { formatTikTokUrlForStorage, extractTikTokNick, formatInstagramNickForStorage, normalizeDescription } from '@/utils/formatters';
 
@@ -18,8 +18,7 @@ const EditProfileScreen = () => {
   console.log('Usuario actual:', user);
   
   // Estado para wholesaler
-  const [wholesalerData, setWholesalerData] = useState<Wholesaler>({
-    id: 0, // Valor predeterminado para evitar errores
+  const [wholesalerData, setWholesalerData] = useState({
     name: '',
     phone: '',
     street: '',
@@ -28,7 +27,6 @@ const EditProfileScreen = () => {
     province: '',
     postalCode: '',
     country: '',
-    userId: 0, // Valor predeterminado para evitar errores
   });
 
   // Estado para manufacturer
@@ -48,16 +46,14 @@ const EditProfileScreen = () => {
   useEffect(() => {
     if (user?.role === 'wholesaler' && user?.wholesaler) {
       setWholesalerData({
-        id: user.wholesaler.id,
         name: user.wholesaler.name || '',
-        phone: user.wholesaler.phone || '', // Corregido para tomar el valor del modelo
+        phone: user.wholesaler.phone || '',
         street: user.wholesaler.street || '',
         number: user.wholesaler.number || '',
         city: user.wholesaler.city || '',
         province: user.wholesaler.province || '',
         postalCode: user.wholesaler.postalCode || '',
         country: user.wholesaler.country || '',
-        userId: user.id,
       });
     } else if (user?.role === 'manufacturer' && user?.manufacturer) {
       setManufacturerData({

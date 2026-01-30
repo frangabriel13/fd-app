@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { wholesalerInstance } from '../../services/axiosConfig';
 
-export interface Wholesaler {
+interface Wholesaler {
   id: number;
   name: string;
   phone: string;
