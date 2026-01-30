@@ -20,6 +20,12 @@ const EditProfileScreen = () => {
   const [wholesalerData, setWholesalerData] = useState({
     name: '',
     phone: '',
+    street: '',
+    number: '',
+    city: '',
+    province: '',
+    postalCode: '',
+    country: '',
   });
 
   // Estado para manufacturer
@@ -146,9 +152,22 @@ const EditProfileScreen = () => {
         console.error('Error al actualizar perfil:', error);
         Alert.alert('Error', error || 'No se pudo actualizar el perfil. Intenta nuevamente.');
       }
-    } else if (user?.role === 'wholesaler') {
-      // TODO: Implementar actualización para wholesaler cuando esté disponible en el backend
-      Alert.alert('Información', 'La actualización de datos para mayoristas estará disponible próximamente');
+    } else if (user?.role === 'wholesaler' && user?.wholesaler?.id) {
+      try {
+        // Preparar datos para enviar
+        const updateData = {
+          id: user.wholesaler.id,
+          name: wholesalerData.name.trim(),
+          phone: wholesalerData.phone.trim(),
+        };
+
+        // Actualizar wholesaler
+        await dispatch(updateWholesaler(updateData)).unwrap();
+
+        Alert.alert('Éxito', 'Tus datos han sido actualizados correctamente');
+      } catch (error: any) {
+        Alert.alert('Error', error.message || 'Hubo un problema al actualizar tus datos');
+      }
     }
   };
 
@@ -188,6 +207,66 @@ const EditProfileScreen = () => {
                   value={wholesalerData.phone}
                   onChangeText={(value) => handleWholesalerChange('phone', value)}
                   keyboardType="phone-pad"
+                  placeholderTextColor="#9CA3AF"
+                  className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <TextInput
+                  placeholder="Calle"
+                  value={wholesalerData.street}
+                  onChangeText={(value) => handleWholesalerChange('street', value)}
+                  placeholderTextColor="#9CA3AF"
+                  className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <TextInput
+                  placeholder="Número"
+                  value={wholesalerData.number}
+                  onChangeText={(value) => handleWholesalerChange('number', value)}
+                  placeholderTextColor="#9CA3AF"
+                  className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <TextInput
+                  placeholder="Ciudad"
+                  value={wholesalerData.city}
+                  onChangeText={(value) => handleWholesalerChange('city', value)}
+                  placeholderTextColor="#9CA3AF"
+                  className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <TextInput
+                  placeholder="Provincia"
+                  value={wholesalerData.province}
+                  onChangeText={(value) => handleWholesalerChange('province', value)}
+                  placeholderTextColor="#9CA3AF"
+                  className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <TextInput
+                  placeholder="Código Postal"
+                  value={wholesalerData.postalCode}
+                  onChangeText={(value) => handleWholesalerChange('postalCode', value)}
+                  placeholderTextColor="#9CA3AF"
+                  className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <TextInput
+                  placeholder="País"
+                  value={wholesalerData.country}
+                  onChangeText={(value) => handleWholesalerChange('country', value)}
                   placeholderTextColor="#9CA3AF"
                   className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
                 />

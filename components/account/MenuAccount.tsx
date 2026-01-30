@@ -61,6 +61,9 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
       case 'Mi perfil':
         Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
         break;
+      case 'Mis datos':
+        router.push('/(dashboard)/editar-perfil');
+        break;
       default:
         Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
     }
@@ -141,6 +144,12 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
             icon: <Feather name="user" size={24} color={Colors.blue.default} />,
             onPress: () => handleAction('Mis datos'),
           },
+          {
+            id: 'edit-profile',
+            title: 'Mis datos',
+            icon: <FontAwesome name="user-o" size={24} color={Colors.blue.default} />,
+            onPress: () => handleAction('Mis datos'),
+          }
         ];
       
       case 'admin':
