@@ -176,21 +176,21 @@ export default function OrdersTable() {
           </View>
           
           {/* Total Column */}
-          <View className="w-20 items-center">
+          <View className="w-24 items-center">
             <Text className="text-gray-700 font-medium text-sm">
               ${formatToARS(order.total)}
             </Text>
           </View>
           
           {/* Creado Column */}
-          <View className="w-20 items-center">
+          <View className="w-28 items-center">
             <Text className="text-gray-700 font-medium text-sm">
               {formatDate(order.createdAt)}
             </Text>
           </View>
           
           {/* Actions Column */}
-          <View className="w-16 flex-row justify-center items-center gap-2">
+          <View className="w-20 flex-row justify-center items-center gap-2">
             <TouchableOpacity 
               onPress={() => handleViewOrder(order)}
               className="p-1"
@@ -253,19 +253,19 @@ export default function OrdersTable() {
             <View className="ml-1">{getSortIcon('name')}</View>
           </TouchableOpacity>
           
-          <View className="w-20 items-center">
+          <View className="w-24 items-center">
             <Text className="text-gray-600 font-semibold text-sm">Total</Text>
           </View>
           
           <TouchableOpacity 
-            className="w-20 items-center flex-row justify-center"
+            className="w-28 items-center flex-row justify-center"
             onPress={() => handleSort('createdAt')}
           >
             <Text className="text-gray-600 font-semibold text-sm">Creado</Text>
             <View className="ml-1">{getSortIcon('createdAt')}</View>
           </TouchableOpacity>
           
-          <View className="w-16 items-center">
+          <View className="w-20 items-center">
             <Text className="text-gray-600 font-semibold text-sm">Actions</Text>
           </View>
         </View>
