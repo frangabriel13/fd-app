@@ -22,7 +22,6 @@ const EditProfileScreen = () => {
     name: '',
     phone: '',
     street: '',
-    number: '',
     city: '',
     province: '',
     postalCode: '',
@@ -49,7 +48,6 @@ const EditProfileScreen = () => {
         name: user.wholesaler.name || '',
         phone: user.wholesaler.phone || '',
         street: user.wholesaler.street || '',
-        number: user.wholesaler.number || '',
         city: user.wholesaler.city || '',
         province: user.wholesaler.province || '',
         postalCode: user.wholesaler.postalCode || '',
@@ -161,19 +159,49 @@ const EditProfileScreen = () => {
       }
     } else if (user?.role === 'wholesaler' && user?.wholesaler?.id) {
       try {
-        // Preparar datos para enviar
-        const updateData = {
+        // Preparar datos para enviar - solo incluir campos con contenido
+        const updateData: any = {
           id: user.wholesaler.id,
           name: wholesalerData.name.trim(),
           phone: wholesalerData.phone.trim(),
         };
 
+        // Agregar campos opcionales solo si tienen valor
+        if (wholesalerData.street && wholesalerData.street.trim() !== '') {
+          updateData.street = wholesalerData.street.trim();
+        }
+        
+        if (wholesalerData.city && wholesalerData.city.trim() !== '') {
+          updateData.city = wholesalerData.city.trim();
+        }
+        
+        if (wholesalerData.province && wholesalerData.province.trim() !== '') {
+          updateData.province = wholesalerData.province.trim();
+        }
+        
+        if (wholesalerData.postalCode && wholesalerData.postalCode.trim() !== '') {
+          updateData.postalCode = wholesalerData.postalCode.trim();
+        }
+        
+        if (wholesalerData.country && wholesalerData.country.trim() !== '') {
+          updateData.country = wholesalerData.country.trim();
+        }
+
         // Actualizar wholesaler
         await dispatch(updateWholesaler(updateData)).unwrap();
 
-        Alert.alert('Éxito', 'Tus datos han sido actualizados correctamente');
+        // Refrescar datos del usuario para reflejar los cambios
+        await dispatch(fetchAuthUser()).unwrap();
+
+        Alert.alert('¡Éxito!', 'Tus datos se han actualizado correctamente', [
+          {
+            text: 'OK',
+            onPress: () => router.back()
+          }
+        ]);
       } catch (error: any) {
-        Alert.alert('Error', error.message || 'Hubo un problema al actualizar tus datos');
+        console.error('Error al actualizar perfil:', error);
+        Alert.alert('Error', error || 'Hubo un problema al actualizar tus datos');
       }
     }
   };
@@ -224,16 +252,6 @@ const EditProfileScreen = () => {
                   placeholder="Calle"
                   value={wholesalerData.street}
                   onChangeText={(value) => handleWholesalerChange('street', value)}
-                  placeholderTextColor="#9CA3AF"
-                  className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <TextInput
-                  placeholder="Número"
-                  value={wholesalerData.number}
-                  onChangeText={(value) => handleWholesalerChange('number', value)}
                   placeholderTextColor="#9CA3AF"
                   className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
                 />
