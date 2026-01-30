@@ -50,7 +50,7 @@ const EditProfileScreen = () => {
         street: user.wholesaler.street || '',
         city: user.wholesaler.city || '',
         province: user.wholesaler.province || '',
-        postalCode: user.wholesaler.postalCode || '',
+        postalCode: user.wholesaler.postalCode ? String(user.wholesaler.postalCode) : '',
         country: user.wholesaler.country || '',
       });
     } else if (user?.role === 'manufacturer' && user?.manufacturer) {
@@ -179,8 +179,8 @@ const EditProfileScreen = () => {
           updateData.province = wholesalerData.province.trim();
         }
         
-        if (wholesalerData.postalCode && wholesalerData.postalCode.trim() !== '') {
-          updateData.postalCode = wholesalerData.postalCode.trim();
+        if (wholesalerData.postalCode && String(wholesalerData.postalCode).trim() !== '') {
+          updateData.postalCode = String(wholesalerData.postalCode).trim();
         }
         
         if (wholesalerData.country && wholesalerData.country.trim() !== '') {
