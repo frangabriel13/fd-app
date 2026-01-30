@@ -6,7 +6,7 @@ import { spacing, borderRadius } from '@/constants/Styles';
 import { useRouter } from 'expo-router';
 import { updateManufacturer } from '@/store/slices/manufacturerSlice';
 import { fetchAuthUser } from '@/store/slices/userSlice';
-import { formatTikTokUrlForStorage, extractTikTokNick, formatInstagramNickForStorage } from '@/utils/formatters';
+import { formatTikTokUrlForStorage, extractTikTokNick, formatInstagramNickForStorage, normalizeDescription } from '@/utils/formatters';
 
 const EditProfileScreen = () => {
   const router = useRouter();
@@ -122,7 +122,7 @@ const EditProfileScreen = () => {
         }
 
         if (manufacturerData.description.trim() !== '') {
-          updateData.description = manufacturerData.description.trim();
+          updateData.description = normalizeDescription(manufacturerData.description);
         } else {
           updateData.description = null;
         }
