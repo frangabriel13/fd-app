@@ -5,6 +5,7 @@ import { Typography, Button } from '@/components/ui';
 import { spacing, borderRadius } from '@/constants/Styles';
 import { useRouter } from 'expo-router';
 import { updateManufacturer } from '@/store/slices/manufacturerSlice';
+import { updateWholesaler, Wholesaler } from '@/store/slices/wholesalerSlice';
 import { fetchAuthUser } from '@/store/slices/userSlice';
 import { formatTikTokUrlForStorage, extractTikTokNick, formatInstagramNickForStorage, normalizeDescription } from '@/utils/formatters';
 
