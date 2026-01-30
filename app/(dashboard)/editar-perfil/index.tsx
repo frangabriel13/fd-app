@@ -17,7 +17,8 @@ const EditProfileScreen = () => {
   console.log('Usuario actual:', user);
   
   // Estado para wholesaler
-  const [wholesalerData, setWholesalerData] = useState({
+  const [wholesalerData, setWholesalerData] = useState<Wholesaler>({
+    id: 0, // Valor predeterminado para evitar errores
     name: '',
     phone: '',
     street: '',
@@ -26,6 +27,7 @@ const EditProfileScreen = () => {
     province: '',
     postalCode: '',
     country: '',
+    userId: 0, // Valor predeterminado para evitar errores
   });
 
   // Estado para manufacturer
@@ -45,8 +47,16 @@ const EditProfileScreen = () => {
   useEffect(() => {
     if (user?.role === 'wholesaler' && user?.wholesaler) {
       setWholesalerData({
+        id: user.wholesaler.id,
         name: user.wholesaler.name || '',
-        phone: '', // Agregar phone cuando esté disponible en el modelo
+        phone: user.wholesaler.phone || '', // Corregido para tomar el valor del modelo
+        street: user.wholesaler.street || '',
+        number: user.wholesaler.number || '',
+        city: user.wholesaler.city || '',
+        province: user.wholesaler.province || '',
+        postalCode: user.wholesaler.postalCode || '',
+        country: user.wholesaler.country || '',
+        userId: user.id,
       });
     } else if (user?.role === 'manufacturer' && user?.manufacturer) {
       setManufacturerData({
