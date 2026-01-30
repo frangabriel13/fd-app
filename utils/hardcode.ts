@@ -155,6 +155,10 @@ export const genders = [
     categories: [
       { id: 130, name: 'Blanquería', image, url: 'blanqueria', img: bisuteriaImg },
       { id: 131, name: 'Bisutería', image, url: 'bisuteria', img: blanqueriaImg },
+      { id: 161, name: 'Packs', image, url: 'packs', img: image },
+      { id: 162, name: 'Telas textiles', image, url: 'telas-textiles', img: image },
+      { id: 163, name: 'Costura y confección', image, url: 'costura-y-confeccion', img: image },
+      { id: 164, name: 'Máquinas-textiles', image, url: 'maquinas-textiles', img: image },
     ],
   },
 ];
