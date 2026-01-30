@@ -7,6 +7,7 @@ import {
   fetchMyOrders,
   clearMyOrders
 } from '../../store/slices/orderSlice';
+import { formatToARS } from '@/utils/formatters';
 
 // Tipos locales basados en los del slice
 interface User {
@@ -177,7 +178,7 @@ export default function OrdersTable() {
           {/* Total Column */}
           <View className="w-20 items-center">
             <Text className="text-gray-700 font-medium text-sm">
-              {formatCurrency(order.total)}
+              ${formatToARS(order.total)}
             </Text>
           </View>
           
