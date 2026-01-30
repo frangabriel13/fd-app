@@ -82,9 +82,7 @@ interface Order {
   subOrders: SubOrder[];
 }
 
-interface MyOrdersResponse {
-  orders: Order[];
-}
+type MyOrdersResponse = Order[];
 
 interface MySubOrdersResponse {
   subOrders: SubOrder[];
@@ -191,12 +189,11 @@ export const fetchMyOrders = createAsyncThunk(
   'order/fetchMyOrders',
   async (_, { rejectWithValue }) => {
     try {
-      console.log('🔄 Fetching my orders');
-      
       const response = await orderInstance.get('/my-orders');
 
+      console.log('orders', response.data);
       console.log('✅ My orders fetched successfully:', {
-        ordersCount: response.data.orders?.length || 0
+        ordersCount: response.data?.length || 0
       });
 
       return response.data;
@@ -318,7 +315,7 @@ const orderSlice = createSlice({
       })
       .addCase(fetchMyOrders.fulfilled, (state, action: PayloadAction<MyOrdersResponse>) => {
         state.loadingMyOrders = false;
-        state.myOrders = action.payload.orders || [];
+        state.myOrders = action.payload || [];
         state.errorMyOrders = null;
         state.success = true;
       })
