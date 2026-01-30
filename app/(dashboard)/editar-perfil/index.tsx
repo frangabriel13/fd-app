@@ -6,6 +6,7 @@ import { spacing, borderRadius } from '@/constants/Styles';
 import { useRouter } from 'expo-router';
 import { updateManufacturer } from '@/store/slices/manufacturerSlice';
 import { fetchAuthUser } from '@/store/slices/userSlice';
+import { formatTikTokUrlForStorage, extractTikTokNick, formatInstagramNickForStorage } from '@/utils/formatters';
 
 const EditProfileScreen = () => {
   const router = useRouter();
@@ -49,7 +50,7 @@ const EditProfileScreen = () => {
         pointOfSale: user.manufacturer.pointOfSale || false,
         street: user.manufacturer.street || '',
         minPurchase: user.manufacturer.minPurchase ? user.manufacturer.minPurchase.toString() : '',
-        tiktokUrl: user.manufacturer.tiktokUrl || '',
+        tiktokUrl: extractTikTokNick(user.manufacturer.tiktokUrl),
         instagramNick: user.manufacturer.instagramNick || '',
         description: user.manufacturer.description || '',
       });
@@ -109,13 +110,13 @@ const EditProfileScreen = () => {
         }
 
         if (manufacturerData.tiktokUrl.trim() !== '') {
-          updateData.tiktokUrl = manufacturerData.tiktokUrl.trim();
+          updateData.tiktokUrl = formatTikTokUrlForStorage(manufacturerData.tiktokUrl.trim());
         } else {
           updateData.tiktokUrl = null;
         }
 
         if (manufacturerData.instagramNick.trim() !== '') {
-          updateData.instagramNick = manufacturerData.instagramNick.trim();
+          updateData.instagramNick = formatInstagramNickForStorage(manufacturerData.instagramNick.trim());
         } else {
           updateData.instagramNick = null;
         }
