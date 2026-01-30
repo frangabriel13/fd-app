@@ -6,7 +6,6 @@ interface Wholesaler {
   name: string;
   phone: string;
   street?: string;
-  number?: string;
   city?: string;
   province?: string;
   postalCode?: string;
@@ -42,12 +41,11 @@ export const createWholesaler = createAsyncThunk(
 export const updateWholesaler = createAsyncThunk(
   'wholesaler/updateWholesaler',
   async (
-    { id, name, phone, street, number, city, province, postalCode, country }: {
+    { id, name, phone, street, city, province, postalCode, country }: {
       id: number;
       name: string;
       phone: string;
       street?: string;
-      number?: string;
       city?: string;
       province?: string;
       postalCode?: string;
@@ -56,12 +54,11 @@ export const updateWholesaler = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      console.log('Updating wholesaler with data:', { id, name, phone, street, number, city, province, postalCode, country });
+      console.log('Updating wholesaler with data:', { id, name, phone, street, city, province, postalCode, country });
       const response = await wholesalerInstance.put(`/${id}`, {
         name,
         phone,
         street,
-        number,
         city,
         province,
         postalCode,

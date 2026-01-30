@@ -22,7 +22,6 @@ const EditProfileScreen = () => {
     name: '',
     phone: '',
     street: '',
-    number: '',
     city: '',
     province: '',
     postalCode: '',
@@ -49,7 +48,6 @@ const EditProfileScreen = () => {
         name: user.wholesaler.name || '',
         phone: user.wholesaler.phone || '',
         street: user.wholesaler.street || '',
-        number: user.wholesaler.number || '',
         city: user.wholesaler.city || '',
         province: user.wholesaler.province || '',
         postalCode: user.wholesaler.postalCode || '',
@@ -224,16 +222,6 @@ const EditProfileScreen = () => {
                   placeholder="Calle"
                   value={wholesalerData.street}
                   onChangeText={(value) => handleWholesalerChange('street', value)}
-                  placeholderTextColor="#9CA3AF"
-                  className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <TextInput
-                  placeholder="Número"
-                  value={wholesalerData.number}
-                  onChangeText={(value) => handleWholesalerChange('number', value)}
                   placeholderTextColor="#9CA3AF"
                   className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
                 />
