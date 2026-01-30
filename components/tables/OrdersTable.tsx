@@ -168,54 +168,41 @@ export default function OrdersTable() {
       <View key={order.id} className="bg-white border-b border-gray-100">
         <View className="flex-row items-center py-3 px-4">
           {/* Name Column */}
-          <TouchableOpacity className="flex-1 flex-row items-center">
-            <View className="flex-1">
-              <Text className="text-gray-900 font-medium text-base">
-                {getUserName(order.user)}
-              </Text>
-              <Text className="text-gray-500 text-sm">
-                Pedido #{order.id} • {formatCurrency(order.total)}
-              </Text>
-              <View className="mt-1">
-                <View 
-                  className="px-2 py-1 rounded-full self-start"
-                  style={{ backgroundColor: statusColors.bg }}
-                >
-                  <Text 
-                    className="text-xs font-medium capitalize"
-                    style={{ color: statusColors.text }}
-                  >
-                    {order.status}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </TouchableOpacity>
+          <View className="flex-1">
+            <Text className="text-gray-900 font-medium text-base">
+              {order.subOrders?.[0]?.user ? getUserName(order.subOrders[0].user) : 'N/A'}
+            </Text>
+          </View>
+          
+          {/* Total Column */}
+          <View className="w-20 items-center">
+            <Text className="text-gray-700 font-medium text-sm">
+              {formatCurrency(order.total)}
+            </Text>
+          </View>
           
           {/* Creado Column */}
-          <TouchableOpacity className="w-24 items-center">
+          <View className="w-20 items-center">
             <Text className="text-gray-700 font-medium text-sm">
               {formatDate(order.createdAt)}
             </Text>
-          </TouchableOpacity>
+          </View>
           
           {/* Actions Column */}
-          <View className="w-32 flex-row justify-center space-x-1">
+          <View className="w-16 flex-row justify-center items-center gap-2">
             <TouchableOpacity 
               onPress={() => handleViewOrder(order)}
-              className="bg-blue-50 px-2 py-1 rounded flex-row items-center"
+              className="p-1"
             >
-              <Ionicons name="eye" size={12} color="#3b82f6" />
-              <Text className="text-blue-600 font-medium ml-1 text-xs">Ver</Text>
+              <Ionicons name="eye" size={20} color="#3b82f6" />
             </TouchableOpacity>
             
             <TouchableOpacity 
               onPress={() => handleWhatsApp(order)}
-              className="bg-green-50 px-2 py-1 rounded flex-row items-center"
+              className="p-1"
               disabled={!getUserPhone(order.user)}
             >
-              <Ionicons name="logo-whatsapp" size={12} color="#10b981" />
-              <Text className="text-green-600 font-medium ml-1 text-xs">WhatsApp</Text>
+              <Ionicons name="logo-whatsapp" size={20} color="#10b981" />
             </TouchableOpacity>
           </View>
         </View>
@@ -265,15 +252,19 @@ export default function OrdersTable() {
             <View className="ml-1">{getSortIcon('name')}</View>
           </TouchableOpacity>
           
+          <View className="w-20 items-center">
+            <Text className="text-gray-600 font-semibold text-sm">Total</Text>
+          </View>
+          
           <TouchableOpacity 
-            className="w-24 items-center flex-row justify-center"
+            className="w-20 items-center flex-row justify-center"
             onPress={() => handleSort('createdAt')}
           >
             <Text className="text-gray-600 font-semibold text-sm">Creado</Text>
             <View className="ml-1">{getSortIcon('createdAt')}</View>
           </TouchableOpacity>
           
-          <View className="w-32 items-center">
+          <View className="w-16 items-center">
             <Text className="text-gray-600 font-semibold text-sm">Actions</Text>
           </View>
         </View>
