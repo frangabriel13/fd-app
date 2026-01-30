@@ -139,12 +139,6 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
             onPress: () => handleAction('Seguidos'),
           },
           {
-            id: 'view-data',
-            title: 'Mis datos',
-            icon: <Feather name="user" size={24} color={Colors.blue.default} />,
-            onPress: () => handleAction('Mis datos'),
-          },
-          {
             id: 'edit-profile',
             title: 'Mis datos',
             icon: <FontAwesome name="user-o" size={24} color={Colors.blue.default} />,
