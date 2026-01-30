@@ -89,24 +89,20 @@ const SeleccionarCategoriaScreen = () => {
         </Typography>
         
         <View style={styles.categoriesContainer}>
-          <View style={styles.row}>
-            {categories.slice(0, 2).map(category => (
-              <CategoryCard key={category.id} category={category} />
-            ))}
-          </View>
-          <View style={styles.row}>
-            {categories.slice(2, 4).map(category => (
-              <CategoryCard key={category.id} category={category} />
-            ))}
-          </View>
-          {/* Agregar más filas si hay más de 4 categorías */}
-          {categories.length > 4 && (
-            <View style={styles.row}>
-              {categories.slice(4).map(category => (
-                <CategoryCard key={category.id} category={category} />
-              ))}
-            </View>
-          )}
+          {Array.from({ length: Math.ceil(categories.length / 2) }, (_, rowIndex) => {
+            const startIndex = rowIndex * 2;
+            const rowCategories = categories.slice(startIndex, startIndex + 2);
+            
+            return (
+              <View key={`row-${rowIndex}`} style={styles.row}>
+                {rowCategories.map(category => (
+                  <CategoryCard key={category.id} category={category} />
+                ))}
+                {/* Añadir espacio vacío si solo hay una categoría en la fila */}
+                {rowCategories.length === 1 && <View style={{ flex: 1 }} />}
+              </View>
+            );
+          })}
         </View>
       </ScrollView>
     </View>
