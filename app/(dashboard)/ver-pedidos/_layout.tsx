@@ -11,7 +11,7 @@ export default function PedidosLayout() {
       <Stack.Screen
         name="index"
         options={{
-          header: () => <StepHeader title="Mis Pedidos" />,
+          header: () => <StepHeader title="Mis compras" />,
         }}
       />
       <Stack.Screen

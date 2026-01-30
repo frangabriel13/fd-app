@@ -49,7 +49,7 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
       case 'Ver órdenes':
         router.push('/(dashboard)/ver-ordenes' as any);
         break;
-      case 'Ver pedidos':
+      case 'Mis compras':
         router.push('/(dashboard)/ver-pedidos' as any);
         break;
       case 'Ver usuarios':
@@ -116,9 +116,9 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
         return [
           {
             id: 'view-orders',
-            title: 'Ver pedidos',
+            title: 'Mis compras',
             icon: <Ionicons name="receipt-outline" size={24} color={Colors.blue.default} />,
-            onPress: () => handleAction('Ver pedidos'),
+            onPress: () => handleAction('Mis compras'),
           },
           {
             id: 'favourites',
