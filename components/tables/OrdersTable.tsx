@@ -115,13 +115,20 @@ export default function OrdersTable() {
   };
 
   const handleWhatsApp = (order: Order) => {
-    const phone = getUserPhone(order.user);
-    if (!phone) {
-      Alert.alert('Error', 'No hay número de teléfono disponible para este usuario');
+    // Obtener el manufacturer del subOrder
+    const manufacturerUser = order.subOrders?.[0]?.user;
+    if (!manufacturerUser) {
+      Alert.alert('Error', 'No se puede obtener información del fabricante');
       return;
     }
 
-    const message = `Hola ${getUserName(order.user)}, te escribo sobre tu pedido #${order.id}`;
+    const phone = getUserPhone(manufacturerUser);
+    if (!phone) {
+      Alert.alert('Error', 'No hay número de teléfono disponible para este fabricante');
+      return;
+    }
+
+    const message = `Hola ${getUserName(manufacturerUser)}, te escribo sobre tu pedido #${order.id}`;
     const whatsappUrl = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(message)}`;
     
     Linking.canOpenURL(whatsappUrl).then(supported => {
@@ -201,7 +208,7 @@ export default function OrdersTable() {
             <TouchableOpacity 
               onPress={() => handleWhatsApp(order)}
               className="p-1"
-              disabled={!getUserPhone(order.user)}
+              disabled={!order.subOrders?.[0]?.user || !getUserPhone(order.subOrders[0].user)}
             >
               <Ionicons name="logo-whatsapp" size={20} color="#10b981" />
             </TouchableOpacity>
