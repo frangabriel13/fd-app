@@ -71,6 +71,12 @@ interface SubOrder {
   products: any[];
   packs: any[];
   user: User;
+  order: {
+    id: number;
+    total: string;
+    user: User;
+  };
+  createdAt?: string;
 }
 
 interface UnifiedOrder {

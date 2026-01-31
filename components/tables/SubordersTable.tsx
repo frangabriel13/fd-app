@@ -33,6 +33,11 @@ interface SubOrder {
   products: any[];
   packs: any[];
   user: User;
+  order: {
+    id: number;
+    total: string;
+    user: User;
+  };
   createdAt?: string;
 }
 
@@ -75,22 +80,16 @@ export default function SubordersTable() {
       : <Ionicons name="chevron-down" size={14} color="#3B82F6" />;
   };
 
-  const getUserName = (user: User) => {
-    if (user.wholesaler?.name) {
-      return user.wholesaler.name;
+  const getWholesalerName = (subOrder: SubOrder) => {
+    if (subOrder.order?.user?.wholesaler?.name) {
+      return subOrder.order.user.wholesaler.name;
     }
-    if (user.manufacturer?.name) {
-      return user.manufacturer.name;
-    }
-    return user.email;
+    return subOrder.order?.user?.email || 'N/A';
   };
 
-  const getUserPhone = (user: User) => {
-    if (user.wholesaler?.phone) {
-      return user.wholesaler.phone;
-    }
-    if (user.manufacturer?.phone) {
-      return user.manufacturer.phone;
+  const getWholesalerPhone = (subOrder: SubOrder) => {
+    if (subOrder.order?.user?.wholesaler?.phone) {
+      return subOrder.order.user.wholesaler.phone;
     }
     return null;
   };
@@ -100,19 +99,19 @@ export default function SubordersTable() {
       pathname: '/(dashboard)/ver-ordenes/ver-orden',
       params: { 
         subOrderId: subOrder.id.toString(),
-        userName: getUserName(subOrder.user)
+        userName: getWholesalerName(subOrder)
       }
     });
   };
 
   const handleWhatsApp = (subOrder: SubOrder) => {
-    const phone = getUserPhone(subOrder.user);
+    const phone = getWholesalerPhone(subOrder);
     if (!phone) {
       Alert.alert('Error', 'No hay número de teléfono disponible para este usuario');
       return;
     }
 
-    const message = `Hola ${getUserName(subOrder.user)}, te escribo sobre tu orden #${subOrder.id}`;
+    const message = `Hola ${getWholesalerName(subOrder)}, te escribo sobre tu orden #${subOrder.id}`;
     const whatsappUrl = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(message)}`;
     
     Linking.canOpenURL(whatsappUrl).then(supported => {
@@ -156,7 +155,7 @@ export default function SubordersTable() {
           {/* Name Column */}
           <View className="flex-1">
             <Text className="text-gray-900 font-medium text-base">
-              {getUserName(subOrder.user)}
+              {getWholesalerName(subOrder)}
             </Text>
           </View>
           
@@ -186,7 +185,7 @@ export default function SubordersTable() {
             <TouchableOpacity 
               onPress={() => handleWhatsApp(subOrder)}
               className="p-1"
-              disabled={!getUserPhone(subOrder.user)}
+              disabled={!getWholesalerPhone(subOrder)}
             >
               <Ionicons name="logo-whatsapp" size={20} color="#10b981" />
             </TouchableOpacity>
@@ -204,8 +203,8 @@ export default function SubordersTable() {
       
       switch (sortBy) {
         case 'name':
-          aValue = getUserName(a.user).toLowerCase();
-          bValue = getUserName(b.user).toLowerCase();
+          aValue = getWholesalerName(a).toLowerCase();
+          bValue = getWholesalerName(b).toLowerCase();
           break;
         case 'createdAt':
           aValue = a.createdAt ? new Date(a.createdAt).getTime() : 0;
