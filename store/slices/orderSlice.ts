@@ -211,10 +211,10 @@ export const fetchMyOrders = createAsyncThunk(
     try {
       const response = await orderInstance.get('/my-orders');
 
-      console.log('orders', response.data);
-      console.log('✅ My orders fetched successfully:', {
-        ordersCount: response.data?.length || 0
-      });
+      // console.log('orders', response.data);
+      // console.log('✅ My orders fetched successfully:', {
+      //   ordersCount: response.data?.length || 0
+      // });
 
       return response.data;
     } catch (error: any) {
@@ -229,13 +229,11 @@ export const fetchMySubOrders = createAsyncThunk(
   'order/fetchMySubOrders',
   async (_, { rejectWithValue }) => {
     try {
-      console.log('🔄 Fetching my sub-orders');
-      
       const response = await orderInstance.get('/my-suborders');
 
-      console.log('✅ My sub-orders fetched successfully:', {
-        subOrdersCount: response.data.subOrders?.length || 0
-      });
+      // console.log('✅ My sub-orders fetched successfully:', {
+      //   subOrdersCount: response.data?.length || 0
+      // });
 
       return response.data;
     } catch (error: any) {
@@ -350,9 +348,9 @@ const orderSlice = createSlice({
         state.loadingMySubOrders = true;
         state.errorMySubOrders = null;
       })
-      .addCase(fetchMySubOrders.fulfilled, (state, action: PayloadAction<MySubOrdersResponse>) => {
+      .addCase(fetchMySubOrders.fulfilled, (state, action: PayloadAction<SubOrder[]>) => {
         state.loadingMySubOrders = false;
-        state.mySubOrders = action.payload.subOrders || [];
+        state.mySubOrders = action.payload || [];
         state.errorMySubOrders = null;
         state.success = true;
       })
