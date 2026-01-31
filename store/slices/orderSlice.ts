@@ -2,18 +2,38 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { orderInstance } from '@/services/axiosConfig';
 
 // Tipos para crear órdenes
-interface CreateOrderCart {
+export interface CreateOrderInventory {
+  color: string;
+  size: string;
+  totalItem: number;
+}
+
+export interface CreateOrderProduct {
+  id: string | number;
+  name: string;
+  price: number;
+  inventories: CreateOrderInventory[];
+}
+
+export interface CreateOrderPack {
+  id: string | number;
+  name: string;
+  price: number;
+  totalItem: number;
+}
+
+export interface CreateOrderCart {
   manufacturer: {
     userId: number;
     id: number;
     name: string;
   };
-  products: any[];
-  packs: any[];
+  products: CreateOrderProduct[];
+  packs: CreateOrderPack[];
   totalCart: number;
 }
 
-interface CreateOrderPayload {
+export interface CreateOrderPayload {
   carts: CreateOrderCart[];
 }
 
