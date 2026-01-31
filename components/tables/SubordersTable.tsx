@@ -8,6 +8,7 @@ import {
   clearMySubOrders
 } from '../../store/slices/orderSlice';
 import Pagination from './Pagination';
+import { formatToARS } from '@/utils/formatters';
 
 // Tipos locales basados en los del slice
 interface User {
@@ -133,13 +134,6 @@ export default function SubordersTable() {
     });
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount);
-  };
-
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'completed':
@@ -160,54 +154,41 @@ export default function SubordersTable() {
       <View key={subOrder.id} className="bg-white border-b border-gray-100">
         <View className="flex-row items-center py-3 px-4">
           {/* Name Column */}
-          <TouchableOpacity className="flex-1 flex-row items-center">
-            <View className="flex-1">
-              <Text className="text-gray-900 font-medium text-base">
-                {getUserName(subOrder.user)}
-              </Text>
-              <Text className="text-gray-500 text-sm">
-                Orden #{subOrder.id} • {formatCurrency(subOrder.subtotal)}
-              </Text>
-              <View className="mt-1">
-                <View 
-                  className="px-2 py-1 rounded-full self-start"
-                  style={{ backgroundColor: statusColors.bg }}
-                >
-                  <Text 
-                    className="text-xs font-medium capitalize"
-                    style={{ color: statusColors.text }}
-                  >
-                    {subOrder.status}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </TouchableOpacity>
+          <View className="flex-1">
+            <Text className="text-gray-900 font-medium text-base">
+              {getUserName(subOrder.user)}
+            </Text>
+          </View>
+          
+          {/* Total Column */}
+          <View className="w-24 items-center">
+            <Text className="text-gray-700 font-medium text-sm">
+              ${formatToARS(subOrder.subtotal)}
+            </Text>
+          </View>
           
           {/* Creado Column */}
-          <TouchableOpacity className="w-24 items-center">
+          <View className="w-28 items-center">
             <Text className="text-gray-700 font-medium text-sm">
               {formatDate(subOrder.createdAt)}
             </Text>
-          </TouchableOpacity>
+          </View>
           
           {/* Actions Column */}
-          <View className="w-32 flex-row justify-center space-x-1">
+          <View className="w-20 flex-row justify-center items-center gap-2">
             <TouchableOpacity 
               onPress={() => handleViewSubOrder(subOrder)}
-              className="bg-blue-50 px-2 py-1 rounded flex-row items-center"
+              className="p-1"
             >
-              <Ionicons name="eye" size={12} color="#3b82f6" />
-              <Text className="text-blue-600 font-medium ml-1 text-xs">Ver</Text>
+              <Ionicons name="eye" size={20} color="#3b82f6" />
             </TouchableOpacity>
             
             <TouchableOpacity 
               onPress={() => handleWhatsApp(subOrder)}
-              className="bg-green-50 px-2 py-1 rounded flex-row items-center"
+              className="p-1"
               disabled={!getUserPhone(subOrder.user)}
             >
-              <Ionicons name="logo-whatsapp" size={12} color="#10b981" />
-              <Text className="text-green-600 font-medium ml-1 text-xs">WhatsApp</Text>
+              <Ionicons name="logo-whatsapp" size={20} color="#10b981" />
             </TouchableOpacity>
           </View>
         </View>
@@ -257,15 +238,19 @@ export default function SubordersTable() {
             <View className="ml-1">{getSortIcon('name')}</View>
           </TouchableOpacity>
           
+          <View className="w-24 items-center">
+            <Text className="text-gray-600 font-semibold text-sm">Total</Text>
+          </View>
+          
           <TouchableOpacity 
-            className="w-24 items-center flex-row justify-center"
+            className="w-28 items-center flex-row justify-center"
             onPress={() => handleSort('createdAt')}
           >
             <Text className="text-gray-600 font-semibold text-sm">Creado</Text>
             <View className="ml-1">{getSortIcon('createdAt')}</View>
           </TouchableOpacity>
           
-          <View className="w-32 items-center">
+          <View className="w-20 items-center">
             <Text className="text-gray-600 font-semibold text-sm">Actions</Text>
           </View>
         </View>
