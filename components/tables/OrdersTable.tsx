@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Linking, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Linking, Alert, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import OrderModal from '../modals/OrderModal';
 import { router } from 'expo-router';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { 
@@ -55,6 +56,8 @@ export default function OrdersTable() {
   
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   // Cargar datos cuando el componente se monta
   useEffect(() => {
@@ -105,13 +108,8 @@ export default function OrdersTable() {
   };
 
   const handleViewOrder = (order: Order) => {
-    router.push({
-      pathname: '/(dashboard)/ver-pedidos/ver-pedido',
-      params: { 
-        orderId: order.id.toString(),
-        userName: getUserName(order.user)
-      }
-    });
+    setSelectedOrder(order);
+    setModalVisible(true);
   };
 
   const handleWhatsApp = (order: Order) => {
@@ -178,7 +176,7 @@ export default function OrdersTable() {
           {/* Name Column */}
           <View className="flex-1">
             <Text className="text-gray-900 font-medium text-base">
-              {order.subOrders?.[0]?.user ? getUserName(order.subOrders[0].user) : 'N/A'}
+              {order.unifique ? 'Unificado' : (order.subOrders?.[0]?.user ? getUserName(order.subOrders[0].user) : 'N/A')}
             </Text>
           </View>
           
@@ -299,6 +297,18 @@ export default function OrdersTable() {
           </View>
         )}
       </ScrollView>
+
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <OrderModal 
+          onClose={() => setModalVisible(false)}
+          order={selectedOrder}
+        />
+      </Modal>
     </View>
   );
 }
