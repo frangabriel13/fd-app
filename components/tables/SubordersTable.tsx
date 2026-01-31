@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Linking, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Linking, Alert, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
@@ -9,6 +9,7 @@ import {
 } from '../../store/slices/orderSlice';
 import Pagination from './Pagination';
 import { formatToARS } from '@/utils/formatters';
+import SuborderModal from '../modals/SuborderModal';
 
 // Tipos locales basados en los del slice
 interface User {
@@ -51,6 +52,8 @@ export default function SubordersTable() {
   
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedSubOrder, setSelectedSubOrder] = useState<SubOrder | null>(null);
 
   // Cargar datos cuando el componente se monta
   useEffect(() => {
@@ -95,13 +98,8 @@ export default function SubordersTable() {
   };
 
   const handleViewSubOrder = (subOrder: SubOrder) => {
-    router.push({
-      pathname: '/(dashboard)/ver-ordenes/ver-orden',
-      params: { 
-        subOrderId: subOrder.id.toString(),
-        userName: getWholesalerName(subOrder)
-      }
-    });
+    setSelectedSubOrder(subOrder);
+    setModalVisible(true);
   };
 
   const handleWhatsApp = (subOrder: SubOrder) => {
@@ -276,6 +274,18 @@ export default function SubordersTable() {
           </View>
         )}
       </ScrollView>
+
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <SuborderModal 
+          onClose={() => setModalVisible(false)}
+          subOrder={selectedSubOrder}
+        />
+      </Modal>
     </View>
   );
 }
