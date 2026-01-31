@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, Alert } from 'react-na
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { useAppSelector, useAppDispatch } from '@/hooks/redux';
-import { createOrder, clearCreatedOrder } from '@/store/slices/orderSlice';
+import { createOrder, clearCreatedOrder, type CreateOrderPayload } from '@/store/slices/orderSlice';
 import { Colors } from '@/constants/Colors';
 import { spacing, borderRadius, shadows } from '@/constants/Styles';
 import type { CartManufacturerDisplay } from '@/types/cart';
@@ -41,23 +41,28 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
     }).format(price);
   };
 
-  const transformCartToOrderFormat = (manufacturers: CartManufacturerDisplay[]) => {
-    return manufacturers.map(manufacturer => ({
-      manufacturer: {
-        userId: manufacturer.manufacturerId, // Asumiendo que manufacturerId es el userId
-        id: manufacturer.manufacturerId,
-        name: manufacturer.manufacturerName || 'Fabricante desconocido'
-      },
-      products: manufacturer.items.map(item => ({
-        productId: item.productId,
-        inventoryId: item.inventoryId,
-        quantity: item.quantity,
-        price: item.price || 0,
-        salePrice: item.salePrice || 0
-      })),
-      packs: [], // Si tienes lógica de packs, agrégala aquí
-      totalCart: manufacturer.subtotal
-    }));
+  const transformCartToOrderFormat = (manufacturers: CartManufacturerDisplay[]): CreateOrderPayload => {
+    return {
+      carts: manufacturers.map(manufacturer => ({
+        manufacturer: {
+          userId: manufacturer.manufacturerId,
+          id: manufacturer.manufacturerId,
+          name: manufacturer.manufacturerName || 'Fabricante desconocido'
+        },
+        products: manufacturer.items.map(item => ({
+          id: item.productId,
+          name: item.productName || 'Producto',
+          price: item.price || 0,
+          inventories: [{
+            color: item.color || 'Sin especificar',
+            size: item.size || 'Sin especificar',
+            totalItem: item.quantity
+          }]
+        })),
+        packs: [], // Si tienes lógica de packs, agrégala aquí
+        totalCart: manufacturer.subtotal
+      }))
+    };
   };
 
   const handleCreateOrder = async () => {
@@ -74,9 +79,7 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
       ? [selectedManufacturer] 
       : cartData;
 
-    const orderData = {
-      carts: transformCartToOrderFormat(manufacturersToProcess)
-    };
+    const orderData = transformCartToOrderFormat(manufacturersToProcess);
 
     try {
       const result = await dispatch(createOrder(orderData));
