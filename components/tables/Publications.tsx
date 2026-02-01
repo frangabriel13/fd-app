@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMyProducts, clearMyProducts } from '@/store/slices/productSlice';
 import type { AppDispatch, RootState } from '@/store';
+import Pagination from '@/components/tables/Pagination';
 
 const Publications = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -11,14 +12,22 @@ const Publications = () => {
   
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 12;
 
   useEffect(() => {
-    dispatch(fetchMyProducts({ page: 1, pageSize: 50 }));
-    
+    dispatch(fetchMyProducts({ page: currentPage, pageSize }));
+  }, [dispatch, currentPage]);
+
+  useEffect(() => {
     return () => {
       dispatch(clearMyProducts());
     };
   }, [dispatch]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   const handleSort = (field: string) => {
     if (sortBy === field) {
@@ -196,13 +205,6 @@ const Publications = () => {
         ) : sortedProducts && sortedProducts.length > 0 ? (
           <>
             {sortedProducts.map(renderProductRow)}
-            {myProductsPagination && (
-              <View className="bg-white p-4 items-center border-t border-gray-200">
-                <Text className="text-gray-600 text-sm">
-                  Total: {myProductsPagination.myTotalProducts} productos
-                </Text>
-              </View>
-            )}
           </>
         ) : (
           <View className="bg-white p-8 items-center">
@@ -211,6 +213,17 @@ const Publications = () => {
           </View>
         )}
       </ScrollView>
+      
+      {/* Pagination */}
+      {myProductsPagination && myProductsPagination.myTotalProducts > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          totalItems={myProductsPagination.myTotalProducts}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+          loading={myProductsLoading}
+        />
+      )}
     </View>
   );
 };
