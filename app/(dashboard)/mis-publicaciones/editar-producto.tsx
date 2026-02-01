@@ -67,44 +67,44 @@ const EditarProductoScreen = () => {
     if (currentProduct) {
       console.log('=== PRODUCTO CARGADO ===');
       console.log('currentProduct:', currentProduct);
+      console.log('currentProduct.sizes:', currentProduct.sizes);
+      console.log('currentProduct.variations:', currentProduct.variations);
       console.log('========================');
 
-      // Extraer sizes e colores de los inventarios
+      // Extraer sizes del array de sizes
       const sizes: number[] = [];
-      const colors: number[] = [];
-      
-      if (currentProduct.inventories && currentProduct.inventories.length > 0) {
-        currentProduct.inventories.forEach((inventory: any) => {
-          if (inventory.sizeId && !sizes.includes(inventory.sizeId)) {
-            sizes.push(inventory.sizeId);
-          }
-          if (inventory.colorId && !colors.includes(inventory.colorId)) {
-            colors.push(inventory.colorId);
+      if (currentProduct.sizes && currentProduct.sizes.length > 0) {
+        currentProduct.sizes.forEach((size: any) => {
+          if (size.id && !sizes.includes(size.id)) {
+            sizes.push(size.id);
           }
         });
       }
+
+      // Extraer colors del array de variations
+      const colors: number[] = [];
+      if (currentProduct.variations && currentProduct.variations.length > 0) {
+        currentProduct.variations.forEach((variation: any) => {
+          if (variation.colorId && !colors.includes(variation.colorId)) {
+            colors.push(variation.colorId);
+          }
+        });
+      }
+
+      console.log('Sizes extraídos:', sizes);
+      console.log('Colors extraídos:', colors);
 
       // Construir variaciones de color si es variable
       let colorVariations: Array<{ colorId: number; mainImage: string; images: string[] }> = [];
-      if (currentProduct.isVariable && currentProduct.inventories) {
-        const colorMap = new Map<number, { mainImage: string; images: string[] }>();
-        
-        currentProduct.inventories.forEach((inventory: any) => {
-          if (inventory.colorId) {
-            if (!colorMap.has(inventory.colorId)) {
-              colorMap.set(inventory.colorId, {
-                mainImage: inventory.images?.[0] || currentProduct.mainImage || '',
-                images: inventory.images || [currentProduct.mainImage || '']
-              });
-            }
-          }
-        });
-
-        colorVariations = Array.from(colorMap.entries()).map(([colorId, data]) => ({
-          colorId,
-          ...data
+      if (currentProduct.isVariable && currentProduct.variations) {
+        colorVariations = currentProduct.variations.map((variation: any) => ({
+          colorId: variation.colorId,
+          mainImage: currentProduct.mainImage || '',
+          images: currentProduct.images || [currentProduct.mainImage || '']
         }));
       }
+
+      console.log('Color variations construidas:', colorVariations);
 
       setProductData({
         name: currentProduct.name || '',
