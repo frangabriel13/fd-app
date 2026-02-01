@@ -1,44 +1,24 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
-// Mock data para mostrar la estructura
-const mockProducts = [
-  {
-    id: 1,
-    name: 'Camiseta Básica',
-    price: 19.99,
-    createdAt: '2024-01-15T10:00:00Z'
-  },
-  {
-    id: 2,
-    name: 'Pantalón Vaquero',
-    price: 49.99,
-    createdAt: '2024-01-14T15:30:00Z'
-  },
-  {
-    id: 3,
-    name: 'Sudadera con Capucha',
-    price: 35.50,
-    createdAt: '2024-01-13T09:15:00Z'
-  },
-  {
-    id: 4,
-    name: 'Zapatillas Deportivas',
-    price: 79.99,
-    createdAt: '2024-01-12T14:20:00Z'
-  },
-  {
-    id: 5,
-    name: 'Chaqueta de Invierno',
-    price: 89.99,
-    createdAt: '2024-01-11T11:45:00Z'
-  }
-];
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchMyProducts, clearMyProducts } from '@/store/slices/productSlice';
+import type { AppDispatch, RootState } from '@/store';
 
 const Publications = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { myProducts, myProductsLoading, myProductsPagination } = useSelector((state: RootState) => state.product);
+  
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  useEffect(() => {
+    dispatch(fetchMyProducts({ page: 1, pageSize: 50 }));
+    
+    return () => {
+      dispatch(clearMyProducts());
+    };
+  }, [dispatch]);
 
   const handleSort = (field: string) => {
     if (sortBy === field) {
@@ -58,11 +38,11 @@ const Publications = () => {
       : <Ionicons name="chevron-down" size={14} color="#3B82F6" />;
   };
 
-  const handleEdit = (productId: number) => {
+  const handleEdit = (productId: string) => {
     Alert.alert('Editar', `Editar producto ID: ${productId}`);
   };
 
-  const handleDelete = (productId: number) => {
+  const handleDelete = (productId: string) => {
     Alert.alert(
       'Eliminar Producto',
       '¿Estás seguro de que deseas eliminar este producto?',
@@ -73,15 +53,6 @@ const Publications = () => {
     );
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  };
-
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
@@ -89,7 +60,7 @@ const Publications = () => {
     }).format(amount);
   };
 
-  const renderProductRow = (product: typeof mockProducts[0]) => {
+  const renderProductRow = (product: typeof myProducts[0]) => {
     return (
       <View key={product.id} className="bg-white border-b border-gray-100">
         <View className="flex-row items-center py-3 px-4">
@@ -99,6 +70,11 @@ const Publications = () => {
               <Text className="text-gray-900 font-medium text-base">
                 {product.name}
               </Text>
+              {product.description && (
+                <Text className="text-gray-500 text-xs mt-1" numberOfLines={1}>
+                  {product.description}
+                </Text>
+              )}
             </View>
           </TouchableOpacity>
           
@@ -107,12 +83,15 @@ const Publications = () => {
             <Text className="text-gray-700 font-medium text-sm">
               {formatCurrency(product.price)}
             </Text>
+            {product.onSale && (
+              <Text className="text-green-600 text-xs">En oferta</Text>
+            )}
           </TouchableOpacity>
           
-          {/* Fecha Column */}
+          {/* Categoría Column */}
           <TouchableOpacity className="w-24 items-center">
-            <Text className="text-gray-700 font-medium text-sm">
-              {formatDate(product.createdAt)}
+            <Text className="text-gray-700 font-medium text-sm" numberOfLines={1}>
+              {product.category?.name || 'Sin categoría'}
             </Text>
           </TouchableOpacity>
           
@@ -140,7 +119,9 @@ const Publications = () => {
   };
 
   const sortedProducts = React.useMemo(() => {
-    const sorted = [...mockProducts].sort((a, b) => {
+    if (!myProducts || myProducts.length === 0) return [];
+    
+    const sorted = [...myProducts].sort((a, b) => {
       let aValue, bValue;
       
       switch (sortBy) {
@@ -152,9 +133,9 @@ const Publications = () => {
           aValue = a.price;
           bValue = b.price;
           break;
-        case 'createdAt':
-          aValue = new Date(a.createdAt).getTime();
-          bValue = new Date(b.createdAt).getTime();
+        case 'category':
+          aValue = a.category?.name?.toLowerCase() || '';
+          bValue = b.category?.name?.toLowerCase() || '';
           break;
         default:
           return 0;
@@ -168,7 +149,7 @@ const Publications = () => {
     });
     
     return sorted;
-  }, [mockProducts, sortBy, sortOrder]);
+  }, [myProducts, sortBy, sortOrder]);
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -193,10 +174,10 @@ const Publications = () => {
           
           <TouchableOpacity 
             className="w-24 items-center flex-row justify-center"
-            onPress={() => handleSort('createdAt')}
+            onPress={() => handleSort('category')}
           >
-            <Text className="text-gray-600 font-semibold text-sm">Fecha</Text>
-            <View className="ml-1">{getSortIcon('createdAt')}</View>
+            <Text className="text-gray-600 font-semibold text-sm">Categoría</Text>
+            <View className="ml-1">{getSortIcon('category')}</View>
           </TouchableOpacity>
           
           <View className="w-32 items-center">
@@ -207,8 +188,22 @@ const Publications = () => {
 
       {/* Table Content */}
       <ScrollView className="flex-1">
-        {sortedProducts && sortedProducts.length > 0 ? (
-          sortedProducts.map(renderProductRow)
+        {myProductsLoading ? (
+          <View className="bg-white p-8 items-center">
+            <ActivityIndicator size="large" color="#3b82f6" />
+            <Text className="text-gray-500 mt-4">Cargando productos...</Text>
+          </View>
+        ) : sortedProducts && sortedProducts.length > 0 ? (
+          <>
+            {sortedProducts.map(renderProductRow)}
+            {myProductsPagination && (
+              <View className="bg-white p-4 items-center border-t border-gray-200">
+                <Text className="text-gray-600 text-sm">
+                  Total: {myProductsPagination.myTotalProducts} productos
+                </Text>
+              </View>
+            )}
+          </>
         ) : (
           <View className="bg-white p-8 items-center">
             <Ionicons name="cube-outline" size={48} color="#d1d5db" />
