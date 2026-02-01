@@ -15,6 +15,12 @@ export default function PedidosLayout() {
         }}
       />
       <Stack.Screen
+        name="editar-producto"
+        options={{
+          header: () => <StepHeader title="Editar Producto" />,
+        }}
+      />
+      <Stack.Screen
         name="ver-pedido"
         options={{
           header: () => <StepHeader title="Editar Producto" />,

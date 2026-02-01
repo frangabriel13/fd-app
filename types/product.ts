@@ -26,12 +26,16 @@ export interface Product {
   stock: number;
   logo?: string;
   minPurchase: number;
+  createdAt?: string;
   inventories: {
     id: number;
     code: string | null;
     color: string;
+    colorId?: number;
     size: string;
+    sizeId?: number;
     stock: number;
+    images?: string[];
   }[];
 }
 

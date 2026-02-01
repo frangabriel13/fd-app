@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMyProducts, clearMyProducts, deleteProduct, resetDeleteState } from '@/store/slices/productSlice';
 import type { AppDispatch, RootState } from '@/store';
@@ -8,6 +9,7 @@ import Pagination from '@/components/tables/Pagination';
 import { formatToARS } from '@/utils/formatters';
 
 const Publications = () => {
+  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { myProducts, myProductsLoading, myProductsPagination, isDeleting, deleteError } = useSelector((state: RootState) => state.product);
   
@@ -72,7 +74,7 @@ const Publications = () => {
   };
 
   const handleEdit = (productId: string) => {
-    Alert.alert('Editar', `Editar producto ID: ${productId}`);
+    router.push(`/(dashboard)/mis-publicaciones/editar-producto?productId=${productId}`);
   };
 
   const handleDelete = async (productId: string) => {
