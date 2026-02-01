@@ -70,7 +70,7 @@ interface MyProductsPagination {
   myTotalProducts: number;
 }
 
-interface MyProduct extends Pick<Product, 'id' | 'name' | 'price' | 'mainImage' | 'userId' | 'onSale' | 'priceUSD' | 'type' | 'isVariable' | 'tags' | 'description'> {
+interface MyProduct extends Pick<Product, 'id' | 'name' | 'price' | 'mainImage' | 'userId' | 'onSale' | 'priceUSD' | 'type' | 'isVariable' | 'tags' | 'description' | 'createdAt'> {
   category?: {
     id: number;
     name: string;
@@ -269,15 +269,17 @@ export const fetchSearchResults = createAsyncThunk(
 
 export const fetchMyProducts = createAsyncThunk(
   'product/fetchMyProducts',
-  async ({ page = 1, pageSize = 10, append = false }: {
+  async ({ page = 1, pageSize = 10, sortBy, append = false }: {
     page?: number;
     pageSize?: number;
+    sortBy?: 'oldest' | 'price-low' | 'price-high' | 'name-asc' | 'name-desc';
     append?: boolean;
   }, { rejectWithValue }) => {
     try {
       const params = new URLSearchParams();
       params.append('page', page.toString());
       params.append('pageSize', pageSize.toString());
+      if (sortBy) params.append('sortBy', sortBy);
 
       console.log('Obteniendo mis productos con params:', params.toString());
       const response = await productInstance.get(`/createdbyMe?${params.toString()}`);
