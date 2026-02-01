@@ -5,19 +5,21 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchMyProducts, clearMyProducts } from '@/store/slices/productSlice';
 import type { AppDispatch, RootState } from '@/store';
 import Pagination from '@/components/tables/Pagination';
+import { formatToARS } from '@/utils/formatters';
 
 const Publications = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { myProducts, myProductsLoading, myProductsPagination } = useSelector((state: RootState) => state.product);
   
-  const [sortBy, setSortBy] = useState('createdAt');
+  const [backendSortBy, setBackendSortBy] = useState<'oldest' | 'price-low' | 'price-high' | 'name-asc' | 'name-desc' | undefined>(undefined);
+  const [activeColumn, setActiveColumn] = useState<'name' | 'price' | 'createdAt'>('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
 
   useEffect(() => {
-    dispatch(fetchMyProducts({ page: currentPage, pageSize }));
-  }, [dispatch, currentPage]);
+    dispatch(fetchMyProducts({ page: currentPage, pageSize, sortBy: backendSortBy }));
+  }, [dispatch, currentPage, backendSortBy]);
 
   useEffect(() => {
     return () => {
@@ -29,17 +31,39 @@ const Publications = () => {
     setCurrentPage(page);
   };
 
-  const handleSort = (field: string) => {
-    if (sortBy === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+  const handleSort = (field: 'name' | 'price' | 'createdAt') => {
+    let newSortBy: typeof backendSortBy;
+    let newSortOrder: 'asc' | 'desc';
+
+    if (activeColumn === field) {
+      // Alternar orden en la misma columna
+      newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
     } else {
-      setSortBy(field);
-      setSortOrder(field === 'createdAt' ? 'desc' : 'asc');
+      // Nueva columna: empezar con orden por defecto
+      newSortOrder = field === 'createdAt' ? 'desc' : 'asc';
+      setActiveColumn(field);
     }
+
+    // Mapear a los valores del backend
+    switch (field) {
+      case 'name':
+        newSortBy = newSortOrder === 'asc' ? 'name-asc' : 'name-desc';
+        break;
+      case 'price':
+        newSortBy = newSortOrder === 'asc' ? 'price-low' : 'price-high';
+        break;
+      case 'createdAt':
+        newSortBy = newSortOrder === 'asc' ? 'oldest' : undefined; // undefined = más nuevo primero (default)
+        break;
+    }
+
+    setSortOrder(newSortOrder);
+    setBackendSortBy(newSortBy);
+    setCurrentPage(1); // Volver a la primera página al cambiar ordenamiento
   };
 
-  const getSortIcon = (field: string) => {
-    if (sortBy !== field) {
+  const getSortIcon = (field: 'name' | 'price' | 'createdAt') => {
+    if (activeColumn !== field) {
       return <Ionicons name="swap-vertical" size={14} color="#9CA3AF" />;
     }
     return sortOrder === 'asc' 
@@ -62,11 +86,13 @@ const Publications = () => {
     );
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount);
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
   };
 
   const renderProductRow = (product: typeof myProducts[0]) => {
@@ -74,91 +100,46 @@ const Publications = () => {
       <View key={product.id} className="bg-white border-b border-gray-100">
         <View className="flex-row items-center py-3 px-4">
           {/* Nombre Column */}
-          <TouchableOpacity className="flex-1 flex-row items-center">
-            <View className="flex-1">
-              <Text className="text-gray-900 font-medium text-base">
-                {product.name}
-              </Text>
-              {product.description && (
-                <Text className="text-gray-500 text-xs mt-1" numberOfLines={1}>
-                  {product.description}
-                </Text>
-              )}
-            </View>
-          </TouchableOpacity>
+          <View className="flex-1">
+            <Text className="text-gray-900 font-medium text-base">
+              {product.name}
+            </Text>
+          </View>
           
           {/* Precio Column */}
-          <TouchableOpacity className="w-20 items-center">
+          <View className="w-24 items-center">
             <Text className="text-gray-700 font-medium text-sm">
-              {formatCurrency(product.price)}
+              ${formatToARS(product.price)}
             </Text>
-            {product.onSale && (
-              <Text className="text-green-600 text-xs">En oferta</Text>
-            )}
-          </TouchableOpacity>
+          </View>
           
-          {/* Categoría Column */}
-          <TouchableOpacity className="w-24 items-center">
-            <Text className="text-gray-700 font-medium text-sm" numberOfLines={1}>
-              {product.category?.name || 'Sin categoría'}
+          {/* Creado Column */}
+          <View className="w-28 items-center">
+            <Text className="text-gray-700 font-medium text-sm">
+              {product.createdAt ? formatDate(product.createdAt) : 'N/A'}
             </Text>
-          </TouchableOpacity>
+          </View>
           
           {/* Acciones Column */}
-          <View className="w-32 flex-row justify-center space-x-1">
+          <View className="w-20 flex-row justify-center items-center gap-2">
             <TouchableOpacity 
               onPress={() => handleEdit(product.id)}
-              className="bg-blue-50 px-2 py-1 rounded flex-row items-center"
+              className="p-1"
             >
-              <Ionicons name="create" size={12} color="#3b82f6" />
-              <Text className="text-blue-600 font-medium ml-1 text-xs">Editar</Text>
+              <Ionicons name="create" size={20} color="#3b82f6" />
             </TouchableOpacity>
             
             <TouchableOpacity 
               onPress={() => handleDelete(product.id)}
-              className="bg-red-50 px-2 py-1 rounded flex-row items-center"
+              className="p-1"
             >
-              <Ionicons name="trash" size={12} color="#ef4444" />
-              <Text className="text-red-600 font-medium ml-1 text-xs">Eliminar</Text>
+              <Ionicons name="trash" size={20} color="#ef4444" />
             </TouchableOpacity>
           </View>
         </View>
       </View>
     );
   };
-
-  const sortedProducts = React.useMemo(() => {
-    if (!myProducts || myProducts.length === 0) return [];
-    
-    const sorted = [...myProducts].sort((a, b) => {
-      let aValue, bValue;
-      
-      switch (sortBy) {
-        case 'name':
-          aValue = a.name.toLowerCase();
-          bValue = b.name.toLowerCase();
-          break;
-        case 'price':
-          aValue = a.price;
-          bValue = b.price;
-          break;
-        case 'category':
-          aValue = a.category?.name?.toLowerCase() || '';
-          bValue = b.category?.name?.toLowerCase() || '';
-          break;
-        default:
-          return 0;
-      }
-      
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-    
-    return sorted;
-  }, [myProducts, sortBy, sortOrder]);
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -174,7 +155,7 @@ const Publications = () => {
           </TouchableOpacity>
           
           <TouchableOpacity 
-            className="w-20 items-center flex-row justify-center"
+            className="w-24 items-center flex-row justify-center"
             onPress={() => handleSort('price')}
           >
             <Text className="text-gray-600 font-semibold text-sm">Precio</Text>
@@ -182,14 +163,14 @@ const Publications = () => {
           </TouchableOpacity>
           
           <TouchableOpacity 
-            className="w-24 items-center flex-row justify-center"
-            onPress={() => handleSort('category')}
+            className="w-28 items-center flex-row justify-center"
+            onPress={() => handleSort('createdAt')}
           >
-            <Text className="text-gray-600 font-semibold text-sm">Categoría</Text>
-            <View className="ml-1">{getSortIcon('category')}</View>
+            <Text className="text-gray-600 font-semibold text-sm">Creado</Text>
+            <View className="ml-1">{getSortIcon('createdAt')}</View>
           </TouchableOpacity>
           
-          <View className="w-32 items-center">
+          <View className="w-20 items-center">
             <Text className="text-gray-600 font-semibold text-sm">Acciones</Text>
           </View>
         </View>
@@ -202,9 +183,9 @@ const Publications = () => {
             <ActivityIndicator size="large" color="#3b82f6" />
             <Text className="text-gray-500 mt-4">Cargando productos...</Text>
           </View>
-        ) : sortedProducts && sortedProducts.length > 0 ? (
+        ) : myProducts && myProducts.length > 0 ? (
           <>
-            {sortedProducts.map(renderProductRow)}
+            {myProducts.map(renderProductRow)}
           </>
         ) : (
           <View className="bg-white p-8 items-center">
