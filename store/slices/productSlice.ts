@@ -130,6 +130,43 @@ interface CreateVariableProductData {
 
 type CreateProductData = CreateSimpleProductData | CreateVariableProductData;
 
+interface UpdateSimpleProductData {
+  name: string;
+  description?: string;
+  price: number;
+  priceUSD?: number;
+  onSale?: boolean;
+  tags?: string[];
+  mainImage: string;
+  images?: string[];
+  imgIds?: number[];
+  sizes?: number[];
+  isVariable: false;
+}
+
+interface UpdateVariableProductData {
+  name: string;
+  description?: string;
+  price: number;
+  priceUSD?: number;
+  onSale?: boolean;
+  tags?: string[];
+  mainImage: string;
+  images?: string[];
+  imgIds?: number[];
+  sizes?: number[];
+  genderId: number;
+  categoryId: number;
+  isVariable: true;
+  variations: {
+    colorId: number;
+    mainImage: string;
+    images?: string[];
+  }[];
+}
+
+type UpdateProductData = UpdateSimpleProductData | UpdateVariableProductData;
+
 interface ProductState {
   featured: Product[];
   newProducts: Product[];
@@ -160,6 +197,11 @@ interface ProductState {
   createdProduct: Product | null;
   isCreating: boolean;
   createError: string | null;
+  updatedProduct: Product | null;
+  isUpdating: boolean;
+  updateError: string | null;
+  isDeleting: boolean;
+  deleteError: string | null;
   loading: boolean;
   error: string | null;
 }
@@ -198,6 +240,11 @@ const initialState: ProductState = {
   createdProduct: null,
   isCreating: false,
   createError: null,
+  updatedProduct: null,
+  isUpdating: false,
+  updateError: null,
+  isDeleting: false,
+  deleteError: null,
   loading: false,
   error: null,
 };
@@ -303,6 +350,46 @@ export const createProduct = createAsyncThunk(
   }
 );
 
+export const updateProduct = createAsyncThunk(
+  'product/updateProduct',
+  async ({ productId, productData }: { productId: string; productData: UpdateProductData }, { rejectWithValue }) => {
+    try {
+      console.log('Actualizando producto:', productId, productData);
+      const response = await productInstance.put(`/${productId}`, productData);
+      return response.data as Product;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al actualizar el producto');
+    }
+  }
+);
+
+// Nota importante: esta acción elimina TODOS los productos asociados a un usuario específico
+export const deleteProductsByUserId = createAsyncThunk(
+  'product/deleteProductsByUserId',
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      console.log('Eliminando productos del usuario:', userId);
+      const response = await productInstance.delete(`/by-user/${userId}`);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al eliminar los productos');
+    }
+  }
+);
+
+export const deleteProduct = createAsyncThunk(
+  'product/deleteProduct',
+  async (productId: string, { rejectWithValue }) => {
+    try {
+      console.log('Eliminando producto:', productId);
+      const response = await productInstance.delete(`/${productId}`);
+      return { productId, ...response.data };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al eliminar el producto');
+    }
+  }
+);
+
 export const fetchMobileHomeProducts = createAsyncThunk(
   'product/fetchMobileHomeProducts',
   async (_, { rejectWithValue }) => {
@@ -380,6 +467,19 @@ const productSlice = createSlice({
       state.createdProduct = null;
       state.isCreating = false;
       state.createError = null;
+    },
+    clearUpdatedProduct: (state) => {
+      state.updatedProduct = null;
+      state.updateError = null;
+    },
+    resetUpdateState: (state) => {
+      state.updatedProduct = null;
+      state.isUpdating = false;
+      state.updateError = null;
+    },
+    resetDeleteState: (state) => {
+      state.isDeleting = false;
+      state.deleteError = null;
     },
   },
   extraReducers: (builder) => {
@@ -505,6 +605,26 @@ const productSlice = createSlice({
         state.isCreating = false;
         state.createdProduct = null;
       })
+      .addCase(updateProduct.pending, (state) => {
+        state.isUpdating = true;
+        state.updateError = null;
+        state.updatedProduct = null;
+      })
+      .addCase(updateProduct.fulfilled, (state, action: PayloadAction<Product>) => {
+        state.updatedProduct = action.payload;
+        state.isUpdating = false;
+        state.updateError = null;
+        // Actualizar el producto en myProducts si existe
+        const index = state.myProducts.findIndex(p => p.id === action.payload.id);
+        if (index !== -1) {
+          state.myProducts[index] = { ...state.myProducts[index], ...action.payload };
+        }
+      })
+      .addCase(updateProduct.rejected, (state, action: PayloadAction<any>) => {
+        state.updateError = action.payload;
+        state.isUpdating = false;
+        state.updatedProduct = null;
+      })
       .addCase(fetchMyProducts.pending, (state) => {
         state.myProductsLoading = true;
         state.error = null;
@@ -535,6 +655,39 @@ const productSlice = createSlice({
       .addCase(fetchMyProducts.rejected, (state, action: PayloadAction<any>) => {
         state.error = action.payload;
         state.myProductsLoading = false;
+      })
+      .addCase(deleteProductsByUserId.pending, (state) => {
+        state.isDeleting = true;
+        state.deleteError = null;
+      })
+      .addCase(deleteProductsByUserId.fulfilled, (state) => {
+        state.isDeleting = false;
+        state.deleteError = null;
+        // Limpiar la lista de productos ya que fueron eliminados
+        state.myProducts = [];
+        state.myProductsPagination = null;
+      })
+      .addCase(deleteProductsByUserId.rejected, (state, action: PayloadAction<any>) => {
+        state.deleteError = action.payload;
+        state.isDeleting = false;
+      })
+      .addCase(deleteProduct.pending, (state) => {
+        state.isDeleting = true;
+        state.deleteError = null;
+      })
+      .addCase(deleteProduct.fulfilled, (state, action: PayloadAction<{ productId: string }>) => {
+        state.isDeleting = false;
+        state.deleteError = null;
+        // Remover el producto eliminado de la lista
+        state.myProducts = state.myProducts.filter(p => p.id !== action.payload.productId);
+        // Actualizar el total si existe paginación
+        if (state.myProductsPagination) {
+          state.myProductsPagination.myTotalProducts = Math.max(0, state.myProductsPagination.myTotalProducts - 1);
+        }
+      })
+      .addCase(deleteProduct.rejected, (state, action: PayloadAction<any>) => {
+        state.deleteError = action.payload;
+        state.isDeleting = false;
       });
   },
 });
@@ -550,7 +703,10 @@ export const {
   clearSearchResults,
   clearMyProducts,
   clearCreatedProduct,
-  resetCreateState
+  resetCreateState,
+  clearUpdatedProduct,
+  resetUpdateState,
+  resetDeleteState
 } = productSlice.actions;
 
 export default productSlice.reducer;
