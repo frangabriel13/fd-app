@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMyProducts, clearMyProducts } from '@/store/slices/productSlice';
+import { fetchMyProducts, clearMyProducts, deleteProduct, resetDeleteState } from '@/store/slices/productSlice';
 import type { AppDispatch, RootState } from '@/store';
 import Pagination from '@/components/tables/Pagination';
 import { formatToARS } from '@/utils/formatters';
 
 const Publications = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { myProducts, myProductsLoading, myProductsPagination } = useSelector((state: RootState) => state.product);
+  const { myProducts, myProductsLoading, myProductsPagination, isDeleting, deleteError } = useSelector((state: RootState) => state.product);
   
   const [backendSortBy, setBackendSortBy] = useState<'oldest' | 'price-low' | 'price-high' | 'name-asc' | 'name-desc' | undefined>(undefined);
   const [activeColumn, setActiveColumn] = useState<'name' | 'price' | 'createdAt'>('createdAt');
@@ -75,13 +75,24 @@ const Publications = () => {
     Alert.alert('Editar', `Editar producto ID: ${productId}`);
   };
 
-  const handleDelete = (productId: string) => {
+  const handleDelete = async (productId: string) => {
     Alert.alert(
       'Eliminar Producto',
       '¿Estás seguro de que deseas eliminar este producto?',
       [
         { text: 'Cancelar', style: 'cancel' },
-        { text: 'Eliminar', style: 'destructive', onPress: () => console.log('Eliminar:', productId) }
+        { 
+          text: 'Eliminar', 
+          style: 'destructive', 
+          onPress: async () => {
+            try {
+              const result = await dispatch(deleteProduct(productId)).unwrap();
+              Alert.alert('Éxito', 'Producto eliminado correctamente');
+            } catch (error: any) {
+              Alert.alert('Error', error || 'No se pudo eliminar el producto');
+            }
+          }
+        }
       ]
     );
   };
@@ -125,15 +136,17 @@ const Publications = () => {
             <TouchableOpacity 
               onPress={() => handleEdit(product.id)}
               className="p-1"
+              disabled={isDeleting}
             >
-              <Ionicons name="create" size={20} color="#3b82f6" />
+              <Ionicons name="create" size={20} color={isDeleting ? "#9CA3AF" : "#3b82f6"} />
             </TouchableOpacity>
             
             <TouchableOpacity 
               onPress={() => handleDelete(product.id)}
               className="p-1"
+              disabled={isDeleting}
             >
-              <Ionicons name="trash" size={20} color="#ef4444" />
+              <Ionicons name="trash" size={20} color={isDeleting ? "#9CA3AF" : "#ef4444"} />
             </TouchableOpacity>
           </View>
         </View>
