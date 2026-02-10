@@ -79,9 +79,9 @@ Le notificaremos sobre cambios materiales en esta política a través de:
 
 Para preguntas sobre esta política de privacidad:
 
-**Email**: privacy@fabricantedirecto.com  
-**Dirección**: [Tu dirección comercial]  
-**Teléfono**: [Tu número de contacto]
+**Email**: defabricantedirecto@gmail.com  
+**Dirección**: Balbastro 2247, Ciudad Autónoma de Buenos Aires  
+**Teléfono**: +54 9 11 3041-5773
 
 ---
 

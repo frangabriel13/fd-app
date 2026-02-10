@@ -143,9 +143,9 @@ Podemos modificar estos términos ocasionalmente. Los cambios materiales serán 
 
 Para preguntas sobre estos términos:
 
-**Email**: legal@fabricantedirecto.com  
-**Dirección**: [Tu dirección legal]  
-**Teléfono**: [Tu número de contacto legal]
+**Email**: defabricantedirecto@gmail.com  
+**Dirección**: Balbastro 2247, Ciudad Autónoma de Buenos Aires  
+**Teléfono**: +54 9 11 3041-5773
 
 ---
 
