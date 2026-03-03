@@ -12,7 +12,7 @@ import ProductCard from '@/components/shop/ProductCard';
 
 const ShopScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { searchTerm } = useLocalSearchParams<{ searchTerm?: string }>();
+  const { searchTerm, genderId } = useLocalSearchParams<{ searchTerm?: string; genderId?: string }>();
   const { shopProducts, shopPagination, shopFilters, searchInfo, loading, error } = useSelector((state: RootState) => state.product);
   
   // Debug: Verificar el estado inicial
@@ -30,26 +30,29 @@ const ShopScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>(undefined);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  // Resetear filtros cada vez que se entra a la tienda
+  // Configurar género inicial desde parámetros o resetear
   useFocusEffect(
     React.useCallback(() => {
-      // console.log('🔄 Reseteando filtros al entrar a tienda');
-      setSelectedGender(null);
+      // Si viene un genderId desde los parámetros, establecerlo
+      const initialGenderId = genderId ? parseInt(genderId) : null;
+      
+      setSelectedGender(initialGenderId);
       setSelectedCategory(undefined);
       
-      // Resetear filtros en Redux
-      dispatch(setShopFilters({ genderId: null, categoryId: null }));
+      // Actualizar filtros en Redux
+      dispatch(setShopFilters({ genderId: initialGenderId, categoryId: null }));
       
-      // Cargar productos sin filtros
+      // Cargar productos con el género seleccionado si existe
       const params = {
+        ...(initialGenderId && { genderId: initialGenderId }),
         page: 1,
         limit: 16,
         append: false,
-        ...(searchTerm && { searchTerm }) // Incluir searchTerm si existe
+        ...(searchTerm && { searchTerm })
       };
       
       dispatch(fetchShopProducts(params));
-    }, [dispatch, searchTerm])
+    }, [dispatch, searchTerm, genderId])
   );
 
   // Llamada inicial al cargar el componente (solo para cambios de selectedGender después del focus)
