@@ -53,7 +53,7 @@ export const genders = [
   { 
     id: 2, 
     name: 'Hombre', 
-    url: 'hombre',
+    url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/generos/hombre.png',
     image: image,
     categories: [
       { id: 135, name: 'Jeans', image, url: 'jeans', img: jeansHombre },
@@ -73,7 +73,7 @@ export const genders = [
   { 
     id: 3, 
     name: 'Mujer', 
-    url: 'mujer',
+    url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/generos/mujer.png',
     image: image,
     categories: [
       { id: 135, name: 'Jeans', image, url: 'jeans', img: jeansMujer },
@@ -93,7 +93,7 @@ export const genders = [
   { 
     id: 4, 
     name: 'Niño', 
-    url: 'niño',
+    url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/generos/ni%C3%B1o.png',
     image: image,
     categories: [
       { id: 135, name: 'Jeans', image, url: 'jeans', img: jeansHombre },
@@ -113,7 +113,7 @@ export const genders = [
   { 
     id: 5, 
     name: 'Niña', 
-    url: 'niña',
+    url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/generos/ni%C3%B1a.png',
     image: image,
     categories: [
       { id: 135, name: 'Jeans', image, url: 'jeans', img: jeansMujer },
@@ -133,7 +133,7 @@ export const genders = [
   { 
     id: 6, 
     name: 'Bebés', 
-    url: 'bebes',
+    url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/generos/bebe.png',
     image: image,
     categories: [
       { id: 145, name: 'Bodys', image, url: 'bodys', img: bodysBebe },
