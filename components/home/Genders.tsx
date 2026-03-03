@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { router } from 'expo-router';
 import { genders } from '@/utils/hardcode';
 
 const Genders = () => {
@@ -6,8 +7,8 @@ const Genders = () => {
   const gendersData = genders.filter(gender => gender.id !== 7);
 
   const handleGenderPress = (gender) => {
-    Alert.alert('Género seleccionado', `Has seleccionado: ${gender.name}`);
-    console.log('Género seleccionado:', gender);
+    // Navegar a la tienda con el género seleccionado
+    router.push(`/(tabs)/tienda?genderId=${gender.id}`);
   };
 
   return (
