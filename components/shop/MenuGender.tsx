@@ -40,10 +40,14 @@ const MenuGender = ({ selectedGender, onGenderSelect }: MenuGenderProps) => {
                 resizeMode="cover"
               />
             </View>
-            <Text style={[
-              styles.genderText,
-              selectedGender === gender.id && styles.selectedText
-            ]}>
+            <Text 
+              style={[
+                styles.genderText,
+                selectedGender === gender.id && styles.selectedText
+              ]}
+              numberOfLines={2}
+              ellipsizeMode="tail"
+            >
               {gender.name}
             </Text>
           </TouchableOpacity>
@@ -66,7 +70,8 @@ const styles = StyleSheet.create({
   genderButton: {
     alignItems: 'center',
     paddingHorizontal: 6,
-  },
+    minHeight: 60,
+    justifyContent: 'flex-start',    width: 70,  },
   firstButton: {
     paddingLeft: 8,
   },
@@ -97,7 +102,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#666666',
     textAlign: 'center',
-    maxWidth: 60,
+    maxWidth: 70,
+    lineHeight: 14,
+    marginTop: 4,
   },
   selectedText: {
     color: Colors.blue.default,
