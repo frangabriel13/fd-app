@@ -1,17 +1,10 @@
-import Images from '@/constants/Images';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
-
-const logoDefault = Images.defaultImages.logoDefault;
-
-const gendersData = [
-  { id: 'hombre', name: 'Hombre' },
-  { id: 'mujer', name: 'Mujer' },
-  { id: 'nino', name: 'Niño' },
-  { id: 'nina', name: 'Niña' },
-  { id: 'bebe', name: 'Bebé' },
-];
+import { genders } from '@/utils/hardcode';
 
 const Genders = () => {
+  // Filtrar para excluir "Más" (id: 7)
+  const gendersData = genders.filter(gender => gender.id !== 7);
+
   const handleGenderPress = (gender) => {
     Alert.alert('Género seleccionado', `Has seleccionado: ${gender.name}`);
     console.log('Género seleccionado:', gender);
@@ -28,7 +21,7 @@ const Genders = () => {
             activeOpacity={0.7}
           >
             <Image 
-              source={logoDefault} 
+              source={{ uri: gender.url }} 
               style={styles.genderImage}
               resizeMode="contain"
             />
