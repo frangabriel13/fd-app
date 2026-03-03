@@ -23,7 +23,7 @@ const Genders = () => {
             <Image 
               source={{ uri: gender.url }} 
               style={styles.genderImage}
-              resizeMode="contain"
+              resizeMode="cover"
             />
             <Text style={styles.genderText}>{gender.name}</Text>
           </TouchableOpacity>
@@ -35,35 +35,48 @@ const Genders = () => {
 
 const styles = StyleSheet.create({
   container: {
-    // paddingHorizontal: 10,
+    paddingHorizontal: 4,
   },
   gendersGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 1,
   },
   genderCard: {
     width: '18%', // Para que quepan 5 elementos con espacios
     aspectRatio: 1, // Mantiene la forma cuadrada
-    borderWidth: 2,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    backgroundColor: '#f8f8f8',
-    padding: 8,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    overflow: 'hidden',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   genderImage: {
-    width: '80%',
-    height: '70%',
+    width: '100%',
+    height: '100%',
   },
   genderText: {
-    fontSize: 10,
-    fontWeight: '600',
+    fontSize: 9,
+    fontWeight: '700',
     textAlign: 'center',
-    color: '#333',
-    marginTop: 2,
+    color: '#fff',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingVertical: 4,
+    paddingHorizontal: 2,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    textTransform: 'uppercase',
   },
 });
 
