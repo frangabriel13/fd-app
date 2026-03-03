@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { fetchAllLiveManufacturers } from '../../store/slices/manufacturerSlice';
 import Images from '@/constants/Images';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = (width - 32 - 24) / 4; // 32 padding horizontal, 24 gaps entre elementos
@@ -82,7 +83,7 @@ const LiveManufacturers = () => {
       <View style={styles.header}>
         <Text style={styles.title}>Live Shopping</Text>
         <TouchableOpacity onPress={handleSeeMore}>
-          <Text style={styles.seeMore}>más&gt;</Text>
+          <Text style={styles.seeMore}>&gt;</Text>
         </TouchableOpacity>
       </View>
       
@@ -127,6 +128,8 @@ const LiveManufacturers = () => {
 const styles = StyleSheet.create({
   container: {
     marginTop: 20,
+    backgroundColor: 'white',
+    borderRadius: 6,
   },
   header: {
     flexDirection: 'row',
