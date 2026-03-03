@@ -49,12 +49,14 @@ const LiveManufacturers = () => {
   if (loading && manufacturers.length === 0) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.header}
+          onPress={handleSeeMore}
+          activeOpacity={0.6}
+        >
           <Text style={styles.title}>Live Shopping</Text>
-          <TouchableOpacity onPress={handleSeeMore}>
-            <Text style={styles.seeMore}>más&gt;</Text>
-          </TouchableOpacity>
-        </View>
+          <AntDesign name="right" size={18} color="#1a1a1a" />
+        </TouchableOpacity>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Cargando...</Text>
         </View>
@@ -65,12 +67,14 @@ const LiveManufacturers = () => {
   if (manufacturers.length === 0) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.header}
+          onPress={handleSeeMore}
+          activeOpacity={0.6}
+        >
           <Text style={styles.title}>Live Shopping</Text>
-          <TouchableOpacity onPress={handleSeeMore}>
-            <Text style={styles.seeMore}>más&gt;</Text>
-          </TouchableOpacity>
-        </View>
+          <AntDesign name="right" size={18} color="#1a1a1a" />
+        </TouchableOpacity>
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>No hay fabricantes en vivo</Text>
         </View>
@@ -80,12 +84,14 @@ const LiveManufacturers = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <TouchableOpacity 
+        style={styles.header}
+        onPress={handleSeeMore}
+        activeOpacity={0.6}
+      >
         <Text style={styles.title}>Live Shopping</Text>
-        <TouchableOpacity onPress={handleSeeMore}>
-          <Text style={styles.seeMore}>&gt;</Text>
-        </TouchableOpacity>
-      </View>
+        <AntDesign name="right" size={18} color="#1a1a1a" />
+      </TouchableOpacity>
       
       <ScrollView 
         horizontal
@@ -136,17 +142,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
+    paddingVertical: 8,
     marginBottom: 12,
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
-  },
-  seeMore: {
-    fontSize: 14,
-    color: '#0a7ea4',
-    fontWeight: '500',
+    color: '#1a1a1a',
+    letterSpacing: -0.3,
   },
   scrollView: {
     paddingLeft: 16,
