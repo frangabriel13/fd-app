@@ -51,10 +51,14 @@ const SelectCategory = ({ selectedGenderId, onCategorySelect }: SelectCategoryPr
                 resizeMode="cover"
               />
             </View>
-            <Text style={[
-              styles.categoryText,
-              selectedCategory === category.id && styles.selectedText
-            ]}>
+            <Text 
+              style={[
+                styles.categoryText,
+                selectedCategory === category.id && styles.selectedText
+              ]}
+              numberOfLines={2}
+              ellipsizeMode="tail"
+            >
               {category.name}
             </Text>
           </TouchableOpacity>
@@ -77,6 +81,9 @@ const styles = StyleSheet.create({
   categoryButton: {
     alignItems: 'center',
     paddingHorizontal: 6,
+    minHeight: 90,
+    justifyContent: 'flex-start',
+    width: 70,
   },
   firstButton: {
     paddingLeft: 8,
@@ -108,7 +115,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#666666',
     textAlign: 'center',
-    maxWidth: 60,
+    maxWidth: 70,
+    lineHeight: 14,
+    marginTop: 4,
   },
   selectedText: {
     color: Colors.blue.default,
