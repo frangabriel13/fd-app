@@ -35,7 +35,7 @@ const MenuGender = ({ selectedGender, onGenderSelect }: MenuGenderProps) => {
               selectedGender === gender.id && styles.selectedImageContainer
             ]}>
               <Image 
-                source={gender.image} 
+                source={{ uri: gender.url }} 
                 style={styles.genderImage}
                 resizeMode="cover"
               />
