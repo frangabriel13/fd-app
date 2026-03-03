@@ -46,7 +46,7 @@ const SelectCategory = ({ selectedGenderId, onCategorySelect }: SelectCategoryPr
               selectedCategory === category.id && styles.selectedImageContainer
             ]}>
               <Image 
-                source={category.img} 
+                source={{ uri: category.url }} 
                 style={styles.categoryImage}
                 resizeMode="cover"
               />
