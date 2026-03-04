@@ -21,8 +21,7 @@ const LiveManufacturers = () => {
   }, [dispatch]);
 
   const handleSeeMore = () => {
-    // TODO: Navegar a la pantalla completa de fabricantes en vivo
-    console.log('Ver más fabricantes en vivo');
+    router.push('/(tabs)/fabricantes');
   };
 
   const handleManufacturerPress = (manufacturer: any) => {
