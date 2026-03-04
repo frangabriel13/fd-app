@@ -21,8 +21,7 @@ const LiveManufacturers = () => {
   }, [dispatch]);
 
   const handleSeeMore = () => {
-    // TODO: Navegar a la pantalla completa de fabricantes en vivo
-    console.log('Ver más fabricantes en vivo');
+    router.push('/(tabs)/fabricantes');
   };
 
   const handleManufacturerPress = (manufacturer: any) => {
@@ -136,14 +135,15 @@ const styles = StyleSheet.create({
     marginTop: 20,
     backgroundColor: 'white',
     borderRadius: 6,
+    paddingVertical: 4,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginBottom: 12,
+    paddingHorizontal: 8,
+    // paddingVertical: 4,
+    marginBottom: 2,
   },
   title: {
     fontSize: 18,
@@ -152,10 +152,10 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   scrollView: {
-    paddingLeft: 16,
+    paddingLeft: 4,
   },
   scrollContainer: {
-    paddingRight: 16,
+    paddingRight: 4,
   },
   manufacturerItem: {
     width: ITEM_WIDTH,
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     position: 'relative',
-    marginBottom: 8,
+    // marginBottom: 8,
   },
   avatar: {
     width: ITEM_WIDTH - 8,
