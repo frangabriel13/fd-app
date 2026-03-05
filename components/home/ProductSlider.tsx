@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Alert } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import type { RootState } from '@/store';
 import { Colors } from '@/constants/Colors';
 
@@ -76,12 +76,14 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
   if (loading && products.length === 0) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.header}
+          onPress={handleMorePress}
+          activeOpacity={0.6}
+        >
           <Text style={styles.title}>{title}</Text>
-          <TouchableOpacity onPress={handleMorePress}>
-            <Text style={styles.moreText}>más &gt;</Text>
-          </TouchableOpacity>
-        </View>
+          <AntDesign name="right" size={18} color="#1a1a1a" />
+        </TouchableOpacity>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Cargando productos...</Text>
         </View>
@@ -92,12 +94,14 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
   if (error) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.header}
+          onPress={handleMorePress}
+          activeOpacity={0.6}
+        >
           <Text style={styles.title}>{title}</Text>
-          <TouchableOpacity onPress={handleMorePress}>
-            <Text style={styles.moreText}>más &gt;</Text>
-          </TouchableOpacity>
-        </View>
+          <AntDesign name="right" size={18} color="#1a1a1a" />
+        </TouchableOpacity>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Error al cargar productos</Text>
         </View>
@@ -111,13 +115,14 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <TouchableOpacity 
+        style={styles.header}
+        onPress={handleMorePress}
+        activeOpacity={0.6}
+      >
         <Text style={styles.title}>{title}</Text>
-        <TouchableOpacity style={styles.moreButton} onPress={handleMorePress} activeOpacity={0.7}>
-          <Text style={styles.moreText}>Ver más</Text>
-          <Ionicons name="chevron-forward" size={16} color={Colors.blue.default} />
-        </TouchableOpacity>
-      </View>
+        <AntDesign name="right" size={18} color="#1a1a1a" />
+      </TouchableOpacity>
       <FlatList
         data={products}
         renderItem={renderProduct}
@@ -142,29 +147,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    // marginBottom: 12,
-    paddingHorizontal: 4,
+    paddingHorizontal: 8,
+    marginBottom: 2,
   },
   title: {
     fontSize: 18,
-    fontWeight: '700',
-    color: Colors.light.text,
-  },
-  moreButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.2)',
-  },
-  moreText: {
-    fontSize: 13,
-    color: Colors.blue.default,
-    fontWeight: '500',
-    marginRight: 2,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    letterSpacing: -0.3,
   },
   listContainer: {
     // paddingHorizontal: 4,
