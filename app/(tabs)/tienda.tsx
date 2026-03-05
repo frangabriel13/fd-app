@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Modal } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocalSearchParams, useFocusEffect, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -28,6 +28,8 @@ const ShopScreen = () => {
   
   const [selectedGender, setSelectedGender] = useState<number | null>(null); // Sin género seleccionado inicialmente
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>(undefined);
+  const [selectedSort, setSelectedSort] = useState<string>('newest');
+  const [showSortModal, setShowSortModal] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
   // Configurar género inicial desde parámetros o resetear
@@ -38,13 +40,15 @@ const ShopScreen = () => {
       
       setSelectedGender(initialGenderId);
       setSelectedCategory(undefined);
+      setSelectedSort('newest');
       
       // Actualizar filtros en Redux
-      dispatch(setShopFilters({ genderId: initialGenderId, categoryId: null }));
+      dispatch(setShopFilters({ genderId: initialGenderId, categoryId: null, sortBy: 'newest' }));
       
       // Cargar productos con el género seleccionado si existe
       const params = {
         ...(initialGenderId && { genderId: initialGenderId }),
+        sortBy: 'newest',
         page: 1,
         limit: 16,
         append: false,
@@ -62,6 +66,7 @@ const ShopScreen = () => {
       // console.log('🚀 Cargando productos para género seleccionado:', selectedGender);
       const params = {
         genderId: selectedGender,
+        sortBy: selectedSort,
         page: 1,
         limit: 16,
         append: false,
@@ -70,7 +75,7 @@ const ShopScreen = () => {
       
       dispatch(fetchShopProducts(params));
     }
-  }, [dispatch, selectedGender, searchTerm]);
+  }, [dispatch, selectedGender, selectedSort, searchTerm]);
 
   // Escuchar cambios en el estado del Redux para hacer console.log
   useEffect(() => {
@@ -108,6 +113,7 @@ const ShopScreen = () => {
     // Hacer nueva llamada con el género seleccionado (reemplazar productos, no agregar)
     const params = {
       ...(newGenderId && { genderId: newGenderId }), // Solo incluir genderId si no es null
+      sortBy: selectedSort,
       page: 1,
       limit: 16,
       append: false,
@@ -128,6 +134,7 @@ const ShopScreen = () => {
     const params = {
       ...(selectedGender && { genderId: selectedGender }), // Solo incluir genderId si no es null
       categoryId,
+      sortBy: selectedSort,
       page: 1,
       limit: 16,
       append: false,
@@ -156,6 +163,7 @@ const ShopScreen = () => {
     const params = {
       ...(selectedGender && { genderId: selectedGender }), // Solo incluir genderId si no es null
       ...(selectedCategory && { categoryId: selectedCategory }),
+      sortBy: selectedSort,
       page: nextPage,
       limit: 16,
       append: true, // Agregar productos en lugar de reemplazarlos
@@ -252,15 +260,22 @@ const ShopScreen = () => {
         </View>
       )}
       
-      {/* Información de resultados */}
+      {/* Información de resultados y ordenamiento */}
       {shopPagination && (
         <View style={styles.resultsInfo}>
           <Text style={styles.resultsText}>
-            {shopPagination.totalProducts} productos encontrados
+            {shopPagination.totalProducts} {shopPagination.totalProducts === 1 ? 'resultado' : 'resultados'}
           </Text>
-          <Text style={styles.pageText}>
-            Página {shopPagination.currentPage} de {shopPagination.totalPages}
-          </Text>
+          <TouchableOpacity 
+            style={styles.sortButton}
+            onPress={() => setShowSortModal(true)}
+          >
+            <Ionicons name="stats-chart" size={16} color={Colors.blue.default} />
+            <Text style={styles.sortButtonText}>
+              Ordenar por: {selectedSort === 'newest' ? 'Nuevos' : selectedSort === 'onSale' ? 'Ofertas' : 'Destacados'}
+            </Text>
+            <Ionicons name="chevron-down" size={16} color={Colors.blue.default} />
+          </TouchableOpacity>
         </View>
       )}
 
@@ -268,6 +283,122 @@ const ShopScreen = () => {
       <View style={styles.productsWrapper}>
         {renderProductGrid()}
       </View>
+
+      {/* Modal de ordenamiento */}
+      <Modal
+        visible={showSortModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowSortModal(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowSortModal(false)}
+        >
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Ordenar por</Text>
+              <TouchableOpacity onPress={() => setShowSortModal(false)}>
+                <Ionicons name="close" size={24} color={Colors.light.text} />
+              </TouchableOpacity>
+            </View>
+            
+            <TouchableOpacity
+              style={[styles.sortOption, selectedSort === 'newest' && styles.sortOptionActive]}
+              onPress={() => {
+                setSelectedSort('newest');
+                dispatch(setShopFilters({ sortBy: 'newest' }));
+                const params = {
+                  ...(selectedGender && { genderId: selectedGender }),
+                  ...(selectedCategory && { categoryId: selectedCategory }),
+                  sortBy: 'newest',
+                  page: 1,
+                  limit: 16,
+                  append: false,
+                  ...(searchTerm && { searchTerm })
+                };
+                dispatch(fetchShopProducts(params));
+                setShowSortModal(false);
+              }}
+            >
+              <Ionicons 
+                name="time-outline" 
+                size={20} 
+                color={selectedSort === 'newest' ? Colors.blue.default : Colors.light.icon} 
+              />
+              <Text style={[styles.sortOptionText, selectedSort === 'newest' && styles.sortOptionTextActive]}>
+                Nuevos ingresos
+              </Text>
+              {selectedSort === 'newest' && (
+                <Ionicons name="checkmark" size={20} color={Colors.blue.default} />
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.sortOption, selectedSort === 'onSale' && styles.sortOptionActive]}
+              onPress={() => {
+                setSelectedSort('onSale');
+                dispatch(setShopFilters({ sortBy: 'onSale' }));
+                const params = {
+                  ...(selectedGender && { genderId: selectedGender }),
+                  ...(selectedCategory && { categoryId: selectedCategory }),
+                  sortBy: 'onSale',
+                  page: 1,
+                  limit: 16,
+                  append: false,
+                  ...(searchTerm && { searchTerm })
+                };
+                dispatch(fetchShopProducts(params));
+                setShowSortModal(false);
+              }}
+            >
+              <Ionicons 
+                name="pricetag-outline" 
+                size={20} 
+                color={selectedSort === 'onSale' ? Colors.blue.default : Colors.light.icon} 
+              />
+              <Text style={[styles.sortOptionText, selectedSort === 'onSale' && styles.sortOptionTextActive]}>
+                En oferta
+              </Text>
+              {selectedSort === 'onSale' && (
+                <Ionicons name="checkmark" size={20} color={Colors.blue.default} />
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.sortOption, selectedSort === 'featured' && styles.sortOptionActive]}
+              onPress={() => {
+                setSelectedSort('featured');
+                dispatch(setShopFilters({ sortBy: 'featured' }));
+                const params = {
+                  ...(selectedGender && { genderId: selectedGender }),
+                  ...(selectedCategory && { categoryId: selectedCategory }),
+                  sortBy: 'featured',
+                  page: 1,
+                  limit: 16,
+                  append: false,
+                  ...(searchTerm && { searchTerm })
+                };
+                dispatch(fetchShopProducts(params));
+                setShowSortModal(false);
+              }}
+            >
+              <Ionicons 
+                name="star-outline" 
+                size={20} 
+                color={selectedSort === 'featured' ? Colors.blue.default : Colors.light.icon} 
+              />
+              <Text style={[styles.sortOptionText, selectedSort === 'featured' && styles.sortOptionTextActive]}>
+                Destacados
+              </Text>
+              {selectedSort === 'featured' && (
+                <Ionicons name="checkmark" size={20} color={Colors.blue.default} />
+              )}
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 };
@@ -312,9 +443,71 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.light.text,
   },
-  pageText: {
+  sortButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    backgroundColor: '#fff',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: Colors.blue.default,
+  },
+  sortButtonText: {
     fontSize: 12,
-    color: Colors.light.icon,
+    fontWeight: '600',
+    color: Colors.blue.default,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    width: '100%',
+    maxWidth: 400,
+    padding: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: Colors.light.text,
+  },
+  sortOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginBottom: 8,
+    gap: 12,
+    backgroundColor: '#f8f9fa',
+  },
+  sortOptionActive: {
+    backgroundColor: '#e3f2fd',
+    borderWidth: 1,
+    borderColor: Colors.blue.default,
+  },
+  sortOptionText: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '500',
+    color: Colors.light.text,
+  },
+  sortOptionTextActive: {
+    color: Colors.blue.default,
+    fontWeight: '600',
   },
   productsWrapper: {
     flex: 1,
