@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'expo-router';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -21,8 +21,35 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
   };
 
   const handleMorePress = () => {
-    Alert.alert('Ver más', `Ver más productos de ${title}`);
-    console.log('Ver más productos de:', title);
+    console.log('Ver más productos de:', title, 'section:', section);
+    
+    // Mapa de redirecciones según la sección
+    const redirectConfig: Record<string, { genderId?: number; categoryId?: number; sortBy?: string }> = {
+      featured: {}, // Solo ir a tienda (por defecto está en destacados)
+      newProducts: { sortBy: 'newest' },
+      packs: { genderId: 7, categoryId: 161 },
+      sales: { sortBy: 'onSale' },
+      blanqueria: { genderId: 7, categoryId: 130 },
+      lenceria: { genderId: 3, categoryId: 153 },
+      calzado: { genderId: 2, categoryId: 154 },
+      bisuteria: { genderId: 7, categoryId: 131 },
+      telas: { genderId: 7, categoryId: 162 },
+      insumos: { genderId: 7, categoryId: 163 },
+      maquinas: { genderId: 7, categoryId: 164 },
+    };
+    
+    const config = redirectConfig[section] || {};
+    
+    // Construir la URL con los parámetros
+    const params = new URLSearchParams();
+    if (config.genderId) params.append('genderId', config.genderId.toString());
+    if (config.categoryId) params.append('categoryId', config.categoryId.toString());
+    if (config.sortBy) params.append('sortBy', config.sortBy);
+    
+    const queryString = params.toString();
+    const route = queryString ? `/(tabs)/tienda?${queryString}` : '/(tabs)/tienda';
+    
+    router.push(route as any);
   };
 
   const formatPrice = (price: number) => {
