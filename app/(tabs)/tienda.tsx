@@ -28,7 +28,7 @@ const ShopScreen = () => {
   
   const [selectedGender, setSelectedGender] = useState<number | null>(null); // Sin género seleccionado inicialmente
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>(undefined);
-  const [selectedSort, setSelectedSort] = useState<string>('newest');
+  const [selectedSort, setSelectedSort] = useState<string>('featured');
   const [showSortModal, setShowSortModal] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
@@ -40,15 +40,15 @@ const ShopScreen = () => {
       
       setSelectedGender(initialGenderId);
       setSelectedCategory(undefined);
-      setSelectedSort('newest');
+      setSelectedSort('featured');
       
       // Actualizar filtros en Redux
-      dispatch(setShopFilters({ genderId: initialGenderId, categoryId: null, sortBy: 'newest' }));
+      dispatch(setShopFilters({ genderId: initialGenderId, categoryId: null, sortBy: 'featured' }));
       
       // Cargar productos con el género seleccionado si existe
       const params = {
         ...(initialGenderId && { genderId: initialGenderId }),
-        sortBy: 'newest',
+        sortBy: 'featured',
         page: 1,
         limit: 16,
         append: false,
@@ -270,11 +270,11 @@ const ShopScreen = () => {
             style={styles.sortButton}
             onPress={() => setShowSortModal(true)}
           >
-            <Ionicons name="stats-chart" size={16} color={Colors.blue.default} />
+            {/* <Ionicons name="stats-chart" size={16} color={Colors.blue.default} /> */}
             <Text style={styles.sortButtonText}>
-              Ordenar por: {selectedSort === 'newest' ? 'Nuevos' : selectedSort === 'onSale' ? 'Ofertas' : 'Destacados'}
+              Ordenar por: {selectedSort === 'newest' ? 'Nuevos' : selectedSort === 'onSale' ? 'Ofertas' : selectedSort === 'featured' ? 'Destacados' : selectedSort === 'price-high' ? 'Mayor precio' : 'Menor precio'}
             </Text>
-            <Ionicons name="chevron-down" size={16} color={Colors.blue.default} />
+            <Ionicons name="chevron-down" size={16} color="#1f2937" />
           </TouchableOpacity>
         </View>
       )}
@@ -325,13 +325,13 @@ const ShopScreen = () => {
               <Ionicons 
                 name="time-outline" 
                 size={20} 
-                color={selectedSort === 'newest' ? Colors.blue.default : Colors.light.icon} 
+                color={selectedSort === 'newest' ? '#1f2937' : Colors.light.icon} 
               />
               <Text style={[styles.sortOptionText, selectedSort === 'newest' && styles.sortOptionTextActive]}>
                 Nuevos ingresos
               </Text>
               {selectedSort === 'newest' && (
-                <Ionicons name="checkmark" size={20} color={Colors.blue.default} />
+                <Ionicons name="checkmark" size={20} color="#1f2937" />
               )}
             </TouchableOpacity>
 
@@ -356,13 +356,13 @@ const ShopScreen = () => {
               <Ionicons 
                 name="pricetag-outline" 
                 size={20} 
-                color={selectedSort === 'onSale' ? Colors.blue.default : Colors.light.icon} 
+                color={selectedSort === 'onSale' ? '#1f2937' : Colors.light.icon} 
               />
               <Text style={[styles.sortOptionText, selectedSort === 'onSale' && styles.sortOptionTextActive]}>
                 En oferta
               </Text>
               {selectedSort === 'onSale' && (
-                <Ionicons name="checkmark" size={20} color={Colors.blue.default} />
+                <Ionicons name="checkmark" size={20} color="#1f2937" />
               )}
             </TouchableOpacity>
 
@@ -387,13 +387,75 @@ const ShopScreen = () => {
               <Ionicons 
                 name="star-outline" 
                 size={20} 
-                color={selectedSort === 'featured' ? Colors.blue.default : Colors.light.icon} 
+                color={selectedSort === 'featured' ? '#1f2937' : Colors.light.icon} 
               />
               <Text style={[styles.sortOptionText, selectedSort === 'featured' && styles.sortOptionTextActive]}>
                 Destacados
               </Text>
               {selectedSort === 'featured' && (
-                <Ionicons name="checkmark" size={20} color={Colors.blue.default} />
+                <Ionicons name="checkmark" size={20} color="#1f2937" />
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.sortOption, selectedSort === 'price-high' && styles.sortOptionActive]}
+              onPress={() => {
+                setSelectedSort('price-high');
+                dispatch(setShopFilters({ sortBy: 'price-high' }));
+                const params = {
+                  ...(selectedGender && { genderId: selectedGender }),
+                  ...(selectedCategory && { categoryId: selectedCategory }),
+                  sortBy: 'price-high',
+                  page: 1,
+                  limit: 16,
+                  append: false,
+                  ...(searchTerm && { searchTerm })
+                };
+                dispatch(fetchShopProducts(params));
+                setShowSortModal(false);
+              }}
+            >
+              <Ionicons 
+                name="arrow-up" 
+                size={20} 
+                color={selectedSort === 'price-high' ? '#1f2937' : Colors.light.icon} 
+              />
+              <Text style={[styles.sortOptionText, selectedSort === 'price-high' && styles.sortOptionTextActive]}>
+                Mayor precio
+              </Text>
+              {selectedSort === 'price-high' && (
+                <Ionicons name="checkmark" size={20} color="#1f2937" />
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.sortOption, selectedSort === 'price-low' && styles.sortOptionActive]}
+              onPress={() => {
+                setSelectedSort('price-low');
+                dispatch(setShopFilters({ sortBy: 'price-low' }));
+                const params = {
+                  ...(selectedGender && { genderId: selectedGender }),
+                  ...(selectedCategory && { categoryId: selectedCategory }),
+                  sortBy: 'price-low',
+                  page: 1,
+                  limit: 16,
+                  append: false,
+                  ...(searchTerm && { searchTerm })
+                };
+                dispatch(fetchShopProducts(params));
+                setShowSortModal(false);
+              }}
+            >
+              <Ionicons 
+                name="arrow-down" 
+                size={20} 
+                color={selectedSort === 'price-low' ? '#1f2937' : Colors.light.icon} 
+              />
+              <Text style={[styles.sortOptionText, selectedSort === 'price-low' && styles.sortOptionTextActive]}>
+                Menor precio
+              </Text>
+              {selectedSort === 'price-low' && (
+                <Ionicons name="checkmark" size={20} color="#1f2937" />
               )}
             </TouchableOpacity>
           </View>
@@ -452,12 +514,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: Colors.blue.default,
+    borderColor: '#1f2937',
   },
   sortButtonText: {
     fontSize: 12,
     fontWeight: '600',
-    color: Colors.blue.default,
+    color: '#1f2937',
   },
   modalOverlay: {
     flex: 1,
@@ -495,9 +557,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
   },
   sortOptionActive: {
-    backgroundColor: '#e3f2fd',
+    backgroundColor: '#e5e7eb',
     borderWidth: 1,
-    borderColor: Colors.blue.default,
+    borderColor: '#1f2937',
   },
   sortOptionText: {
     flex: 1,
@@ -506,7 +568,7 @@ const styles = StyleSheet.create({
     color: Colors.light.text,
   },
   sortOptionTextActive: {
-    color: Colors.blue.default,
+    color: '#1f2937',
     fontWeight: '600',
   },
   productsWrapper: {
