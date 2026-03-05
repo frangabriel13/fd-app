@@ -12,7 +12,7 @@ import ProductCard from '@/components/shop/ProductCard';
 
 const ShopScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { searchTerm, genderId } = useLocalSearchParams<{ searchTerm?: string; genderId?: string }>();
+  const { searchTerm, genderId, categoryId, sortBy } = useLocalSearchParams<{ searchTerm?: string; genderId?: string; categoryId?: string; sortBy?: string }>();
   const { shopProducts, shopPagination, shopFilters, searchInfo, loading, error } = useSelector((state: RootState) => state.product);
   
   // Debug: Verificar el estado inicial
@@ -37,18 +37,21 @@ const ShopScreen = () => {
     React.useCallback(() => {
       // Si viene un genderId desde los parámetros, establecerlo
       const initialGenderId = genderId ? parseInt(genderId) : null;
+      const initialCategoryId = categoryId ? parseInt(categoryId) : undefined;
+      const initialSortBy = sortBy || 'featured';
       
       setSelectedGender(initialGenderId);
-      setSelectedCategory(undefined);
-      setSelectedSort('featured');
+      setSelectedCategory(initialCategoryId);
+      setSelectedSort(initialSortBy);
       
       // Actualizar filtros en Redux
-      dispatch(setShopFilters({ genderId: initialGenderId, categoryId: null, sortBy: 'featured' }));
+      dispatch(setShopFilters({ genderId: initialGenderId, categoryId: initialCategoryId || null, sortBy: initialSortBy }));
       
-      // Cargar productos con el género seleccionado si existe
+      // Cargar productos con los parámetros
       const params = {
         ...(initialGenderId && { genderId: initialGenderId }),
-        sortBy: 'featured',
+        ...(initialCategoryId && { categoryId: initialCategoryId }),
+        sortBy: initialSortBy,
         page: 1,
         limit: 16,
         append: false,
@@ -56,16 +59,17 @@ const ShopScreen = () => {
       };
       
       dispatch(fetchShopProducts(params));
-    }, [dispatch, searchTerm, genderId])
+    }, [dispatch, searchTerm, genderId, categoryId, sortBy])
   );
 
-  // Llamada inicial al cargar el componente (solo para cambios de selectedGender después del focus)
+  // Llamada inicial al cargar el componente (solo para cambios de selectedGender/selectedSort/selectedCategory después del focus)
   useEffect(() => {
     // Solo hacer llamada si hay un género seleccionado (esto evita doble llamada con useFocusEffect)
     if (selectedGender) {
       // console.log('🚀 Cargando productos para género seleccionado:', selectedGender);
       const params = {
         genderId: selectedGender,
+        ...(selectedCategory && { categoryId: selectedCategory }),
         sortBy: selectedSort,
         page: 1,
         limit: 16,
@@ -75,7 +79,7 @@ const ShopScreen = () => {
       
       dispatch(fetchShopProducts(params));
     }
-  }, [dispatch, selectedGender, selectedSort, searchTerm]);
+  }, [dispatch, selectedGender, selectedCategory, selectedSort, searchTerm]);
 
   // Escuchar cambios en el estado del Redux para hacer console.log
   useEffect(() => {
@@ -239,6 +243,7 @@ const ShopScreen = () => {
       {selectedGender && (
         <SelectCategory 
           selectedGenderId={selectedGender} 
+          selectedCategoryId={selectedCategory}
           onCategorySelect={handleCategoryChange}
         />
       )}
