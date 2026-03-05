@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { fetchMobileHomeProducts } from '@/store/slices/productSlice';
 import type { AppDispatch } from '@/store';
+import Info from '@/components/home/Info';
 
 const HomeScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -32,6 +33,7 @@ const HomeScreen = () => {
         <ProductSlider title="Telas" section="telas" />
         {/* <ProductSlider title="Insumos" section="insumos" /> */}
         <ProductSlider title="Máquinas" section="maquinas" />
+        <Info />
       </View>
     </ScrollView>
   );
