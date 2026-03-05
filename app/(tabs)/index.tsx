@@ -30,7 +30,7 @@ const HomeScreen = () => {
         <ProductSlider title="Calzado" section="calzado" />
         <ProductSlider title="Bisutería" section="bisuteria" />
         <ProductSlider title="Telas" section="telas" />
-        <ProductSlider title="Insumos" section="insumos" />
+        {/* <ProductSlider title="Insumos" section="insumos" /> */}
         <ProductSlider title="Máquinas" section="maquinas" />
       </View>
     </ScrollView>
