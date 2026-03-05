@@ -133,13 +133,16 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 16,
+    marginVertical: 8,
+    borderRadius: 6,
+    backgroundColor: 'white',
+    paddingVertical: 4,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    // marginBottom: 12,
     paddingHorizontal: 4,
   },
   title: {
@@ -164,10 +167,10 @@ const styles = StyleSheet.create({
     marginRight: 2,
   },
   listContainer: {
-    paddingHorizontal: 4,
+    // paddingHorizontal: 4,
   },
   separator: {
-    width: 12,
+    width: 2,
   },
   productCard: {
     width: 180,
@@ -180,7 +183,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.08,
     shadowRadius: 6,
-    elevation: 4,
+    elevation: 2,
     overflow: 'hidden',
     borderWidth: 0.5,
     borderColor: 'rgba(0, 0, 0, 0.05)',
