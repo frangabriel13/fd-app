@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { Product, Manufacturer } from '@/types/product';
@@ -32,15 +32,13 @@ const DetailProduct = ({ product, manufacturer }: DetailProductProps) => {
         await dispatch(removeFavorite(productId)).unwrap();
         // Recargar favoritos para sincronizar el estado
         await dispatch(getFavorites());
-        Alert.alert('Eliminado', 'Producto eliminado de favoritos');
       } else {
         await dispatch(addFavorite(productId)).unwrap();
         // Recargar favoritos para sincronizar el estado
         await dispatch(getFavorites());
-        Alert.alert('Agregado', 'Producto agregado a favoritos');
       }
     } catch (error: any) {
-      Alert.alert('Error', error || 'No se pudo actualizar favoritos');
+      console.error('Error al actualizar favoritos:', error);
     }
   };
   return (
