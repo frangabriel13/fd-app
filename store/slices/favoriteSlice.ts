@@ -143,6 +143,14 @@ const favoriteSlice = createSlice({
       .addCase(getFavorites.fulfilled, (state, action: PayloadAction<FavoriteProduct[]>) => {
         state.loading = false;
         state.favoriteProducts = action.payload;
+        // También sincronizar el array de favorites para mantener consistencia
+        state.favorites = action.payload.map(product => ({
+          id: 0, // El ID real no es necesario aquí
+          userId: 0, // El userId no es necesario aquí
+          productId: product.productId,
+          createdAt: '',
+          updatedAt: '',
+        }));
         state.error = null;
       })
       .addCase(getFavorites.rejected, (state, action) => {
@@ -183,8 +191,12 @@ export const selectFavoritesLoading = (state: { favorites: FavoriteState }) => s
 export const selectFavoritesError = (state: { favorites: FavoriteState }) => state.favorites.error;
 
 // Helper selector para verificar si un producto está en favoritos
-export const selectIsProductFavorite = (productId: number) => (state: { favorites: FavoriteState }) =>
-  state.favorites.favoriteProducts.some(product => product.productId === productId);
+export const selectIsProductFavorite = (productId: number) => (state: { favorites: FavoriteState }) => {
+  // Buscar en ambos arrays para máxima compatibilidad
+  const inFavorites = state.favorites.favorites?.some(fav => fav.productId === productId) ?? false;
+  const inFavoriteProducts = state.favorites.favoriteProducts?.some(product => product.productId === productId) ?? false;
+  return inFavorites || inFavoriteProducts;
+};
 
 // Exportar el reducer
 export default favoriteSlice.reducer;
