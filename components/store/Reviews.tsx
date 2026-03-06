@@ -2,9 +2,11 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
 
 const Reviews = () => {
   const { selectedManufacturer } = useSelector((state: RootState) => state.manufacturer);
+  const [showAll, setShowAll] = useState(false);
   
   if (!selectedManufacturer) {
     return null;
@@ -52,11 +54,16 @@ const Reviews = () => {
   const getReviewsToShow = () => {
     if (reviews.length === 0) return [];
     if (reviews.length === 1) return reviews;
+    if (showAll) return reviews;
     return reviews.slice(0, 2);
   };
 
   const reviewsToShow = getReviewsToShow();
   const hasMoreReviews = reviews.length > 2;
+
+  const handleToggleReviews = () => {
+    setShowAll(!showAll);
+  };
 
   return (
     <View style={styles.container}>
@@ -88,8 +95,10 @@ const Reviews = () => {
           ))}
           
           {hasMoreReviews && (
-            <TouchableOpacity style={styles.seeMoreButton}>
-              <Text style={styles.seeMoreText}>Ver más comentarios</Text>
+            <TouchableOpacity style={styles.seeMoreButton} onPress={handleToggleReviews}>
+              <Text style={styles.seeMoreText}>
+                {showAll ? 'Ver menos comentarios' : 'Ver más comentarios'}
+              </Text>
             </TouchableOpacity>
           )}
         </>

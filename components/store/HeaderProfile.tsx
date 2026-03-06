@@ -17,6 +17,7 @@ const HeaderProfile = () => {
   const [followersCount] = useState(0);
   
   const manufacturer = selectedManufacturer;
+  console.log('🔍 Datos del fabricante en HeaderProfile:', manufacturer);
 
   if (!manufacturer) {
     return null;
