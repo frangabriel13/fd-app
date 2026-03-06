@@ -37,7 +37,7 @@ const StoreProducts = () => {
     }
     
     const nextPage = currentPage + 1;
-    console.log('📄 Cargando página:', nextPage, 'para tienda del fabricante:', selectedManufacturer.user.id);
+    // console.log('📄 Cargando página:', nextPage, 'para tienda del fabricante:', selectedManufacturer.user.id);
     
     setLoadingMore(true);
     
