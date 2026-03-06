@@ -14,6 +14,7 @@ import colorSlice from './slices/colorSlice';
 import sizeSlice from './slices/sizeSlice';
  import imageSlice from './slices/imageSlice';
 import favoriteSlice from './slices/favoriteSlice';
+import reviewSlice from './slices/reviewSlice';
 
 // Combine all reducers
 const rootReducer = combineReducers({
@@ -28,13 +29,14 @@ const rootReducer = combineReducers({
   sizes: sizeSlice,
   image: imageSlice,
   favorites: favoriteSlice,
+  reviews: reviewSlice,
 });
 
 // Persist configuration
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['user', 'manufacturer', 'auth', 'wholesaler', 'product', 'cart', 'order', 'colors', 'sizes', 'image', 'favorites'], // Only persist these reducers
+  whitelist: ['user', 'manufacturer', 'auth', 'wholesaler', 'product', 'cart', 'order', 'colors', 'sizes', 'image', 'favorites', 'reviews'], // Only persist these reducers
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
