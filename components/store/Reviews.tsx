@@ -1,11 +1,15 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/store';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { deleteReview } from '@/store/slices/reviewSlice';
+import { getManufacturerById } from '@/store/slices/manufacturerSlice';
 
 const Reviews = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const { selectedManufacturer } = useSelector((state: RootState) => state.manufacturer);
+  const { user } = useSelector((state: RootState) => state.user);
   const [showAll, setShowAll] = useState(false);
   
   if (!selectedManufacturer) {
@@ -13,6 +17,7 @@ const Reviews = () => {
   }
 
   const reviews = selectedManufacturer.reviews || [];
+  const currentUserId = user?.id;
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
@@ -65,6 +70,50 @@ const Reviews = () => {
     setShowAll(!showAll);
   };
 
+  const handleEditReview = (review: any) => {
+    // TODO: Implementar modal o navegación para editar
+    Alert.alert(
+      'Editar comentario',
+      '¿Deseas editar tu comentario?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Editar', 
+          onPress: () => {
+            // Aquí puedes abrir un modal o navegar a una pantalla de edición
+            console.log('Editar review:', review.id);
+          }
+        }
+      ]
+    );
+  };
+
+  const handleDeleteReview = (reviewId: number) => {
+    Alert.alert(
+      'Eliminar comentario',
+      '¿Estás seguro de que deseas eliminar tu comentario?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Eliminar', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await dispatch(deleteReview(reviewId)).unwrap();
+              // Recargar el fabricante para actualizar las reviews
+              if (selectedManufacturer?.id) {
+                dispatch(getManufacturerById(selectedManufacturer.id));
+              }
+              Alert.alert('Éxito', 'Comentario eliminado correctamente');
+            } catch (error: any) {
+              Alert.alert('Error', error || 'No se pudo eliminar el comentario');
+            }
+          }
+        }
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Comentarios:</Text>
@@ -75,24 +124,46 @@ const Reviews = () => {
         </View>
       ) : (
         <>
-          {reviewsToShow.map((review) => (
-            <View key={review.id} style={styles.reviewItem}>
-              <View style={styles.reviewHeader}>
-                <View style={styles.reviewerInfo}>
-                  <Text style={styles.reviewerName}>
-                    {review.user?.wholesaler?.name || 'Usuario'}
-                  </Text>
-                  <View style={styles.starsContainer}>
-                    {renderStars(review.rating)}
+          {reviewsToShow.map((review) => {
+            const isOwnReview = currentUserId && review.user?.id === Number(currentUserId);
+            
+            return (
+              <View key={review.id} style={styles.reviewItem}>
+                <View style={styles.reviewHeader}>
+                  <View style={styles.reviewerInfo}>
+                    <Text style={styles.reviewerName}>
+                      {review.user?.wholesaler?.name || 'Usuario'}
+                    </Text>
+                    <View style={styles.starsContainer}>
+                      {renderStars(review.rating)}
+                    </View>
                   </View>
+                  {isOwnReview && (
+                    <View style={styles.reviewActions}>
+                      <TouchableOpacity 
+                        style={styles.actionIcon}
+                        onPress={() => handleEditReview(review)}
+                      >
+                        <Ionicons name="create-outline" size={18} color="#021344" />
+                      </TouchableOpacity>
+                      <TouchableOpacity 
+                        style={styles.actionIcon}
+                        onPress={() => handleDeleteReview(review.id)}
+                      >
+                        <Ionicons name="trash-outline" size={18} color="#dc2626" />
+                      </TouchableOpacity>
+                    </View>
+                  )}
                 </View>
-                <Text style={styles.timeAgo}>
-                  {formatTimeAgo(review.createdAt)}
-                </Text>
+                <Text style={styles.comment}>{review.comment}</Text>
+                <View style={styles.reviewFooter}>
+                  <Text style={styles.timeAgo}>
+                    {formatTimeAgo(review.createdAt)}
+                  </Text>
+                </View>
               </View>
-              <Text style={styles.comment}>{review.comment}</Text>
-            </View>
-          ))}
+            );
+          })}
           
           {hasMoreReviews && (
             <TouchableOpacity style={styles.seeMoreButton} onPress={handleToggleReviews}>
@@ -147,7 +218,7 @@ const styles = StyleSheet.create({
   reviewHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginBottom: 8,
   },
   reviewerInfo: {
@@ -155,6 +226,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     gap: 8,
+  },
+  reviewActions: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  actionIcon: {
+    padding: 4,
   },
   reviewerName: {
     fontSize: 15,
@@ -165,15 +244,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 2,
   },
-  timeAgo: {
-    fontSize: 12,
-    color: '#8e8e8e',
-    flexShrink: 0,
-  },
   comment: {
     fontSize: 14,
     color: '#4b5563',
     lineHeight: 20,
+    marginBottom: 4,
+  },
+  reviewFooter: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  timeAgo: {
+    fontSize: 12,
+    color: '#8e8e8e',
   },
   seeMoreButton: {
     marginTop: 8,
