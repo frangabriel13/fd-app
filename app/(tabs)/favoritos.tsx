@@ -10,16 +10,33 @@ const FavsScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
   const favoriteProducts = useSelector((state: RootState) => selectFavoriteProducts(state));
   const loading = useSelector((state: RootState) => selectFavoritesLoading(state));
+  const userRole = useSelector((state: RootState) => state.auth.user?.role);
 
   useEffect(() => {
-    dispatch(getFavorites());
-  }, [dispatch]);
+    // Solo cargar favoritos si el usuario es mayorista
+    if (userRole === 'wholesaler') {
+      dispatch(getFavorites());
+    }
+  }, [dispatch, userRole]);
 
   if (loading) {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#f86f1a" />
         <Text style={styles.loadingText}>Cargando favoritos...</Text>
+      </View>
+    );
+  }
+
+  // Mostrar mensaje si el usuario no es mayorista
+  if (userRole !== 'wholesaler') {
+    return (
+      <View style={styles.centerContainer}>
+        <Ionicons name="heart-dislike-outline" size={80} color="#ddd" />
+        <Text style={styles.emptyText}>Funcionalidad exclusiva para mayoristas</Text>
+        <Text style={styles.emptySubtext}>
+          Inicia sesión como mayorista para poder guardar y ver tus productos favoritos
+        </Text>
       </View>
     );
   }

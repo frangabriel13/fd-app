@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { Product, Manufacturer } from '@/types/product';
@@ -21,9 +21,22 @@ const DetailProduct = ({ product, manufacturer }: DetailProductProps) => {
     selectIsProductFavorite(productIdNumber)(state)
   );
   
+  // Obtener el rol del usuario autenticado
+  const userRole = useSelector((state: RootState) => state.auth.user?.role);
+  
   // Handler para toggle de favoritos
   const handleToggleFavorite = async () => {
     if (!product?.id) return;
+    
+    // Verificar si el usuario es mayorista
+    if (userRole !== 'wholesaler') {
+      Alert.alert(
+        'Acceso restringido',
+        'Inicia sesión como mayorista para poder agregar productos a favoritos',
+        [{ text: 'Entendido', style: 'default' }]
+      );
+      return;
+    }
     
     const productId = parseInt(product.id);
     
