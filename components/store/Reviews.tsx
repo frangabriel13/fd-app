@@ -3,10 +3,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { deleteReview, updateReview } from '@/store/slices/reviewSlice';
+import { deleteReview, updateReview, createReview } from '@/store/slices/reviewSlice';
 import { getManufacturerById } from '@/store/slices/manufacturerSlice';
 import ReviewsModal from '@/components/modals/ReviewsModal';
 import EditReviewModal from '@/components/modals/EditReviewModal';
+import CreateReviewModal from '@/components/modals/CreateReviewModal';
 
 const Reviews = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -14,6 +15,7 @@ const Reviews = () => {
   const { user } = useSelector((state: RootState) => state.user);
   const [modalVisible, setModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [createModalVisible, setCreateModalVisible] = useState(false);
   const [selectedReview, setSelectedReview] = useState<any>(null);
   
   if (!selectedManufacturer) {
@@ -128,9 +130,42 @@ const Reviews = () => {
     );
   };
 
+  const handleCreateReview = () => {
+    setCreateModalVisible(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    setCreateModalVisible(false);
+  };
+
+  const handleSaveCreate = async (manufacturerId: number, rating: number, comment: string) => {
+    try {
+      await dispatch(createReview({ manufacturerId, rating, comment })).unwrap();
+      // Recargar el fabricante para actualizar las reviews
+      if (selectedManufacturer?.id) {
+        await dispatch(getManufacturerById(selectedManufacturer.id));
+      }
+      Alert.alert('Éxito', 'Tu comentario ha sido publicado');
+    } catch (error: any) {
+      Alert.alert('Error', error || 'No se pudo publicar el comentario');
+      throw error; // Re-lanzar para que el modal maneje el estado
+    }
+  };
+
+  // Verificar si el usuario actual ya tiene una review
+  const userHasReview = currentUserId && reviews.some((review: any) => review.user?.id === Number(currentUserId));
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Comentarios:</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.title}>Comentarios:</Text>
+        {currentUserId && !userHasReview && (
+          <TouchableOpacity style={styles.addReviewButton} onPress={handleCreateReview}>
+            <Ionicons name="star" size={18} color="white" />
+            <Text style={styles.addReviewText}>Calificar</Text>
+          </TouchableOpacity>
+        )}
+      </View>
       
       {reviews.length === 0 ? (
         <View style={styles.noReviewsContainer}>
@@ -204,6 +239,13 @@ const Reviews = () => {
         review={selectedReview}
         onSave={handleSaveEdit}
       />
+      
+      <CreateReviewModal 
+        visible={createModalVisible}
+        onClose={handleCloseCreateModal}
+        manufacturerId={selectedManufacturer.id}
+        onSave={handleSaveCreate}
+      />
     </View>
   );
 };
@@ -223,10 +265,32 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   title: {
     fontSize: 18,
     fontWeight: '700',
     color: '#262626',
+  },
+  addReviewButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f86f1a',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#f86f1a',
+    gap: 4,
+  },
+  addReviewText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: 'white',
   },
   noReviewsContainer: {
     paddingVertical: 24,
