@@ -3,15 +3,18 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { deleteReview } from '@/store/slices/reviewSlice';
+import { deleteReview, updateReview } from '@/store/slices/reviewSlice';
 import { getManufacturerById } from '@/store/slices/manufacturerSlice';
 import ReviewsModal from '@/components/modals/ReviewsModal';
+import EditReviewModal from '@/components/modals/EditReviewModal';
 
 const Reviews = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { selectedManufacturer } = useSelector((state: RootState) => state.manufacturer);
   const { user } = useSelector((state: RootState) => state.user);
   const [modalVisible, setModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedReview, setSelectedReview] = useState<any>(null);
   
   if (!selectedManufacturer) {
     return null;
@@ -75,21 +78,28 @@ const Reviews = () => {
   };
 
   const handleEditReview = (review: any) => {
-    // TODO: Implementar modal o navegación para editar
-    Alert.alert(
-      'Editar comentario',
-      '¿Deseas editar tu comentario?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Editar', 
-          onPress: () => {
-            // Aquí puedes abrir un modal o navegar a una pantalla de edición
-            console.log('Editar review:', review.id);
-          }
-        }
-      ]
-    );
+    setSelectedReview(review);
+    setEditModalVisible(true);
+    setModalVisible(false); // Cerrar el modal de reviews si está abierto
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalVisible(false);
+    setSelectedReview(null);
+  };
+
+  const handleSaveEdit = async (reviewId: number, rating: number, comment: string) => {
+    try {
+      await dispatch(updateReview({ id: reviewId, rating, comment })).unwrap();
+      // Recargar el fabricante para actualizar las reviews
+      if (selectedManufacturer?.id) {
+        await dispatch(getManufacturerById(selectedManufacturer.id));
+      }
+      Alert.alert('Éxito', 'Comentario actualizado correctamente');
+    } catch (error: any) {
+      Alert.alert('Error', error || 'No se pudo actualizar el comentario');
+      throw error; // Re-lanzar para que el modal maneje el estado
+    }
   };
 
   const handleDeleteReview = (reviewId: number) => {
@@ -184,6 +194,13 @@ const Reviews = () => {
         currentUserId={currentUserId ? Number(currentUserId) : undefined}
         onEditReview={handleEditReview}
         onDeleteReview={handleDeleteReview}
+      />
+      
+      <EditReviewModal 
+        visible={editModalVisible}
+        onClose={handleCloseEditModal}
+        review={selectedReview}
+        onSave={handleSaveEdit}
       />
     </View>
   );
