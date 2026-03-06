@@ -67,7 +67,7 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ product }) => {
 
       {/* Información del producto */}
       <View style={styles.infoContainer}>
-        <Text style={styles.productName} numberOfLines={2} ellipsizeMode="tail">
+        <Text style={styles.productName} numberOfLines={1} ellipsizeMode="tail">
           {product.name}
         </Text>
         <Text style={styles.price}>{formatPrice(product.price)}</Text>
@@ -81,16 +81,18 @@ const styles = StyleSheet.create({
     width: '48%',
     backgroundColor: '#fff',
     borderRadius: 12,
-    marginBottom: 16,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
     overflow: 'hidden',
+    borderWidth: 0.5,
+    borderColor: 'rgba(0, 0, 0, 0.05)',
   },
   deleteButton: {
     position: 'absolute',
@@ -113,28 +115,32 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   imageContainer: {
+    position: 'relative',
     width: '100%',
-    height: 180,
+    height: 240,
     backgroundColor: '#f5f5f5',
+    overflow: 'hidden',
   },
   productImage: {
     width: '100%',
     height: '100%',
+    backgroundColor: '#f5f5f5',
   },
   infoContainer: {
-    padding: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
   },
   productName: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 16,
+    fontWeight: '400',
     color: '#1a1a1a',
-    marginBottom: 8,
-    lineHeight: 18,
+    lineHeight: 20,
   },
   price: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#021344',
+    fontSize: 20,
+    fontWeight: '500',
+    color: '#666',
+    marginTop: 2,
   },
 });
 
