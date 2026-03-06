@@ -5,12 +5,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { deleteReview } from '@/store/slices/reviewSlice';
 import { getManufacturerById } from '@/store/slices/manufacturerSlice';
+import ReviewsModal from '@/components/modals/ReviewsModal';
 
 const Reviews = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { selectedManufacturer } = useSelector((state: RootState) => state.manufacturer);
   const { user } = useSelector((state: RootState) => state.user);
-  const [showAll, setShowAll] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   
   if (!selectedManufacturer) {
     return null;
@@ -59,15 +60,18 @@ const Reviews = () => {
   const getReviewsToShow = () => {
     if (reviews.length === 0) return [];
     if (reviews.length === 1) return reviews;
-    if (showAll) return reviews;
     return reviews.slice(0, 2);
   };
 
   const reviewsToShow = getReviewsToShow();
-  const hasMoreReviews = reviews.length > 2;
+  const hasReviews = reviews.length > 0;
 
-  const handleToggleReviews = () => {
-    setShowAll(!showAll);
+  const handleOpenModal = () => {
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
   };
 
   const handleEditReview = (review: any) => {
@@ -165,15 +169,22 @@ const Reviews = () => {
             );
           })}
           
-          {hasMoreReviews && (
-            <TouchableOpacity style={styles.seeMoreButton} onPress={handleToggleReviews}>
-              <Text style={styles.seeMoreText}>
-                {showAll ? 'Ver menos comentarios' : 'Ver más comentarios'}
-              </Text>
+          {hasReviews && (
+            <TouchableOpacity style={styles.seeMoreButton} onPress={handleOpenModal}>
+              <Text style={styles.seeMoreText}>Ver todo</Text>
             </TouchableOpacity>
           )}
         </>
       )}
+      
+      <ReviewsModal 
+        visible={modalVisible}
+        onClose={handleCloseModal}
+        reviews={reviews}
+        currentUserId={currentUserId ? Number(currentUserId) : undefined}
+        onEditReview={handleEditReview}
+        onDeleteReview={handleDeleteReview}
+      />
     </View>
   );
 };
