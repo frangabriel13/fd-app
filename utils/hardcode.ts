@@ -156,12 +156,12 @@ export const genders = [
     url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/mujer/12+otros.png',
     image: image,
     categories: [
-      { id: 130, name: 'Blanquería', image, url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/mujer/12+otros.png', img: bisuteriaImg },
-      { id: 131, name: 'Bisutería', image, url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/mujer/12+otros.png', img: blanqueriaImg },
-      { id: 161, name: 'Packs', image, url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/mujer/12+otros.png', img: image },
-      { id: 162, name: 'Telas textiles', image, url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/mujer/12+otros.png', img: image },
-      { id: 163, name: 'Costura y confección', image, url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/mujer/12+otros.png', img: image },
-      { id: 164, name: 'Máquinas textiles', image, url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/mujer/12+otros.png', img: image },
+      { id: 130, name: 'Blanquería', image, url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/mas/blanqueria.png', img: bisuteriaImg },
+      { id: 131, name: 'Bisutería', image, url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/mas/accesorios.png', img: blanqueriaImg },
+      { id: 161, name: 'Packs', image, url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/mas/packs-combos.png', img: image },
+      { id: 162, name: 'Telas textiles', image, url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/mas/telas+textil.png', img: image },
+      { id: 163, name: 'Costura y confección', image, url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/mas/art.+para+la+confeccion.png', img: image },
+      { id: 164, name: 'Máquinas textiles', image, url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/mas/maquinas+textiles.png', img: image },
     ],
   },
 ];
