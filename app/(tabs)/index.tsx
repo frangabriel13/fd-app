@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { fetchMobileHomeProducts } from '@/store/slices/productSlice';
 import type { AppDispatch } from '@/store';
+import Info from '@/components/home/Info';
 
 const HomeScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -30,8 +31,9 @@ const HomeScreen = () => {
         <ProductSlider title="Calzado" section="calzado" />
         <ProductSlider title="Bisutería" section="bisuteria" />
         <ProductSlider title="Telas" section="telas" />
-        <ProductSlider title="Insumos" section="insumos" />
+        {/* <ProductSlider title="Insumos" section="insumos" /> */}
         <ProductSlider title="Máquinas" section="maquinas" />
+        <Info />
       </View>
     </ScrollView>
   );
@@ -40,7 +42,7 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f3f4f6',
   },
   homeContent: {
     paddingVertical: 16,

@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { fetchAllLiveManufacturers } from '../../store/slices/manufacturerSlice';
 import Images from '@/constants/Images';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = (width - 32 - 24) / 4; // 32 padding horizontal, 24 gaps entre elementos
@@ -20,8 +21,7 @@ const LiveManufacturers = () => {
   }, [dispatch]);
 
   const handleSeeMore = () => {
-    // TODO: Navegar a la pantalla completa de fabricantes en vivo
-    console.log('Ver más fabricantes en vivo');
+    router.push('/(tabs)/fabricantes');
   };
 
   const handleManufacturerPress = (manufacturer: any) => {
@@ -48,12 +48,14 @@ const LiveManufacturers = () => {
   if (loading && manufacturers.length === 0) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.header}
+          onPress={handleSeeMore}
+          activeOpacity={0.6}
+        >
           <Text style={styles.title}>Live Shopping</Text>
-          <TouchableOpacity onPress={handleSeeMore}>
-            <Text style={styles.seeMore}>más&gt;</Text>
-          </TouchableOpacity>
-        </View>
+          <AntDesign name="right" size={18} color="#1a1a1a" />
+        </TouchableOpacity>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Cargando...</Text>
         </View>
@@ -64,12 +66,14 @@ const LiveManufacturers = () => {
   if (manufacturers.length === 0) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.header}
+          onPress={handleSeeMore}
+          activeOpacity={0.6}
+        >
           <Text style={styles.title}>Live Shopping</Text>
-          <TouchableOpacity onPress={handleSeeMore}>
-            <Text style={styles.seeMore}>más&gt;</Text>
-          </TouchableOpacity>
-        </View>
+          <AntDesign name="right" size={18} color="#1a1a1a" />
+        </TouchableOpacity>
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>No hay fabricantes en vivo</Text>
         </View>
@@ -79,12 +83,14 @@ const LiveManufacturers = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <TouchableOpacity 
+        style={styles.header}
+        onPress={handleSeeMore}
+        activeOpacity={0.6}
+      >
         <Text style={styles.title}>Live Shopping</Text>
-        <TouchableOpacity onPress={handleSeeMore}>
-          <Text style={styles.seeMore}>más&gt;</Text>
-        </TouchableOpacity>
-      </View>
+        <AntDesign name="right" size={18} color="#1a1a1a" />
+      </TouchableOpacity>
       
       <ScrollView 
         horizontal
@@ -127,29 +133,29 @@ const LiveManufacturers = () => {
 const styles = StyleSheet.create({
   container: {
     marginTop: 20,
+    backgroundColor: 'white',
+    borderRadius: 6,
+    paddingVertical: 4,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 12,
+    paddingHorizontal: 8,
+    // paddingVertical: 4,
+    marginBottom: 2,
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
-  },
-  seeMore: {
-    fontSize: 14,
-    color: '#0a7ea4',
-    fontWeight: '500',
+    color: '#1a1a1a',
+    letterSpacing: -0.3,
   },
   scrollView: {
-    paddingLeft: 16,
+    paddingLeft: 4,
   },
   scrollContainer: {
-    paddingRight: 16,
+    paddingRight: 4,
   },
   manufacturerItem: {
     width: ITEM_WIDTH,
@@ -164,7 +170,7 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     position: 'relative',
-    marginBottom: 8,
+    // marginBottom: 8,
   },
   avatar: {
     width: ITEM_WIDTH - 8,

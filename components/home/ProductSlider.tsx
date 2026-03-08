@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import type { RootState } from '@/store';
 import { Colors } from '@/constants/Colors';
 
@@ -21,8 +21,35 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
   };
 
   const handleMorePress = () => {
-    Alert.alert('Ver más', `Ver más productos de ${title}`);
-    console.log('Ver más productos de:', title);
+    console.log('Ver más productos de:', title, 'section:', section);
+    
+    // Mapa de redirecciones según la sección
+    const redirectConfig: Record<string, { genderId?: number; categoryId?: number; sortBy?: string }> = {
+      featured: {}, // Solo ir a tienda (por defecto está en destacados)
+      newProducts: { sortBy: 'newest' },
+      packs: { genderId: 7, categoryId: 161 },
+      sales: { sortBy: 'onSale' },
+      blanqueria: { genderId: 7, categoryId: 130 },
+      lenceria: { genderId: 3, categoryId: 153 },
+      calzado: { genderId: 2, categoryId: 154 },
+      bisuteria: { genderId: 7, categoryId: 131 },
+      telas: { genderId: 7, categoryId: 162 },
+      insumos: { genderId: 7, categoryId: 163 },
+      maquinas: { genderId: 7, categoryId: 164 },
+    };
+    
+    const config = redirectConfig[section] || {};
+    
+    // Construir la URL con los parámetros
+    const params = new URLSearchParams();
+    if (config.genderId) params.append('genderId', config.genderId.toString());
+    if (config.categoryId) params.append('categoryId', config.categoryId.toString());
+    if (config.sortBy) params.append('sortBy', config.sortBy);
+    
+    const queryString = params.toString();
+    const route = queryString ? `/(tabs)/tienda?${queryString}` : '/(tabs)/tienda';
+    
+    router.push(route as any);
   };
 
   const formatPrice = (price: number) => {
@@ -76,12 +103,14 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
   if (loading && products.length === 0) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.header}
+          onPress={handleMorePress}
+          activeOpacity={0.6}
+        >
           <Text style={styles.title}>{title}</Text>
-          <TouchableOpacity onPress={handleMorePress}>
-            <Text style={styles.moreText}>más &gt;</Text>
-          </TouchableOpacity>
-        </View>
+          <AntDesign name="right" size={18} color="#1a1a1a" />
+        </TouchableOpacity>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Cargando productos...</Text>
         </View>
@@ -92,12 +121,14 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
   if (error) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.header}
+          onPress={handleMorePress}
+          activeOpacity={0.6}
+        >
           <Text style={styles.title}>{title}</Text>
-          <TouchableOpacity onPress={handleMorePress}>
-            <Text style={styles.moreText}>más &gt;</Text>
-          </TouchableOpacity>
-        </View>
+          <AntDesign name="right" size={18} color="#1a1a1a" />
+        </TouchableOpacity>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Error al cargar productos</Text>
         </View>
@@ -111,13 +142,14 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <TouchableOpacity 
+        style={styles.header}
+        onPress={handleMorePress}
+        activeOpacity={0.6}
+      >
         <Text style={styles.title}>{title}</Text>
-        <TouchableOpacity style={styles.moreButton} onPress={handleMorePress} activeOpacity={0.7}>
-          <Text style={styles.moreText}>Ver más</Text>
-          <Ionicons name="chevron-forward" size={16} color={Colors.blue.default} />
-        </TouchableOpacity>
-      </View>
+        <AntDesign name="right" size={18} color="#1a1a1a" />
+      </TouchableOpacity>
       <FlatList
         data={products}
         renderItem={renderProduct}
@@ -133,41 +165,29 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 16,
+    marginVertical: 8,
+    borderRadius: 6,
+    backgroundColor: 'white',
+    paddingVertical: 4,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
-    paddingHorizontal: 4,
+    paddingHorizontal: 8,
+    marginBottom: 2,
   },
   title: {
     fontSize: 18,
-    fontWeight: '700',
-    color: Colors.light.text,
-  },
-  moreButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.2)',
-  },
-  moreText: {
-    fontSize: 13,
-    color: Colors.blue.default,
-    fontWeight: '500',
-    marginRight: 2,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    letterSpacing: -0.3,
   },
   listContainer: {
-    paddingHorizontal: 4,
+    // paddingHorizontal: 4,
   },
   separator: {
-    width: 12,
+    width: 2,
   },
   productCard: {
     width: 180,
@@ -180,7 +200,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.08,
     shadowRadius: 6,
-    elevation: 4,
+    elevation: 2,
     overflow: 'hidden',
     borderWidth: 0.5,
     borderColor: 'rgba(0, 0, 0, 0.05)',

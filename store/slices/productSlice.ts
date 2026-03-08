@@ -22,6 +22,7 @@ interface ShopFilters {
   genderId: number | null;
   categoryId: number | null;
   searchTerm: string | null;
+  sortBy: string | null;
 }
 
 interface StorePagination {
@@ -227,7 +228,8 @@ const initialState: ProductState = {
   shopFilters: {
     genderId: null,
     categoryId: null,
-    searchTerm: null
+    searchTerm: null,
+    sortBy: null
   },
   searchInfo: null,
   storeProducts: [],
@@ -251,10 +253,11 @@ const initialState: ProductState = {
 
 export const fetchShopProducts = createAsyncThunk(
   'product/fetchShopProducts',
-  async ({ genderId, categoryId, searchTerm, page = 1, limit = 10, append = false }: {
+  async ({ genderId, categoryId, searchTerm, sortBy, page = 1, limit = 10, append = false }: {
     genderId?: number;
     categoryId?: number;
     searchTerm?: string;
+    sortBy?: string;
     page?: number;
     limit?: number;
     append?: boolean;
@@ -264,6 +267,7 @@ export const fetchShopProducts = createAsyncThunk(
       if (genderId) params.append('genderId', genderId.toString());
       if (categoryId) params.append('categoryId', categoryId.toString());
       if (searchTerm) params.append('searchTerm', searchTerm);
+      if (sortBy) params.append('sortBy', sortBy);
       params.append('page', page.toString());
       params.append('limit', limit.toString());
 
@@ -443,7 +447,8 @@ const productSlice = createSlice({
       state.shopFilters = {
         genderId: null,
         categoryId: null,
-        searchTerm: null
+        searchTerm: null,
+        sortBy: null
       };
     },
     clearStoreProducts: (state) => {

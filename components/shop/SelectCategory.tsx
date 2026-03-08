@@ -5,12 +5,13 @@ import { Colors } from '@/constants/Colors';
 
 type SelectCategoryProps = {
   selectedGenderId: number;
+  selectedCategoryId?: number;
   onCategorySelect?: (categoryId: number) => void;
 };
 
-const SelectCategory = ({ selectedGenderId, onCategorySelect }: SelectCategoryProps) => {
+const SelectCategory = ({ selectedGenderId, selectedCategoryId, onCategorySelect }: SelectCategoryProps) => {
   const selectedGender = genders.find(gender => gender.id === selectedGenderId);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(selectedCategoryId || null);
 
   const handleCategorySelect = (categoryId: number) => {
     setSelectedCategory(categoryId);
@@ -20,9 +21,14 @@ const SelectCategory = ({ selectedGenderId, onCategorySelect }: SelectCategoryPr
   useEffect(() => {
     if (selectedGender) {
       console.log(`Categorías de ${selectedGender.name}:`, selectedGender.categories);
-      setSelectedCategory(null); // Reset selection when gender changes
+      // Si hay una categoría preseleccionada por prop, usarla
+      if (selectedCategoryId) {
+        setSelectedCategory(selectedCategoryId);
+      } else {
+        setSelectedCategory(null); // Reset selection when gender changes
+      }
     }
-  }, [selectedGender]);
+  }, [selectedGender, selectedCategoryId]);
 
   return (
     <View style={styles.container}>
@@ -46,15 +52,19 @@ const SelectCategory = ({ selectedGenderId, onCategorySelect }: SelectCategoryPr
               selectedCategory === category.id && styles.selectedImageContainer
             ]}>
               <Image 
-                source={category.img} 
+                source={{ uri: category.url }} 
                 style={styles.categoryImage}
                 resizeMode="cover"
               />
             </View>
-            <Text style={[
-              styles.categoryText,
-              selectedCategory === category.id && styles.selectedText
-            ]}>
+            <Text 
+              style={[
+                styles.categoryText,
+                selectedCategory === category.id && styles.selectedText
+              ]}
+              numberOfLines={2}
+              ellipsizeMode="tail"
+            >
               {category.name}
             </Text>
           </TouchableOpacity>
@@ -77,6 +87,9 @@ const styles = StyleSheet.create({
   categoryButton: {
     alignItems: 'center',
     paddingHorizontal: 6,
+    minHeight: 90,
+    justifyContent: 'flex-start',
+    width: 70,
   },
   firstButton: {
     paddingLeft: 8,
@@ -108,7 +121,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#666666',
     textAlign: 'center',
-    maxWidth: 60,
+    maxWidth: 70,
+    lineHeight: 14,
+    marginTop: 4,
   },
   selectedText: {
     color: Colors.blue.default,

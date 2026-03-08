@@ -1,6 +1,9 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useDispatch, useSelector } from 'react-redux';
 import { Product, Manufacturer } from '@/types/product';
+import { addFavorite, removeFavorite, getFavorites, selectIsProductFavorite } from '@/store/slices/favoriteSlice';
+import { AppDispatch, RootState } from '@/store';
 
 interface DetailProductProps {
   product?: Product;
@@ -8,6 +11,49 @@ interface DetailProductProps {
 }
 
 const DetailProduct = ({ product, manufacturer }: DetailProductProps) => {
+  const dispatch = useDispatch<AppDispatch>();
+  
+  // Convertir el ID del producto a número para el selector
+  const productIdNumber = product?.id ? parseInt(product.id) : 0;
+  
+  // Verificar si el producto está en favoritos
+  const isFavorite = useSelector((state: RootState) => 
+    selectIsProductFavorite(productIdNumber)(state)
+  );
+  
+  // Obtener el rol del usuario autenticado
+  const userRole = useSelector((state: RootState) => state.auth.user?.role);
+  
+  // Handler para toggle de favoritos
+  const handleToggleFavorite = async () => {
+    if (!product?.id) return;
+    
+    // Verificar si el usuario es mayorista
+    if (userRole !== 'wholesaler') {
+      Alert.alert(
+        'Acceso restringido',
+        'Inicia sesión como mayorista para poder agregar productos a favoritos',
+        [{ text: 'Entendido', style: 'default' }]
+      );
+      return;
+    }
+    
+    const productId = parseInt(product.id);
+    
+    try {
+      if (isFavorite) {
+        await dispatch(removeFavorite(productId)).unwrap();
+        // Recargar favoritos para sincronizar el estado
+        await dispatch(getFavorites());
+      } else {
+        await dispatch(addFavorite(productId)).unwrap();
+        // Recargar favoritos para sincronizar el estado
+        await dispatch(getFavorites());
+      }
+    } catch (error: any) {
+      console.error('Error al actualizar favoritos:', error);
+    }
+  };
   return (
     <View className="p-0">
       {/* Categoría y Género */}
@@ -24,8 +70,12 @@ const DetailProduct = ({ product, manufacturer }: DetailProductProps) => {
           <TouchableOpacity className="mr-3">
             <Ionicons name="share-outline" size={26} color="#021344" />
           </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="heart-outline" size={26} color="#f86f1a" />
+          <TouchableOpacity onPress={handleToggleFavorite}>
+            <Ionicons 
+              name={isFavorite ? "heart" : "heart-outline"} 
+              size={26} 
+              color="#f86f1a" 
+            />
           </TouchableOpacity>
         </View>
       </View>
