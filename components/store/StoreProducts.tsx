@@ -183,8 +183,9 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   row: {
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     paddingHorizontal: 0,
+    gap: 10,
   },
   separator: {
     height: 10,
