@@ -44,9 +44,18 @@ export default function EditarUsuarioScreen() {
     }
   }, [selectedManufacturer, isInitialized]);
 
+  const handlePointOfSaleChange = (value: boolean) => {
+    setPointOfSale(value);
+    // Si se desactiva el punto de venta, limpiar la dirección
+    if (!value) {
+      setStreet('');
+    }
+  };
+
   const handleSave = async () => {
-    if (!street.trim()) {
-      Alert.alert('Error', 'La dirección no puede estar vacía');
+    // Solo validar dirección si tiene punto de venta
+    if (pointOfSale && !street.trim()) {
+      Alert.alert('Error', 'La dirección no puede estar vacía cuando tiene punto de venta');
       return;
     }
 
@@ -61,7 +70,7 @@ export default function EditarUsuarioScreen() {
             try {
               await dispatch(updateManufacturerByAdmin({
                 id: parseInt(userId),
-                street,
+                street: pointOfSale ? street : null,
                 pointOfSale,
                 subscriptionPlan
               })).unwrap();
@@ -101,26 +110,9 @@ export default function EditarUsuarioScreen() {
             </Text>
           </View>
 
-          {/* Address Section */}
-          <View className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
-            <Text className="text-base font-semibold text-gray-900 mb-3">
-              Dirección del Fabricante
-            </Text>
-            <TextInput
-              value={street}
-              onChangeText={setStreet}
-              multiline
-              numberOfLines={3}
-              className="bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900"
-              placeholder="Ej: Av. Principal 123, Centro"
-              textAlignVertical="top"
-              style={{ minHeight: 80 }}
-            />
-          </View>
-
           {/* Point of Sale Section */}
           <View className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
-            <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center justify-between mb-3">
               <View className="flex-1 mr-4">
                 <Text className="text-base font-semibold text-gray-900 mb-1">
                   Punto de Venta
@@ -131,11 +123,32 @@ export default function EditarUsuarioScreen() {
               </View>
               <Switch
                 value={pointOfSale}
-                onValueChange={setPointOfSale}
+                onValueChange={handlePointOfSaleChange}
                 trackColor={{ false: '#e5e7eb', true: '#3b82f6' }}
                 thumbColor={pointOfSale ? '#ffffff' : '#f3f4f6'}
               />
             </View>
+
+            {/* Address Section - Solo visible si tiene punto de venta */}
+            {pointOfSale && (
+              <>
+                <View className="border-t border-gray-200 pt-3">
+                  <Text className="text-base font-semibold text-gray-900 mb-2">
+                    Dirección del Local
+                  </Text>
+                  <TextInput
+                    value={street}
+                    onChangeText={setStreet}
+                    multiline
+                    numberOfLines={3}
+                    className="bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900"
+                    placeholder="Ej: Av. Principal 123, Centro"
+                    textAlignVertical="top"
+                    style={{ minHeight: 80 }}
+                  />
+                </View>
+              </>
+            )}
           </View>
 
           {/* Subscription Plan Section */}
