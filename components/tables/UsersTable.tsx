@@ -35,7 +35,6 @@ interface PendingManufacturer {
   createdAt: string;
   userId: number;
   verificationStatus: string;
-  street: string | null;
 }
 
 export default function UsersTable() {
@@ -81,6 +80,7 @@ export default function UsersTable() {
       dispatch(clearApprovedManufacturers());
       dispatch(clearPendingManufacturers());
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
   // Actualizar datos cuando cambia la página de aprobados
@@ -153,12 +153,13 @@ export default function UsersTable() {
   };
 
   const handleEdit = (manufacturer: ApprovedManufacturer | PendingManufacturer) => {
+    const isApproved = 'live' in manufacturer;
     router.push({
       pathname: '/(dashboard)/ver-usuarios/editar-usuario',
       params: { 
         userId: manufacturer.id.toString(), 
         userName: manufacturer.name,
-        street: manufacturer.street || ''
+        street: isApproved ? ((manufacturer as ApprovedManufacturer).street || '') : ''
       }
     });
   };
@@ -198,6 +199,16 @@ export default function UsersTable() {
     );
   };
 
+  const formatPlan = (plan?: 'free' | 'basic' | 'premium') => {
+    if (!plan) return '-';
+    const planNames = {
+      free: 'Free',
+      basic: 'Basic',
+      premium: 'Premium'
+    };
+    return planNames[plan] || '-';
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', {
@@ -205,6 +216,15 @@ export default function UsersTable() {
       month: '2-digit',
       year: 'numeric'
     });
+  };
+
+  const getPlanColor = (plan?: 'free' | 'basic' | 'premium') => {
+    const colors = {
+      free: { bg: '#F3F4F6', text: '#6B7280' },
+      basic: { bg: '#DBEAFE', text: '#1D4ED8' },
+      premium: { bg: '#FEF3C7', text: '#D97706' }
+    };
+    return colors[plan || 'free'] || colors.free;
   };
 
   const renderUserRow = (manufacturer: ApprovedManufacturer | PendingManufacturer) => {
@@ -222,12 +242,30 @@ export default function UsersTable() {
             </View>
           </TouchableOpacity>
           
-          {/* Creado Column */}
-          <TouchableOpacity className="w-24 items-center">
-            <Text className="text-gray-700 font-medium text-sm">
-              {formatDate(manufacturer.createdAt)}
-            </Text>
-          </TouchableOpacity>
+          {/* Suscripción/Creado Column */}
+          <View className="w-24 items-center">
+            {isApproved ? (
+              <View 
+                className="px-2 py-1 rounded-full min-w-[60px] items-center" 
+                style={{
+                  backgroundColor: getPlanColor((manufacturer as ApprovedManufacturer).subscriptions?.[0]?.plan).bg
+                }}
+              >
+                <Text 
+                  className="text-xs font-medium" 
+                  style={{
+                    color: getPlanColor((manufacturer as ApprovedManufacturer).subscriptions?.[0]?.plan).text
+                  }}
+                >
+                  {formatPlan((manufacturer as ApprovedManufacturer).subscriptions?.[0]?.plan)}
+                </Text>
+              </View>
+            ) : (
+              <Text className="text-gray-700 font-medium text-sm">
+                {formatDate(manufacturer.createdAt)}
+              </Text>
+            )}
+          </View>
           
           {/* Actions Column */}
           <View className="w-32 flex-row justify-center space-x-1">
@@ -345,10 +383,12 @@ export default function UsersTable() {
             
             <TouchableOpacity 
               className="w-24 items-center flex-row justify-center"
-              onPress={() => handleSort('createdAt')}
+              onPress={() => handleSort(activeTab === 'active' ? 'subscriptionPlan' : 'createdAt')}
             >
-              <Text className="text-gray-600 font-semibold text-sm">Creado</Text>
-              <View className="ml-1">{getSortIcon('createdAt')}</View>
+              <Text className="text-gray-600 font-semibold text-sm">
+                {activeTab === 'active' ? 'Suscripción' : 'Creado'}
+              </Text>
+              <View className="ml-1">{getSortIcon(activeTab === 'active' ? 'subscriptionPlan' : 'createdAt')}</View>
             </TouchableOpacity>
             
             <View className="w-32 items-center">
