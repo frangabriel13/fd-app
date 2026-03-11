@@ -56,6 +56,7 @@ interface Manufacturer {
   selfie?: string | null;
   tiktokUrl?: string | null;
   verificationStatus?: string;
+  subscriptionPlan?: 'free' | 'basic' | 'premium';
   createdAt?: string;
   updatedAt?: string;
 }
@@ -430,6 +431,40 @@ export const activateLiveManufacturer = createAsyncThunk(
   }
 );
 
+// Update Manufacturer by Admin
+export const updateManufacturerByAdmin = createAsyncThunk(
+  'manufacturer/updateManufacturerByAdmin',
+  async (
+    { 
+      id, 
+      street, 
+      pointOfSale, 
+      subscriptionPlan 
+    }: { 
+      id: number; 
+      street?: string | null;
+      pointOfSale?: boolean;
+      subscriptionPlan?: 'free' | 'basic' | 'premium';
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const data: any = {};
+      if (street !== undefined) data.street = street;
+      if (pointOfSale !== undefined) data.pointOfSale = pointOfSale;
+      if (subscriptionPlan !== undefined) data.subscriptionPlan = subscriptionPlan;
+
+      const response = await manufacturerInstance.put(`/admin/${id}`, data);
+      return {
+        id,
+        manufacturer: response.data.manufacturer
+      };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al actualizar fabricante por admin');
+    }
+  }
+);
+
 // Slice
 const manufacturerSlice = createSlice({
   name: 'manufacturer',
@@ -720,7 +755,7 @@ const manufacturerSlice = createSlice({
           state.liveManufacturers[liveIndex] = {
             ...state.liveManufacturers[liveIndex],
             name: updatedManufacturer.name,
-            tiktokUrl: updatedManufacturer.tiktokUrl
+            tiktokUrl: updatedManufacturer.tiktokUrl ?? null
           };
         }
         
@@ -764,7 +799,7 @@ const manufacturerSlice = createSlice({
         if (liveIndex !== -1) {
           state.liveManufacturers[liveIndex] = {
             ...state.liveManufacturers[liveIndex],
-            live: updatedManufacturer.live
+            live: updatedManufacturer.live ?? false
           };
         }
         
@@ -773,13 +808,57 @@ const manufacturerSlice = createSlice({
         if (approvedIndex !== -1) {
           state.approvedManufacturers[approvedIndex] = {
             ...state.approvedManufacturers[approvedIndex],
-            live: updatedManufacturer.live
+            live: updatedManufacturer.live ?? false
           };
         }
       })
       .addCase(activateLiveManufacturer.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string || 'Error al cambiar estado live';
+      })
+      // Update Manufacturer by Admin
+      .addCase(updateManufacturerByAdmin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateManufacturerByAdmin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        const { id, manufacturer } = action.payload;
+        
+        // Actualizar en la lista de fabricantes aprobados
+        const approvedIndex = state.approvedManufacturers.findIndex(m => m.id === id);
+        if (approvedIndex !== -1) {
+          state.approvedManufacturers[approvedIndex] = {
+            ...state.approvedManufacturers[approvedIndex],
+            street: manufacturer.street,
+            // Note: ApprovedManufacturer no tiene pointOfSale ni subscriptionPlan en su interfaz
+          };
+        }
+        
+        // Actualizar selectedManufacturer si coincide
+        if (state.selectedManufacturer && state.selectedManufacturer.id === id) {
+          state.selectedManufacturer = {
+            ...state.selectedManufacturer,
+            street: manufacturer.street,
+            pointOfSale: manufacturer.pointOfSale,
+            subscriptionPlan: manufacturer.subscriptionPlan
+          };
+        }
+        
+        // Actualizar manufacturer actual si coincide
+        if (state.manufacturer && state.manufacturer.id === id) {
+          state.manufacturer = {
+            ...state.manufacturer,
+            street: manufacturer.street,
+            pointOfSale: manufacturer.pointOfSale,
+            subscriptionPlan: manufacturer.subscriptionPlan
+          };
+        }
+      })
+      .addCase(updateManufacturerByAdmin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || 'Error al actualizar fabricante por admin';
       });
 
   },
