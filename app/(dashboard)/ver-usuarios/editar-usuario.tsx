@@ -39,7 +39,16 @@ export default function EditarUsuarioScreen() {
     if (selectedManufacturer && !isInitialized) {
       setStreet(selectedManufacturer.street || '');
       setPointOfSale(selectedManufacturer.pointOfSale || false);
-      setSubscriptionPlan(selectedManufacturer.subscriptionPlan || 'free');
+      
+      // Obtener el plan de suscripción (el backend ya filtra por status 'active')
+      const activeSub = selectedManufacturer.subscriptions?.[0]; // Solo llegan las activas del backend
+      const plan = activeSub?.plan || selectedManufacturer.subscriptionPlan || 'free';
+      
+      console.log('Subscriptions:', selectedManufacturer.subscriptions);
+      console.log('Active Sub:', activeSub);
+      console.log('Selected Plan:', plan);
+      
+      setSubscriptionPlan(plan);
       setIsInitialized(true);
     }
   }, [selectedManufacturer, isInitialized]);

@@ -4,6 +4,12 @@ import { refreshTokenService } from '../../services/authService';
 import { manufacturerInstance, adminInstance } from '../../services/axiosConfig';
 
 // Tipos
+interface Subscription {
+  id: number;
+  plan: 'free' | 'basic' | 'premium';
+  status?: string; // Opcional porque no siempre viene del backend
+}
+
 interface Review {
   id: number;
   rating: number;
@@ -23,6 +29,7 @@ interface ManufacturerDetail extends Manufacturer {
   followersCount: number;
   isFollowed: boolean;
   reviews: Review[];
+  subscriptions?: Subscription[];
   user: {
     id: number;
     email: string;
@@ -80,6 +87,7 @@ interface ApprovedManufacturer {
   live: boolean;
   userId: number;
   street: string | null;
+  subscriptions?: Subscription[];
 }
 
 interface PendingManufacturer {
