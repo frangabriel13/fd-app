@@ -13,13 +13,20 @@ import {
 import Pagination from './Pagination';
 
 // Tipos locales basados en los del slice
+interface Subscription {
+  id: number;
+  plan: 'free' | 'basic' | 'premium';
+  status?: string; // Opcional porque no siempre viene del backend
+}
+
 interface ApprovedManufacturer {
   id: number;
   name: string;
   createdAt: string;
   live: boolean;
   userId: number;
-  street: string;
+  street: string | null;
+  subscriptions?: Subscription[];
 }
 
 interface PendingManufacturer {
@@ -28,7 +35,7 @@ interface PendingManufacturer {
   createdAt: string;
   userId: number;
   verificationStatus: string;
-  street: string;
+  street: string | null;
 }
 
 export default function UsersTable() {
