@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { 
   fetchApprovedManufacturers, 
@@ -106,6 +106,25 @@ export default function UsersTable() {
       }));
     }
   }, [currentPagePending, dispatch, activeTab, sortByPending, sortOrderPending]);
+
+  // Recargar datos cuando la pantalla vuelve a tener foco
+  useFocusEffect(
+    useCallback(() => {
+      // Recargar ambas listas para asegurar que cualquier cambio se refleje
+      dispatch(fetchApprovedManufacturers({ 
+        page: currentPageApproved, 
+        pageSize, 
+        sortBy, 
+        sortOrder 
+      }));
+      dispatch(fetchPendingManufacturers({ 
+        page: currentPagePending, 
+        pageSize, 
+        sortBy: sortByPending, 
+        sortOrder: sortOrderPending 
+      }));
+    }, [currentPageApproved, currentPagePending, sortBy, sortOrder, sortByPending, sortOrderPending, dispatch])
+  );
 
   const activeUsers = approvedManufacturers || [];
   const pendingUsers = pendingManufacturers || [];
