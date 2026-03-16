@@ -23,6 +23,7 @@ export interface Product {
   userId: number;
   tags: string[];
   onSale: boolean;
+  videoUrl?: string;
   stock: number;
   logo?: string;
   minPurchase: number;

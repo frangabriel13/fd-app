@@ -7,7 +7,7 @@ export * from './cartService';
 
 // Re-export todas las instancias de axios para facilitar su uso
 export {
-  adminInstance, authInstance, categoryInstance, colorInstance, favoriteInstance, genderInstance, imageInstance, manufacturerInstance, orderInstance, packInstance, productInstance, reviewInstance, sizeInstance, userInstance, wholesalerInstance
+  adminInstance, authInstance, cartInstance, categoryInstance, colorInstance, favoriteInstance, genderInstance, imageInstance, manufacturerInstance, orderInstance, packInstance, productInstance, reviewInstance, sizeInstance, userInstance, videoInstance, wholesalerInstance
 } from './axiosConfig';
 
 // Objeto con todas las instancias para acceso fácil
@@ -15,6 +15,7 @@ export const apiInstances = {
   manufacturer: axiosInstances.manufacturerInstance,
   user: axiosInstances.userInstance,
   product: axiosInstances.productInstance,
+  video: axiosInstances.videoInstance,
   auth: axiosInstances.authInstance,
   wholesaler: axiosInstances.wholesalerInstance,
   category: axiosInstances.categoryInstance,
@@ -27,4 +28,5 @@ export const apiInstances = {
   review: axiosInstances.reviewInstance,
   favorite: axiosInstances.favoriteInstance,
   admin: axiosInstances.adminInstance,
+  cart: axiosInstances.cartInstance,
 };

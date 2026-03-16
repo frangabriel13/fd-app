@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { productInstance } from '@/services';
+import { productInstance, videoInstance } from '@/services';
 import { Product, Manufacturer, ProductWithManufacturerResponse } from '@/types/product';
 
 interface ShopPagination {
@@ -90,6 +90,11 @@ interface MyProduct extends Pick<Product, 'id' | 'name' | 'price' | 'mainImage' 
     id: number;
     name: string;
   };
+}
+
+interface UploadVideoResponse {
+  message: string;
+  videoUrl: string;
 }
 
 interface CreateSimpleProductData {
@@ -203,6 +208,9 @@ interface ProductState {
   updateError: string | null;
   isDeleting: boolean;
   deleteError: string | null;
+  uploadingVideo: boolean;
+  uploadVideoError: string | null;
+  uploadedVideoUrl: string | null;
   loading: boolean;
   error: string | null;
 }
@@ -247,6 +255,9 @@ const initialState: ProductState = {
   updateError: null,
   isDeleting: false,
   deleteError: null,
+  uploadingVideo: false,
+  uploadVideoError: null,
+  uploadedVideoUrl: null,
   loading: false,
   error: null,
 };
@@ -394,6 +405,27 @@ export const deleteProduct = createAsyncThunk(
   }
 );
 
+export const uploadProductVideo = createAsyncThunk(
+  'product/uploadProductVideo',
+  async ({ productId, videoFile }: { productId: string; videoFile: any }, { rejectWithValue }) => {
+    try {
+      console.log('Subiendo video para el producto:', productId);
+      const formData = new FormData();
+      formData.append('productId', productId);
+      formData.append('video', videoFile);
+
+      const response = await videoInstance.post('/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data as UploadVideoResponse;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al subir el video');
+    }
+  }
+);
+
 export const fetchMobileHomeProducts = createAsyncThunk(
   'product/fetchMobileHomeProducts',
   async (_, { rejectWithValue }) => {
@@ -485,6 +517,15 @@ const productSlice = createSlice({
     resetDeleteState: (state) => {
       state.isDeleting = false;
       state.deleteError = null;
+    },
+    clearUploadedVideo: (state) => {
+      state.uploadedVideoUrl = null;
+      state.uploadVideoError = null;
+    },
+    resetUploadVideoState: (state) => {
+      state.uploadingVideo = false;
+      state.uploadVideoError = null;
+      state.uploadedVideoUrl = null;
     },
   },
   extraReducers: (builder) => {
@@ -693,6 +734,25 @@ const productSlice = createSlice({
       .addCase(deleteProduct.rejected, (state, action: PayloadAction<any>) => {
         state.deleteError = action.payload;
         state.isDeleting = false;
+      })
+      .addCase(uploadProductVideo.pending, (state) => {
+        state.uploadingVideo = true;
+        state.uploadVideoError = null;
+        state.uploadedVideoUrl = null;
+      })
+      .addCase(uploadProductVideo.fulfilled, (state, action: PayloadAction<UploadVideoResponse>) => {
+        state.uploadingVideo = false;
+        state.uploadVideoError = null;
+        state.uploadedVideoUrl = action.payload.videoUrl;
+        // Actualizar el producto actual si está cargado
+        if (state.currentProduct) {
+          (state.currentProduct as any).videoUrl = action.payload.videoUrl;
+        }
+      })
+      .addCase(uploadProductVideo.rejected, (state, action: PayloadAction<any>) => {
+        state.uploadingVideo = false;
+        state.uploadVideoError = action.payload;
+        state.uploadedVideoUrl = null;
       });
   },
 });
@@ -711,7 +771,9 @@ export const {
   resetCreateState,
   clearUpdatedProduct,
   resetUpdateState,
-  resetDeleteState
+  resetDeleteState,
+  clearUploadedVideo,
+  resetUploadVideoState
 } = productSlice.actions;
 
 export default productSlice.reducer;
