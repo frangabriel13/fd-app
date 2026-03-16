@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Linking } from 'react-native';
 import { spacing, borderRadius, fontSize } from '../../constants/Styles';
 import { Colors } from '../../constants/Colors';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -176,6 +176,48 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
 
   const menuOptions = getMenuOptions();
 
+  // Obtener suscripción activa si es manufacturer
+  const activeSubscription = userRole === 'manufacturer' 
+    ? user?.manufacturer?.subscriptions?.find(sub => sub.status === 'active')
+    : null;
+
+  const planName = activeSubscription?.plan || 'Free';
+
+  // Función para capitalizar el nombre del plan
+  const getFormattedPlanName = (plan: string) => {
+    const planLower = plan.toLowerCase();
+    if (planLower === 'free') return 'Plan Gratuito';
+    if (planLower === 'basic') return 'Plan Básico';
+    if (planLower === 'premium') return 'Plan Premium';
+    return plan;
+  };
+
+  // Función para obtener color del plan
+  const getPlanColor = (plan: string) => {
+    const planLower = plan.toLowerCase();
+    if (planLower === 'free') return '#6B7280';
+    if (planLower === 'basic') return Colors.blue.default;
+    if (planLower === 'premium') return '#F59E0B';
+    return Colors.blue.default;
+  };
+
+  // Función para abrir WhatsApp
+  const handleContactAdmin = () => {
+    const phoneNumber = '5491234567890'; // Reemplaza con el número del admin
+    const message = encodeURIComponent('Hola, me gustaría cambiar mi plan de suscripción.');
+    const url = `https://wa.me/${phoneNumber}?text=${message}`;
+    
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (supported) {
+          Linking.openURL(url);
+        } else {
+          Alert.alert('Error', 'No se pudo abrir WhatsApp');
+        }
+      })
+      .catch(() => Alert.alert('Error', 'No se pudo abrir WhatsApp'));
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.menuContainer}>
@@ -194,6 +236,32 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
           </TouchableOpacity>
         ))}
       </View>
+
+      {/* Sección de suscripción (solo para manufacturers) */}
+      {userRole === 'manufacturer' && (
+        <View style={styles.subscriptionContainer}>
+          <View style={styles.subscriptionHeader}>
+            <MaterialIcons name="card-membership" size={20} color={getPlanColor(planName)} />
+            <Text style={styles.subscriptionTitle}>Mi Suscripción</Text>
+          </View>
+          <View style={styles.subscriptionContent}>
+            <View style={styles.planInfo}>
+              <Text style={styles.subscriptionPlan}>{getFormattedPlanName(planName)}</Text>
+              <View style={[styles.planBadge, { backgroundColor: getPlanColor(planName) }]}>
+                <Text style={styles.planBadgeText}>{planName.toUpperCase()}</Text>
+              </View>
+            </View>
+            <TouchableOpacity 
+              style={styles.whatsappButton}
+              onPress={handleContactAdmin}
+              activeOpacity={0.7}
+            >
+              <FontAwesome name="whatsapp" size={20} color="#25D366" />
+              <Text style={styles.whatsappButtonText}>Cambiar plan</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -230,6 +298,71 @@ const styles = StyleSheet.create({
     fontSize: fontSize.base,
     color: Colors.light.text,
     fontWeight: '500',
+  },
+  subscriptionContainer: {
+    backgroundColor: '#fff',
+    borderRadius: borderRadius.md,
+    marginTop: spacing.md,
+    padding: spacing.md,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  subscriptionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  subscriptionTitle: {
+    fontSize: fontSize.sm,
+    color: Colors.light.icon,
+    marginLeft: spacing.xs,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  subscriptionContent: {
+    gap: spacing.md,
+  },
+  planInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  subscriptionPlan: {
+    fontSize: fontSize.lg,
+    color: Colors.light.text,
+    fontWeight: '700',
+  },
+  planBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.sm,
+  },
+  planBadgeText: {
+    color: '#fff',
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    letterSpacing: 1,
+  },
+  whatsappButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F0FDF4',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: '#25D366',
+    gap: spacing.xs,
+  },
+  whatsappButtonText: {
+    color: '#25D366',
+    fontSize: fontSize.base,
+    fontWeight: '600',
   },
 });
 
