@@ -7,6 +7,7 @@ import { spacing, borderRadius } from '@/constants/Styles';
 import SelectColors from '@/components/createProduct/SelectColors';
 import SelectSizes from '@/components/createProduct/SelectSizes';
 import SelectImages from '@/components/createProduct/SelectImages';
+import SelectVideo from '@/components/createProduct/SelectVideo';
 import { fetchProductWithManufacturer, updateProduct, resetUpdateState } from '@/store/slices/productSlice';
 import type { AppDispatch, RootState } from '@/store';
 
@@ -28,6 +29,7 @@ const EditarProductoScreen = () => {
     isOnSale: false,
     tags: [] as string[],
     images: [] as string[],
+    video: '',
     colors: [] as number[],
     sizes: [] as number[],
     colorVariations: [] as Array<{ colorId: number; mainImage: string; images: string[] }>
@@ -36,6 +38,7 @@ const EditarProductoScreen = () => {
   const [showColorModal, setShowColorModal] = useState(false);
   const [showSizeModal, setShowSizeModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // Cargar el producto cuando el componente se monta
@@ -113,6 +116,7 @@ const EditarProductoScreen = () => {
         isOnSale: currentProduct.onSale || false,
         tags: currentProduct.tags || [],
         images: currentProduct.images || (currentProduct.mainImage ? [currentProduct.mainImage] : []),
+        video: currentProduct.video || '',
         colors: colors,
         sizes: sizes,
         colorVariations: colorVariations
@@ -226,6 +230,21 @@ const EditarProductoScreen = () => {
 
   const handleCloseSizeModal = () => {
     setShowSizeModal(false);
+  };
+
+  const handleSelectVideo = () => {
+    setShowVideoModal(true);
+  };
+
+  const handleVideoChange = (videoUrl: string) => {
+    setProductData(prev => ({
+      ...prev,
+      video: videoUrl
+    }));
+  };
+
+  const handleCloseVideoModal = () => {
+    setShowVideoModal(false);
   };
 
   const handleUpdate = async () => {
@@ -439,6 +458,33 @@ const EditarProductoScreen = () => {
             </TouchableOpacity>
           </View>
 
+          <View style={styles.inputGroup}>
+            <View style={styles.videoHeader}>
+              <Typography variant="h4" className="text-gray-700">
+                Video del producto
+              </Typography>
+              <View style={styles.premiumBadge}>
+                <Typography variant="caption" className="text-orange-600 font-semibold">
+                  ⭐ Solo para Premium
+                </Typography>
+              </View>
+            </View>
+            <TouchableOpacity 
+              onPress={handleSelectVideo}
+              className="border border-dashed border-gray-300 bg-gray-50 rounded-md px-4 py-8 mb-4 items-center justify-center"
+            >
+              <Typography variant="body" className="text-gray-500 text-center">
+                🎥 Seleccionar video
+              </Typography>
+              <Typography variant="caption" className="text-gray-400 text-center mt-1">
+                {productData.video 
+                  ? 'Video seleccionado' 
+                  : 'Toca para agregar un video del producto'
+                }
+              </Typography>
+            </TouchableOpacity>
+          </View>
+
           {/* Mostrar selección de colores si es producto variable */}
           {currentProduct.isVariable && currentProduct.gender?.id && (
             <View style={styles.inputGroup}>
@@ -533,6 +579,12 @@ const EditarProductoScreen = () => {
         selectedSizes={productData.sizes}
         onSelectionChange={handleSizesChange}
       />
+
+      {/* Modal de selección de video */}
+      <SelectVideo
+        visible={showVideoModal}
+        onClose={handleCloseVideoModal}
+      />
     </View>
   );
 };
@@ -591,6 +643,20 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     borderWidth: 1,
     borderColor: '#fecaca',
+  },
+  videoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
+  },
+  premiumBadge: {
+    backgroundColor: '#fff7ed',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.sm,
+    borderWidth: 1,
+    borderColor: '#fed7aa',
   },
 });
 
