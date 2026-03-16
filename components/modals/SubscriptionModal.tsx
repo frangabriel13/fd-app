@@ -47,11 +47,6 @@ const SubscriptionModal = ({ visible, onClose }: SubscriptionModalProps) => {
       description: 'Tus productos aparecen primero en los resultados'
     },
     {
-      icon: '🎨',
-      title: 'Personalización avanzada',
-      description: 'Personaliza tu tienda con temas y estilos exclusivos'
-    },
-    {
       icon: '🚀',
       title: 'Publicaciones ilimitadas',
       description: 'Publica todos los productos que quieras sin restricciones'
@@ -95,7 +90,7 @@ const SubscriptionModal = ({ visible, onClose }: SubscriptionModalProps) => {
           </View>
 
           {/* Premium Badge */}
-          <View style={styles.premiumBanner}>
+          {/* <View style={styles.premiumBanner}>
             <View style={styles.bannerContent}>
               <Typography variant="h3" className="text-white font-bold mb-1">
                 🎥 Videos de Productos
@@ -104,14 +99,14 @@ const SubscriptionModal = ({ visible, onClose }: SubscriptionModalProps) => {
                 Esta función está disponible solo para suscriptores Premium
               </Typography>
             </View>
-          </View>
+          </View> */}
 
           {/* Features */}
           <View style={styles.featuresSection}>
-            <Typography variant="h3" className="text-gray-800 mb-4 font-bold">
+            {/* <Typography variant="h3" className="text-gray-800 mb-4 font-bold">
               ¿Qué incluye Premium?
             </Typography>
-            
+             */}
             <View style={styles.featuresList}>
               {premiumFeatures.map((feature, index) => (
                 <View key={index} style={styles.featureItem}>
