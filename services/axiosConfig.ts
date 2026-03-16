@@ -51,6 +51,11 @@ export const productInstance = axios.create({
 });
 productInstance.interceptors.request.use(addAuthHeader);
 
+export const videoInstance = axios.create({
+  baseURL: `${API_CONFIG.API_URL_3000}/videos`,
+});
+videoInstance.interceptors.request.use(addAuthHeader);
+
 export const authInstance = axios.create({
   baseURL: `${API_CONFIG.API_URL_3001}/auth`,
 });
@@ -115,6 +120,7 @@ const instancesWithAuth = [
   manufacturerInstance,
   userInstance,
   productInstance,
+  videoInstance,
   wholesalerInstance,
   imageInstance,
   colorInstance,
