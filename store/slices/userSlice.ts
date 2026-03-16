@@ -2,13 +2,15 @@ import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { userInstance } from '@/services';
 
 interface Subscription {
-  id: string;
-  planName: string;
+  id: number;
+  manufacturerId: number;
+  plan: string;
   status: string;
   startDate: string;
   endDate?: string | null;
-  amount?: number | null;
-  // Agrega otros campos según tu modelo de Subscription
+  autoRenew: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface User {
