@@ -1,6 +1,16 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { userInstance } from '@/services';
 
+interface Subscription {
+  id: string;
+  planName: string;
+  status: string;
+  startDate: string;
+  endDate?: string | null;
+  amount?: number | null;
+  // Agrega otros campos según tu modelo de Subscription
+}
+
 interface User {
   id: string;
   email: string;
@@ -27,6 +37,7 @@ interface Manufacturer {
   tiktokUrl?: string | null;
   instagramNick?: string | null;
   description?: string | null;
+  subscriptions?: Subscription[];
 }
 
 interface Wholesaler {
