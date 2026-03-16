@@ -8,6 +8,7 @@ import SelectColors from '@/components/createProduct/SelectColors';
 import SelectSizes from '@/components/createProduct/SelectSizes';
 import SelectImages from '@/components/createProduct/SelectImages';
 import SelectVideo from '@/components/createProduct/SelectVideo';
+import SubscriptionModal from '@/components/modals/SubscriptionModal';
 import { fetchProductWithManufacturer, updateProduct, resetUpdateState } from '@/store/slices/productSlice';
 import type { AppDispatch, RootState } from '@/store';
 
@@ -21,6 +22,7 @@ const EditarProductoScreen = () => {
   // Redux state
   const { currentProduct, loading, updatedProduct, isUpdating, updateError } = useSelector((state: RootState) => state.product);
   const { uploadedImages } = useSelector((state: RootState) => state.image);
+  const { user } = useSelector((state: RootState) => state.user);
   
   const [productData, setProductData] = useState({
     name: '',
@@ -39,6 +41,7 @@ const EditarProductoScreen = () => {
   const [showSizeModal, setShowSizeModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // Cargar el producto cuando el componente se monta
@@ -233,7 +236,17 @@ const EditarProductoScreen = () => {
   };
 
   const handleSelectVideo = () => {
-    setShowVideoModal(true);
+    // Verificar si el usuario tiene plan premium
+    const activeSubscription = user?.manufacturer?.subscriptions?.find(
+      sub => sub.status?.toLowerCase() === 'active'
+    );
+    const isPremium = activeSubscription?.plan?.toLowerCase() === 'premium';
+
+    if (isPremium) {
+      setShowVideoModal(true);
+    } else {
+      setShowSubscriptionModal(true);
+    }
   };
 
   const handleVideoChange = (videoUrl: string) => {
@@ -245,6 +258,10 @@ const EditarProductoScreen = () => {
 
   const handleCloseVideoModal = () => {
     setShowVideoModal(false);
+  };
+
+  const handleCloseSubscriptionModal = () => {
+    setShowSubscriptionModal(false);
   };
 
   const handleUpdate = async () => {
@@ -584,6 +601,12 @@ const EditarProductoScreen = () => {
       <SelectVideo
         visible={showVideoModal}
         onClose={handleCloseVideoModal}
+      />
+
+      {/* Modal de suscripción */}
+      <SubscriptionModal
+        visible={showSubscriptionModal}
+        onClose={handleCloseSubscriptionModal}
       />
     </View>
   );
