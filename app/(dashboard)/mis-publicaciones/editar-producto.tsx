@@ -601,6 +601,7 @@ const EditarProductoScreen = () => {
       <SelectVideo
         visible={showVideoModal}
         onClose={handleCloseVideoModal}
+        productId={productId || ''}
       />
 
       {/* Modal de suscripción */}

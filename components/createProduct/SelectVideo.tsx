@@ -1,25 +1,125 @@
-import { View, Modal, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { useState, useEffect, useCallback } from 'react';
+import { View, Modal, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { Video, ResizeMode } from 'expo-av';
+import * as ImagePicker from 'expo-image-picker';
 import { Typography, Button } from '@/components/ui';
 import { spacing } from '@/constants/Styles';
+import { uploadProductVideo, resetUploadVideoState } from '@/store/slices/productSlice';
+import type { AppDispatch, RootState } from '@/store';
 
 interface SelectVideoProps {
   visible: boolean;
   onClose: () => void;
+  productId: string;
 }
 
-const SelectVideo = ({ visible, onClose }: SelectVideoProps) => {
-  const handleClose = () => {
+const SelectVideo = ({ visible, onClose, productId }: SelectVideoProps) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { uploadingVideo, uploadVideoError, uploadedVideoUrl } = useSelector((state: RootState) => state.product);
+  
+  const [selectedVideo, setSelectedVideo] = useState<ImagePicker.ImagePickerAsset | null>(null);
+  const [isReady, setIsReady] = useState(false);
+
+  const handleClose = useCallback(() => {
+    setSelectedVideo(null);
+    setIsReady(false);
+    dispatch(resetUploadVideoState());
     onClose();
+  }, [dispatch, onClose]);
+
+  useEffect(() => {
+    if (uploadedVideoUrl) {
+      Alert.alert(
+        'Éxito',
+        'Video subido correctamente',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              handleClose();
+            }
+          }
+        ]
+      );
+    }
+  }, [uploadedVideoUrl, handleClose]);
+
+  useEffect(() => {
+    if (uploadVideoError) {
+      Alert.alert('Error', uploadVideoError);
+    }
+  }, [uploadVideoError]);
+
+  const handleSelectFromGallery = async () => {
+    try {
+      // Solicitar permisos
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permisos requeridos',
+          'Necesitamos permisos para acceder a tu galería'
+        );
+        return;
+      }
+
+      // Abrir selector de video
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        allowsEditing: true,
+        quality: 1,
+        videoMaxDuration: 30, // 30 segundos máximo
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const video = result.assets[0];
+        
+        // Validar duración del video
+        if (video.duration && video.duration > 30000) {
+          Alert.alert(
+            'Video muy largo',
+            'El video no puede durar más de 30 segundos'
+          );
+          return;
+        }
+
+        setSelectedVideo(video);
+        setIsReady(true);
+      }
+    } catch (error: any) {
+      console.error('Error al seleccionar video:', error);
+      Alert.alert('Error', 'No se pudo seleccionar el video');
+    }
   };
 
-  const handleSelectFromGallery = () => {
-    // TODO: Implementar selección de video de galería
-    console.log('Seleccionar video de galería');
-  };
+  const handleUploadVideo = async () => {
+    if (!selectedVideo) {
+      Alert.alert('Error', 'No hay video seleccionado');
+      return;
+    }
 
-  const handleUploadVideo = () => {
-    // TODO: Implementar subida de video
-    console.log('Subir video');
+    if (!productId) {
+      Alert.alert('Error', 'No se encontró el ID del producto');
+      return;
+    }
+
+    try {
+      // Crear el objeto File para React Native
+      const videoFile: any = {
+        uri: selectedVideo.uri,
+        type: 'video/mp4',
+        name: `video-${Date.now()}.mp4`,
+      };
+
+      await dispatch(uploadProductVideo({ 
+        productId, 
+        videoFile 
+      })).unwrap();
+    } catch (error: any) {
+      console.error('Error al subir video:', error);
+      Alert.alert('Error', error || 'No se pudo subir el video');
+    }
   };
 
   return (
@@ -44,10 +144,10 @@ const SelectVideo = ({ visible, onClose }: SelectVideoProps) => {
           
           <TouchableOpacity 
             onPress={handleClose} 
-            style={[styles.saveButton, styles.disabledButton]}
-            disabled={true}
+            style={[styles.saveButton, !isReady && styles.disabledButton]}
+            disabled={!isReady}
           >
-            <Typography variant="body" className="text-gray-400">
+            <Typography variant="body" className={isReady ? "text-orange-500" : "text-gray-400"}>
               Listo
             </Typography>
           </TouchableOpacity>
@@ -103,30 +203,71 @@ const SelectVideo = ({ visible, onClose }: SelectVideoProps) => {
             </View>
           </View>
 
-          {/* Empty State */}
-          <View style={styles.emptyState}>
-            <Typography variant="h2" className="text-gray-400 text-center mb-2">
-              🎬
-            </Typography>
-            <Typography variant="body" className="text-gray-500 text-center mb-2">
-              No has seleccionado un video
-            </Typography>
-            <Typography variant="caption" className="text-gray-400 text-center">
-              Usa el botón de arriba para agregar un video de tu producto
-            </Typography>
-          </View>
+          {/* Video Preview o Empty State */}
+          {selectedVideo ? (
+            <View style={styles.videoPreviewSection}>
+              <Typography variant="body" className="text-gray-700 font-semibold mb-3">
+                Vista previa
+              </Typography>
+              <View style={styles.videoContainer}>
+                <Video
+                  source={{ uri: selectedVideo.uri }}
+                  style={styles.video}
+                  useNativeControls
+                  resizeMode={ResizeMode.CONTAIN}
+                  isLooping
+                />
+              </View>
+              <View style={styles.videoInfo}>
+                <Typography variant="caption" className="text-gray-600">
+                  ✓ Video seleccionado - Duración: {selectedVideo.duration ? `${Math.round(selectedVideo.duration / 1000)}s` : 'N/A'}
+                </Typography>
+              </View>
+              <TouchableOpacity
+                style={styles.changeVideoButton}
+                onPress={handleSelectFromGallery}
+                disabled={uploadingVideo}
+              >
+                <Typography variant="body" className="text-orange-500 font-semibold">
+                  🔄 Cambiar video
+                </Typography>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.emptyState}>
+              <Typography variant="h2" className="text-gray-400 text-center mb-2">
+                🎬
+              </Typography>
+              <Typography variant="body" className="text-gray-500 text-center mb-2">
+                No has seleccionado un video
+              </Typography>
+              <Typography variant="caption" className="text-gray-400 text-center">
+                Usa el botón de arriba para agregar un video de tu producto
+              </Typography>
+            </View>
+          )}
 
           {/* Upload Button - aparecerá cuando haya video seleccionado */}
-          {false && ( // Cambiar a true cuando haya video seleccionado
+          {selectedVideo && (
             <View style={styles.uploadSection}>
               <Button
                 variant="primary"
                 onPress={handleUploadVideo}
                 style={styles.uploadButton}
+                disabled={uploadingVideo}
               >
-                <Typography variant="body" className="font-semibold text-white">
-                  ☁️ Subir video
-                </Typography>
+                {uploadingVideo ? (
+                  <View style={styles.uploadingContainer}>
+                    <ActivityIndicator color="#fff" size="small" />
+                    <Typography variant="body" className="font-semibold text-white ml-2">
+                      Subiendo video...
+                    </Typography>
+                  </View>
+                ) : (
+                  <Typography variant="body" className="font-semibold text-white">
+                    ☁️ Subir video
+                  </Typography>
+                )}
               </Button>
             </View>
           )}
@@ -232,6 +373,40 @@ const styles = StyleSheet.create({
   },
   uploadButton: {
     minHeight: 50,
+  },
+  videoPreviewSection: {
+    marginBottom: spacing.xl,
+  },
+  videoContainer: {
+    width: '100%',
+    height: 300,
+    backgroundColor: '#000',
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginBottom: spacing.md,
+  },
+  video: {
+    width: '100%',
+    height: '100%',
+  },
+  videoInfo: {
+    backgroundColor: '#f3f4f6',
+    padding: spacing.sm,
+    borderRadius: 6,
+    marginBottom: spacing.md,
+  },
+  changeVideoButton: {
+    padding: spacing.md,
+    backgroundColor: '#fff7ed',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#fed7aa',
+    alignItems: 'center',
+  },
+  uploadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
