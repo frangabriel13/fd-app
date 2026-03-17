@@ -69,17 +69,17 @@ const SelectVideo = ({ visible, onClose, productId }: SelectVideoProps) => {
         mediaTypes: ImagePicker.MediaTypeOptions.Videos,
         allowsEditing: true,
         quality: 1,
-        videoMaxDuration: 30, // 30 segundos máximo
+        videoMaxDuration: 15, // 15 segundos máximo
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const video = result.assets[0];
         
         // Validar duración del video
-        if (video.duration && video.duration > 30000) {
+        if (video.duration && video.duration > 15000) {
           Alert.alert(
             'Video muy largo',
-            'El video no puede durar más de 30 segundos'
+            'El video no puede durar más de 15 segundos'
           );
           return;
         }
@@ -165,7 +165,7 @@ const SelectVideo = ({ visible, onClose, productId }: SelectVideoProps) => {
               Agrega un video a tu publicación
             </Typography>
             <Typography variant="body" className="text-gray-500 text-center mb-1">
-              (video de 30 segundos máximo)
+              (video de 15 segundos máximo)
             </Typography>
             <View style={styles.premiumBadge}>
               <Typography variant="caption" className="text-orange-600 font-semibold">
