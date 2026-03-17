@@ -1,6 +1,18 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { userInstance } from '@/services';
 
+interface Subscription {
+  id: number;
+  manufacturerId: number;
+  plan: string;
+  status: string;
+  startDate: string;
+  endDate?: string | null;
+  autoRenew: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface User {
   id: string;
   email: string;
@@ -27,6 +39,7 @@ interface Manufacturer {
   tiktokUrl?: string | null;
   instagramNick?: string | null;
   description?: string | null;
+  subscriptions?: Subscription[];
 }
 
 interface Wholesaler {

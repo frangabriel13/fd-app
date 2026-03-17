@@ -1,7 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/Colors';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CARD_PADDING = 8; // Padding del contenedor
+const CARD_GAP = 10; // Separación entre cards
+const NUM_COLUMNS = 2;
+const CARD_WIDTH = (SCREEN_WIDTH - (CARD_PADDING * 2) - (CARD_GAP * (NUM_COLUMNS - 1))) / NUM_COLUMNS;
 
 interface StoreProductCardProps {
   product: {
@@ -72,7 +78,7 @@ const ProductCard: React.FC<StoreProductCardProps> = ({ product }) => {
 
 const styles = StyleSheet.create({
   productCard: {
-    width: 192,
+    width: CARD_WIDTH,
     backgroundColor: '#fff',
     borderRadius: 12,
     shadowColor: '#000',
@@ -90,7 +96,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: 'relative',
     width: '100%',
-    height: 240,
+    height: CARD_WIDTH * 1.25, // Altura proporcional al ancho
     backgroundColor: '#f5f5f5',
     overflow: 'hidden',
   },
