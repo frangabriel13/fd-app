@@ -229,22 +229,14 @@ const SelectVideo = ({ visible, onClose, productId, videoUrl }: SelectVideoProps
                   resizeMode={ResizeMode.CONTAIN}
                   isLooping
                 />
-              </View>
-              <View style={styles.existingVideoActions}>
+                {/* Botón de eliminar flotante */}
                 <TouchableOpacity
-                  style={styles.replaceVideoButton}
-                  onPress={handleSelectFromGallery}
-                >
-                  <Typography variant="body" className="text-orange-500 font-semibold">
-                    🔄 Reemplazar video
-                  </Typography>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.deleteVideoButton}
+                  style={styles.deleteFloatingButton}
                   onPress={handleDeleteVideo}
+                  activeOpacity={0.8}
                 >
-                  <Typography variant="body" className="text-red-500 font-semibold">
-                    🗑️ Eliminar video
+                  <Typography variant="body" className="text-white font-bold">
+                    ✕
                   </Typography>
                 </TouchableOpacity>
               </View>
@@ -498,28 +490,21 @@ const styles = StyleSheet.create({
   existingVideoSection: {
     marginBottom: spacing.xl,
   },
-  existingVideoActions: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    marginTop: spacing.md,
-  },
-  replaceVideoButton: {
-    flex: 1,
-    padding: spacing.md,
-    backgroundColor: '#fff7ed',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#fed7aa',
+  deleteFloatingButton: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(239, 68, 68, 0.9)',
+    justifyContent: 'center',
     alignItems: 'center',
-  },
-  deleteVideoButton: {
-    flex: 1,
-    padding: spacing.md,
-    backgroundColor: '#fef2f2',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#fecaca',
-    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   modalOverlay: {
     flex: 1,
