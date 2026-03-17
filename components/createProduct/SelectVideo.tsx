@@ -5,7 +5,7 @@ import { Video, ResizeMode } from 'expo-av';
 import * as ImagePicker from 'expo-image-picker';
 import { Typography, Button } from '@/components/ui';
 import { spacing } from '@/constants/Styles';
-import { uploadProductVideo, resetUploadVideoState } from '@/store/slices/productSlice';
+import { uploadProductVideo, resetUploadVideoState, deleteProductVideo, resetDeleteVideoState } from '@/store/slices/productSlice';
 import type { AppDispatch, RootState } from '@/store';
 
 interface SelectVideoProps {
@@ -17,7 +17,13 @@ interface SelectVideoProps {
 
 const SelectVideo = ({ visible, onClose, productId, videoUrl }: SelectVideoProps) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { uploadingVideo, uploadVideoError, uploadedVideoUrl } = useSelector((state: RootState) => state.product);
+  const { 
+    uploadingVideo, 
+    uploadVideoError, 
+    uploadedVideoUrl, 
+    isDeletingVideo, 
+    deleteVideoError 
+  } = useSelector((state: RootState) => state.product);
   
   const [selectedVideo, setSelectedVideo] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [isReady, setIsReady] = useState(false);
@@ -27,6 +33,7 @@ const SelectVideo = ({ visible, onClose, productId, videoUrl }: SelectVideoProps
     setSelectedVideo(null);
     setIsReady(false);
     dispatch(resetUploadVideoState());
+    dispatch(resetDeleteVideoState());
     onClose();
   }, [dispatch, onClose]);
 
@@ -52,6 +59,12 @@ const SelectVideo = ({ visible, onClose, productId, videoUrl }: SelectVideoProps
       Alert.alert('Error', uploadVideoError);
     }
   }, [uploadVideoError]);
+
+  useEffect(() => {
+    if (deleteVideoError) {
+      Alert.alert('Error', deleteVideoError);
+    }
+  }, [deleteVideoError]);
 
   const handleSelectFromGallery = async () => {
     try {
@@ -128,10 +141,32 @@ const SelectVideo = ({ visible, onClose, productId, videoUrl }: SelectVideoProps
     setShowDeleteConfirm(true);
   };
 
-  const confirmDeleteVideo = () => {
-    // TODO: Implementar la eliminación cuando el slice esté listo
-    Alert.alert('Info', 'Función de eliminar video en desarrollo');
+  const confirmDeleteVideo = async () => {
     setShowDeleteConfirm(false);
+    
+    if (!productId) {
+      Alert.alert('Error', 'No se encontró el ID del producto');
+      return;
+    }
+
+    try {
+      await dispatch(deleteProductVideo(productId)).unwrap();
+      Alert.alert(
+        'Éxito',
+        'Video eliminado correctamente',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              handleClose();
+            }
+          }
+        ]
+      );
+    } catch (error: any) {
+      console.error('Error al eliminar video:', error);
+      Alert.alert('Error', error || 'No se pudo eliminar el video');
+    }
   };
 
   return (
@@ -230,15 +265,21 @@ const SelectVideo = ({ visible, onClose, productId, videoUrl }: SelectVideoProps
                   isLooping
                 />
                 {/* Botón de eliminar flotante */}
-                <TouchableOpacity
-                  style={styles.deleteFloatingButton}
-                  onPress={handleDeleteVideo}
-                  activeOpacity={0.8}
-                >
-                  <Typography variant="body" className="text-white font-bold">
-                    ✕
-                  </Typography>
-                </TouchableOpacity>
+                {!isDeletingVideo ? (
+                  <TouchableOpacity
+                    style={styles.deleteFloatingButton}
+                    onPress={handleDeleteVideo}
+                    activeOpacity={0.8}
+                  >
+                    <Typography variant="body" className="text-white font-bold">
+                      ✕
+                    </Typography>
+                  </TouchableOpacity>
+                ) : (
+                  <View style={styles.deletingIndicator}>
+                    <ActivityIndicator color="#fff" size="small" />
+                  </View>
+                )}
               </View>
             </View>
           ) : selectedVideo ? (
@@ -342,10 +383,15 @@ const SelectVideo = ({ visible, onClose, productId, videoUrl }: SelectVideoProps
                 <TouchableOpacity
                   style={[styles.confirmButton, styles.deleteButton]}
                   onPress={confirmDeleteVideo}
+                  disabled={isDeletingVideo}
                 >
-                  <Typography variant="body" className="text-white font-semibold">
-                    Eliminar
-                  </Typography>
+                  {isDeletingVideo ? (
+                    <ActivityIndicator color="#fff" size="small" />
+                  ) : (
+                    <Typography variant="body" className="text-white font-semibold">
+                      Eliminar
+                    </Typography>
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
@@ -491,6 +537,22 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   deleteFloatingButton: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(239, 68, 68, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  deletingIndicator: {
     position: 'absolute',
     top: 12,
     right: 12,

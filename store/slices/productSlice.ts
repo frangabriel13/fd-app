@@ -211,6 +211,8 @@ interface ProductState {
   uploadingVideo: boolean;
   uploadVideoError: string | null;
   uploadedVideoUrl: string | null;
+  isDeletingVideo: boolean;
+  deleteVideoError: string | null;
   loading: boolean;
   error: string | null;
 }
@@ -258,6 +260,8 @@ const initialState: ProductState = {
   uploadingVideo: false,
   uploadVideoError: null,
   uploadedVideoUrl: null,
+  isDeletingVideo: false,
+  deleteVideoError: null,
   loading: false,
   error: null,
 };
@@ -426,6 +430,19 @@ export const uploadProductVideo = createAsyncThunk(
   }
 );
 
+export const deleteProductVideo = createAsyncThunk(
+  'product/deleteProductVideo',
+  async (productId: string, { rejectWithValue }) => {
+    try {
+      console.log('Eliminando video del producto:', productId);
+      const response = await videoInstance.delete(`/${productId}`);
+      return { productId, ...response.data };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al eliminar el video');
+    }
+  }
+);
+
 export const fetchMobileHomeProducts = createAsyncThunk(
   'product/fetchMobileHomeProducts',
   async (_, { rejectWithValue }) => {
@@ -526,6 +543,10 @@ const productSlice = createSlice({
       state.uploadingVideo = false;
       state.uploadVideoError = null;
       state.uploadedVideoUrl = null;
+    },
+    resetDeleteVideoState: (state) => {
+      state.isDeletingVideo = false;
+      state.deleteVideoError = null;
     },
   },
   extraReducers: (builder) => {
@@ -753,6 +774,24 @@ const productSlice = createSlice({
         state.uploadingVideo = false;
         state.uploadVideoError = action.payload;
         state.uploadedVideoUrl = null;
+      })
+      .addCase(deleteProductVideo.pending, (state) => {
+        state.isDeletingVideo = true;
+        state.deleteVideoError = null;
+      })
+      .addCase(deleteProductVideo.fulfilled, (state, action: PayloadAction<{ productId: string }>) => {
+        state.isDeletingVideo = false;
+        state.deleteVideoError = null;
+        // Actualizar el producto actual si está cargado
+        if (state.currentProduct && state.currentProduct.id === action.payload.productId) {
+          (state.currentProduct as any).videoUrl = null;
+        }
+        // Limpiar también el video subido
+        state.uploadedVideoUrl = null;
+      })
+      .addCase(deleteProductVideo.rejected, (state, action: PayloadAction<any>) => {
+        state.isDeletingVideo = false;
+        state.deleteVideoError = action.payload;
       });
   },
 });
@@ -773,7 +812,8 @@ export const {
   resetUpdateState,
   resetDeleteState,
   clearUploadedVideo,
-  resetUploadVideoState
+  resetUploadVideoState,
+  resetDeleteVideoState
 } = productSlice.actions;
 
 export default productSlice.reducer;
