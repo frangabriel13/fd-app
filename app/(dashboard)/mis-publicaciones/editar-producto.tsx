@@ -119,7 +119,7 @@ const EditarProductoScreen = () => {
         isOnSale: currentProduct.onSale || false,
         tags: currentProduct.tags || [],
         images: currentProduct.images || (currentProduct.mainImage ? [currentProduct.mainImage] : []),
-        video: currentProduct.video || '',
+        video: currentProduct.videoUrl || '',
         colors: colors,
         sizes: sizes,
         colorVariations: colorVariations
@@ -602,6 +602,7 @@ const EditarProductoScreen = () => {
         visible={showVideoModal}
         onClose={handleCloseVideoModal}
         productId={productId || ''}
+        videoUrl={productData.video}
       />
 
       {/* Modal de suscripción */}

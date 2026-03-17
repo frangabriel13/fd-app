@@ -12,14 +12,16 @@ interface SelectVideoProps {
   visible: boolean;
   onClose: () => void;
   productId: string;
+  videoUrl?: string | null;
 }
 
-const SelectVideo = ({ visible, onClose, productId }: SelectVideoProps) => {
+const SelectVideo = ({ visible, onClose, productId, videoUrl }: SelectVideoProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const { uploadingVideo, uploadVideoError, uploadedVideoUrl } = useSelector((state: RootState) => state.product);
   
   const [selectedVideo, setSelectedVideo] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleClose = useCallback(() => {
     setSelectedVideo(null);
@@ -122,6 +124,16 @@ const SelectVideo = ({ visible, onClose, productId }: SelectVideoProps) => {
     }
   };
 
+  const handleDeleteVideo = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteVideo = () => {
+    // TODO: Implementar la eliminación cuando el slice esté listo
+    Alert.alert('Info', 'Función de eliminar video en desarrollo');
+    setShowDeleteConfirm(false);
+  };
+
   return (
     <Modal
       visible={visible}
@@ -203,8 +215,41 @@ const SelectVideo = ({ visible, onClose, productId }: SelectVideoProps) => {
             </View>
           </View>
 
-          {/* Video Preview o Empty State */}
-          {selectedVideo ? (
+          {/* Video Existente del Producto */}
+          {videoUrl && !selectedVideo ? (
+            <View style={styles.existingVideoSection}>
+              <Typography variant="body" className="text-gray-700 font-semibold mb-3">
+                Video actual del producto
+              </Typography>
+              <View style={styles.videoContainer}>
+                <Video
+                  source={{ uri: videoUrl }}
+                  style={styles.video}
+                  useNativeControls
+                  resizeMode={ResizeMode.CONTAIN}
+                  isLooping
+                />
+              </View>
+              <View style={styles.existingVideoActions}>
+                <TouchableOpacity
+                  style={styles.replaceVideoButton}
+                  onPress={handleSelectFromGallery}
+                >
+                  <Typography variant="body" className="text-orange-500 font-semibold">
+                    🔄 Reemplazar video
+                  </Typography>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.deleteVideoButton}
+                  onPress={handleDeleteVideo}
+                >
+                  <Typography variant="body" className="text-red-500 font-semibold">
+                    🗑️ Eliminar video
+                  </Typography>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : selectedVideo ? (
             <View style={styles.videoPreviewSection}>
               <Typography variant="body" className="text-gray-700 font-semibold mb-3">
                 Vista previa
@@ -272,6 +317,48 @@ const SelectVideo = ({ visible, onClose, productId }: SelectVideoProps) => {
             </View>
           )}
         </ScrollView>
+
+        {/* Modal de Confirmación de Eliminación */}
+        <Modal
+          visible={showDeleteConfirm}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowDeleteConfirm(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.confirmModal}>
+              <View style={styles.confirmIconContainer}>
+                <Typography variant="h1" className="text-center">
+                  ⚠️
+                </Typography>
+              </View>
+              <Typography variant="h3" className="text-gray-800 text-center mb-2">
+                ¿Eliminar video?
+              </Typography>
+              <Typography variant="body" className="text-gray-600 text-center mb-6">
+                Esta acción no se puede deshacer. El video se eliminará permanentemente de tu publicación.
+              </Typography>
+              <View style={styles.confirmActions}>
+                <TouchableOpacity
+                  style={[styles.confirmButton, styles.cancelButton]}
+                  onPress={() => setShowDeleteConfirm(false)}
+                >
+                  <Typography variant="body" className="text-gray-700 font-semibold">
+                    Cancelar
+                  </Typography>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.confirmButton, styles.deleteButton]}
+                  onPress={confirmDeleteVideo}
+                >
+                  <Typography variant="body" className="text-white font-semibold">
+                    Eliminar
+                  </Typography>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     </Modal>
   );
@@ -407,6 +494,73 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  existingVideoSection: {
+    marginBottom: spacing.xl,
+  },
+  existingVideoActions: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    marginTop: spacing.md,
+  },
+  replaceVideoButton: {
+    flex: 1,
+    padding: spacing.md,
+    backgroundColor: '#fff7ed',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#fed7aa',
+    alignItems: 'center',
+  },
+  deleteVideoButton: {
+    flex: 1,
+    padding: spacing.md,
+    backgroundColor: '#fef2f2',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#fecaca',
+    alignItems: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.lg,
+  },
+  confirmModal: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: spacing.xl,
+    width: '100%',
+    maxWidth: 400,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  confirmIconContainer: {
+    marginBottom: spacing.lg,
+  },
+  confirmActions: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  confirmButton: {
+    flex: 1,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#f3f4f6',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+  },
+  deleteButton: {
+    backgroundColor: '#ef4444',
   },
 });
 
