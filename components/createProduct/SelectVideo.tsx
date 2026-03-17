@@ -301,15 +301,6 @@ const SelectVideo = ({ visible, onClose, productId, videoUrl }: SelectVideoProps
                   ✓ Video seleccionado - Duración: {selectedVideo.duration ? `${Math.round(selectedVideo.duration / 1000)}s` : 'N/A'}
                 </Typography>
               </View>
-              <TouchableOpacity
-                style={styles.changeVideoButton}
-                onPress={handleSelectFromGallery}
-                disabled={uploadingVideo}
-              >
-                <Typography variant="body" className="text-orange-500 font-semibold">
-                  🔄 Cambiar video
-                </Typography>
-              </TouchableOpacity>
             </View>
           ) : (
             <View style={styles.emptyState}>
@@ -519,14 +510,6 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     borderRadius: 6,
     marginBottom: spacing.md,
-  },
-  changeVideoButton: {
-    padding: spacing.md,
-    backgroundColor: '#fff7ed',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#fed7aa',
-    alignItems: 'center',
   },
   uploadingContainer: {
     flexDirection: 'row',
