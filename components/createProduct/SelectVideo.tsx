@@ -67,6 +67,16 @@ const SelectVideo = ({ visible, onClose, productId, videoUrl }: SelectVideoProps
   }, [deleteVideoError]);
 
   const handleSelectFromGallery = async () => {
+    // Verificar si ya existe un video subido
+    if (videoUrl && !selectedVideo) {
+      Alert.alert(
+        'Video existente',
+        'Ya tienes un video subido. Primero debes eliminarlo para subir uno nuevo.',
+        [{ text: 'Entendido' }]
+      );
+      return;
+    }
+
     try {
       // Solicitar permisos
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
