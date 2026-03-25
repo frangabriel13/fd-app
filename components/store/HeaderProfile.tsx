@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { 
   View, 
   Text, 
@@ -23,12 +23,7 @@ const HeaderProfile = () => {
     ? followed.some((f: any) => f.id === manufacturer.id) || !!manufacturer.isFollowed
     : false;
 
-  const [followDelta, setFollowDelta] = useState(0);
-  const followersCount = (manufacturer?.followersCount ?? 0) + followDelta;
-
-  useEffect(() => {
-    setFollowDelta(0);
-  }, [manufacturer?.id]);
+  const followersCount = manufacturer?.followersCount ?? 0;
 
   if (!manufacturer) {
     return null;
@@ -36,10 +31,8 @@ const HeaderProfile = () => {
 
   const handleFollow = async () => {
     if (isFollowed) {
-      setFollowDelta(prev => prev - 1);
       await dispatch(unfollowManufacturer(manufacturer.id.toString()));
     } else {
-      setFollowDelta(prev => prev + 1);
       await dispatch(followManufacturer({
         manufacturerId: manufacturer.id.toString(),
         manufacturer: {
