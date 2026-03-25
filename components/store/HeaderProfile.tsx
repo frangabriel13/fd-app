@@ -23,11 +23,12 @@ const HeaderProfile = () => {
     ? followed.some((f: any) => f.id === manufacturer.id) || !!manufacturer.isFollowed
     : false;
 
-  const [followersCount, setFollowersCount] = useState(manufacturer?.followersCount ?? 0);
+  const [followDelta, setFollowDelta] = useState(0);
+  const followersCount = (manufacturer?.followersCount ?? 0) + followDelta;
 
   useEffect(() => {
-    setFollowersCount(manufacturer?.followersCount ?? 0);
-  }, [manufacturer?.followersCount]);
+    setFollowDelta(0);
+  }, [manufacturer?.id]);
 
   if (!manufacturer) {
     return null;
@@ -35,10 +36,10 @@ const HeaderProfile = () => {
 
   const handleFollow = async () => {
     if (isFollowed) {
-      setFollowersCount(prev => Math.max(0, prev - 1));
+      setFollowDelta(prev => prev - 1);
       await dispatch(unfollowManufacturer(manufacturer.id.toString()));
     } else {
-      setFollowersCount(prev => prev + 1);
+      setFollowDelta(prev => prev + 1);
       await dispatch(followManufacturer({
         manufacturerId: manufacturer.id.toString(),
         manufacturer: {
