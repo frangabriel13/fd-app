@@ -10,6 +10,7 @@ import { BodyText } from '../ui';
 import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
 import { useAppDispatch } from '@/hooks/redux';
 import { logoutAsync } from '@/store/slices/authSlice';
+import { clearNotifications } from '@/store/slices/notificationSlice';
 import { router } from 'expo-router';
 
 interface MenuItemProps {
@@ -69,9 +70,8 @@ const Menu = () => {
   const handleLogout = async () => {
     try {
       await signOut();
-
       await dispatch(logoutAsync()).unwrap();
-
+      dispatch(clearNotifications());
       console.log('Sesión cerrada con éxito');
       router.replace('/(auth)/login');
     } catch(error) {
@@ -123,7 +123,7 @@ const Menu = () => {
 
       {/* Segunda lista */}
       <View>
-        <MenuItem icon="notifications-outline" label="Notificaciones" IconComponent={Ionicons} />
+        <MenuItem icon="notifications-outline" label="Notificaciones" IconComponent={Ionicons} onPress={() => router.push('/(tabs)/notificaciones' as any)} />
         <MenuItem 
           icon="hearto" 
           label="Favoritos" 

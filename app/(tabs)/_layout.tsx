@@ -102,6 +102,12 @@ export default function TabLayout() {
             href: null,
           }}
         />
+        <Tabs.Screen
+          name="notificaciones"
+          options={{
+            href: null,
+          }}
+        />
       </Tabs>
     </CartAnimationProvider>
   );

@@ -116,6 +116,11 @@ export const cartInstance = axios.create({
 });
 cartInstance.interceptors.request.use(addAuthHeader);
 
+export const notificationInstance = axios.create({
+  baseURL: `${API_CONFIG.API_URL_3001}/notifications`,
+});
+notificationInstance.interceptors.request.use(addAuthHeader);
+
 const instancesWithAuth = [
   manufacturerInstance,
   userInstance,
@@ -129,7 +134,8 @@ const instancesWithAuth = [
   reviewInstance,
   favoriteInstance,
   adminInstance,
-  cartInstance
+  cartInstance,
+  notificationInstance
 ];
 
 instancesWithAuth.forEach(instance => {
