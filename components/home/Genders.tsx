@@ -4,7 +4,7 @@ import { genders } from '@/utils/hardcode';
 
 const Genders = () => {
   // Filtrar para excluir "Más" (id: 7)
-  const gendersData = genders.filter(gender => gender.id !== 7);
+  const gendersData = genders.filter(gender => gender.name !== 'Más');
 
   const handleGenderPress = (gender) => {
     // Navegar a la tienda con el género seleccionado
