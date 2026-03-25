@@ -15,6 +15,7 @@ import sizeSlice from './slices/sizeSlice';
  import imageSlice from './slices/imageSlice';
 import favoriteSlice from './slices/favoriteSlice';
 import reviewSlice from './slices/reviewSlice';
+import notificationReducer from './slices/notificationSlice';
 
 // Combine all reducers
 const rootReducer = combineReducers({
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
   image: imageSlice,
   favorites: favoriteSlice,
   reviews: reviewSlice,
+  notifications: notificationReducer,
 });
 
 // Persist configuration

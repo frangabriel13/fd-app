@@ -7,8 +7,18 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistor, store } from '../store';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { useNotifications } from '@/hooks/useNotifications';
+import messaging from '@react-native-firebase/messaging';
 import "./global.css";
 
+messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+  console.log('🔔 Background message:', remoteMessage);
+});
+
+function NotificationSetup() {
+  useNotifications();
+  return null;
+}
 
 export default function RootLayout() {
   // const colorScheme = useColorScheme();
@@ -31,6 +41,7 @@ export default function RootLayout() {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
+        <NotificationSetup />
         <AuthProvider>
           <ThemeProvider value={DefaultTheme}>
             <Stack>

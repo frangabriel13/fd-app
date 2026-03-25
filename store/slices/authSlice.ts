@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { authInstance } from '@/services';
+import { removeDeviceToken } from '@/services/notificationService';
 
 // Tipos
 interface User {
@@ -87,6 +88,7 @@ export const logoutAsync = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
+      await removeDeviceToken();
       const response = await authInstance.post('/logout');
       await AsyncStorage.removeItem('token');
       return response.data;
