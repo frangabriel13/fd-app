@@ -108,6 +108,12 @@ export default function TabLayout() {
             href: null,
           }}
         />
+        <Tabs.Screen
+          name="seguidos"
+          options={{
+            href: null,
+          }}
+        />
       </Tabs>
     </CartAnimationProvider>
   );
