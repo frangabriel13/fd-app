@@ -189,6 +189,7 @@ interface ProductState {
   currentManufacturer: Manufacturer | null;
   manufacturerProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
   categoryProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
+  currentProductViews: number | null;
   shopProducts: ShopProduct[];
   shopPagination: ShopPagination | null;
   shopFilters: ShopFilters;
@@ -233,6 +234,7 @@ const initialState: ProductState = {
   currentManufacturer: null,
   manufacturerProducts: [],
   categoryProducts: [],
+  currentProductViews: null,
   shopProducts: [],
   shopPagination: null,
   shopFilters: {
@@ -623,6 +625,7 @@ const productSlice = createSlice({
         state.currentManufacturer = action.payload.manufacturer;
         state.manufacturerProducts = action.payload.manufacturerProducts;
         state.categoryProducts = action.payload.categoryProducts;
+        state.currentProductViews = action.payload.views ?? null;
         state.loading = false;
       })
       .addCase(fetchProductWithManufacturer.rejected, (state, action: PayloadAction<any>) => {
