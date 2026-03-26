@@ -6,23 +6,22 @@ import Notification from './Notification';
 import Search from './Search';
 
 const Header = () => {
-  // Los insets son las áreas seguras del dispositivo donde no se superpone el contenido con la barra de estado o los bordes del dispositivo.
   const insets = useSafeAreaInsets();
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-  
+
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 5 }]} className='bg-primary'>
+    <View style={[styles.container, { paddingTop: insets.top + 6 }]} className='bg-primary'>
       {!isSearchExpanded && (
-        <View className="w-10 items-center">
+        <View style={styles.logoContainer}>
           <Logo />
         </View>
       )}
-      <Search 
+      <Search
         isExpanded={isSearchExpanded}
         onExpandChange={setIsSearchExpanded}
       />
       {!isSearchExpanded && (
-        <View className="w-10 items-center">
+        <View style={styles.notifContainer}>
           <Notification />
         </View>
       )}
@@ -32,15 +31,20 @@ const Header = () => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingBottom: 10,
-    // borderBottomWidth: 1,
-    // borderBottomColor: '#e9ecef',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: 10,
+  },
+  logoContainer: {
+    width: 36,
+    alignItems: 'center',
+  },
+  notifContainer: {
+    width: 36,
+    alignItems: 'center',
   },
 });
-
 
 export default Header;

@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRef, useState, useEffect } from 'react';
-import { TextInput, TouchableOpacity, View, Text, ScrollView, ActivityIndicator } from 'react-native';
+import { TextInput, TouchableOpacity, View, Text, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
@@ -16,10 +16,9 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
   const [showResults, setShowResults] = useState(false);
   const textInputRef = useRef<TextInput>(null);
   const dispatch = useDispatch<AppDispatch>();
-  
+
   const { searchResults, searchLoading } = useSelector((state: RootState) => state.product);
 
-  // Debounce para búsqueda en tiempo real
   useEffect(() => {
     if (searchText.trim().length >= 2) {
       const timeoutId = setTimeout(() => {
@@ -39,7 +38,6 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
   };
 
   const handleBlur = () => {
-    // Delay para permitir tocar los resultados antes de cerrar
     setTimeout(() => {
       if (searchText === '') {
         onExpandChange(false);
@@ -59,14 +57,12 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
   const handleSearchNavigation = () => {
     const searchTerm = searchText.trim();
     if (searchTerm) {
-      // Cancelar la búsqueda actual
       setSearchText('');
       setShowResults(false);
       dispatch(clearSearchResults());
       textInputRef.current?.blur();
       onExpandChange(false);
-      
-      // Navegar a la tienda con el término de búsqueda
+
       router.push({
         pathname: '/(tabs)/tienda',
         params: { searchTerm }
@@ -74,35 +70,40 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
     }
   };
 
-  const handleProductPress = (productId: string, productName: string) => {
+  const handleProductPress = (productId: string) => {
     setShowResults(false);
+    setSearchText('');
+    dispatch(clearSearchResults());
     textInputRef.current?.blur();
+    onExpandChange(false);
     router.push(`/(tabs)/producto/${productId}`);
   };
 
-  const handleManufacturerPress = (userId: string, manufacturerName: string) => {
+  const handleManufacturerPress = (userId: string) => {
     setShowResults(false);
+    setSearchText('');
+    dispatch(clearSearchResults());
     textInputRef.current?.blur();
+    onExpandChange(false);
     router.push(`/(tabs)/store/${userId}`);
   };
 
   return (
     <>
-      <View className={`flex-row items-center ${isExpanded ? 'flex-1' : 'flex-1 mx-4'}`}>
-        <View className="flex-1 flex-row items-center bg-gray-100 rounded px-0 py-0">
-          {isExpanded && (
-            <TouchableOpacity 
-              onPress={handleCancel}
-              className="ml-2 mr-1 p-1"
-            >
+      <View style={[styles.searchWrapper, isExpanded && styles.searchWrapperExpanded]}>
+        <View style={styles.searchBar}>
+          {isExpanded ? (
+            <TouchableOpacity onPress={handleCancel} style={styles.backBtn}>
               <Ionicons name="arrow-back" size={20} color="#6b7280" />
             </TouchableOpacity>
+          ) : (
+            <Ionicons name="search" size={16} color="#9ca3af" style={styles.searchIcon} />
           )}
           <TextInput
             ref={textInputRef}
             placeholder="Buscar productos o fabricantes..."
             placeholderTextColor="#9ca3af"
-            className={`flex-1 font-mont-regular text-primary ${isExpanded ? 'ml-1' : 'ml-2'}`}
+            style={styles.input}
             value={searchText}
             onChangeText={setSearchText}
             onFocus={handleFocus}
@@ -110,86 +111,179 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
             returnKeyType="search"
             onSubmitEditing={() => {
               if (searchText.trim()) {
-                console.log('Buscar:', searchText);
                 handleSearchNavigation();
               }
             }}
           />
           {searchLoading && (
-            <View className="mr-2">
-              <ActivityIndicator size="small" color="#6b7280" />
-            </View>
+            <ActivityIndicator size="small" color="#9ca3af" style={styles.loader} />
           )}
         </View>
       </View>
 
-      {/* Resultados de búsqueda */}
-      {showResults && isExpanded && (searchResults?.product.length || searchResults?.user.length) && (
-        <View className="absolute top-16 left-0 right-0 bg-white rounded-lg shadow-lg border border-gray-200 mt-1 max-h-80 z-50 mx-4">
-          <ScrollView keyboardShouldPersistTaps="handled">
-            {/* Productos */}
+      {/* Search results dropdown */}
+      {showResults && isExpanded && (searchResults?.product?.length || searchResults?.user?.length) ? (
+        <View style={styles.resultsContainer}>
+          <ScrollView keyboardShouldPersistTaps="handled" style={styles.resultsList}>
+            {/* Products */}
             {searchResults?.product && searchResults.product.length > 0 && (
               <View>
-                <View className="px-4 py-2 bg-gray-50 border-b border-gray-100">
-                  <Text className="font-mont-semibold text-xs text-gray-600 uppercase">
-                    Productos
-                  </Text>
+                <View style={styles.resultsSectionHeader}>
+                  <Ionicons name="cube-outline" size={14} color="#9ca3af" />
+                  <Text style={styles.resultsSectionTitle}>Productos</Text>
                 </View>
                 {searchResults.product.map((product) => (
                   <TouchableOpacity
                     key={`product-${product.id}`}
-                    onPress={() => handleProductPress(product.id, product.name)}
-                    className="px-4 py-3 border-b border-gray-100 flex-row items-center"
+                    onPress={() => handleProductPress(product.id)}
+                    style={styles.resultItem}
                   >
-                    <Ionicons name="cube-outline" size={16} color="#6b7280" />
-                    <Text className="ml-3 font-mont-regular text-primary flex-1" numberOfLines={1}>
+                    <Text style={styles.resultItemText} numberOfLines={1}>
                       {product.name}
                     </Text>
+                    <Ionicons name="chevron-forward" size={14} color="#d1d5db" />
                   </TouchableOpacity>
                 ))}
               </View>
             )}
 
-            {/* Fabricantes */}
+            {/* Manufacturers */}
             {searchResults?.user && searchResults.user.length > 0 && (
               <View>
-                <View className="px-4 py-2 bg-gray-50 border-b border-gray-100">
-                  <Text className="font-mont-semibold text-xs text-gray-600 uppercase">
-                    Fabricantes
-                  </Text>
+                <View style={styles.resultsSectionHeader}>
+                  <Ionicons name="business-outline" size={14} color="#9ca3af" />
+                  <Text style={styles.resultsSectionTitle}>Fabricantes</Text>
                 </View>
                 {searchResults.user.map((manufacturer) => (
                   <TouchableOpacity
                     key={`manufacturer-${manufacturer.id}`}
-                    onPress={() => handleManufacturerPress(manufacturer.id, manufacturer.name)}
-                    className="px-4 py-3 border-b border-gray-100 flex-row items-center"
+                    onPress={() => handleManufacturerPress(manufacturer.id)}
+                    style={styles.resultItem}
                   >
-                    <Ionicons name="business-outline" size={16} color="#6b7280" />
-                    <Text className="ml-3 font-mont-regular text-primary flex-1" numberOfLines={1}>
+                    <Text style={styles.resultItemText} numberOfLines={1}>
                       {manufacturer.name}
                     </Text>
+                    <Ionicons name="chevron-forward" size={14} color="#d1d5db" />
                   </TouchableOpacity>
                 ))}
               </View>
             )}
 
-            {/* Opción para ver todos los resultados */}
+            {/* See all results */}
             {searchText.trim() && (
-              <TouchableOpacity
-                onPress={handleSearchNavigation}
-                className="px-4 py-3 bg-blue-50 border-t border-gray-200"
-              >
-                <Text className="font-mont-medium text-blue-600 text-center">
+              <TouchableOpacity onPress={handleSearchNavigation} style={styles.seeAllBtn}>
+                <Ionicons name="search" size={14} color="#f86f1a" />
+                <Text style={styles.seeAllText}>
                   Ver todos los resultados para "{searchText}"
                 </Text>
               </TouchableOpacity>
             )}
           </ScrollView>
         </View>
-      )}
+      ) : null}
     </>
   );
 };
 
+const styles = StyleSheet.create({
+  searchWrapper: {
+    flex: 1,
+  },
+  searchWrapperExpanded: {
+    flex: 1,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderRadius: 8,
+    height: 36,
+    paddingHorizontal: 2,
+  },
+  searchIcon: {
+    marginLeft: 10,
+  },
+  backBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+  },
+  input: {
+    flex: 1,
+    fontSize: 14,
+    color: '#fff',
+    paddingHorizontal: 8,
+    fontFamily: 'Montserrat-Regular',
+  },
+  loader: {
+    marginRight: 10,
+  },
+  resultsContainer: {
+    position: 'absolute',
+    top: 48,
+    left: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    marginHorizontal: 12,
+    maxHeight: 320,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+    zIndex: 50,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+  },
+  resultsList: {
+    borderRadius: 10,
+  },
+  resultsSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    backgroundColor: '#f9fafb',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  resultsSectionTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#9ca3af',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  resultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f8f8f8',
+  },
+  resultItemText: {
+    fontSize: 14,
+    color: '#1a1a1a',
+    flex: 1,
+    fontFamily: 'Montserrat-Regular',
+  },
+  seeAllBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+  },
+  seeAllText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#f86f1a',
+  },
+});
 
 export default Search;
