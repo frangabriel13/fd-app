@@ -7,7 +7,7 @@ import Images from '@/constants/Images';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 const { width } = Dimensions.get('window');
-const ITEM_WIDTH = 76;
+const ITEM_WIDTH = 84;
 const logoDefault = Images.defaultImages.logoDefault;
 
 const LiveManufacturers = () => {
@@ -183,9 +183,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatarRing: {
-    width: 62,
-    height: 62,
-    borderRadius: 31,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     borderWidth: 2,
     borderColor: '#e0e0e0',
     padding: 2,
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: '100%',
     height: '100%',
-    borderRadius: 28,
+    borderRadius: 33,
     backgroundColor: '#f8f8f8',
   },
   liveBadge: {
