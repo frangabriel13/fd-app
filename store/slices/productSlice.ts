@@ -467,6 +467,18 @@ export const fetchProductWithManufacturer = createAsyncThunk(
   }
 );
 
+export const fetchProductForEdit = createAsyncThunk(
+  'product/fetchProductForEdit',
+  async (productId: string, { rejectWithValue }) => {
+    try {
+      const response = await productInstance.get(`/edit/${productId}`);
+      return response.data as ProductWithManufacturerResponse;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al obtener el producto para editar');
+    }
+  }
+);
+
 const productSlice = createSlice({
   name: 'product',
   initialState,
@@ -614,6 +626,21 @@ const productSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchProductWithManufacturer.rejected, (state, action: PayloadAction<any>) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchProductForEdit.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProductForEdit.fulfilled, (state, action: PayloadAction<ProductWithManufacturerResponse>) => {
+        state.currentProduct = action.payload.product;
+        state.currentManufacturer = action.payload.manufacturer;
+        state.manufacturerProducts = action.payload.manufacturerProducts;
+        state.categoryProducts = action.payload.categoryProducts;
+        state.loading = false;
+      })
+      .addCase(fetchProductForEdit.rejected, (state, action: PayloadAction<any>) => {
         state.error = action.payload;
         state.loading = false;
       })
