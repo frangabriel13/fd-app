@@ -11,9 +11,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-const { width } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SLIDER_HORIZONTAL_MARGIN = 8;
-const SLIDER_WIDTH = width - SLIDER_HORIZONTAL_MARGIN * 2;
+const SLIDE_WIDTH = SCREEN_WIDTH - SLIDER_HORIZONTAL_MARGIN * 2;
 const aspectRatio = 1920 / 750;
 
 const images = [
@@ -30,13 +30,13 @@ const Slider = () => {
   const [currentIndex, setCurrentIndex] = useState(1);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ x: width, animated: false });
+    scrollRef.current?.scrollTo({ x: SLIDE_WIDTH, animated: false });
   }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
       const nextIndex = currentIndex + 1;
-      scrollRef.current?.scrollTo({ x: width * nextIndex, animated: true });
+      scrollRef.current?.scrollTo({ x: SLIDE_WIDTH * nextIndex, animated: true });
     }, 4000);
 
     return () => clearInterval(interval);
@@ -45,13 +45,13 @@ const Slider = () => {
   const onMomentumScrollEnd = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       const offsetX = e.nativeEvent.contentOffset.x;
-      const index = Math.round(offsetX / width);
+      const index = Math.round(offsetX / SLIDE_WIDTH);
 
       if (index === 0) {
-        scrollRef.current?.scrollTo({ x: width * images.length, animated: false });
+        scrollRef.current?.scrollTo({ x: SLIDE_WIDTH * images.length, animated: false });
         setCurrentIndex(images.length);
       } else if (index === images.length + 1) {
-        scrollRef.current?.scrollTo({ x: width, animated: false });
+        scrollRef.current?.scrollTo({ x: SLIDE_WIDTH, animated: false });
         setCurrentIndex(1);
       } else {
         setCurrentIndex(index);
@@ -62,7 +62,7 @@ const Slider = () => {
 
   const handleDotPress = (dotIndex: number) => {
     const scrollIndex = dotIndex + 1;
-    scrollRef.current?.scrollTo({ x: width * scrollIndex, animated: true });
+    scrollRef.current?.scrollTo({ x: SLIDE_WIDTH * scrollIndex, animated: true });
     setCurrentIndex(scrollIndex);
   };
 
@@ -78,7 +78,7 @@ const Slider = () => {
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           onMomentumScrollEnd={onMomentumScrollEnd}
-          contentOffset={{ x: width, y: 0 }}
+          contentOffset={{ x: SLIDE_WIDTH, y: 0 }}
         >
           {loopedImages.map((img, idx) => (
             <View key={idx} style={styles.slide}>
@@ -125,11 +125,11 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   slide: {
-    width: width,
+    width: SLIDE_WIDTH,
   },
   image: {
-    width: width,
-    height: width / aspectRatio,
+    width: SLIDE_WIDTH,
+    height: SLIDE_WIDTH / aspectRatio,
   },
   pagination: {
     position: 'absolute',
