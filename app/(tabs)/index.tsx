@@ -19,21 +19,20 @@ const HomeScreen = () => {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Slider />
-      <View style={styles.homeContent}>  
+      <View style={styles.homeContent}>
         <Genders />
         <LiveManufacturers />
         <ProductSlider title="Productos Destacados" section="featured" />
         <ProductSlider title="Nuevos Ingresos" section="newProducts" />
         <ProductSlider title="Packs/Combos" section="packs" />
         <ProductSlider title="Liquidaciones/Ofertas" section="sales" />
+        <Info />
         <ProductSlider title="Blanquería" section="blanqueria" />
         <ProductSlider title="Lencería" section="lenceria" />
         <ProductSlider title="Calzado" section="calzado" />
         <ProductSlider title="Bisutería" section="bisuteria" />
         <ProductSlider title="Telas" section="telas" />
-        {/* <ProductSlider title="Insumos" section="insumos" /> */}
         <ProductSlider title="Máquinas" section="maquinas" />
-        <Info />
       </View>
     </ScrollView>
   );
@@ -45,14 +44,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3f4f6',
   },
   homeContent: {
-    paddingVertical: 16,
     paddingHorizontal: 8,
-  },
-  text: {
-    fontSize: 18,
-    color: '#000',
+    paddingBottom: 16,
+    gap: 0,
   },
 });
-
 
 export default HomeScreen;

@@ -7,7 +7,7 @@ import Images from '@/constants/Images';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 const { width } = Dimensions.get('window');
-const ITEM_WIDTH = (width - 32 - 24) / 4; // 32 padding horizontal, 24 gaps entre elementos
+const ITEM_WIDTH = 76;
 const logoDefault = Images.defaultImages.logoDefault;
 
 const LiveManufacturers = () => {
@@ -16,7 +16,6 @@ const LiveManufacturers = () => {
   const manufacturerState = useAppSelector((state) => state.manufacturer);
 
   useEffect(() => {
-    // Solo hacer fetch una vez al montar el componente
     dispatch(fetchAllLiveManufacturers({ page: 1, limit: 8, isFirstLoad: true }));
   }, [dispatch]);
 
@@ -25,11 +24,9 @@ const LiveManufacturers = () => {
   };
 
   const handleManufacturerPress = (manufacturer: any) => {
-    console.log('Navegando al store de:', manufacturer.name);
     router.push(`/(tabs)/store/${manufacturer.id}`);
   };
 
-  // Proteger contra estado undefined durante la hidratación de Redux Persist
   if (!manufacturerState) {
     return (
       <View style={styles.container}>
@@ -39,23 +36,23 @@ const LiveManufacturers = () => {
       </View>
     );
   }
-  
-  const { liveManufacturers, loading } = manufacturerState;
 
-  // Proteger contra undefined - Redux persist puede causar estados temporalmente undefined
+  const { liveManufacturers, loading } = manufacturerState;
   const manufacturers = liveManufacturers || [];
 
   if (loading && manufacturers.length === 0) {
     return (
       <View style={styles.container}>
-        <TouchableOpacity 
-          style={styles.header}
-          onPress={handleSeeMore}
-          activeOpacity={0.6}
-        >
-          <Text style={styles.title}>Live Shopping</Text>
-          <AntDesign name="right" size={18} color="#1a1a1a" />
-        </TouchableOpacity>
+        <View style={styles.header}>
+          <View style={styles.titleRow}>
+            <View style={styles.liveDot} />
+            <Text style={styles.title}>Live Shopping</Text>
+          </View>
+          <TouchableOpacity onPress={handleSeeMore} activeOpacity={0.6} style={styles.seeMoreBtn}>
+            <Text style={styles.seeMoreText}>Ver más</Text>
+            <AntDesign name="right" size={14} color="#f86f1a" />
+          </TouchableOpacity>
+        </View>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Cargando...</Text>
         </View>
@@ -66,14 +63,16 @@ const LiveManufacturers = () => {
   if (manufacturers.length === 0) {
     return (
       <View style={styles.container}>
-        <TouchableOpacity 
-          style={styles.header}
-          onPress={handleSeeMore}
-          activeOpacity={0.6}
-        >
-          <Text style={styles.title}>Live Shopping</Text>
-          <AntDesign name="right" size={18} color="#1a1a1a" />
-        </TouchableOpacity>
+        <View style={styles.header}>
+          <View style={styles.titleRow}>
+            <View style={styles.liveDot} />
+            <Text style={styles.title}>Live Shopping</Text>
+          </View>
+          <TouchableOpacity onPress={handleSeeMore} activeOpacity={0.6} style={styles.seeMoreBtn}>
+            <Text style={styles.seeMoreText}>Ver más</Text>
+            <AntDesign name="right" size={14} color="#f86f1a" />
+          </TouchableOpacity>
+        </View>
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>No hay fabricantes en vivo</Text>
         </View>
@@ -83,42 +82,42 @@ const LiveManufacturers = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity 
-        style={styles.header}
-        onPress={handleSeeMore}
-        activeOpacity={0.6}
-      >
-        <Text style={styles.title}>Live Shopping</Text>
-        <AntDesign name="right" size={18} color="#1a1a1a" />
-      </TouchableOpacity>
-      
-      <ScrollView 
+      <View style={styles.header}>
+        <View style={styles.titleRow}>
+          <View style={styles.liveDot} />
+          <Text style={styles.title}>Live Shopping</Text>
+        </View>
+        <TouchableOpacity onPress={handleSeeMore} activeOpacity={0.6} style={styles.seeMoreBtn}>
+          <Text style={styles.seeMoreText}>Ver más</Text>
+          <AntDesign name="right" size={14} color="#f86f1a" />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContainer}
-        style={styles.scrollView}
       >
-        {manufacturers.map((manufacturer, index) => (
+        {manufacturers.map((manufacturer) => (
           <TouchableOpacity
             key={manufacturer.id}
-            style={[
-              styles.manufacturerItem,
-              index === 0 && styles.firstItem,
-              index === manufacturers.length - 1 && styles.lastItem
-            ]}
+            style={styles.manufacturerItem}
             onPress={() => handleManufacturerPress(manufacturer)}
             activeOpacity={0.7}
           >
             <View style={styles.avatarContainer}>
-              <Image
-                source={manufacturer.image ? { uri: manufacturer.image } : logoDefault}
-                style={[
-                  styles.avatar,
-                  manufacturer.live && styles.avatarLive // Aplica el borde si está en vivo
-                ]}
-                resizeMode="cover"
-              />
-              {manufacturer.live && <View style={styles.liveIndicator} />}
+              <View style={[styles.avatarRing, manufacturer.live && styles.avatarRingLive]}>
+                <Image
+                  source={manufacturer.image ? { uri: manufacturer.image } : logoDefault}
+                  style={styles.avatar}
+                  resizeMode="cover"
+                />
+              </View>
+              {manufacturer.live && (
+                <View style={styles.liveBadge}>
+                  <Text style={styles.liveBadgeText}>LIVE</Text>
+                </View>
+              )}
             </View>
             <Text style={styles.manufacturerName} numberOfLines={1}>
               {manufacturer.name}
@@ -132,91 +131,115 @@ const LiveManufacturers = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20,
-    backgroundColor: 'white',
-    borderRadius: 6,
-    paddingVertical: 4,
+    marginTop: 8,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    paddingVertical: 10,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    // paddingVertical: 4,
-    marginBottom: 2,
+    paddingHorizontal: 12,
+    marginBottom: 8,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  liveDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#ef4444',
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '700',
     color: '#1a1a1a',
     letterSpacing: -0.3,
   },
-  scrollView: {
-    paddingLeft: 4,
+  seeMoreBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  seeMoreText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#f86f1a',
   },
   scrollContainer: {
-    paddingRight: 4,
+    paddingHorizontal: 12,
+    gap: 14,
   },
   manufacturerItem: {
     width: ITEM_WIDTH,
     alignItems: 'center',
-    marginRight: 8,
-  },
-  firstItem: {
-    marginLeft: 0,
-  },
-  lastItem: {
-    marginRight: 0,
   },
   avatarContainer: {
     position: 'relative',
-    // marginBottom: 8,
+    alignItems: 'center',
   },
-  avatar: {
-    width: ITEM_WIDTH - 8,
-    height: ITEM_WIDTH - 8,
-    borderRadius: (ITEM_WIDTH - 8) / 2,
+  avatarRing: {
+    width: 62,
+    height: 62,
+    borderRadius: 31,
     borderWidth: 2,
     borderColor: '#e0e0e0',
+    padding: 2,
+    backgroundColor: '#fff',
+  },
+  avatarRingLive: {
+    borderColor: '#ef4444',
+    borderWidth: 2.5,
+  },
+  avatar: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 28,
     backgroundColor: '#f8f8f8',
   },
-  avatarLive: {
-    borderColor: '#ff4444', // Cambia el color del borde si está en vivo
-    borderWidth: 3, // Aumenta el grosor del borde
-  },
-  liveIndicator: {
+  liveBadge: {
     position: 'absolute',
-    bottom: 2,
-    right: 2,
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: '#ff4444',
-    borderWidth: 2,
+    bottom: -2,
+    backgroundColor: '#ef4444',
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 4,
+    borderWidth: 1.5,
     borderColor: '#fff',
   },
+  liveBadgeText: {
+    fontSize: 8,
+    fontWeight: '800',
+    color: '#fff',
+    letterSpacing: 0.5,
+  },
   manufacturerName: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '500',
-    color: '#333',
+    color: '#4b5563',
     textAlign: 'center',
+    marginTop: 6,
     paddingHorizontal: 2,
   },
   loadingContainer: {
-    paddingVertical: 40,
+    paddingVertical: 32,
     alignItems: 'center',
   },
   loadingText: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 13,
+    color: '#9ca3af',
   },
   emptyContainer: {
-    paddingVertical: 40,
+    paddingVertical: 32,
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 13,
+    color: '#9ca3af',
   },
 });
 
