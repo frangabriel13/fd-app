@@ -5,6 +5,7 @@ import { addToCart, updateCartItem, removeFromCart, removeManufacturer, clearCar
 import { isCartEmpty } from '@/utils/cartUtils';
 import { getCartItemsService, transformCartStateToRequest } from '@/services/cartService';
 import { CartManufacturerDisplay, AddToCartPayload, UpdateCartItemPayload, RemoveCartItemPayload } from '@/types/cart';
+import { productInstance } from '@/services/axiosConfig';
 
 export const useCart = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -38,7 +39,15 @@ export const useCart = () => {
 
   // Agregar al carrito
   const handleAddToCart = (payload: AddToCartPayload) => {
+    // Verificar si el producto ya existe en el carrito (cualquier variante)
+    const productAlreadyInCart = cart.manufacturers[payload.manufacturerId]?.[payload.productId]?.length > 0;
+
     dispatch(addToCart(payload));
+
+    // Registrar estadística solo la primera vez que el producto entra al carrito
+    if (!productAlreadyInCart) {
+      productInstance.post('/stats/cart', { productId: payload.productId }).catch(() => {});
+    }
   };
 
   // Actualizar cantidad
