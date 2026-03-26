@@ -4,8 +4,9 @@ import { genders } from '@/utils/hardcode';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CONTAINER_PADDING = 12;
-const GAP = 8;
-const ITEM_SIZE = (SCREEN_WIDTH - 16 - CONTAINER_PADDING * 2 - GAP * 4) / 5;
+const GAP = 6;
+const ITEM_WIDTH = (SCREEN_WIDTH - 16 - CONTAINER_PADDING * 2 - GAP * 4) / 5;
+const ITEM_HEIGHT = ITEM_WIDTH * 1.2;
 
 const Genders = () => {
   const gendersData = genders.filter(gender => gender.name !== 'Más');
@@ -22,16 +23,16 @@ const Genders = () => {
             key={gender.id}
             style={styles.genderItem}
             onPress={() => handleGenderPress(gender)}
-            activeOpacity={0.7}
+            activeOpacity={0.8}
           >
-            <View style={styles.imageWrapper}>
+            <View style={styles.card}>
               <Image
                 source={{ uri: gender.url }}
-                style={styles.genderImage}
+                style={styles.cardImage}
                 resizeMode="cover"
               />
             </View>
-            <Text style={styles.genderText} numberOfLines={1}>{gender.name}</Text>
+            <Text style={styles.label} numberOfLines={1}>{gender.name}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -52,27 +53,27 @@ const styles = StyleSheet.create({
     gap: GAP,
   },
   genderItem: {
-    width: ITEM_SIZE,
+    width: ITEM_WIDTH,
     alignItems: 'center',
   },
-  imageWrapper: {
-    width: ITEM_SIZE,
-    height: ITEM_SIZE,
-    borderRadius: ITEM_SIZE / 2,
+  card: {
+    width: ITEM_WIDTH,
+    height: ITEM_HEIGHT,
+    borderRadius: 10,
     overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#021344',
     backgroundColor: '#f3f4f6',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
-  genderImage: {
+  cardImage: {
     width: '100%',
     height: '100%',
   },
-  genderText: {
-    fontSize: 11,
+  label: {
+    fontSize: 10,
     fontWeight: '600',
+    color: '#1a1a1a',
     textAlign: 'center',
-    color: '#4b5563',
     marginTop: 5,
   },
 });
