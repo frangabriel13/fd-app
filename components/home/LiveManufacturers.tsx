@@ -43,16 +43,13 @@ const LiveManufacturers = () => {
   if (loading && manufacturers.length === 0) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
+        <TouchableOpacity style={styles.header} onPress={handleSeeMore} activeOpacity={0.6}>
           <View style={styles.titleRow}>
             <View style={styles.liveDot} />
             <Text style={styles.title}>Live Shopping</Text>
           </View>
-          <TouchableOpacity onPress={handleSeeMore} activeOpacity={0.6} style={styles.seeMoreBtn}>
-            <Text style={styles.seeMoreText}>Ver más</Text>
-            <AntDesign name="right" size={14} color="#f86f1a" />
-          </TouchableOpacity>
-        </View>
+          <AntDesign name="right" size={16} color="#1a1a1a" />
+        </TouchableOpacity>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Cargando...</Text>
         </View>
@@ -63,16 +60,13 @@ const LiveManufacturers = () => {
   if (manufacturers.length === 0) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
+        <TouchableOpacity style={styles.header} onPress={handleSeeMore} activeOpacity={0.6}>
           <View style={styles.titleRow}>
             <View style={styles.liveDot} />
             <Text style={styles.title}>Live Shopping</Text>
           </View>
-          <TouchableOpacity onPress={handleSeeMore} activeOpacity={0.6} style={styles.seeMoreBtn}>
-            <Text style={styles.seeMoreText}>Ver más</Text>
-            <AntDesign name="right" size={14} color="#f86f1a" />
-          </TouchableOpacity>
-        </View>
+          <AntDesign name="right" size={16} color="#1a1a1a" />
+        </TouchableOpacity>
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>No hay fabricantes en vivo</Text>
         </View>
@@ -82,16 +76,13 @@ const LiveManufacturers = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <TouchableOpacity style={styles.header} onPress={handleSeeMore} activeOpacity={0.6}>
         <View style={styles.titleRow}>
           <View style={styles.liveDot} />
           <Text style={styles.title}>Live Shopping</Text>
         </View>
-        <TouchableOpacity onPress={handleSeeMore} activeOpacity={0.6} style={styles.seeMoreBtn}>
-          <Text style={styles.seeMoreText}>Ver más</Text>
-          <AntDesign name="right" size={14} color="#f86f1a" />
-        </TouchableOpacity>
-      </View>
+        <AntDesign name="right" size={16} color="#1a1a1a" />
+      </TouchableOpacity>
 
       <ScrollView
         horizontal
@@ -158,17 +149,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#1a1a1a',
-    letterSpacing: -0.3,
-  },
-  seeMoreBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  seeMoreText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#f86f1a',
   },
   scrollContainer: {
     paddingHorizontal: 12,

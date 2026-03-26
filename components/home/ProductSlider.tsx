@@ -114,13 +114,10 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
   if (loading && products.length === 0) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
+        <TouchableOpacity style={styles.header} onPress={handleMorePress} activeOpacity={0.6}>
           <Text style={styles.title}>{title}</Text>
-          <TouchableOpacity onPress={handleMorePress} activeOpacity={0.6} style={styles.seeMoreBtn}>
-            <Text style={styles.seeMoreText}>Ver más</Text>
-            <AntDesign name="right" size={14} color="#f86f1a" />
-          </TouchableOpacity>
-        </View>
+          <AntDesign name="right" size={16} color="#1a1a1a" />
+        </TouchableOpacity>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Cargando productos...</Text>
         </View>
@@ -131,9 +128,10 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
   if (error) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
+        <TouchableOpacity style={styles.header} onPress={handleMorePress} activeOpacity={0.6}>
           <Text style={styles.title}>{title}</Text>
-        </View>
+          <AntDesign name="right" size={16} color="#1a1a1a" />
+        </TouchableOpacity>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Error al cargar productos</Text>
         </View>
@@ -147,13 +145,10 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <TouchableOpacity style={styles.header} onPress={handleMorePress} activeOpacity={0.6}>
         <Text style={styles.title}>{title}</Text>
-        <TouchableOpacity onPress={handleMorePress} activeOpacity={0.6} style={styles.seeMoreBtn}>
-          <Text style={styles.seeMoreText}>Ver más</Text>
-          <AntDesign name="right" size={14} color="#f86f1a" />
-        </TouchableOpacity>
-      </View>
+        <AntDesign name="right" size={16} color="#1a1a1a" />
+      </TouchableOpacity>
       <FlatList
         data={products}
         renderItem={renderProduct}
@@ -184,18 +179,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#021344',
+    color: '#1a1a1a',
     letterSpacing: -0.3,
-  },
-  seeMoreBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  seeMoreText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#f86f1a',
   },
   listContainer: {
     paddingHorizontal: 0,
