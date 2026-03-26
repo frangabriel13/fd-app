@@ -7,6 +7,7 @@ import { fetchMyProducts, clearMyProducts, deleteProduct, resetDeleteState } fro
 import type { AppDispatch, RootState } from '@/store';
 import Pagination from '@/components/tables/Pagination';
 import { formatToARS } from '@/utils/formatters';
+import ProductStatsModal from '@/components/modals/ProductStatsModal';
 
 const Publications = () => {
   const router = useRouter();
@@ -17,6 +18,7 @@ const Publications = () => {
   const [activeColumn, setActiveColumn] = useState<'name' | 'price' | 'createdAt'>('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [statsProduct, setStatsProduct] = useState<{ id: string; name: string } | null>(null);
   const pageSize = 12;
 
   useEffect(() => {
@@ -134,16 +136,24 @@ const Publications = () => {
           </View>
           
           {/* Acciones Column */}
-          <View className="w-20 flex-row justify-center items-center gap-2">
-            <TouchableOpacity 
+          <View className="w-28 flex-row justify-center items-center gap-2">
+            <TouchableOpacity
+              onPress={() => setStatsProduct({ id: product.id, name: product.name })}
+              className="p-1"
+              disabled={isDeleting}
+            >
+              <Ionicons name="stats-chart" size={20} color={isDeleting ? "#9CA3AF" : "#10b981"} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
               onPress={() => handleEdit(product.id)}
               className="p-1"
               disabled={isDeleting}
             >
               <Ionicons name="create" size={20} color={isDeleting ? "#9CA3AF" : "#3b82f6"} />
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               onPress={() => handleDelete(product.id)}
               className="p-1"
               disabled={isDeleting}
@@ -185,7 +195,7 @@ const Publications = () => {
             <View className="ml-1">{getSortIcon('createdAt')}</View>
           </TouchableOpacity>
           
-          <View className="w-20 items-center">
+          <View className="w-28 items-center">
             <Text className="text-gray-600 font-semibold text-sm">Acciones</Text>
           </View>
         </View>
@@ -220,6 +230,14 @@ const Publications = () => {
           loading={myProductsLoading}
         />
       )}
+
+      {/* Stats Modal */}
+      <ProductStatsModal
+        visible={!!statsProduct}
+        onClose={() => setStatsProduct(null)}
+        productId={statsProduct?.id ?? ''}
+        productName={statsProduct?.name ?? ''}
+      />
     </View>
   );
 };

@@ -3,7 +3,10 @@
     "allow": [
       "Bash(xargs ls:*)",
       "Bash(ls:*)",
-      "Bash(npx skills:*)"
+      "Bash(npx skills:*)",
+      "Bash(grep -E \"\\\\.\\(tsx|ts|jsx|js\\)$\")",
+      "Bash(npm ls:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }
