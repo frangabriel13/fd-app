@@ -1,13 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'expo-router';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import type { RootState } from '@/store';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_WIDTH = (SCREEN_WIDTH - 32) / 2.4; // Show ~2.4 cards so the next one peeks
-const IMAGE_HEIGHT = CARD_WIDTH * 1.3;
+const CARD_WIDTH = 180;
+const IMAGE_HEIGHT = 240;
 
 interface ProductSliderProps {
   title: string;
@@ -258,29 +257,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   productName: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '500',
     color: '#4b5563',
-    lineHeight: 16,
+    lineHeight: 18,
     marginBottom: 4,
-    minHeight: 32,
+    minHeight: 36,
   },
   priceContainer: {
     flexDirection: 'column',
     gap: 0,
   },
   price: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: '600',
     color: '#1a1a1a',
   },
   salePrice: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: '700',
     color: '#16a34a',
   },
   originalPrice: {
-    fontSize: 11,
+    fontSize: 12,
     color: '#9ca3af',
     textDecorationLine: 'line-through',
   },
