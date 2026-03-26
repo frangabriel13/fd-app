@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     color: '#f86f1a',
   },
   listContainer: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 0,
   },
   productCard: {
     width: CARD_WIDTH,
