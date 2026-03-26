@@ -13,13 +13,14 @@ import RelatedProductSlider from '@/components/detailProduct/RelatedProductSlide
 const ProductoScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
-  const { 
-    currentProduct, 
-    currentManufacturer, 
-    manufacturerProducts, 
-    categoryProducts, 
-    loading, 
-    error 
+  const {
+    currentProduct,
+    currentManufacturer,
+    manufacturerProducts,
+    categoryProducts,
+    currentProductViews,
+    loading,
+    error
   } = useSelector((state: RootState) => state.product);
 
   useEffect(() => {
@@ -68,6 +69,7 @@ const ProductoScreen = () => {
         <DetailProduct
           product={currentProduct || undefined}
           manufacturer={currentManufacturer || undefined}
+          views={currentProductViews ?? undefined}
         />
         <Quantities 
           isVariable={currentProduct?.isVariable} 
