@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { fetchSearchResults, clearSearchResults } from '@/store/slices/productSlice';
+import { Colors } from '@/constants/Colors';
 
 interface SearchProps {
   isExpanded: boolean;
@@ -90,19 +91,19 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
 
   return (
     <>
-      <View style={[styles.searchWrapper, isExpanded && styles.searchWrapperExpanded]}>
+      <View style={styles.searchWrapper}>
         <View style={styles.searchBar}>
           {isExpanded ? (
             <TouchableOpacity onPress={handleCancel} style={styles.backBtn}>
-              <Ionicons name="arrow-back" size={20} color="#6b7280" />
+              <Ionicons name="arrow-back" size={20} color={Colors.gray.semiDark} />
             </TouchableOpacity>
           ) : (
-            <Ionicons name="search" size={16} color="#9ca3af" style={styles.searchIcon} />
+            <Ionicons name="search" size={16} color={Colors.gray.default} style={styles.searchIcon} />
           )}
           <TextInput
             ref={textInputRef}
             placeholder="Buscar productos o fabricantes..."
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={Colors.gray.default}
             style={styles.input}
             value={searchText}
             onChangeText={setSearchText}
@@ -116,7 +117,7 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
             }}
           />
           {searchLoading && (
-            <ActivityIndicator size="small" color="#9ca3af" style={styles.loader} />
+            <ActivityIndicator size="small" color={Colors.gray.default} style={styles.loader} />
           )}
         </View>
       </View>
@@ -129,7 +130,7 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
             {searchResults?.product && searchResults.product.length > 0 && (
               <View>
                 <View style={styles.resultsSectionHeader}>
-                  <Ionicons name="cube-outline" size={14} color="#9ca3af" />
+                  <Ionicons name="cube-outline" size={14} color={Colors.gray.default} />
                   <Text style={styles.resultsSectionTitle}>Productos</Text>
                 </View>
                 {searchResults.product.map((product) => (
@@ -141,7 +142,7 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
                     <Text style={styles.resultItemText} numberOfLines={1}>
                       {product.name}
                     </Text>
-                    <Ionicons name="chevron-forward" size={14} color="#d1d5db" />
+                    <Ionicons name="chevron-forward" size={14} color={Colors.gray.default} />
                   </TouchableOpacity>
                 ))}
               </View>
@@ -151,7 +152,7 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
             {searchResults?.user && searchResults.user.length > 0 && (
               <View>
                 <View style={styles.resultsSectionHeader}>
-                  <Ionicons name="business-outline" size={14} color="#9ca3af" />
+                  <Ionicons name="business-outline" size={14} color={Colors.gray.default} />
                   <Text style={styles.resultsSectionTitle}>Fabricantes</Text>
                 </View>
                 {searchResults.user.map((manufacturer) => (
@@ -163,7 +164,7 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
                     <Text style={styles.resultItemText} numberOfLines={1}>
                       {manufacturer.name}
                     </Text>
-                    <Ionicons name="chevron-forward" size={14} color="#d1d5db" />
+                    <Ionicons name="chevron-forward" size={14} color={Colors.gray.default} />
                   </TouchableOpacity>
                 ))}
               </View>
@@ -172,7 +173,7 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
             {/* See all results */}
             {searchText.trim() && (
               <TouchableOpacity onPress={handleSearchNavigation} style={styles.seeAllBtn}>
-                <Ionicons name="search" size={14} color="#f86f1a" />
+                <Ionicons name="search" size={14} color={Colors.orange.dark} />
                 <Text style={styles.seeAllText}>
                   Ver todos los resultados para "{searchText}"
                 </Text>
@@ -187,9 +188,6 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
 
 const styles = StyleSheet.create({
   searchWrapper: {
-    flex: 1,
-  },
-  searchWrapperExpanded: {
     flex: 1,
   },
   searchBar: {
@@ -255,7 +253,7 @@ const styles = StyleSheet.create({
   resultsSectionTitle: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#9ca3af',
+    color: Colors.gray.default,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -286,7 +284,7 @@ const styles = StyleSheet.create({
   seeAllText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#f86f1a',
+    color: Colors.orange.dark,
   },
 });
 
