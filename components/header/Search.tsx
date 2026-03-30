@@ -93,6 +93,7 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
     <>
       <View style={styles.searchWrapper}>
         <View style={styles.searchBar}>
+
           {isExpanded ? (
             <TouchableOpacity onPress={handleCancel} style={styles.backBtn}>
               <Ionicons name="arrow-back" size={20} color={Colors.gray.semiDark} />
@@ -104,7 +105,7 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
             ref={textInputRef}
             placeholder="Buscar productos o fabricantes..."
             placeholderTextColor={Colors.gray.default}
-            style={styles.input}
+            style={[styles.input, { color: '#1a1a1a' }]}
             value={searchText}
             onChangeText={setSearchText}
             onFocus={handleFocus}
@@ -117,71 +118,79 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
             }}
           />
           {searchLoading && (
-            <ActivityIndicator size="small" color={Colors.gray.default} style={styles.loader} />
+            <ActivityIndicator size="small" color={Colors.gray.semiDark} style={styles.loader} />
           )}
         </View>
-      </View>
 
-      {/* Search results dropdown */}
-      {showResults && isExpanded && (searchResults?.product?.length || searchResults?.user?.length) ? (
+        {/* Search results dropdown */}
+        {showResults && isExpanded && (
         <View style={styles.resultsContainer}>
-          <ScrollView keyboardShouldPersistTaps="handled" style={styles.resultsList}>
-            {/* Products */}
-            {searchResults?.product && searchResults.product.length > 0 && (
-              <View>
-                <View style={styles.resultsSectionHeader}>
-                  <Ionicons name="cube-outline" size={14} color={Colors.gray.default} />
-                  <Text style={styles.resultsSectionTitle}>Productos</Text>
+          {!searchLoading && searchText.trim().length >= 2 && !searchResults?.product?.length && !searchResults?.user?.length ? (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="search-outline" size={28} color={Colors.gray.default} />
+              <Text style={styles.emptyTitle}>Sin resultados</Text>
+              <Text style={styles.emptySubtitle}>No encontramos nada para "{searchText}"</Text>
+            </View>
+          ) : (
+            <ScrollView keyboardShouldPersistTaps="handled" style={styles.resultsList}>
+              {/* Products */}
+              {searchResults?.product && searchResults.product.length > 0 && (
+                <View>
+                  <View style={styles.resultsSectionHeader}>
+                    <Ionicons name="cube-outline" size={14} color={Colors.gray.default} />
+                    <Text style={styles.resultsSectionTitle}>Productos</Text>
+                  </View>
+                  {searchResults.product.map((product) => (
+                    <TouchableOpacity
+                      key={`product-${product.id}`}
+                      onPress={() => handleProductPress(product.id)}
+                      style={styles.resultItem}
+                    >
+                      <Text style={styles.resultItemText} numberOfLines={1}>
+                        {product.name}
+                      </Text>
+                      <Ionicons name="chevron-forward" size={14} color={Colors.gray.default} />
+                    </TouchableOpacity>
+                  ))}
                 </View>
-                {searchResults.product.map((product) => (
-                  <TouchableOpacity
-                    key={`product-${product.id}`}
-                    onPress={() => handleProductPress(product.id)}
-                    style={styles.resultItem}
-                  >
-                    <Text style={styles.resultItemText} numberOfLines={1}>
-                      {product.name}
-                    </Text>
-                    <Ionicons name="chevron-forward" size={14} color={Colors.gray.default} />
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
+              )}
 
-            {/* Manufacturers */}
-            {searchResults?.user && searchResults.user.length > 0 && (
-              <View>
-                <View style={styles.resultsSectionHeader}>
-                  <Ionicons name="business-outline" size={14} color={Colors.gray.default} />
-                  <Text style={styles.resultsSectionTitle}>Fabricantes</Text>
+              {/* Manufacturers */}
+              {searchResults?.user && searchResults.user.length > 0 && (
+                <View>
+                  <View style={styles.resultsSectionHeader}>
+                    <Ionicons name="business-outline" size={14} color={Colors.gray.default} />
+                    <Text style={styles.resultsSectionTitle}>Fabricantes</Text>
+                  </View>
+                  {searchResults.user.map((manufacturer) => (
+                    <TouchableOpacity
+                      key={`manufacturer-${manufacturer.id}`}
+                      onPress={() => handleManufacturerPress(manufacturer.id)}
+                      style={styles.resultItem}
+                    >
+                      <Text style={styles.resultItemText} numberOfLines={1}>
+                        {manufacturer.name}
+                      </Text>
+                      <Ionicons name="chevron-forward" size={14} color={Colors.gray.default} />
+                    </TouchableOpacity>
+                  ))}
                 </View>
-                {searchResults.user.map((manufacturer) => (
-                  <TouchableOpacity
-                    key={`manufacturer-${manufacturer.id}`}
-                    onPress={() => handleManufacturerPress(manufacturer.id)}
-                    style={styles.resultItem}
-                  >
-                    <Text style={styles.resultItemText} numberOfLines={1}>
-                      {manufacturer.name}
-                    </Text>
-                    <Ionicons name="chevron-forward" size={14} color={Colors.gray.default} />
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
+              )}
 
-            {/* See all results */}
-            {searchText.trim() && (
-              <TouchableOpacity onPress={handleSearchNavigation} style={styles.seeAllBtn}>
-                <Ionicons name="search" size={14} color={Colors.orange.dark} />
-                <Text style={styles.seeAllText}>
-                  Ver todos los resultados para "{searchText}"
-                </Text>
-              </TouchableOpacity>
-            )}
-          </ScrollView>
+              {/* See all results */}
+              {searchText.trim() && (searchResults?.product?.length || searchResults?.user?.length) ? (
+                <TouchableOpacity onPress={handleSearchNavigation} style={styles.seeAllBtn}>
+                  <Ionicons name="search" size={14} color={Colors.orange.dark} />
+                  <Text style={styles.seeAllText}>
+                    Ver todos los resultados para "{searchText}"
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
+            </ScrollView>
+          )}
         </View>
-      ) : null}
+        )}
+      </View>
     </>
   );
 };
@@ -189,11 +198,12 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
 const styles = StyleSheet.create({
   searchWrapper: {
     flex: 1,
+    zIndex: 50,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: '#fff',
     borderRadius: 8,
     height: 40,
     paddingHorizontal: 10,
@@ -221,13 +231,12 @@ const styles = StyleSheet.create({
   },
   resultsContainer: {
     position: 'absolute',
-    top: 48,
+    top: 44,
     left: 0,
     right: 0,
     backgroundColor: '#fff',
     borderRadius: 10,
-    marginHorizontal: 12,
-    maxHeight: 320,
+    maxHeight: 420,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
@@ -285,6 +294,24 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: Colors.orange.dark,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    paddingVertical: 28,
+    paddingHorizontal: 16,
+    gap: 6,
+  },
+  emptyTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    fontFamily: 'Montserrat-Bold',
+  },
+  emptySubtitle: {
+    fontSize: 13,
+    color: Colors.gray.default,
+    fontFamily: 'Montserrat-Regular',
+    textAlign: 'center',
   },
 });
 
