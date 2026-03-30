@@ -1,14 +1,15 @@
 import { Text, TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
+import { Colors } from '@/constants/Colors';
 
 const Logo = () => {
   const handleLogoPress = () => {
-    // Aquí puedes agregar la lógica de navegación o acción que quieras
-    console.log('Logo presionado');
+    router.push('/(tabs)/');
   };
 
   return (
     <TouchableOpacity onPress={handleLogoPress}>
-      <Text className='font-mont-bold text-secondary text-2xl'>FD</Text>
+      <Text className='font-mont-bold text-2xl' style={{ color: Colors.orange.light }}>FD</Text>
     </TouchableOpacity>
   );
 };

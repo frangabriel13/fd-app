@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import { Colors } from '@/constants/Colors';
 import { router } from 'expo-router';
 import { useAppSelector } from '@/hooks/redux';
 
@@ -14,7 +15,7 @@ const Notification = () => {
         accessibilityLabel="Notificaciones"
         accessibilityRole="button"
       >
-        <Ionicons name="notifications-outline" size={24} color="#f86f1a" />
+        <Ionicons name="notifications-outline" size={24} color={Colors.orange.light} />
       </TouchableOpacity>
       {unreadCount > 0 && (
         <View style={styles.badge}>
