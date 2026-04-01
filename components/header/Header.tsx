@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Logo from './Logo';
 import Notification from './Notification';
 import Search from './Search';
 
-const Header = () => {
+const Header = memo(function Header() {
   const insets = useSafeAreaInsets();
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
@@ -37,6 +37,6 @@ const Header = () => {
       )}
     </>
   );
-}
+});
 
 export default Header;

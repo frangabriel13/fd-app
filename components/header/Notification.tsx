@@ -1,10 +1,11 @@
+import { memo } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity, View, Text } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { router } from 'expo-router';
 import { useAppSelector } from '@/hooks/redux';
 
-const Notification = () => {
+const Notification = memo(function Notification() {
   const unreadCount = useAppSelector(state => state.notifications.unreadCount);
 
   return (
@@ -26,6 +27,6 @@ const Notification = () => {
       )}
     </View>
   );
-};
+});
 
 export default Notification;
