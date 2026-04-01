@@ -1,13 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRef, useState, useEffect, useCallback, memo } from 'react';
-import { TextInput, TouchableOpacity, View, Text, FlatList, ActivityIndicator } from 'react-native';
-import { router } from 'expo-router';
-import { fetchSearchResults, clearSearchResults } from '@/store/slices/productSlice';
+import { memo } from 'react';
+import { TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { Colors } from '@/constants/Colors';
-import { useAppSelector, useAppDispatch } from '@/hooks/redux';
+import useSearch from './useSearch';
+import SearchDropdown from './SearchDropdown';
 
-// Máximo de resultados mostrados por sección en el dropdown
-const MAX_RESULTS_PER_SECTION = 5;
+const inputStyle = {
+  fontSize: 14,
+  lineHeight: 18,
+  color: '#1a1a1a',
+  paddingVertical: 0,
+  includeFontPadding: false,
+  textAlignVertical: 'center' as const,
+};
 
 interface SearchProps {
   isExpanded: boolean;
@@ -15,79 +20,23 @@ interface SearchProps {
 }
 
 const Search = memo(function Search({ isExpanded, onExpandChange }: SearchProps) {
-  const [searchText, setSearchText] = useState('');
-  const [showResults, setShowResults] = useState(false);
-  const textInputRef = useRef<TextInput>(null);
-  const dispatch = useAppDispatch();
-
-  const { searchResults, searchLoading } = useAppSelector((state) => state.product);
-
-  useEffect(() => {
-    if (searchText.trim().length >= 2) {
-      const timeoutId = setTimeout(() => {
-        dispatch(fetchSearchResults(searchText.trim()));
-        setShowResults(true);
-      }, 300);
-
-      return () => clearTimeout(timeoutId);
-    } else {
-      dispatch(clearSearchResults());
-      setShowResults(false);
-    }
-  }, [searchText, dispatch]);
-
-  const resetSearch = useCallback(() => {
-    setSearchText('');
-    setShowResults(false);
-    dispatch(clearSearchResults());
-    textInputRef.current?.blur();
-    onExpandChange(false);
-  }, [dispatch, onExpandChange]);
-
-  const handleCancel = useCallback(() => resetSearch(), [resetSearch]);
-
-  const handleFocus = useCallback(() => {
-    onExpandChange(true);
-  }, [onExpandChange]);
-
-  const handleBlur = useCallback(() => {
-    // Se necesita el delay para que el onPress de los resultados se ejecute
-    // antes de que el blur oculte la lista. Sin esto, tocar un resultado
-    // cierra el dropdown antes de que el press sea registrado.
-    setTimeout(() => {
-      if (searchText === '') {
-        onExpandChange(false);
-      }
-      setShowResults(false);
-    }, 150);
-  }, [searchText, onExpandChange]);
-
-  const handleSearchNavigation = useCallback(() => {
-    // searchTerm se captura antes del reset para que no se pierda al limpiar el estado
-    const searchTerm = searchText.trim();
-    if (searchTerm) {
-      resetSearch();
-      router.push({
-        pathname: '/(tabs)/tienda',
-        params: { searchTerm }
-      });
-    }
-  }, [searchText, resetSearch]);
-
-  const handleProductPress = useCallback((productId: string) => {
-    resetSearch();
-    router.push(`/(tabs)/producto/${productId}`);
-  }, [resetSearch]);
-
-  const handleManufacturerPress = useCallback((userId: string) => {
-    resetSearch();
-    router.push(`/(tabs)/store/${userId}`);
-  }, [resetSearch]);
-
-  const products = searchResults?.product?.slice(0, MAX_RESULTS_PER_SECTION) ?? [];
-  const manufacturers = searchResults?.user?.slice(0, MAX_RESULTS_PER_SECTION) ?? [];
-  const hasResults = products.length > 0 || manufacturers.length > 0;
-  const showEmpty = !searchLoading && searchText.trim().length >= 2 && !hasResults;
+  const {
+    searchText,
+    setSearchText,
+    showResults,
+    searchLoading,
+    textInputRef,
+    products,
+    manufacturers,
+    hasResults,
+    showEmpty,
+    handleCancel,
+    handleFocus,
+    handleBlur,
+    handleSearchNavigation,
+    handleProductPress,
+    handleManufacturerPress,
+  } = useSearch({ onExpandChange });
 
   return (
     <View className="flex-1 z-50">
@@ -104,16 +53,14 @@ const Search = memo(function Search({ isExpanded, onExpandChange }: SearchProps)
           placeholder="Buscar productos o fabricantes..."
           placeholderTextColor={Colors.gray.default}
           className="flex-1 px-1.5 font-mont-regular"
-          style={{ fontSize: 14, lineHeight: 18, color: '#1a1a1a', paddingVertical: 0, includeFontPadding: false, textAlignVertical: 'center' }}
+          style={inputStyle}
           value={searchText}
           onChangeText={setSearchText}
           onFocus={handleFocus}
           onBlur={handleBlur}
           returnKeyType="search"
           onSubmitEditing={() => {
-            if (searchText.trim()) {
-              handleSearchNavigation();
-            }
+            if (searchText.trim()) handleSearchNavigation();
           }}
         />
         {searchLoading && (
@@ -121,90 +68,17 @@ const Search = memo(function Search({ isExpanded, onExpandChange }: SearchProps)
         )}
       </View>
 
-      {/* Dropdown de resultados */}
       {showResults && isExpanded && (
-        <View
-          className="absolute left-0 right-0 bg-white rounded-xl z-50 border border-gray-100"
-          style={{ top: 44, maxHeight: 420, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 8 }}
-        >
-          {showEmpty ? (
-            <View className="items-center py-7 px-4 gap-1.5">
-              <Ionicons name="search-outline" size={28} color={Colors.gray.default} />
-              <Text className="text-base font-mont-bold" style={{ color: '#1a1a1a' }}>Sin resultados</Text>
-              <Text className="text-sm text-center font-mont-regular" style={{ color: Colors.gray.default }}>
-                No encontramos nada para "{searchText}"
-              </Text>
-            </View>
-          ) : (
-            <FlatList
-              keyboardShouldPersistTaps="handled"
-              className="rounded-xl"
-              data={[]}
-              renderItem={null}
-              ListHeaderComponent={
-                <>
-                  {/* Productos */}
-                  {products.length > 0 && (
-                    <View>
-                      <View className="flex-row items-center gap-1.5 px-3.5 py-2 bg-gray-50 border-b border-gray-100">
-                        <Ionicons name="cube-outline" size={14} color={Colors.gray.default} />
-                        <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.gray.default, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                          Productos
-                        </Text>
-                      </View>
-                      {products.map((product) => (
-                        <TouchableOpacity
-                          key={`product-${product.id}`}
-                          onPress={() => handleProductPress(product.id)}
-                          className="flex-row items-center justify-between px-3.5 py-3 border-b border-gray-100"
-                        >
-                          <Text className="flex-1 text-sm font-mont-regular" style={{ color: '#1a1a1a' }} numberOfLines={1}>
-                            {product.name}
-                          </Text>
-                          <Ionicons name="chevron-forward" size={14} color={Colors.gray.default} />
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  )}
-
-                  {/* Fabricantes */}
-                  {manufacturers.length > 0 && (
-                    <View>
-                      <View className="flex-row items-center gap-1.5 px-3.5 py-2 bg-gray-50 border-b border-gray-100">
-                        <Ionicons name="business-outline" size={14} color={Colors.gray.default} />
-                        <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.gray.default, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                          Fabricantes
-                        </Text>
-                      </View>
-                      {manufacturers.map((manufacturer) => (
-                        <TouchableOpacity
-                          key={`manufacturer-${manufacturer.id}`}
-                          onPress={() => handleManufacturerPress(manufacturer.id)}
-                          className="flex-row items-center justify-between px-3.5 py-3 border-b border-gray-100"
-                        >
-                          <Text className="flex-1 text-sm font-mont-regular" style={{ color: '#1a1a1a' }} numberOfLines={1}>
-                            {manufacturer.name}
-                          </Text>
-                          <Ionicons name="chevron-forward" size={14} color={Colors.gray.default} />
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  )}
-
-                  {/* Ver todos los resultados */}
-                  {searchText.trim() && hasResults && (
-                    <TouchableOpacity onPress={handleSearchNavigation} className="flex-row items-center justify-center gap-1.5 py-3 border-t border-gray-100">
-                      <Ionicons name="search" size={14} color={Colors.orange.dark} />
-                      <Text className="text-sm font-semibold text-secondary">
-                        Ver todos los resultados para "{searchText}"
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                </>
-              }
-            />
-          )}
-        </View>
+        <SearchDropdown
+          searchText={searchText}
+          products={products}
+          manufacturers={manufacturers}
+          hasResults={hasResults}
+          showEmpty={showEmpty}
+          onProductPress={handleProductPress}
+          onManufacturerPress={handleManufacturerPress}
+          onSeeAll={handleSearchNavigation}
+        />
       )}
     </View>
   );
