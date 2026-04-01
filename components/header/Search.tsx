@@ -47,7 +47,7 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
     }, 150);
   };
 
-  const handleCancel = () => {
+  const resetSearch = () => {
     setSearchText('');
     setShowResults(false);
     dispatch(clearSearchResults());
@@ -55,15 +55,12 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
     onExpandChange(false);
   };
 
+  const handleCancel = () => resetSearch();
+
   const handleSearchNavigation = () => {
     const searchTerm = searchText.trim();
     if (searchTerm) {
-      setSearchText('');
-      setShowResults(false);
-      dispatch(clearSearchResults());
-      textInputRef.current?.blur();
-      onExpandChange(false);
-
+      resetSearch();
       router.push({
         pathname: '/(tabs)/tienda',
         params: { searchTerm }
@@ -72,20 +69,12 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
   };
 
   const handleProductPress = (productId: string) => {
-    setShowResults(false);
-    setSearchText('');
-    dispatch(clearSearchResults());
-    textInputRef.current?.blur();
-    onExpandChange(false);
+    resetSearch();
     router.push(`/(tabs)/producto/${productId}`);
   };
 
   const handleManufacturerPress = (userId: string) => {
-    setShowResults(false);
-    setSearchText('');
-    dispatch(clearSearchResults());
-    textInputRef.current?.blur();
-    onExpandChange(false);
+    resetSearch();
     router.push(`/(tabs)/store/${userId}`);
   };
 
