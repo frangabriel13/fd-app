@@ -4,7 +4,7 @@ import { Colors } from '@/constants/Colors';
 
 const Logo = () => {
   const handleLogoPress = () => {
-    router.push('/(tabs)/');
+    router.navigate('/(tabs)/');
   };
 
   return (
