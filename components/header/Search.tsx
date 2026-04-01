@@ -39,6 +39,9 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
   };
 
   const handleBlur = () => {
+    // Se necesita el delay para que el onPress de los resultados se ejecute
+    // antes de que el blur oculte la lista. Sin esto, tocar un resultado
+    // cierra el dropdown antes de que el press sea registrado.
     setTimeout(() => {
       if (searchText === '') {
         onExpandChange(false);
@@ -94,7 +97,7 @@ const Search = ({ isExpanded, onExpandChange }: SearchProps) => {
             ref={textInputRef}
             placeholder="Buscar productos o fabricantes..."
             placeholderTextColor={Colors.gray.default}
-            style={[styles.input, { color: '#1a1a1a' }]}
+            style={styles.input}
             value={searchText}
             onChangeText={setSearchText}
             onFocus={handleFocus}
@@ -208,7 +211,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     lineHeight: 18,
-    color: '#fff',
+    color: '#1a1a1a',
     paddingVertical: 0,
     paddingHorizontal: 6,
     fontFamily: 'Montserrat-Regular',
