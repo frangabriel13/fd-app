@@ -10,7 +10,7 @@ const Notification = () => {
   return (
     <View style={styles.wrapper}>
       <TouchableOpacity
-        onPress={() => router.push('/(tabs)/notificaciones' as any)}
+        onPress={() => router.push('/(tabs)/notificaciones')}
         activeOpacity={0.7}
         accessibilityLabel="Notificaciones"
         accessibilityRole="button"
