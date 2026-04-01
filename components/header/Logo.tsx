@@ -1,8 +1,9 @@
+import { memo } from 'react';
 import { Text, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 
-const Logo = () => {
+const Logo = memo(function Logo() {
   const handleLogoPress = () => {
     router.navigate('/(tabs)/');
   };
@@ -12,7 +13,6 @@ const Logo = () => {
       <Text className='font-mont-bold text-2xl' style={{ color: Colors.orange.light }}>FD</Text>
     </TouchableOpacity>
   );
-};
-
+});
 
 export default Logo;
