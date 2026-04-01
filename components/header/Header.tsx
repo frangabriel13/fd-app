@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Logo from './Logo';
 import Notification from './Notification';
@@ -10,9 +10,9 @@ const Header = () => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 6 }]} className='bg-primary'>
+    <View style={{ paddingTop: insets.top + 6 }} className='bg-primary px-3 pb-2.5 flex-row items-center gap-2.5'>
       {!isSearchExpanded && (
-        <View style={styles.logoContainer}>
+        <View className='w-9 items-center'>
           <Logo />
         </View>
       )}
@@ -21,30 +21,12 @@ const Header = () => {
         onExpandChange={setIsSearchExpanded}
       />
       {!isSearchExpanded && (
-        <View style={styles.notifContainer}>
+        <View className='w-9 items-center'>
           <Notification />
         </View>
       )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 12,
-    paddingBottom: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  logoContainer: {
-    width: 36,
-    alignItems: 'center',
-  },
-  notifContainer: {
-    width: 36,
-    alignItems: 'center',
-  },
-});
 
 export default Header;
