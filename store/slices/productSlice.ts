@@ -178,6 +178,7 @@ interface ProductState {
   newProducts: Product[];
   packs: Product[];
   sales: Product[];
+  masVendidos: Product[];
   blanqueria: Product[];
   lenceria: Product[];
   calzado: Product[];
@@ -223,6 +224,7 @@ const initialState: ProductState = {
   newProducts: [],
   packs: [],
   sales: [],
+  masVendidos: [],
   blanqueria: [],
   lenceria: [],
   calzado: [],
@@ -603,6 +605,7 @@ const productSlice = createSlice({
         state.newProducts = action.payload.newProducts;
         state.packs = action.payload.packs;
         state.sales = action.payload.sales;
+        state.masVendidos = action.payload.masVendidos;
         state.blanqueria = action.payload.blanqueria;
         state.lenceria = action.payload.lenceria;
         state.calzado = action.payload.calzado;
