@@ -1,6 +1,7 @@
-import { View, Text, StyleSheet, Pressable, ScrollView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -63,10 +64,15 @@ const Genders = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Explorar</Text>
+      <TouchableOpacity
+        style={styles.header}
+        onPress={() => router.push('/(tabs)/tienda')}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.title}>Tienda</Text>
         <View style={styles.titleAccent} />
-      </View>
+        <Ionicons name="chevron-forward" size={20} color="#021344" />
+      </TouchableOpacity>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -103,7 +109,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   title: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
     color: '#021344',
     letterSpacing: 1.5,
@@ -148,6 +154,7 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     textAlign: 'center',
     letterSpacing: 0.3,
+    textTransform: 'uppercase',
   },
 });
 
