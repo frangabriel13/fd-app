@@ -105,7 +105,7 @@ const ProductCard = ({ item, onPress }: { item: any; onPress: () => void }) => {
           )}
         </View>
         <View style={styles.productInfo}>
-          <Text style={styles.productName} numberOfLines={2} ellipsizeMode="tail">
+          <Text style={styles.productName} numberOfLines={1} ellipsizeMode="tail">
             {item.name}
           </Text>
           {item.onSale && item.salePrice > 0 ? (
@@ -290,7 +290,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#374151',
     lineHeight: 16,
-    minHeight: 32,
   },
   priceRow: {
     flexDirection: 'row',
