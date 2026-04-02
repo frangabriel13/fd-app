@@ -91,7 +91,7 @@ const ManufacturerItem = ({ manufacturer, onPress }: ManufacturerItemProps) => {
 
         </View>
 
-        <Text style={styles.name} numberOfLines={2}>
+        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
           {manufacturer.name}
         </Text>
       </Animated.View>
@@ -256,6 +256,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 13,
     maxWidth: ITEM_WIDTH,
+    paddingHorizontal: 2,
   },
 
   // — Skeleton —
