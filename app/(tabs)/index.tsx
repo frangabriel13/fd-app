@@ -33,6 +33,7 @@ const HomeScreen = () => {
         <Genders />
         <LiveManufacturers />
         <ProductSlider title="Productos Destacados" section="featured" />
+        <ProductSlider title="Más Vendidos" section="masVendidos" />
         <ProductSlider title="Nuevos Ingresos" section="newProducts" />
         <ProductSlider title="Packs/Combos" section="packs" />
         <ProductSlider title="Liquidaciones/Ofertas" section="sales" />

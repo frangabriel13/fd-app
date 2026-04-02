@@ -20,7 +20,7 @@ const IMAGE_HEIGHT = CARD_WIDTH * 1.35;
 
 interface ProductSliderProps {
   title: string;
-  section: 'featured' | 'newProducts' | 'packs' | 'sales' | 'blanqueria' | 'lenceria' | 'calzado' | 'bisuteria' | 'telas' | 'insumos' | 'maquinas';
+  section: 'featured' | 'newProducts' | 'packs' | 'sales' | 'masVendidos' | 'blanqueria' | 'lenceria' | 'calzado' | 'bisuteria' | 'telas' | 'insumos' | 'maquinas';
 }
 
 // — Skeleton card —
