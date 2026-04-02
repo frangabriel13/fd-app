@@ -1,25 +1,131 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, Pressable, Dimensions } from 'react-native';
+import { Image } from 'expo-image';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'expo-router';
-import AntDesign from '@expo/vector-icons/AntDesign';
+import { Ionicons } from '@expo/vector-icons';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import type { RootState } from '@/store';
 
-const CARD_WIDTH = 180;
-const IMAGE_HEIGHT = 240;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CARD_WIDTH = (SCREEN_WIDTH - 16) / 2.35;
+const IMAGE_HEIGHT = CARD_WIDTH * 1.35;
 
 interface ProductSliderProps {
   title: string;
   section: 'featured' | 'newProducts' | 'packs' | 'sales' | 'blanqueria' | 'lenceria' | 'calzado' | 'bisuteria' | 'telas' | 'insumos' | 'maquinas';
 }
 
-const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
-  const { [section]: products, loading, error } = useSelector((state: RootState) => state.product);
-  const router = useRouter();
+// — Skeleton card —
+const SkeletonCard = () => {
+  const opacity = useSharedValue(0.35);
 
-  const handleProductPress = (product: any) => {
-    router.push(`/(tabs)/producto/${product.id}` as any);
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(0.85, { duration: 550 }),
+        withTiming(0.35, { duration: 550 })
+      ),
+      -1
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+  return (
+    <Animated.View style={[styles.skeletonCard, animatedStyle]}>
+      <View style={styles.skeletonImage} />
+      <View style={styles.skeletonInfo}>
+        <View style={styles.skeletonLine} />
+        <View style={styles.skeletonLineShort} />
+        <View style={styles.skeletonPrice} />
+      </View>
+    </Animated.View>
+  );
+};
+
+// — Product card —
+const ProductCard = ({ item, onPress }: { item: any; onPress: () => void }) => {
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.96, { damping: 15, stiffness: 300 });
   };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+  };
+
+  const discount =
+    item.onSale && item.salePrice > 0
+      ? Math.round(((item.price - item.salePrice) / item.price) * 100)
+      : 0;
+
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+      minimumFractionDigits: 0,
+    }).format(price);
+
+  return (
+    <Pressable onPress={onPress} onPressIn={handlePressIn} onPressOut={handlePressOut}>
+      <Animated.View style={[styles.card, animatedStyle]}>
+        <View style={styles.imageContainer}>
+          <Image
+            source={{ uri: item.mainImage }}
+            style={styles.productImage}
+            contentFit="cover"
+            transition={200}
+          />
+          {discount > 0 && (
+            <View style={styles.discountBadge}>
+              <Text style={styles.discountText}>-{discount}%</Text>
+            </View>
+          )}
+          {item.logo && (
+            <View style={styles.logoContainer}>
+              <Image
+                source={{ uri: item.logo }}
+                style={styles.logoImage}
+                contentFit="contain"
+              />
+            </View>
+          )}
+        </View>
+        <View style={styles.productInfo}>
+          <Text style={styles.productName} numberOfLines={2} ellipsizeMode="tail">
+            {item.name}
+          </Text>
+          {item.onSale && item.salePrice > 0 ? (
+            <View style={styles.priceRow}>
+              <Text style={styles.salePrice}>{formatPrice(item.salePrice)}</Text>
+              <Text style={styles.originalPrice}>{formatPrice(item.price)}</Text>
+            </View>
+          ) : (
+            <Text style={styles.price}>{formatPrice(item.price)}</Text>
+          )}
+        </View>
+      </Animated.View>
+    </Pressable>
+  );
+};
+
+// — Componente principal —
+const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
+  const { [section]: products, loading } = useSelector((state: RootState) => state.product);
+  const router = useRouter();
 
   const handleMorePress = () => {
     const redirectConfig: Record<string, { genderId?: number; categoryId?: number; sortBy?: string }> = {
@@ -43,185 +149,104 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
     if (config.sortBy) params.append('sortBy', config.sortBy);
 
     const queryString = params.toString();
-    const route = queryString ? `/(tabs)/tienda?${queryString}` : '/(tabs)/tienda';
-    router.push(route as any);
+    router.push((queryString ? `/(tabs)/tienda?${queryString}` : '/(tabs)/tienda') as any);
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+  const isLoading = loading && (!products || products.length === 0);
 
-  const getDiscountPercent = (price: number, salePrice: number) => {
-    if (!price || !salePrice || salePrice >= price) return 0;
-    return Math.round(((price - salePrice) / price) * 100);
-  };
-
-  const renderProduct = ({ item }: { item: any }) => {
-    const discount = item.onSale && item.salePrice > 0
-      ? getDiscountPercent(item.price, item.salePrice)
-      : 0;
-
-    return (
-      <TouchableOpacity
-        style={styles.productCard}
-        onPress={() => handleProductPress(item)}
-        activeOpacity={0.7}
-      >
-        <View style={styles.imageContainer}>
-          <Image
-            source={{ uri: item.mainImage || 'https://via.placeholder.com/140x186' }}
-            style={styles.productImage}
-            resizeMode="cover"
-          />
-          {item.logo && (
-            <View style={styles.logoContainer}>
-              <Image
-                source={{ uri: item.logo }}
-                style={styles.logoImage}
-                resizeMode="contain"
-              />
-            </View>
-          )}
-          {discount > 0 && (
-            <View style={styles.discountBadge}>
-              <Text style={styles.discountText}>-{discount}%</Text>
-            </View>
-          )}
-        </View>
-        <View style={styles.productInfo}>
-          <Text style={styles.productName} numberOfLines={2} ellipsizeMode="tail">
-            {item.name}
-          </Text>
-          <View style={styles.priceContainer}>
-            {item.onSale && item.salePrice > 0 ? (
-              <>
-                <Text style={styles.salePrice}>{formatPrice(item.salePrice)}</Text>
-                <Text style={styles.originalPrice}>{formatPrice(item.price)}</Text>
-              </>
-            ) : (
-              <Text style={styles.price}>{formatPrice(item.price)}</Text>
-            )}
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
-  if (loading && products.length === 0) {
-    return (
-      <View style={styles.container}>
-        <TouchableOpacity style={styles.header} onPress={handleMorePress} activeOpacity={0.6}>
-          <Text style={styles.title}>{title}</Text>
-          <AntDesign name="right" size={16} color="#1a1a1a" />
-        </TouchableOpacity>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Cargando productos...</Text>
-        </View>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.container}>
-        <TouchableOpacity style={styles.header} onPress={handleMorePress} activeOpacity={0.6}>
-          <Text style={styles.title}>{title}</Text>
-          <AntDesign name="right" size={16} color="#1a1a1a" />
-        </TouchableOpacity>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Error al cargar productos</Text>
-        </View>
-      </View>
-    );
-  }
-
-  if (!products || products.length === 0) {
-    return null;
-  }
+  if (!isLoading && (!products || products.length === 0)) return null;
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.header} onPress={handleMorePress} activeOpacity={0.6}>
+      {/* Header — mismo patrón que Genders y LiveManufacturers */}
+      <Pressable style={styles.header} onPress={handleMorePress}>
         <Text style={styles.title}>{title}</Text>
-        <AntDesign name="right" size={16} color="#1a1a1a" />
-      </TouchableOpacity>
-      <FlatList
-        data={products}
-        renderItem={renderProduct}
-        keyExtractor={(item) => item.id.toString()}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
-        ItemSeparatorComponent={() => <View style={{ width: 4 }} />}
-      />
+        <View style={styles.titleAccent} />
+        <Ionicons name="chevron-forward" size={20} color="#021344" />
+      </Pressable>
+
+      {isLoading ? (
+        <FlatList
+          data={[1, 2, 3]}
+          renderItem={() => <SkeletonCard />}
+          keyExtractor={(item) => item.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+          scrollEnabled={false}
+        />
+      ) : (
+        <FlatList
+          data={products}
+          renderItem={({ item }) => (
+            <ProductCard
+              item={item}
+              onPress={() => router.push(`/(tabs)/producto/${item.id}` as any)}
+            />
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          ItemSeparatorComponent={() => <View style={{ width: 6 }} />}
+        />
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 8,
-    borderRadius: 10,
     backgroundColor: '#fff',
-    paddingVertical: 10,
+    paddingTop: 6,
+    paddingBottom: 6,
   },
+
+  // — Header —
   header: {
+    paddingHorizontal: 8,
+    marginBottom: 6,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    marginBottom: 10,
+    gap: 8,
   },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
-    color: '#1a1a1a',
-    letterSpacing: -0.3,
+    color: '#021344',
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
   },
-  listContainer: {
-    paddingHorizontal: 0,
+  titleAccent: {
+    flex: 1,
+    height: 1.5,
+    backgroundColor: '#f3f4f6',
   },
-  productCard: {
+
+  // — Lista —
+  listContent: {
+    // paddingHorizontal: 8,
+  },
+
+  // — Card —
+  card: {
     width: CARD_WIDTH,
     backgroundColor: '#fff',
-    borderRadius: 10,
+    borderRadius: 6,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: '#f0f0f0',
   },
   imageContainer: {
-    position: 'relative',
     width: '100%',
     height: IMAGE_HEIGHT,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#f3f4f6',
     overflow: 'hidden',
   },
   productImage: {
     width: '100%',
     height: '100%',
-  },
-  logoContainer: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    width: 28,
-    height: 28,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  logoImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 14,
   },
   discountBadge: {
     position: 'absolute',
@@ -237,54 +262,91 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#fff',
   },
+  logoContainer: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 30,
+    height: 30,
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderRadius: 15,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  logoImage: {
+    width: '100%',
+    height: '100%',
+  },
   productInfo: {
-    paddingVertical: 8,
-    paddingHorizontal: 8,
+    padding: 8,
+    gap: 4,
   },
   productName: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '500',
-    color: '#4b5563',
-    lineHeight: 18,
-    marginBottom: 4,
-    minHeight: 36,
+    color: '#374151',
+    lineHeight: 16,
+    minHeight: 32,
   },
-  priceContainer: {
-    flexDirection: 'column',
-    gap: 0,
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
+    flexWrap: 'wrap',
   },
   price: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1a1a1a',
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#021344',
   },
   salePrice: {
-    fontSize: 20,
+    fontSize: 15,
     fontWeight: '700',
     color: '#16a34a',
   },
   originalPrice: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#9ca3af',
     textDecorationLine: 'line-through',
   },
-  loadingContainer: {
-    height: 200,
-    justifyContent: 'center',
-    alignItems: 'center',
+
+  // — Skeleton —
+  skeletonCard: {
+    width: CARD_WIDTH,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#f3f4f6',
   },
-  loadingText: {
-    fontSize: 13,
-    color: '#9ca3af',
+  skeletonImage: {
+    width: '100%',
+    height: IMAGE_HEIGHT,
+    backgroundColor: '#e5e7eb',
   },
-  errorContainer: {
-    height: 200,
-    justifyContent: 'center',
-    alignItems: 'center',
+  skeletonInfo: {
+    padding: 8,
+    gap: 6,
   },
-  errorText: {
-    fontSize: 13,
-    color: '#ef4444',
+  skeletonLine: {
+    height: 10,
+    borderRadius: 4,
+    backgroundColor: '#e5e7eb',
+  },
+  skeletonLineShort: {
+    height: 10,
+    borderRadius: 4,
+    backgroundColor: '#e5e7eb',
+    width: '65%',
+  },
+  skeletonPrice: {
+    height: 14,
+    borderRadius: 4,
+    backgroundColor: '#e5e7eb',
+    width: '45%',
+    marginTop: 2,
   },
 });
 
