@@ -126,8 +126,8 @@ const LiveManufacturers = () => {
       {/* Header — mismo patrón que Genders */}
       <Pressable style={styles.header} onPress={handleSeeMore}>
         <Text style={styles.title}>En vivo</Text>
-        <View style={styles.titleAccent} />
-        <Ionicons name="chevron-forward" size={20} color="#021344" />
+        <View style={styles.titleSpacer} />
+        <Ionicons name="chevron-forward" size={20} color="#111827" />
       </Pressable>
 
       {/* Estado de carga */}
@@ -187,14 +187,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#021344',
+    color: '#111827',
     letterSpacing: 1.5,
     textTransform: 'uppercase',
   },
-  titleAccent: {
+  titleSpacer: {
     flex: 1,
-    height: 1.5,
-    backgroundColor: '#f3f4f6',
   },
 
   // — Scroll —

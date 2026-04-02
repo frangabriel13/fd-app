@@ -161,8 +161,8 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
       {/* Header — mismo patrón que Genders y LiveManufacturers */}
       <Pressable style={styles.header} onPress={handleMorePress}>
         <Text style={styles.title}>{title}</Text>
-        <View style={styles.titleAccent} />
-        <Ionicons name="chevron-forward" size={20} color="#021344" />
+        <View style={styles.titleSpacer} />
+        <Ionicons name="chevron-forward" size={20} color="#111827" />
       </Pressable>
 
       {isLoading ? (
@@ -214,14 +214,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#021344',
+    color: '#111827',
     letterSpacing: 1.5,
     textTransform: 'uppercase',
   },
-  titleAccent: {
+  titleSpacer: {
     flex: 1,
-    height: 1.5,
-    backgroundColor: '#f3f4f6',
   },
 
   // — Lista —
@@ -236,7 +234,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: '#e5e7eb',
   },
   imageContainer: {
     width: '100%',
@@ -300,7 +298,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#021344',
+    color: '#111827',
   },
   salePrice: {
     fontSize: 15,

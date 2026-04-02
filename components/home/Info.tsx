@@ -30,7 +30,7 @@ const Info = () => {
             {index > 0 && <View style={styles.divider} />}
             <View style={styles.item}>
               <View style={styles.iconContainer}>
-                <Ionicons name={feature.icon} size={24} color="#021344" />
+                <Ionicons name={feature.icon} size={24} color="#f86f1a" />
               </View>
               <Text style={styles.title}>{feature.title}</Text>
               <Text style={styles.subtitle}>{feature.subtitle}</Text>
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'stretch',
-    paddingVertical: 20,
+    paddingVertical: 12,
     paddingHorizontal: 8,
   },
   divider: {
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     width: 50,
     height: 50,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: '#fff7ed',
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
