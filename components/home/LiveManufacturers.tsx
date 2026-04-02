@@ -1,15 +1,105 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { Image } from 'expo-image';
 import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { fetchAllLiveManufacturers } from '../../store/slices/manufacturerSlice';
 import Images from '@/constants/Images';
-import AntDesign from '@expo/vector-icons/AntDesign';
 
-const { width } = Dimensions.get('window');
-const ITEM_WIDTH = 84;
+const AVATAR_SIZE = 60;
+const ITEM_WIDTH = 76;
+
 const logoDefault = Images.defaultImages.logoDefault;
 
+// — Skeleton circular —
+const SkeletonAvatar = () => {
+  const opacity = useSharedValue(0.35);
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(0.85, { duration: 550 }),
+        withTiming(0.35, { duration: 550 })
+      ),
+      -1
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+  return (
+    <View style={styles.item}>
+      <Animated.View style={[styles.skeletonCircle, animatedStyle]} />
+      <Animated.View style={[styles.skeletonName, animatedStyle]} />
+    </View>
+  );
+};
+
+// — Item individual —
+type Manufacturer = {
+  id: number;
+  name: string;
+  image: string | null;
+  live: boolean;
+};
+
+type ManufacturerItemProps = {
+  manufacturer: Manufacturer;
+  onPress: () => void;
+};
+
+const ManufacturerItem = ({ manufacturer, onPress }: ManufacturerItemProps) => {
+  const scale = useSharedValue(1);
+
+  const animatedItemStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.9, { damping: 15, stiffness: 300 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+  };
+
+  return (
+    <Pressable onPress={onPress} onPressIn={handlePressIn} onPressOut={handlePressOut}>
+      <Animated.View style={[styles.item, animatedItemStyle]}>
+        <View style={styles.avatarWrapper}>
+          {/* Anillo exterior difuso (solo live) */}
+          {manufacturer.live && <View style={styles.ringOuter} />}
+
+          {/* Anillo interior */}
+          <View style={[styles.ring, manufacturer.live ? styles.ringLive : styles.ringDefault]}>
+            <Image
+              source={manufacturer.image ? { uri: manufacturer.image } : logoDefault}
+              style={styles.avatar}
+              contentFit="cover"
+              transition={200}
+            />
+          </View>
+
+        </View>
+
+        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+          {manufacturer.name}
+        </Text>
+      </Animated.View>
+    </Pressable>
+  );
+};
+
+// — Componente principal —
 const LiveManufacturers = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -23,203 +113,175 @@ const LiveManufacturers = () => {
     router.push('/(tabs)/fabricantes');
   };
 
-  const handleManufacturerPress = (manufacturer: any) => {
+  const handleManufacturerPress = (manufacturer: Manufacturer) => {
     router.push(`/(tabs)/store/${manufacturer.id}`);
   };
 
-  if (!manufacturerState) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Cargando...</Text>
-        </View>
-      </View>
-    );
-  }
-
-  const { liveManufacturers, loading } = manufacturerState;
+  const { liveManufacturers, loading } = manufacturerState ?? { liveManufacturers: [], loading: false };
   const manufacturers = liveManufacturers || [];
-
-  if (loading && manufacturers.length === 0) {
-    return (
-      <View style={styles.container}>
-        <TouchableOpacity style={styles.header} onPress={handleSeeMore} activeOpacity={0.6}>
-          <View style={styles.titleRow}>
-            <View style={styles.liveDot} />
-            <Text style={styles.title}>Live Shopping</Text>
-          </View>
-          <AntDesign name="right" size={16} color="#1a1a1a" />
-        </TouchableOpacity>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Cargando...</Text>
-        </View>
-      </View>
-    );
-  }
-
-  if (manufacturers.length === 0) {
-    return (
-      <View style={styles.container}>
-        <TouchableOpacity style={styles.header} onPress={handleSeeMore} activeOpacity={0.6}>
-          <View style={styles.titleRow}>
-            <View style={styles.liveDot} />
-            <Text style={styles.title}>Live Shopping</Text>
-          </View>
-          <AntDesign name="right" size={16} color="#1a1a1a" />
-        </TouchableOpacity>
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No hay fabricantes en vivo</Text>
-        </View>
-      </View>
-    );
-  }
+  const isLoading = loading && manufacturers.length === 0;
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.header} onPress={handleSeeMore} activeOpacity={0.6}>
-        <View style={styles.titleRow}>
-          <View style={styles.liveDot} />
-          <Text style={styles.title}>Live Shopping</Text>
-        </View>
-        <AntDesign name="right" size={16} color="#1a1a1a" />
-      </TouchableOpacity>
+      {/* Header — mismo patrón que Genders */}
+      <Pressable style={styles.header} onPress={handleSeeMore}>
+        <Text style={styles.title}>En vivo</Text>
+        <View style={styles.titleAccent} />
+        <Ionicons name="chevron-forward" size={20} color="#021344" />
+      </Pressable>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContainer}
-      >
-        {manufacturers.map((manufacturer) => (
-          <TouchableOpacity
-            key={manufacturer.id}
-            style={styles.manufacturerItem}
-            onPress={() => handleManufacturerPress(manufacturer)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.avatarContainer}>
-              <View style={[styles.avatarRing, manufacturer.live && styles.avatarRingLive]}>
-                <Image
-                  source={manufacturer.image ? { uri: manufacturer.image } : logoDefault}
-                  style={styles.avatar}
-                  resizeMode="cover"
-                />
-              </View>
-              {manufacturer.live && (
-                <View style={styles.liveBadge}>
-                  <Text style={styles.liveBadgeText}>LIVE</Text>
-                </View>
-              )}
-            </View>
-            <Text style={styles.manufacturerName} numberOfLines={1}>
-              {manufacturer.name}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      {/* Estado de carga */}
+      {isLoading && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+          scrollEnabled={false}
+        >
+          {[...Array(5)].map((_, i) => <SkeletonAvatar key={i} />)}
+        </ScrollView>
+      )}
+
+      {/* Estado vacío */}
+      {!isLoading && manufacturers.length === 0 && (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Sin fabricantes en vivo ahora</Text>
+        </View>
+      )}
+
+      {/* Lista */}
+      {!isLoading && manufacturers.length > 0 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {manufacturers.map((manufacturer) => (
+            <ManufacturerItem
+              key={manufacturer.id}
+              manufacturer={manufacturer}
+              onPress={() => handleManufacturerPress(manufacturer)}
+            />
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 8,
     backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingVertical: 10,
+    paddingTop: 6,
+    paddingBottom: 6,
   },
+
+  // — Header —
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    marginBottom: 8,
-  },
-  titleRow: {
+    paddingHorizontal: 8,
+    marginBottom: 6,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-  },
-  liveDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#ef4444',
+    gap: 8,
   },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#021344',
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
   },
-  scrollContainer: {
-    paddingHorizontal: 12,
-    gap: 14,
+  titleAccent: {
+    flex: 1,
+    height: 1.5,
+    backgroundColor: '#f3f4f6',
   },
-  manufacturerItem: {
+
+  // — Scroll —
+  scrollContent: {
+    paddingHorizontal: 3,
+    gap: 3,
+  },
+
+  // — Item —
+  item: {
     width: ITEM_WIDTH,
     alignItems: 'center',
+    gap: 2,
   },
-  avatarContainer: {
-    position: 'relative',
+
+  // — Avatar —
+  avatarWrapper: {
+    width: AVATAR_SIZE + 16,
+    height: AVATAR_SIZE + 16,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  avatarRing: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+  // Anillo exterior difuso: crea el efecto de doble borde
+  ringOuter: {
+    position: 'absolute',
+    width: AVATAR_SIZE + 14,
+    height: AVATAR_SIZE + 14,
+    borderRadius: (AVATAR_SIZE + 14) / 2,
     borderWidth: 2,
-    borderColor: '#e0e0e0',
+    borderColor: 'rgba(239, 68, 68, 0.25)',
+  },
+  // Anillo interior sólido
+  ring: {
+    width: AVATAR_SIZE + 6,
+    height: AVATAR_SIZE + 6,
+    borderRadius: (AVATAR_SIZE + 6) / 2,
+    borderWidth: 2.5,
     padding: 2,
     backgroundColor: '#fff',
   },
-  avatarRingLive: {
+  ringLive: {
     borderColor: '#ef4444',
-    borderWidth: 2.5,
+  },
+  ringDefault: {
+    borderColor: '#e5e7eb',
   },
   avatar: {
     width: '100%',
     height: '100%',
-    borderRadius: 33,
-    backgroundColor: '#f8f8f8',
+    borderRadius: AVATAR_SIZE / 2,
+    backgroundColor: '#f3f4f6',
   },
-  liveBadge: {
-    position: 'absolute',
-    bottom: -2,
-    backgroundColor: '#ef4444',
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-    borderRadius: 4,
-    borderWidth: 1.5,
-    borderColor: '#fff',
-  },
-  liveBadgeText: {
-    fontSize: 8,
-    fontWeight: '800',
-    color: '#fff',
-    letterSpacing: 0.5,
-  },
-  manufacturerName: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: '#4b5563',
+
+  // — Nombre —
+  name: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#374151',
     textAlign: 'center',
-    marginTop: 6,
+    lineHeight: 13,
+    maxWidth: ITEM_WIDTH,
     paddingHorizontal: 2,
   },
-  loadingContainer: {
-    paddingVertical: 32,
-    alignItems: 'center',
+
+  // — Skeleton —
+  skeletonCircle: {
+    width: AVATAR_SIZE + 6,
+    height: AVATAR_SIZE + 6,
+    borderRadius: (AVATAR_SIZE + 6) / 2,
+    backgroundColor: '#e5e7eb',
   },
-  loadingText: {
-    fontSize: 13,
-    color: '#9ca3af',
+  skeletonName: {
+    width: 44,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#e5e7eb',
   },
+
+  // — Vacío —
   emptyContainer: {
-    paddingVertical: 32,
+    paddingVertical: 24,
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#9ca3af',
+    letterSpacing: 0.3,
   },
 });
 
