@@ -17,7 +17,7 @@ const HomeScreen = () => {
   }, [dispatch]);
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 4 }}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
       <Slider />
       <View style={styles.homeContent}>
         <Genders />
@@ -45,8 +45,8 @@ const styles = StyleSheet.create({
   },
   homeContent: {
     // paddingHorizontal: 8,
-    paddingBottom: 16,
-    gap: 4,
+    paddingBottom: 6,
+    gap: 6,
   },
 });
 
