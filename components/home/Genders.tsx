@@ -91,12 +91,12 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     // backgroundColor: 'blue',
-    borderRadius: 10,
-    // paddingTop: 14,
-    // paddingBottom: 16,
+    // borderRadius: 10,
+    paddingTop: 6,
+    paddingBottom: 6,
   },
   header: {
-    // paddingHorizontal: 14,
+    paddingHorizontal: 8,
     marginBottom: 6,
     flexDirection: 'row',
     alignItems: 'center',

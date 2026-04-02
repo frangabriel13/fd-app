@@ -113,9 +113,7 @@ const Slider = () => {
 };
 
 const styles = StyleSheet.create({
-  sliderWrapper: {
-    paddingBottom: 4,
-  },
+  sliderWrapper: {},
   sliderContainer: {
     overflow: 'hidden',
     position: 'relative',
