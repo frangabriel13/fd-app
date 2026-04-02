@@ -12,8 +12,7 @@ import {
 } from 'react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const SLIDER_HORIZONTAL_MARGIN = 8;
-const SLIDE_WIDTH = SCREEN_WIDTH - SLIDER_HORIZONTAL_MARGIN * 2;
+const SLIDE_WIDTH = SCREEN_WIDTH;
 const aspectRatio = 1920 / 750;
 
 const images = [
@@ -115,12 +114,9 @@ const Slider = () => {
 
 const styles = StyleSheet.create({
   sliderWrapper: {
-    paddingHorizontal: SLIDER_HORIZONTAL_MARGIN,
-    paddingTop: 8,
     paddingBottom: 4,
   },
   sliderContainer: {
-    borderRadius: 12,
     overflow: 'hidden',
     position: 'relative',
   },
