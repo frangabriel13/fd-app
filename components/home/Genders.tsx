@@ -90,13 +90,14 @@ const Genders = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
+    // backgroundColor: 'blue',
     borderRadius: 10,
-    paddingTop: 14,
-    paddingBottom: 16,
+    // paddingTop: 14,
+    // paddingBottom: 16,
   },
   header: {
-    paddingHorizontal: 14,
-    marginBottom: 12,
+    // paddingHorizontal: 14,
+    marginBottom: 6,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
@@ -114,13 +115,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3f4f6',
   },
   scrollContent: {
-    paddingHorizontal: 14,
-    gap: 10,
+    // paddingHorizontal: 14,
+    gap: 5,
   },
   card: {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
-    borderRadius: 10,
+    borderRadius: 8,
     overflow: 'hidden',
     backgroundColor: '#e5e7eb',
   },
