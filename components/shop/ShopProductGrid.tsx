@@ -11,8 +11,7 @@ import Animated, {
 import { Colors } from '@/constants/Colors';
 import ProductCard, { CARD_WIDTH } from './ProductCard';
 
-const CARD_PADDING = 8;
-const CARD_GAP = 10;
+const CARD_GAP = 3;
 
 interface ShopProductGridProps {
   shopProducts: any[];
@@ -138,15 +137,14 @@ const ShopProductGrid = ({
 
 const styles = StyleSheet.create({
   productsContainer: {
-    paddingHorizontal: CARD_PADDING,
-    paddingVertical: 8,
+    paddingVertical: 0,
   },
   row: {
     justifyContent: 'flex-start',
     gap: CARD_GAP,
   },
   separator: {
-    height: 10,
+    height: CARD_GAP,
   },
 
   // — Feedback states —
@@ -185,8 +183,6 @@ const styles = StyleSheet.create({
   skeletonGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: CARD_PADDING,
-    paddingTop: 8,
     gap: CARD_GAP,
   },
   skeletonItemWrapper: {

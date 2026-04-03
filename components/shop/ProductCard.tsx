@@ -11,10 +11,9 @@ import Animated, {
 import { Colors } from '@/constants/Colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_PADDING = 8;
-const CARD_GAP = 10;
+const CARD_GAP = 3;
 const NUM_COLUMNS = 2;
-export const CARD_WIDTH = (SCREEN_WIDTH - CARD_PADDING * 2 - CARD_GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
+export const CARD_WIDTH = (SCREEN_WIDTH - CARD_GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
 
 interface ProductCardProps {
   product: {
@@ -93,10 +92,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           )}
         </View>
         <View style={styles.productInfo}>
-          <Text style={styles.productName} numberOfLines={2} ellipsizeMode="tail">
+          <Text style={styles.productName} numberOfLines={1} ellipsizeMode="tail">
             {product.name}
           </Text>
-          <Text style={[styles.price, product.onSale && styles.priceOnSale]}>
+          <Text style={styles.price}>
             {formatPrice(product.price)}
           </Text>
         </View>
@@ -109,7 +108,6 @@ const styles = StyleSheet.create({
   card: {
     width: CARD_WIDTH,
     backgroundColor: '#fff',
-    borderRadius: 8,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: '#e5e7eb',
@@ -173,9 +171,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     color: '#111827',
-  },
-  priceOnSale: {
-    color: Colors.orange.dark,
   },
 });
 
