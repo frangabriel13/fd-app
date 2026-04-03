@@ -23,6 +23,7 @@ export const useShop = () => {
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [showSortModal, setShowSortModal] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -94,6 +95,19 @@ export const useShop = () => {
     setShowSortModal(false);
   }, [dispatch, selectedGender, selectedCategory, searchTerm]);
 
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    dispatch(fetchShopProducts({
+      ...(selectedGender && { genderId: selectedGender }),
+      ...(selectedCategory && { categoryId: selectedCategory }),
+      sortBy: selectedSort,
+      page: 1,
+      limit: SHOP_LIMIT,
+      append: false,
+      ...(searchTerm && { searchTerm }),
+    })).finally(() => setRefreshing(false));
+  }, [dispatch, selectedGender, selectedCategory, selectedSort, searchTerm]);
+
   const loadMoreProducts = useCallback(() => {
     if (loadingMore || loading) return;
     const currentPage = shopPagination?.currentPage ?? 1;
@@ -123,8 +137,10 @@ export const useShop = () => {
     selectedCategory,
     showSortModal,
     loadingMore,
+    refreshing,
     setShowSortModal,
     handleGenderChange,
+    handleRefresh,
     handleCategoryChange,
     handleSortChange,
     loadMoreProducts,

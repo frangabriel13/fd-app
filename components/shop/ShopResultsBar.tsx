@@ -9,68 +9,88 @@ interface ShopResultsBarProps {
   onOpenSort: () => void;
 }
 
-const ShopResultsBar = ({ totalProducts, selectedSort, onOpenSort }: ShopResultsBarProps) => {
-  const isNonDefaultSort = selectedSort !== 'featured';
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.resultsText}>
-        {totalProducts} {totalProducts === 1 ? 'resultado' : 'resultados'}
+const ShopResultsBar = ({ totalProducts, selectedSort, onOpenSort }: ShopResultsBarProps) => (
+  <View style={styles.container}>
+    {/* Cantidad de resultados */}
+    <View style={styles.resultsRow}>
+      <Text style={styles.resultsCount}>{totalProducts}</Text>
+      <Text style={styles.resultsLabel}>
+        {totalProducts === 1 ? 'resultado' : 'resultados'}
       </Text>
-      <Pressable
-        style={[styles.sortButton, isNonDefaultSort && styles.sortButtonActive]}
-        onPress={onOpenSort}
-      >
-        <Text style={[styles.sortButtonText, isNonDefaultSort && styles.sortButtonTextActive]}>
+    </View>
+
+    {/* Botón de ordenamiento */}
+    <Pressable
+      style={({ pressed }) => [
+        styles.sortButton,
+        pressed && styles.sortButtonPressed,
+      ]}
+      onPress={onOpenSort}
+      hitSlop={8}
+    >
+      <View style={styles.sortButtonInner}>
+        <Text style={styles.sortButtonText}>
           {SORT_LABELS[selectedSort]}
         </Text>
         <Ionicons
           name="chevron-down"
-          size={16}
-          color={isNonDefaultSort ? Colors.blue.dark : Colors.gray.dark}
+          size={13}
+          color={Colors.blue.dark}
         />
-      </Pressable>
-    </View>
-  );
-};
+      </View>
+    </Pressable>
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: Colors.gray.light,
+    paddingHorizontal: 8,
+    paddingVertical: 10,
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    borderBottomColor: '#e5e7eb',
   },
-  resultsText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: Colors.light.text,
+
+  // — Resultados —
+  resultsRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
   },
+  resultsCount: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.blue.dark,
+  },
+  resultsLabel: {
+    fontSize: 12,
+    fontWeight: '400',
+    color: Colors.gray.semiDark,
+  },
+
+  // — Botón de orden —
   sortButton: {
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    backgroundColor: Colors.gray.light,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  sortButtonPressed: {
+    opacity: 0.75,
+  },
+  sortButtonInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    backgroundColor: '#fff',
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: Colors.gray.dark,
-  },
-  sortButtonActive: {
-    borderColor: Colors.blue.dark,
-    backgroundColor: '#eef2ff',
+    gap: 5,
   },
   sortButtonText: {
     fontSize: 12,
     fontWeight: '600',
-    color: Colors.gray.dark,
-  },
-  sortButtonTextActive: {
     color: Colors.blue.dark,
   },
 });

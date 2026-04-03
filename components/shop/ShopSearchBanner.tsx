@@ -9,32 +9,48 @@ interface ShopSearchBannerProps {
 
 const ShopSearchBanner = ({ searchTerm, onClear }: ShopSearchBannerProps) => (
   <View style={styles.container}>
-    <Text style={styles.title}>Resultados para "{searchTerm}"</Text>
-    <Pressable style={styles.clearButton} onPress={onClear}>
-      <Ionicons name="close" size={20} color={Colors.gray.semiDark} />
+    <Ionicons name="search" size={15} color={Colors.blue.dark} />
+    <Text style={styles.title} numberOfLines={1}>
+      Resultados para{' '}
+      <Text style={styles.term}>"{searchTerm}"</Text>
+    </Text>
+    <Pressable
+      style={styles.clearButton}
+      onPress={onClear}
+      accessibilityLabel="Limpiar búsqueda"
+    >
+      <Ionicons name="close" size={15} color={Colors.blue.dark} />
     </Pressable>
   </View>
 );
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 10,
+    backgroundColor: '#eef2ff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#c7d2fe',
   },
   title: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.light.text,
     flex: 1,
+    fontSize: 13,
+    color: Colors.gray.dark,
+  },
+  term: {
+    fontWeight: '700',
+    color: Colors.blue.dark,
   },
   clearButton: {
-    padding: 4,
-    borderRadius: 4,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#c7d2fe',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

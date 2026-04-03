@@ -13,13 +13,13 @@ type SelectCategoryProps = {
 type CategoryPillProps = {
   category: (typeof genders)[number]['categories'][number];
   isSelected: boolean;
-  onPress: () => void;
+  onSelect: (id: number) => void;
 };
 
-const CategoryPill = memo(function CategoryPill({ category, isSelected, onPress }: CategoryPillProps) {
+const CategoryPill = memo(function CategoryPill({ category, isSelected, onSelect }: CategoryPillProps) {
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => onSelect(category.id)}
       accessibilityRole="button"
       accessibilityState={{ selected: isSelected }}
       accessibilityLabel={`Filtrar por ${category.name}`}
@@ -54,7 +54,7 @@ const SelectCategory = ({ selectedGenderId, selectedCategoryId, onCategorySelect
             key={category.id}
             category={category}
             isSelected={selectedCategoryId === category.id}
-            onPress={() => onCategorySelect?.(category.id)}
+            onSelect={onCategorySelect ?? (() => {})}
           />
         ))}
       </ScrollView>
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: Colors.gray.dark,
-    paddingVertical: 6,
+    paddingVertical: 9,
   },
   pillTextSelected: {
     color: '#ffffff',
