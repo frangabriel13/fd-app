@@ -189,7 +189,7 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
-          ItemSeparatorComponent={() => <View style={{ width: 6 }} />}
+          ItemSeparatorComponent={() => <View style={{ width: 3 }} />}
         />
       )}
     </View>
