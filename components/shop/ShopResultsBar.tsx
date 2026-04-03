@@ -14,21 +14,34 @@ const ShopResultsBar = ({ totalProducts, selectedSort, onOpenSort }: ShopResults
 
   return (
     <View style={styles.container}>
-      <Text style={styles.resultsText}>
-        {totalProducts} {totalProducts === 1 ? 'resultado' : 'resultados'}
-      </Text>
-      <Pressable
-        style={[styles.sortButton, isNonDefaultSort && styles.sortButtonActive]}
-        onPress={onOpenSort}
-      >
-        <Text style={[styles.sortButtonText, isNonDefaultSort && styles.sortButtonTextActive]}>
-          {SORT_LABELS[selectedSort]}
+      {/* Cantidad de resultados */}
+      <View style={styles.resultsRow}>
+        <Text style={styles.resultsCount}>{totalProducts}</Text>
+        <Text style={styles.resultsLabel}>
+          {totalProducts === 1 ? 'resultado' : 'resultados'}
         </Text>
-        <Ionicons
-          name="chevron-down"
-          size={16}
-          color={isNonDefaultSort ? Colors.blue.dark : Colors.gray.dark}
-        />
+      </View>
+
+      {/* Botón de ordenamiento */}
+      <Pressable
+        style={({ pressed }) => [
+          styles.sortButton,
+          isNonDefaultSort && styles.sortButtonActive,
+          pressed && styles.sortButtonPressed,
+        ]}
+        onPress={onOpenSort}
+        hitSlop={8}
+      >
+        <View style={styles.sortButtonInner}>
+          <Text style={[styles.sortButtonText, isNonDefaultSort && styles.sortButtonTextActive]}>
+            {SORT_LABELS[selectedSort]}
+          </Text>
+          <Ionicons
+            name="chevron-down"
+            size={13}
+            color={isNonDefaultSort ? Colors.orange.dark : Colors.gray.semiDark}
+          />
+        </View>
       </Pressable>
     </View>
   );
@@ -39,39 +52,58 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: Colors.gray.light,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
-  },
-  resultsText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: Colors.light.text,
-  },
-  sortButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 10,
     backgroundColor: '#fff',
-    borderRadius: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+
+  // — Resultados —
+  resultsRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
+  },
+  resultsCount: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.blue.dark,
+  },
+  resultsLabel: {
+    fontSize: 12,
+    fontWeight: '400',
+    color: Colors.gray.semiDark,
+  },
+
+  // — Botón de orden —
+  sortButton: {
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    backgroundColor: Colors.gray.light,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: Colors.gray.dark,
+    borderColor: '#e5e7eb',
   },
   sortButtonActive: {
-    borderColor: Colors.blue.dark,
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#fff7ed',
+    borderColor: Colors.orange.dark,
+  },
+  sortButtonPressed: {
+    opacity: 0.75,
+  },
+  sortButtonInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
   },
   sortButtonText: {
     fontSize: 12,
     fontWeight: '600',
-    color: Colors.gray.dark,
+    color: Colors.gray.semiDark,
   },
   sortButtonTextActive: {
-    color: Colors.blue.dark,
+    color: Colors.orange.dark,
   },
 });
 

@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: Colors.gray.dark,
-    paddingVertical: 6,
+    paddingVertical: 9,
   },
   pillTextSelected: {
     color: '#ffffff',
