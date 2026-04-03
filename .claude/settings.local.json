@@ -6,7 +6,9 @@
       "Bash(npx skills:*)",
       "Bash(grep -E \"\\\\.\\(tsx|ts|jsx|js\\)$\")",
       "Bash(npm ls:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Read(//home/franco/.claude/**)",
+      "Bash(python3 -m json.tool)"
     ]
   }
 }
