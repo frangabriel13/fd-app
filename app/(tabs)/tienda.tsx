@@ -277,7 +277,7 @@ const ShopScreen = () => {
           >
             {/* <Ionicons name="stats-chart" size={16} color={Colors.blue.default} /> */}
             <Text style={styles.sortButtonText}>
-              Ordenar por: {selectedSort === 'newest' ? 'Nuevos' : selectedSort === 'onSale' ? 'Ofertas' : selectedSort === 'featured' ? 'Destacados' : selectedSort === 'price-high' ? 'Mayor precio' : 'Menor precio'}
+              Ordenar por: {selectedSort === 'newest' ? 'Nuevos' : selectedSort === 'onSale' ? 'Ofertas' : selectedSort === 'featured' ? 'Destacados' : selectedSort === 'price-high' ? 'Mayor precio' : selectedSort === 'most-viewed' ? 'Más vistos' : 'Menor precio'}
             </Text>
             <Ionicons name="chevron-down" size={16} color="#1f2937" />
           </TouchableOpacity>
@@ -310,68 +310,6 @@ const ShopScreen = () => {
             </View>
             
             <TouchableOpacity
-              style={[styles.sortOption, selectedSort === 'newest' && styles.sortOptionActive]}
-              onPress={() => {
-                setSelectedSort('newest');
-                dispatch(setShopFilters({ sortBy: 'newest' }));
-                const params = {
-                  ...(selectedGender && { genderId: selectedGender }),
-                  ...(selectedCategory && { categoryId: selectedCategory }),
-                  sortBy: 'newest',
-                  page: 1,
-                  limit: 16,
-                  append: false,
-                  ...(searchTerm && { searchTerm })
-                };
-                dispatch(fetchShopProducts(params));
-                setShowSortModal(false);
-              }}
-            >
-              <Ionicons 
-                name="time-outline" 
-                size={20} 
-                color={selectedSort === 'newest' ? '#1f2937' : Colors.light.icon} 
-              />
-              <Text style={[styles.sortOptionText, selectedSort === 'newest' && styles.sortOptionTextActive]}>
-                Nuevos ingresos
-              </Text>
-              {selectedSort === 'newest' && (
-                <Ionicons name="checkmark" size={20} color="#1f2937" />
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.sortOption, selectedSort === 'onSale' && styles.sortOptionActive]}
-              onPress={() => {
-                setSelectedSort('onSale');
-                dispatch(setShopFilters({ sortBy: 'onSale' }));
-                const params = {
-                  ...(selectedGender && { genderId: selectedGender }),
-                  ...(selectedCategory && { categoryId: selectedCategory }),
-                  sortBy: 'onSale',
-                  page: 1,
-                  limit: 16,
-                  append: false,
-                  ...(searchTerm && { searchTerm })
-                };
-                dispatch(fetchShopProducts(params));
-                setShowSortModal(false);
-              }}
-            >
-              <Ionicons 
-                name="pricetag-outline" 
-                size={20} 
-                color={selectedSort === 'onSale' ? '#1f2937' : Colors.light.icon} 
-              />
-              <Text style={[styles.sortOptionText, selectedSort === 'onSale' && styles.sortOptionTextActive]}>
-                En oferta
-              </Text>
-              {selectedSort === 'onSale' && (
-                <Ionicons name="checkmark" size={20} color="#1f2937" />
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
               style={[styles.sortOption, selectedSort === 'featured' && styles.sortOptionActive]}
               onPress={() => {
                 setSelectedSort('featured');
@@ -389,15 +327,77 @@ const ShopScreen = () => {
                 setShowSortModal(false);
               }}
             >
-              <Ionicons 
-                name="star-outline" 
-                size={20} 
-                color={selectedSort === 'featured' ? '#1f2937' : Colors.light.icon} 
+              <Ionicons
+                name="star-outline"
+                size={20}
+                color={selectedSort === 'featured' ? '#1f2937' : Colors.light.icon}
               />
               <Text style={[styles.sortOptionText, selectedSort === 'featured' && styles.sortOptionTextActive]}>
                 Destacados
               </Text>
               {selectedSort === 'featured' && (
+                <Ionicons name="checkmark" size={20} color="#1f2937" />
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.sortOption, selectedSort === 'newest' && styles.sortOptionActive]}
+              onPress={() => {
+                setSelectedSort('newest');
+                dispatch(setShopFilters({ sortBy: 'newest' }));
+                const params = {
+                  ...(selectedGender && { genderId: selectedGender }),
+                  ...(selectedCategory && { categoryId: selectedCategory }),
+                  sortBy: 'newest',
+                  page: 1,
+                  limit: 16,
+                  append: false,
+                  ...(searchTerm && { searchTerm })
+                };
+                dispatch(fetchShopProducts(params));
+                setShowSortModal(false);
+              }}
+            >
+              <Ionicons
+                name="time-outline"
+                size={20}
+                color={selectedSort === 'newest' ? '#1f2937' : Colors.light.icon}
+              />
+              <Text style={[styles.sortOptionText, selectedSort === 'newest' && styles.sortOptionTextActive]}>
+                Nuevos ingresos
+              </Text>
+              {selectedSort === 'newest' && (
+                <Ionicons name="checkmark" size={20} color="#1f2937" />
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.sortOption, selectedSort === 'most-viewed' && styles.sortOptionActive]}
+              onPress={() => {
+                setSelectedSort('most-viewed');
+                dispatch(setShopFilters({ sortBy: 'most-viewed' }));
+                const params = {
+                  ...(selectedGender && { genderId: selectedGender }),
+                  ...(selectedCategory && { categoryId: selectedCategory }),
+                  sortBy: 'most-viewed',
+                  page: 1,
+                  limit: 16,
+                  append: false,
+                  ...(searchTerm && { searchTerm })
+                };
+                dispatch(fetchShopProducts(params));
+                setShowSortModal(false);
+              }}
+            >
+              <Ionicons
+                name="eye-outline"
+                size={20}
+                color={selectedSort === 'most-viewed' ? '#1f2937' : Colors.light.icon}
+              />
+              <Text style={[styles.sortOptionText, selectedSort === 'most-viewed' && styles.sortOptionTextActive]}>
+                Más vistos
+              </Text>
+              {selectedSort === 'most-viewed' && (
                 <Ionicons name="checkmark" size={20} color="#1f2937" />
               )}
             </TouchableOpacity>
@@ -420,10 +420,10 @@ const ShopScreen = () => {
                 setShowSortModal(false);
               }}
             >
-              <Ionicons 
-                name="arrow-up" 
-                size={20} 
-                color={selectedSort === 'price-high' ? '#1f2937' : Colors.light.icon} 
+              <Ionicons
+                name="arrow-up"
+                size={20}
+                color={selectedSort === 'price-high' ? '#1f2937' : Colors.light.icon}
               />
               <Text style={[styles.sortOptionText, selectedSort === 'price-high' && styles.sortOptionTextActive]}>
                 Mayor precio
@@ -451,15 +451,46 @@ const ShopScreen = () => {
                 setShowSortModal(false);
               }}
             >
-              <Ionicons 
-                name="arrow-down" 
-                size={20} 
-                color={selectedSort === 'price-low' ? '#1f2937' : Colors.light.icon} 
+              <Ionicons
+                name="arrow-down"
+                size={20}
+                color={selectedSort === 'price-low' ? '#1f2937' : Colors.light.icon}
               />
               <Text style={[styles.sortOptionText, selectedSort === 'price-low' && styles.sortOptionTextActive]}>
                 Menor precio
               </Text>
               {selectedSort === 'price-low' && (
+                <Ionicons name="checkmark" size={20} color="#1f2937" />
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.sortOption, selectedSort === 'onSale' && styles.sortOptionActive]}
+              onPress={() => {
+                setSelectedSort('onSale');
+                dispatch(setShopFilters({ sortBy: 'onSale' }));
+                const params = {
+                  ...(selectedGender && { genderId: selectedGender }),
+                  ...(selectedCategory && { categoryId: selectedCategory }),
+                  sortBy: 'onSale',
+                  page: 1,
+                  limit: 16,
+                  append: false,
+                  ...(searchTerm && { searchTerm })
+                };
+                dispatch(fetchShopProducts(params));
+                setShowSortModal(false);
+              }}
+            >
+              <Ionicons
+                name="eye-outline"
+                size={20}
+                color={selectedSort === 'most-viewed' ? '#1f2937' : Colors.light.icon}
+              />
+              <Text style={[styles.sortOptionText, selectedSort === 'most-viewed' && styles.sortOptionTextActive]}>
+                Más vistos
+              </Text>
+              {selectedSort === 'most-viewed' && (
                 <Ionicons name="checkmark" size={20} color="#1f2937" />
               )}
             </TouchableOpacity>
