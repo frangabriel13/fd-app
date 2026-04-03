@@ -1,5 +1,6 @@
 import { View, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
+import { Colors } from '@/constants/Colors';
 import { useShop } from '@/hooks/useShop';
 import MenuGender from '@/components/shop/MenuGender';
 import SelectCategory from '@/components/shop/SelectCategory';
@@ -63,7 +64,7 @@ const ShopScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.gray.light,
   },
   productsWrapper: {
     flex: 1,

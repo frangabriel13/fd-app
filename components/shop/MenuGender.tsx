@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { memo } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { Image } from 'expo-image';
 import { Colors } from '@/constants/Colors';
 import { genders } from '@/utils/hardcode';
 
@@ -8,109 +9,94 @@ type MenuGenderProps = {
   onGenderSelect?: (genderId: number) => void;
 };
 
-const MenuGender = ({ selectedGender, onGenderSelect }: MenuGenderProps) => {
-  const handleGenderSelect = (genderId: number) => {
-    onGenderSelect?.(genderId);
-  };
-
-  return (
-    <View style={styles.container}>
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {genders.map((gender, index) => (
-          <TouchableOpacity
-            key={gender.id}
-            style={[
-              styles.genderButton,
-              index === 0 && styles.firstButton,
-              index === genders.length - 1 && styles.lastButton,
-            ]}
-            onPress={() => handleGenderSelect(gender.id)}
-          >
-            <View style={[
-              styles.imageContainer,
-              selectedGender === gender.id && styles.selectedImageContainer
-            ]}>
-              <Image 
-                source={{ uri: gender.url }} 
-                style={styles.genderImage}
-                resizeMode="cover"
-              />
-            </View>
-            <Text 
-              style={[
-                styles.genderText,
-                selectedGender === gender.id && styles.selectedText
-              ]}
-              numberOfLines={2}
-              ellipsizeMode="tail"
-            >
-              {gender.name}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </View>
-  );
+type GenderPillProps = {
+  gender: (typeof genders)[number];
+  isSelected: boolean;
+  onPress: () => void;
 };
+
+const GenderPill = memo(function GenderPill({ gender, isSelected, onPress }: GenderPillProps) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected: isSelected }}
+      accessibilityLabel={`Filtrar por ${gender.name}`}
+    >
+      <View style={[styles.pill, isSelected && styles.pillSelected]}>
+        <Image
+          source={{ uri: gender.url }}
+          style={styles.pillImage}
+          contentFit="cover"
+          transition={150}
+        />
+        <Text style={[styles.pillText, isSelected && styles.pillTextSelected]} numberOfLines={1}>
+          {gender.name}
+        </Text>
+      </View>
+    </Pressable>
+  );
+});
+
+const MenuGender = ({ selectedGender, onGenderSelect }: MenuGenderProps) => (
+  <View style={styles.container}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContent}
+    >
+      {genders.map((gender) => (
+        <GenderPill
+          key={gender.id}
+          gender={gender}
+          isSelected={selectedGender === gender.id}
+          onPress={() => onGenderSelect?.(gender.id)}
+        />
+      ))}
+    </ScrollView>
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#ffffff',
-    paddingVertical: 6,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e9ecef',
   },
   scrollContent: {
+    paddingHorizontal: 2,
+    gap: 2,
+    alignItems: 'center',
+  },
+  pill: {
     flexDirection: 'row',
     alignItems: 'center',
-    // paddingHorizontal: 8,
+    gap: 7,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: Colors.gray.light,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
   },
-  genderButton: {
-    alignItems: 'center',
-    paddingHorizontal: 6,
-    minHeight: 60,
-    justifyContent: 'flex-start',    width: 70,  },
-  firstButton: {
-    paddingLeft: 8,
+  pillSelected: {
+    backgroundColor: Colors.blue.dark,
+    borderColor: Colors.blue.dark,
   },
-  lastButton: {
-    paddingRight: 8,
+  pillImage: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
   },
-  imageContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 2,
-    borderColor: '#e5e5e5',
-    overflow: 'hidden',
-    // marginBottom: 6,
-    backgroundColor: '#f8f8f8',
-  },
-  selectedImageContainer: {
-    borderColor: Colors.blue.default,
-    borderWidth: 2.5,
-  },
-  genderImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 26,
-  },
-  genderText: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: '#666666',
-    textAlign: 'center',
-    maxWidth: 70,
-    lineHeight: 14,
-    marginTop: 4,
-  },
-  selectedText: {
-    color: Colors.blue.default,
+  pillText: {
+    fontSize: 13,
     fontWeight: '600',
+    color: Colors.gray.dark,
+  },
+  pillTextSelected: {
+    color: '#ffffff',
   },
 });
-
 
 export default MenuGender;
