@@ -70,6 +70,7 @@ const styles = StyleSheet.create({
   },
   productsWrapper: {
     flex: 1,
+    marginTop: 6,
   },
 });
 
