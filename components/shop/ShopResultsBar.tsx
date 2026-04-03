@@ -9,43 +9,38 @@ interface ShopResultsBarProps {
   onOpenSort: () => void;
 }
 
-const ShopResultsBar = ({ totalProducts, selectedSort, onOpenSort }: ShopResultsBarProps) => {
-  const isNonDefaultSort = selectedSort !== 'featured';
-
-  return (
-    <View style={styles.container}>
-      {/* Cantidad de resultados */}
-      <View style={styles.resultsRow}>
-        <Text style={styles.resultsCount}>{totalProducts}</Text>
-        <Text style={styles.resultsLabel}>
-          {totalProducts === 1 ? 'resultado' : 'resultados'}
-        </Text>
-      </View>
-
-      {/* Botón de ordenamiento */}
-      <Pressable
-        style={({ pressed }) => [
-          styles.sortButton,
-          isNonDefaultSort && styles.sortButtonActive,
-          pressed && styles.sortButtonPressed,
-        ]}
-        onPress={onOpenSort}
-        hitSlop={8}
-      >
-        <View style={styles.sortButtonInner}>
-          <Text style={[styles.sortButtonText, isNonDefaultSort && styles.sortButtonTextActive]}>
-            {SORT_LABELS[selectedSort]}
-          </Text>
-          <Ionicons
-            name="chevron-down"
-            size={13}
-            color={isNonDefaultSort ? Colors.orange.dark : Colors.gray.semiDark}
-          />
-        </View>
-      </Pressable>
+const ShopResultsBar = ({ totalProducts, selectedSort, onOpenSort }: ShopResultsBarProps) => (
+  <View style={styles.container}>
+    {/* Cantidad de resultados */}
+    <View style={styles.resultsRow}>
+      <Text style={styles.resultsCount}>{totalProducts}</Text>
+      <Text style={styles.resultsLabel}>
+        {totalProducts === 1 ? 'resultado' : 'resultados'}
+      </Text>
     </View>
-  );
-};
+
+    {/* Botón de ordenamiento */}
+    <Pressable
+      style={({ pressed }) => [
+        styles.sortButton,
+        pressed && styles.sortButtonPressed,
+      ]}
+      onPress={onOpenSort}
+      hitSlop={8}
+    >
+      <View style={styles.sortButtonInner}>
+        <Text style={styles.sortButtonText}>
+          {SORT_LABELS[selectedSort]}
+        </Text>
+        <Ionicons
+          name="chevron-down"
+          size={13}
+          color={Colors.blue.dark}
+        />
+      </View>
+    </Pressable>
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -85,10 +80,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e5e7eb',
   },
-  sortButtonActive: {
-    backgroundColor: '#fff7ed',
-    borderColor: Colors.orange.dark,
-  },
   sortButtonPressed: {
     opacity: 0.75,
   },
@@ -100,10 +91,7 @@ const styles = StyleSheet.create({
   sortButtonText: {
     fontSize: 12,
     fontWeight: '600',
-    color: Colors.gray.semiDark,
-  },
-  sortButtonTextActive: {
-    color: Colors.orange.dark,
+    color: Colors.blue.dark,
   },
 });
 

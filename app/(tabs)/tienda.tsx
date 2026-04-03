@@ -14,9 +14,9 @@ const ShopScreen = () => {
     shopProducts, shopPagination, loading, error,
     selectedSort, searchTerm,
     selectedGender, selectedCategory,
-    showSortModal, loadingMore,
+    showSortModal, loadingMore, refreshing,
     setShowSortModal,
-    handleGenderChange, handleCategoryChange, handleSortChange, loadMoreProducts,
+    handleGenderChange, handleCategoryChange, handleSortChange, loadMoreProducts, handleRefresh,
   } = useShop();
 
   return (
@@ -48,7 +48,9 @@ const ShopScreen = () => {
           loading={loading}
           error={error}
           loadingMore={loadingMore}
+          refreshing={refreshing}
           onLoadMore={loadMoreProducts}
+          onRefresh={handleRefresh}
         />
       </View>
       <SortModal

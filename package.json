@@ -20,6 +20,7 @@
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/native": "^7.1.6",
     "@reduxjs/toolkit": "^2.8.2",
+    "@shopify/flash-list": "1.7.6",
     "@types/react-redux": "^7.1.34",
     "axios": "^1.11.0",
     "expo": "~53.0.24",

@@ -12,13 +12,13 @@ type MenuGenderProps = {
 type GenderPillProps = {
   gender: (typeof genders)[number];
   isSelected: boolean;
-  onPress: () => void;
+  onSelect: (id: number) => void;
 };
 
-const GenderPill = memo(function GenderPill({ gender, isSelected, onPress }: GenderPillProps) {
+const GenderPill = memo(function GenderPill({ gender, isSelected, onSelect }: GenderPillProps) {
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => onSelect(gender.id)}
       accessibilityRole="button"
       accessibilityState={{ selected: isSelected }}
       accessibilityLabel={`Filtrar por ${gender.name}`}
@@ -50,7 +50,7 @@ const MenuGender = ({ selectedGender, onGenderSelect }: MenuGenderProps) => (
           key={gender.id}
           gender={gender}
           isSelected={selectedGender === gender.id}
-          onPress={() => onGenderSelect?.(gender.id)}
+          onSelect={onGenderSelect ?? (() => {})}
         />
       ))}
     </ScrollView>
