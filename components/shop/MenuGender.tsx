@@ -60,7 +60,7 @@ const MenuGender = ({ selectedGender, onGenderSelect }: MenuGenderProps) => (
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#ffffff',
-    paddingVertical: 10,
+    paddingVertical: 3,
     borderBottomWidth: 1,
     borderBottomColor: '#e9ecef',
   },
@@ -72,27 +72,27 @@ const styles = StyleSheet.create({
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 7,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    gap: 8,
+    paddingRight: 12,
     borderRadius: 20,
     backgroundColor: Colors.gray.light,
     borderWidth: 1.5,
     borderColor: 'transparent',
+    overflow: 'hidden',
   },
   pillSelected: {
     backgroundColor: Colors.blue.dark,
     borderColor: Colors.blue.dark,
   },
   pillImage: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 36,
+    alignSelf: 'stretch',
   },
   pillText: {
     fontSize: 13,
     fontWeight: '600',
     color: Colors.gray.dark,
+    paddingVertical: 6,
   },
   pillTextSelected: {
     color: '#ffffff',
