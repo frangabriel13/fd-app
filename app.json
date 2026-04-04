@@ -15,6 +15,7 @@
     },
     "android": {
       "package": "com.fabricantedirecto.fdapp",
+      "googleServicesFile": "./android/app/google-services.json",
       "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
