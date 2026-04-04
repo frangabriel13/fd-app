@@ -8,9 +8,10 @@ import { AppDispatch, RootState } from '@/store';
 interface DetailProductProps {
   product?: Product;
   manufacturer?: Manufacturer;
+  views?: number;
 }
 
-const DetailProduct = ({ product, manufacturer }: DetailProductProps) => {
+const DetailProduct = ({ product, manufacturer, views }: DetailProductProps) => {
   const dispatch = useDispatch<AppDispatch>();
   
   // Convertir el ID del producto a número para el selector
@@ -56,10 +57,17 @@ const DetailProduct = ({ product, manufacturer }: DetailProductProps) => {
   };
   return (
     <View className="p-0">
-      {/* Categoría y Género */}
-      <Text className="text-base font-mont-regular text-gray-600">
-        {product?.category.name} | {product?.gender?.name ?? 'Sin género'}
-      </Text>
+      {/* Categoría, Género y Vistas */}
+      <View className="flex-row items-center justify-between">
+        <Text className="text-base font-mont-regular text-gray-600">
+          {product?.category.name} | {product?.gender?.name ?? 'Sin género'}
+        </Text>
+        {views != null && (
+          <Text className="text-sm font-mont-regular text-gray-400">
+            {views} vistas
+          </Text>
+        )}
+      </View>
       
       {/* Nombre del producto con iconos de compartir y favorito */}
       <View className="flex-row justify-between items-center mb-4">

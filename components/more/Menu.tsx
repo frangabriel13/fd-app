@@ -10,6 +10,7 @@ import { BodyText } from '../ui';
 import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
 import { useAppDispatch } from '@/hooks/redux';
 import { logoutAsync } from '@/store/slices/authSlice';
+import { clearNotifications } from '@/store/slices/notificationSlice';
 import { router } from 'expo-router';
 
 interface MenuItemProps {
@@ -51,6 +52,17 @@ const MenuItem = ({
   </Pressable>
 );
 
+const navigateToShop = (params: { genderId?: number; categoryId?: number; sortBy?: string }) => {
+  const searchParams = new URLSearchParams();
+  if (params.genderId) searchParams.append('genderId', params.genderId.toString());
+  if (params.categoryId) searchParams.append('categoryId', params.categoryId.toString());
+  if (params.sortBy) searchParams.append('sortBy', params.sortBy);
+  
+  const queryString = searchParams.toString();
+  const route = queryString ? `/(tabs)/tienda?${queryString}` : '/(tabs)/tienda';
+  router.push(route as any);
+};
+
 const Menu = () => {
   const dispatch = useAppDispatch();
   const { signOut } = useGoogleSignIn();
@@ -58,9 +70,8 @@ const Menu = () => {
   const handleLogout = async () => {
     try {
       await signOut();
-
       await dispatch(logoutAsync()).unwrap();
-
+      dispatch(clearNotifications());
       console.log('Sesión cerrada con éxito');
       router.replace('/(auth)/login');
     } catch(error) {
@@ -75,20 +86,30 @@ const Menu = () => {
     >
       {/* Primera lista */}
       <View>
-        <MenuItem icon="home" label="Inicio" />
+        <MenuItem 
+          icon="home" 
+          label="Inicio" 
+          onPress={() => router.push('/(tabs)' as any)}
+        />
         <MenuItem 
           icon="storefront-outline" 
           label="Tienda" 
           IconComponent={Ionicons}
           onPress={() => router.push('/(tabs)/tienda')}
         />
-        <MenuItem icon="package" label="Packs/Combos" IconComponent={Octicons} />
+        <MenuItem 
+          icon="package" 
+          label="Packs/Combos" 
+          IconComponent={Octicons}
+          onPress={() => navigateToShop({ genderId: 7, categoryId: 161 })}
+        />
         <MenuItem 
           icon="wifi" 
           label="Live Shopping" 
           IconComponent={FontAwesome6}
           iconSize={18}
           iconStyle={{ transform: [{ rotate: '45deg' }] }}
+          onPress={() => router.push('/(tabs)/fabricantes')}
         />
         <MenuItem 
           icon="user"
@@ -102,10 +123,20 @@ const Menu = () => {
 
       {/* Segunda lista */}
       <View>
-        <MenuItem icon="notifications-outline" label="Notificaciones" IconComponent={Ionicons} />
-        <MenuItem icon="hearto" label="Favoritos" IconComponent={AntDesign} />
+        <MenuItem icon="notifications-outline" label="Notificaciones" IconComponent={Ionicons} onPress={() => router.push('/(tabs)/notificaciones' as any)} />
+        <MenuItem 
+          icon="hearto" 
+          label="Favoritos" 
+          IconComponent={AntDesign}
+          onPress={() => router.push('/(tabs)/favoritos')}
+        />
         <MenuItem icon="store-plus-outline" label="Tiendas seguidas" IconComponent={MaterialCommunityIcons} />
-        <MenuItem icon="bag-check-outline" label="Mis compras" IconComponent={Ionicons} />
+        <MenuItem 
+          icon="bag-check-outline" 
+          label="Mis compras" 
+          IconComponent={Ionicons}
+          onPress={() => router.push('/(dashboard)/ver-pedidos')}
+        />
         <MenuItem icon="headphones-simple" label="Ayuda" IconComponent={FontAwesome6} />
       </View>
 
@@ -114,16 +145,63 @@ const Menu = () => {
 
       {/* Tercera lista */}
       <View>
-        <MenuItem icon="staro" label="Productos destacados" />
-        <MenuItem icon="burst-new" label="Nuevos ingresos" IconComponent={Foundation} />
-        <MenuItem icon="tago" label="Ofertas" />
-        <MenuItem icon="bed-outline" label="Blanquería" IconComponent={Ionicons} />
-        <MenuItem icon="woman-outline" label="Lencería" IconComponent={Ionicons} />
-        <MenuItem icon="shoe-sneaker" label="Calzado" IconComponent={MaterialCommunityIcons} />
-        <MenuItem icon="diamond" label="Bisutería" IconComponent={FontAwesome} />
-        <MenuItem icon="layers-outline" label="Telas textiles" IconComponent={Ionicons} />
-        <MenuItem icon="scissors" label="Insumos para costura y confección" IconComponent={FontAwesome} />
-        <MenuItem icon="tool" label="Máquinas textiles" />
+        <MenuItem 
+          icon="staro" 
+          label="Productos destacados"
+          onPress={() => navigateToShop({ sortBy: 'featured' })}
+        />
+        <MenuItem 
+          icon="burst-new" 
+          label="Nuevos ingresos" 
+          IconComponent={Foundation}
+          onPress={() => navigateToShop({ sortBy: 'newest' })}
+        />
+        <MenuItem 
+          icon="tago" 
+          label="Ofertas"
+          onPress={() => navigateToShop({ sortBy: 'onSale' })}
+        />
+        <MenuItem 
+          icon="bed-outline" 
+          label="Blanquería" 
+          IconComponent={Ionicons}
+          onPress={() => navigateToShop({ genderId: 7, categoryId: 130 })}
+        />
+        <MenuItem 
+          icon="woman-outline" 
+          label="Lencería" 
+          IconComponent={Ionicons}
+          onPress={() => navigateToShop({ genderId: 3, categoryId: 153 })}
+        />
+        <MenuItem 
+          icon="shoe-sneaker" 
+          label="Calzado" 
+          IconComponent={MaterialCommunityIcons}
+          onPress={() => navigateToShop({ genderId: 2, categoryId: 154 })}
+        />
+        <MenuItem 
+          icon="diamond" 
+          label="Bisutería" 
+          IconComponent={FontAwesome}
+          onPress={() => navigateToShop({ genderId: 7, categoryId: 131 })}
+        />
+        <MenuItem 
+          icon="layers-outline" 
+          label="Telas textiles" 
+          IconComponent={Ionicons}
+          onPress={() => navigateToShop({ genderId: 7, categoryId: 162 })}
+        />
+        <MenuItem 
+          icon="scissors" 
+          label="Insumos para costura y confección" 
+          IconComponent={FontAwesome}
+          onPress={() => navigateToShop({ genderId: 7, categoryId: 163 })}
+        />
+        <MenuItem 
+          icon="tool" 
+          label="Máquinas textiles"
+          onPress={() => navigateToShop({ genderId: 7, categoryId: 164 })}
+        />
       </View>
 
       {/* Tercera línea divisoria */}

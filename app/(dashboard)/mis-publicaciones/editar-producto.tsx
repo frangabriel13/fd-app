@@ -9,7 +9,7 @@ import SelectSizes from '@/components/createProduct/SelectSizes';
 import SelectImages from '@/components/createProduct/SelectImages';
 import SelectVideo from '@/components/createProduct/SelectVideo';
 import SubscriptionModal from '@/components/modals/SubscriptionModal';
-import { fetchProductWithManufacturer, updateProduct, resetUpdateState } from '@/store/slices/productSlice';
+import { fetchProductForEdit, updateProduct, resetUpdateState } from '@/store/slices/productSlice';
 import type { AppDispatch, RootState } from '@/store';
 
 const EditarProductoScreen = () => {
@@ -55,7 +55,7 @@ const EditarProductoScreen = () => {
     const loadProduct = async () => {
       try {
         setIsLoading(true);
-        await dispatch(fetchProductWithManufacturer(productId)).unwrap();
+        await dispatch(fetchProductForEdit(productId)).unwrap();
       } catch (error: any) {
         Alert.alert('Error', error || 'No se pudo cargar el producto');
         router.back();

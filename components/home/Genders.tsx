@@ -1,82 +1,157 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
 import { genders } from '@/utils/hardcode';
 
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+// Mostramos 4 cards con un pequeño peek del siguiente
+const CARD_WIDTH = (SCREEN_WIDTH - 16 - 10 * 3) / 4.25;
+const CARD_HEIGHT = CARD_WIDTH * 1.55;
+
+type GenderCardProps = {
+  gender: (typeof genders)[number];
+  onPress: () => void;
+};
+
+const GenderCard = ({ gender, onPress }: GenderCardProps) => {
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.94, { damping: 15, stiffness: 300 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+  };
+
+  return (
+    <Pressable
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+    >
+      <Animated.View style={[styles.card, animatedStyle]}>
+        <Image
+          source={{ uri: gender.url }}
+          style={styles.cardImage}
+          contentFit="cover"
+          transition={200}
+        />
+        <View style={styles.cardLabel}>
+          <Text style={styles.cardText}>{gender.name}</Text>
+        </View>
+      </Animated.View>
+    </Pressable>
+  );
+};
+
 const Genders = () => {
-  // Filtrar para excluir "Más" (id: 7)
   const gendersData = genders.filter(gender => gender.name !== 'Más');
 
-  const handleGenderPress = (gender) => {
-    // Navegar a la tienda con el género seleccionado
+  const handleGenderPress = (gender: (typeof genders)[number]) => {
     router.push(`/(tabs)/tienda?genderId=${gender.id}`);
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.gendersGrid}>
+      <TouchableOpacity
+        style={styles.header}
+        onPress={() => router.push('/(tabs)/tienda')}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.title}>Tienda</Text>
+        <View style={styles.titleSpacer} />
+        <Ionicons name="chevron-forward" size={20} color="#111827" />
+      </TouchableOpacity>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        decelerationRate="fast"
+        snapToInterval={CARD_WIDTH + 10}
+        snapToAlignment="start"
+      >
         {gendersData.map((gender) => (
-          <TouchableOpacity
+          <GenderCard
             key={gender.id}
-            style={styles.genderCard}
+            gender={gender}
             onPress={() => handleGenderPress(gender)}
-            activeOpacity={0.7}
-          >
-            <Image 
-              source={{ uri: gender.url }} 
-              style={styles.genderImage}
-              resizeMode="cover"
-            />
-            <Text style={styles.genderText}>{gender.name}</Text>
-          </TouchableOpacity>
+          />
         ))}
-      </View>
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 4,
-  },
-  gendersGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    gap: 1,
-  },
-  genderCard: {
-    width: '18%', // Para que quepan 5 elementos con espacios
-    aspectRatio: 1, // Mantiene la forma cuadrada
-    borderRadius: 12,
     backgroundColor: '#fff',
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    // elevation: 3,
+    // backgroundColor: 'blue',
+    // borderRadius: 10,
+    paddingTop: 6,
+    paddingBottom: 6,
   },
-  genderImage: {
+  header: {
+    paddingHorizontal: 8,
+    marginBottom: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  title: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#111827',
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+  },
+  titleSpacer: {
+    flex: 1,
+  },
+  scrollContent: {
+    // paddingHorizontal: 14,
+    gap: 5,
+  },
+  card: {
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
+    borderRadius: 6,
+    overflow: 'hidden',
+    backgroundColor: '#e5e7eb',
+  },
+  cardImage: {
     width: '100%',
     height: '100%',
+    position: 'absolute',
   },
-  genderText: {
-    fontSize: 9,
-    fontWeight: '700',
-    textAlign: 'center',
-    color: '#fff',
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    paddingVertical: 4,
-    paddingHorizontal: 2,
+  cardLabel: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
+    height: '27.5%',
+    justifyContent: 'flex-end',
+    paddingBottom: 10,
+    paddingHorizontal: 8,
+    // Gradiente simulado con opacidad
+    backgroundColor: 'rgba(2, 19, 68, 0.52)',
+  },
+  cardText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#ffffff',
+    textAlign: 'center',
+    letterSpacing: 0.3,
     textTransform: 'uppercase',
   },
 });

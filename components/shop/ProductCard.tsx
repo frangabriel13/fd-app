@@ -1,13 +1,19 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Pressable } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  FadeIn,
+} from 'react-native-reanimated';
 import { Colors } from '@/constants/Colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_PADDING = 8;
-const CARD_GAP = 10;
+const CARD_GAP = 3;
 const NUM_COLUMNS = 2;
-const CARD_WIDTH = (SCREEN_WIDTH - (CARD_PADDING * 2) - (CARD_GAP * (NUM_COLUMNS - 1))) / NUM_COLUMNS;
+export const CARD_WIDTH = (SCREEN_WIDTH - CARD_GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
 
 interface ProductCardProps {
   product: {
@@ -33,9 +39,21 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const router = useRouter();
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.96, { damping: 15, stiffness: 300 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+  };
 
   const handleProductPress = () => {
-    console.log('🛍️ Navegando al producto:', product.id);
     router.push(`/(tabs)/producto/${product.id}` as any);
   };
 
@@ -48,144 +66,111 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }).format(numPrice);
   };
 
-  const formatPriceUSD = (priceUSD: string | null) => {
-    if (!priceUSD) return null;
-    const numPrice = parseFloat(priceUSD);
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-    }).format(numPrice);
-  };
-
   return (
-    <TouchableOpacity
-      style={styles.productCard}
-      onPress={handleProductPress}
-      activeOpacity={0.7}
-    >
-      <View style={styles.imageContainer}>
-        <Image
-          source={{ uri: product.mainImage || 'https://via.placeholder.com/140x186' }}
-          style={styles.productImage}
-          resizeMode="cover"
-        />
-        {product.logo && (
-          <View style={styles.logoContainer}>
-            <Image
-              source={{ uri: product.logo }}
-              style={styles.logoImage}
-              resizeMode="contain"
-            />
-          </View>
-        )}
-        {product.onSale && (
-          <View style={styles.saleTag}>
-            <Text style={styles.saleTagText}>OFERTA</Text>
-          </View>
-        )}
-      </View>
-      <View style={styles.productInfo}>
-        <Text style={styles.productName} numberOfLines={2} ellipsizeMode="tail">
-          {product.name}
-        </Text>
-        <View style={styles.priceContainer}>
-          <Text style={styles.price}>{formatPrice(product.price)}</Text>
+    <Pressable onPress={handleProductPress} onPressIn={handlePressIn} onPressOut={handlePressOut}>
+      <Animated.View style={[styles.card, animatedStyle]} entering={FadeIn.duration(250)}>
+        <View style={styles.imageContainer}>
+          <Image
+            source={{ uri: product.mainImage }}
+            style={styles.productImage}
+            contentFit="cover"
+            transition={200}
+          />
+          {product.onSale && (
+            <View style={styles.saleTag}>
+              <Text style={styles.saleTagText}>OFERTA</Text>
+            </View>
+          )}
+          {product.logo && (
+            <View style={styles.logoContainer}>
+              <Image
+                source={{ uri: product.logo }}
+                style={styles.logoImage}
+                contentFit="contain"
+              />
+            </View>
+          )}
         </View>
-      </View>
-    </TouchableOpacity>
+        <View style={styles.productInfo}>
+          <Text style={styles.productName} numberOfLines={1} ellipsizeMode="tail">
+            {product.name}
+          </Text>
+          <Text style={styles.price}>
+            {formatPrice(product.price)}
+          </Text>
+        </View>
+      </Animated.View>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
-  productCard: {
+  card: {
     width: CARD_WIDTH,
     backgroundColor: '#fff',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 2,
     overflow: 'hidden',
-    borderWidth: 0.5,
-    borderColor: 'rgba(0, 0, 0, 0.05)',
-    // marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   imageContainer: {
     position: 'relative',
     width: '100%',
-    height: CARD_WIDTH * 1.25,
-    backgroundColor: '#f5f5f5',
+    height: CARD_WIDTH * 1.3,
+    backgroundColor: '#f3f4f6',
     overflow: 'hidden',
   },
   productImage: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#f5f5f5',
+  },
+  saleTag: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
+    backgroundColor: Colors.orange.dark,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 4,
+  },
+  saleTagText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   logoContainer: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 32,
-    height: 32,
+    top: 6,
+    right: 6,
+    width: 30,
+    height: 30,
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 16,
+    borderRadius: 15,
+    overflow: 'hidden',
+    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 2,
   },
   logoImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 16,
-    resizeMode: 'cover',
-  },
-  saleTag: {
-    position: 'absolute',
-    top: 8,
-    left: 8,
-    backgroundColor: Colors.orange.default,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  saleTagText: {
-    color: 'white',
-    fontSize: 10,
-    fontWeight: '700',
   },
   productInfo: {
-    paddingVertical: 6,
-    paddingHorizontal: 6,
-    // minHeight: 85,
+    padding: 8,
+    gap: 4,
   },
   productName: {
-    fontSize: 16,
-    fontWeight: '400',
-    color: Colors.light.text,
-    // marginBottom: 6,
-    // lineHeight: 18,
-    // minHeight: 36,
-  },
-  priceContainer: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    // marginBottom: 4,
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#374151',
+    lineHeight: 16,
   },
   price: {
-    fontSize: 20,
-    fontWeight: '500',
-    color: Colors.gray.semiDark,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#111827',
   },
 });
 

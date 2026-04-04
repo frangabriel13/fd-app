@@ -113,6 +113,42 @@ export const fetchAuthUser = createAsyncThunk(
   }
 )
 
+export const fetchFollowedManufacturers = createAsyncThunk(
+  'user/fetchFollowedManufacturers',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await userInstance.get('/followed-manufacturers');
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al obtener fabricantes seguidos');
+    }
+  }
+);
+
+export const followManufacturer = createAsyncThunk(
+  'user/followManufacturer',
+  async ({ manufacturerId, manufacturer }: { manufacturerId: string; manufacturer: any }, { rejectWithValue }) => {
+    try {
+      await userInstance.post(`/follow/${manufacturerId}`);
+      return manufacturer;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al seguir fabricante');
+    }
+  }
+);
+
+export const unfollowManufacturer = createAsyncThunk(
+  'user/unfollowManufacturer',
+  async (manufacturerId: string, { rejectWithValue }) => {
+    try {
+      const response = await userInstance.delete(`/unfollow/${manufacturerId}`);
+      return response.data.id as number;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al dejar de seguir fabricante');
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -194,6 +230,48 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchAuthUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      // fetchFollowedManufacturers
+      .addCase(fetchFollowedManufacturers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchFollowedManufacturers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.followed = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchFollowedManufacturers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      // followManufacturer
+      .addCase(followManufacturer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(followManufacturer.fulfilled, (state, action) => {
+        state.loading = false;
+        state.followed.push(action.payload);
+        state.error = null;
+      })
+      .addCase(followManufacturer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      // unfollowManufacturer
+      .addCase(unfollowManufacturer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(unfollowManufacturer.fulfilled, (state, action) => {
+        state.loading = false;
+        state.followed = state.followed.filter(item => item.id !== action.payload);
+        state.error = null;
+      })
+      .addCase(unfollowManufacturer.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

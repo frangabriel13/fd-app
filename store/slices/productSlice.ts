@@ -178,6 +178,7 @@ interface ProductState {
   newProducts: Product[];
   packs: Product[];
   sales: Product[];
+  masVendidos: Product[];
   blanqueria: Product[];
   lenceria: Product[];
   calzado: Product[];
@@ -189,6 +190,7 @@ interface ProductState {
   currentManufacturer: Manufacturer | null;
   manufacturerProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
   categoryProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
+  currentProductViews: number | null;
   shopProducts: ShopProduct[];
   shopPagination: ShopPagination | null;
   shopFilters: ShopFilters;
@@ -222,6 +224,7 @@ const initialState: ProductState = {
   newProducts: [],
   packs: [],
   sales: [],
+  masVendidos: [],
   blanqueria: [],
   lenceria: [],
   calzado: [],
@@ -233,6 +236,7 @@ const initialState: ProductState = {
   currentManufacturer: null,
   manufacturerProducts: [],
   categoryProducts: [],
+  currentProductViews: null,
   shopProducts: [],
   shopPagination: null,
   shopFilters: {
@@ -467,6 +471,18 @@ export const fetchProductWithManufacturer = createAsyncThunk(
   }
 );
 
+export const fetchProductForEdit = createAsyncThunk(
+  'product/fetchProductForEdit',
+  async (productId: string, { rejectWithValue }) => {
+    try {
+      const response = await productInstance.get(`/edit/${productId}`);
+      return response.data as ProductWithManufacturerResponse;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al obtener el producto para editar');
+    }
+  }
+);
+
 const productSlice = createSlice({
   name: 'product',
   initialState,
@@ -589,6 +605,7 @@ const productSlice = createSlice({
         state.newProducts = action.payload.newProducts;
         state.packs = action.payload.packs;
         state.sales = action.payload.sales;
+        state.masVendidos = action.payload.masVendidos;
         state.blanqueria = action.payload.blanqueria;
         state.lenceria = action.payload.lenceria;
         state.calzado = action.payload.calzado;
@@ -611,9 +628,25 @@ const productSlice = createSlice({
         state.currentManufacturer = action.payload.manufacturer;
         state.manufacturerProducts = action.payload.manufacturerProducts;
         state.categoryProducts = action.payload.categoryProducts;
+        state.currentProductViews = action.payload.views ?? null;
         state.loading = false;
       })
       .addCase(fetchProductWithManufacturer.rejected, (state, action: PayloadAction<any>) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchProductForEdit.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProductForEdit.fulfilled, (state, action: PayloadAction<ProductWithManufacturerResponse>) => {
+        state.currentProduct = action.payload.product;
+        state.currentManufacturer = action.payload.manufacturer;
+        state.manufacturerProducts = action.payload.manufacturerProducts;
+        state.categoryProducts = action.payload.categoryProducts;
+        state.loading = false;
+      })
+      .addCase(fetchProductForEdit.rejected, (state, action: PayloadAction<any>) => {
         state.error = action.payload;
         state.loading = false;
       })

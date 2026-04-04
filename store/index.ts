@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import { persistReducer, persistStore } from 'redux-persist';
+import { createTransform, persistReducer, persistStore } from 'redux-persist';
 
 // Import your slices here
 import userSlice from './slices/userSlice';
@@ -15,6 +15,7 @@ import sizeSlice from './slices/sizeSlice';
  import imageSlice from './slices/imageSlice';
 import favoriteSlice from './slices/favoriteSlice';
 import reviewSlice from './slices/reviewSlice';
+import notificationReducer from './slices/notificationSlice';
 
 // Combine all reducers
 const rootReducer = combineReducers({
@@ -30,13 +31,26 @@ const rootReducer = combineReducers({
   image: imageSlice,
   favorites: favoriteSlice,
   reviews: reviewSlice,
+  notifications: notificationReducer,
 });
+
+// Excluye el estado de búsqueda del producto de la persistencia — si la app
+// se cierra con searchLoading: true, al volver quedaría en un estado de carga infinita.
+const productTransform = createTransform(
+  (inboundState: any) => {
+    const { searchResults, searchLoading, ...rest } = inboundState;
+    return rest;
+  },
+  (outboundState) => outboundState,
+  { whitelist: ['product'] }
+);
 
 // Persist configuration
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['user', 'manufacturer', 'auth', 'wholesaler', 'product', 'cart', 'order', 'colors', 'sizes', 'image', 'favorites', 'reviews'], // Only persist these reducers
+  whitelist: ['user', 'manufacturer', 'auth', 'wholesaler', 'product', 'cart', 'order', 'colors', 'sizes', 'image', 'favorites', 'reviews'],
+  transforms: [productTransform],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

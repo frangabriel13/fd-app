@@ -1,46 +1,42 @@
-import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { memo, useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Logo from './Logo';
 import Notification from './Notification';
 import Search from './Search';
 
-const Header = () => {
-  // Los insets son las áreas seguras del dispositivo donde no se superpone el contenido con la barra de estado o los bordes del dispositivo.
+const Header = memo(function Header() {
   const insets = useSafeAreaInsets();
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-  
+
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 5 }]} className='bg-primary'>
-      {!isSearchExpanded && (
-        <View className="w-10 items-center">
-          <Logo />
-        </View>
+    <>
+      <View style={{ paddingTop: insets.top + 6 }} className='bg-primary px-3 pb-2.5 flex-row items-center gap-2.5'>
+        {!isSearchExpanded && (
+          <View className='w-9 items-center'>
+            <Logo />
+          </View>
+        )}
+        <Search
+          isExpanded={isSearchExpanded}
+          onExpandChange={setIsSearchExpanded}
+        />
+        {!isSearchExpanded && (
+          <View className='w-9 items-center'>
+            <Notification />
+          </View>
+        )}
+      </View>
+
+      {/* Backdrop que captura toques fuera del dropdown y cierra la búsqueda */}
+      {isSearchExpanded && (
+        <Pressable
+          style={[StyleSheet.absoluteFill, { zIndex: 40 }]}
+          onPress={() => setIsSearchExpanded(false)}
+        />
       )}
-      <Search 
-        isExpanded={isSearchExpanded}
-        onExpandChange={setIsSearchExpanded}
-      />
-      {!isSearchExpanded && (
-        <View className="w-10 items-center">
-          <Notification />
-        </View>
-      )}
-    </View>
+    </>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 10,
-    paddingBottom: 10,
-    // borderBottomWidth: 1,
-    // borderBottomColor: '#e9ecef',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
 });
-
 
 export default Header;

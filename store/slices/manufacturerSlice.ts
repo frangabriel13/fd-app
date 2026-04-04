@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { refreshTokenService } from '../../services/authService';
 import { manufacturerInstance, adminInstance } from '../../services/axiosConfig';
+import { followManufacturer, unfollowManufacturer } from './userSlice';
 
 // Tipos
 interface Subscription {
@@ -867,6 +868,19 @@ const manufacturerSlice = createSlice({
       .addCase(updateManufacturerByAdmin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string || 'Error al actualizar fabricante por admin';
+      })
+      // Sync followersCount & isFollowed in selectedManufacturer
+      .addCase(followManufacturer.fulfilled, (state, action) => {
+        if (state.selectedManufacturer && state.selectedManufacturer.id === action.payload.id) {
+          state.selectedManufacturer.followersCount += 1;
+          state.selectedManufacturer.isFollowed = true;
+        }
+      })
+      .addCase(unfollowManufacturer.fulfilled, (state, action) => {
+        if (state.selectedManufacturer && state.selectedManufacturer.id === action.payload) {
+          state.selectedManufacturer.followersCount = Math.max(0, state.selectedManufacturer.followersCount - 1);
+          state.selectedManufacturer.isFollowed = false;
+        }
       });
 
   },

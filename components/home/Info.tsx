@@ -1,89 +1,96 @@
+import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const Info = () => {
-  const features = [
-    {
-      icon: 'rocket-outline',
-      title: 'Envíos',
-      description: 'Envíos a todo el país.',
-    },
-    {
-      icon: 'card-outline',
-      title: 'Pagos',
-      description: 'Varios métodos de pago.',
-    },
-    {
-      icon: 'headset-outline',
-      title: 'Soporte',
-      description: 'Atención personalizada.',
-    },
-  ];
+const FEATURES = [
+  {
+    icon: 'rocket-outline' as const,
+    title: 'Envíos',
+    subtitle: 'A todo el país',
+  },
+  {
+    icon: 'card-outline' as const,
+    title: 'Pagos',
+    subtitle: 'Varios métodos',
+  },
+  {
+    icon: 'headset-outline' as const,
+    title: 'Soporte',
+    subtitle: 'Personalizado',
+  },
+];
 
+const Info = () => {
   return (
     <View style={styles.container}>
-      {features.map((feature, index) => (
-        <View key={index} style={styles.card}>
-          <View style={styles.iconContainer}>
-            <Ionicons name={feature.icon as any} size={28} color="#021344" />
-          </View>
-          <Text style={styles.title}>{feature.title}</Text>
-          <Text style={styles.description}>{feature.description}</Text>
-        </View>
-      ))}
+      <View style={styles.topBorder} />
+      <View style={styles.row}>
+        {FEATURES.map((feature, index) => (
+          <React.Fragment key={index}>
+            {index > 0 && <View style={styles.divider} />}
+            <View style={styles.item}>
+              <View style={styles.iconContainer}>
+                <Ionicons name={feature.icon} size={24} color="#f86f1a" />
+              </View>
+              <Text style={styles.title}>{feature.title}</Text>
+              <Text style={styles.subtitle}>{feature.subtitle}</Text>
+            </View>
+          </React.Fragment>
+        ))}
+      </View>
+      <View style={styles.bottomBorder} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-    paddingHorizontal: 4,
-    gap: 8,
+    backgroundColor: '#fff',
   },
-  card: {
+  topBorder: {
+    height: 1,
+    backgroundColor: '#f3f4f6',
+  },
+  bottomBorder: {
+    height: 1,
+    backgroundColor: '#f3f4f6',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+  },
+  divider: {
+    width: 1,
+    backgroundColor: '#f3f4f6',
+    alignSelf: 'stretch',
+    marginVertical: 4,
+  },
+  item: {
     flex: 1,
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    paddingVertical: 20,
-    paddingHorizontal: 12,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 2,
-    borderWidth: 0.5,
-    borderColor: 'rgba(0, 0, 0, 0.05)',
+    gap: 6,
   },
   iconContainer: {
-    width: 56,
-    height: 56,
-    backgroundColor: '#e0f2fe',
-    borderRadius: 28,
+    width: 50,
+    height: 50,
+    backgroundColor: '#fff7ed',
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
   },
   title: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 4,
-    textAlign: 'center',
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#021344',
+    letterSpacing: 0.2,
   },
-  description: {
-    fontSize: 12,
+  subtitle: {
+    fontSize: 11,
     color: '#6b7280',
     textAlign: 'center',
-    lineHeight: 16,
   },
 });
-
 
 export default Info;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   View, 
   Text, 
@@ -7,24 +7,42 @@ import {
   TouchableOpacity, 
   Linking
 } from 'react-native';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/store';
+import { followManufacturer, unfollowManufacturer } from '@/store/slices/userSlice';
 import { Ionicons } from '@expo/vector-icons';
 
 const HeaderProfile = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const { selectedManufacturer } = useSelector((state: RootState) => state.manufacturer);
-  const [isFollowed, setIsFollowed] = useState(false);
-  const [followersCount] = useState(0);
-  
+  const followed = useSelector((state: RootState) => state.user.followed);
+
   const manufacturer = selectedManufacturer;
-  console.log('🔍 Datos del fabricante en HeaderProfile:', manufacturer);
+
+  const isFollowed = manufacturer
+    ? followed.some((f: any) => f.id === manufacturer.id) || !!manufacturer.isFollowed
+    : false;
+
+  const followersCount = manufacturer?.followersCount ?? 0;
 
   if (!manufacturer) {
     return null;
   }
 
-  const handleFollow = () => {
-    setIsFollowed(!isFollowed);
+  const handleFollow = async () => {
+    if (isFollowed) {
+      await dispatch(unfollowManufacturer(manufacturer.id.toString()));
+    } else {
+      await dispatch(followManufacturer({
+        manufacturerId: manufacturer.id.toString(),
+        manufacturer: {
+          id: manufacturer.id,
+          name: manufacturer.name,
+          image: manufacturer.image ?? null,
+          userId: manufacturer.userId,
+        },
+      }));
+    }
   };
 
   const handleInstagram = () => {

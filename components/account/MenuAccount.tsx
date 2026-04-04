@@ -64,6 +64,12 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
       case 'Mis datos':
         router.push('/(dashboard)/editar-perfil');
         break;
+      case 'Seguidos':
+        router.push('/(tabs)/seguidos' as any);
+        break;
+      case 'Favoritos':
+        router.push('/(tabs)/favoritos' as any);
+        break;
       default:
         Alert.alert('Acción', `Función: ${action}`, [{ text: 'OK' }]);
     }

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
-import { genders } from '@/utils/hardcode';
+import { memo } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { Image } from 'expo-image';
 import { Colors } from '@/constants/Colors';
+import { genders } from '@/utils/hardcode';
 
 type SelectCategoryProps = {
   selectedGenderId: number;
@@ -9,65 +10,52 @@ type SelectCategoryProps = {
   onCategorySelect?: (categoryId: number) => void;
 };
 
+type CategoryPillProps = {
+  category: (typeof genders)[number]['categories'][number];
+  isSelected: boolean;
+  onSelect: (id: number) => void;
+};
+
+const CategoryPill = memo(function CategoryPill({ category, isSelected, onSelect }: CategoryPillProps) {
+  return (
+    <Pressable
+      onPress={() => onSelect(category.id)}
+      accessibilityRole="button"
+      accessibilityState={{ selected: isSelected }}
+      accessibilityLabel={`Filtrar por ${category.name}`}
+    >
+      <View style={[styles.pill, isSelected && styles.pillSelected]}>
+        <Image
+          source={{ uri: category.url }}
+          style={styles.pillImage}
+          contentFit="cover"
+          transition={150}
+        />
+        <Text style={[styles.pillText, isSelected && styles.pillTextSelected]} numberOfLines={1}>
+          {category.name}
+        </Text>
+      </View>
+    </Pressable>
+  );
+});
+
 const SelectCategory = ({ selectedGenderId, selectedCategoryId, onCategorySelect }: SelectCategoryProps) => {
-  const selectedGender = genders.find(gender => gender.id === selectedGenderId);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(selectedCategoryId || null);
-
-  const handleCategorySelect = (categoryId: number) => {
-    setSelectedCategory(categoryId);
-    onCategorySelect?.(categoryId);
-  };
-
-  useEffect(() => {
-    if (selectedGender) {
-      console.log(`Categorías de ${selectedGender.name}:`, selectedGender.categories);
-      // Si hay una categoría preseleccionada por prop, usarla
-      if (selectedCategoryId) {
-        setSelectedCategory(selectedCategoryId);
-      } else {
-        setSelectedCategory(null); // Reset selection when gender changes
-      }
-    }
-  }, [selectedGender, selectedCategoryId]);
+  const selectedGender = genders.find((gender) => gender.id === selectedGenderId);
 
   return (
     <View style={styles.container}>
-      <ScrollView 
-        horizontal 
+      <ScrollView
+        horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {selectedGender?.categories.map((category, index) => (
-          <TouchableOpacity
+        {selectedGender?.categories.map((category) => (
+          <CategoryPill
             key={category.id}
-            style={[
-              styles.categoryButton,
-              index === 0 && styles.firstButton,
-              index === selectedGender.categories.length - 1 && styles.lastButton,
-            ]}
-            onPress={() => handleCategorySelect(category.id)}
-          >
-            <View style={[
-              styles.imageContainer,
-              selectedCategory === category.id && styles.selectedImageContainer
-            ]}>
-              <Image 
-                source={{ uri: category.url }} 
-                style={styles.categoryImage}
-                resizeMode="cover"
-              />
-            </View>
-            <Text 
-              style={[
-                styles.categoryText,
-                selectedCategory === category.id && styles.selectedText
-              ]}
-              numberOfLines={2}
-              ellipsizeMode="tail"
-            >
-              {category.name}
-            </Text>
-          </TouchableOpacity>
+            category={category}
+            isSelected={selectedCategoryId === category.id}
+            onSelect={onCategorySelect ?? (() => {})}
+          />
         ))}
       </ScrollView>
     </View>
@@ -77,57 +65,42 @@ const SelectCategory = ({ selectedGenderId, selectedCategoryId, onCategorySelect
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#ffffff',
-    paddingVertical: 6,
+    paddingVertical: 3,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e9ecef',
   },
   scrollContent: {
+    paddingHorizontal: 2,
+    gap: 2,
+    alignItems: 'center',
+  },
+  pill: {
     flexDirection: 'row',
     alignItems: 'center',
-    // paddingHorizontal: 8,
-  },
-  categoryButton: {
-    alignItems: 'center',
-    paddingHorizontal: 6,
-    minHeight: 90,
-    justifyContent: 'flex-start',
-    width: 70,
-  },
-  firstButton: {
-    paddingLeft: 8,
-  },
-  lastButton: {
-    paddingRight: 8,
-  },
-  imageContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 2,
-    borderColor: '#e5e5e5',
+    gap: 8,
+    paddingRight: 12,
+    borderRadius: 20,
+    backgroundColor: Colors.gray.light,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
     overflow: 'hidden',
-    // marginBottom: 6,
-    backgroundColor: '#f8f8f8',
   },
-  selectedImageContainer: {
-    borderColor: Colors.blue.default,
-    borderWidth: 2.5,
+  pillSelected: {
+    backgroundColor: Colors.blue.dark,
+    borderColor: Colors.blue.dark,
   },
-  categoryImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 26,
+  pillImage: {
+    width: 36,
+    alignSelf: 'stretch',
   },
-  categoryText: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: '#666666',
-    textAlign: 'center',
-    maxWidth: 70,
-    lineHeight: 14,
-    marginTop: 4,
-  },
-  selectedText: {
-    color: Colors.blue.default,
+  pillText: {
+    fontSize: 13,
     fontWeight: '600',
+    color: Colors.gray.dark,
+    paddingVertical: 9,
+  },
+  pillTextSelected: {
+    color: '#ffffff',
   },
 });
 
