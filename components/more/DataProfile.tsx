@@ -18,15 +18,16 @@ const getInitials = (name: string) => {
 
 const DataProfile = () => {
   const router    = useRouter();
-  const user      = useAppSelector((state) => state.auth.user);
+  const user      = useAppSelector((state) => state.auth?.user);
   const initials  = user?.name ? getInitials(user.name) : null;
   const roleLabel = user?.role ? (ROLE_LABEL[user.role] ?? user.role) : null;
 
   const handlePress = () => {
-    const route = user?.role === 'manufacturer'
-      ? '/(dashboard)/perfil'
-      : '/(tabs)/mi-cuenta';
-    router.push(route);
+    if (user?.role === 'manufacturer') {
+      router.push('/(dashboard)/perfil' as any);
+    } else {
+      router.push('/(tabs)/mi-cuenta');
+    }
   };
 
   return (
