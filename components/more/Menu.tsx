@@ -8,18 +8,29 @@ import { logoutAsync } from '@/store/slices/authSlice';
 import { clearNotifications } from '@/store/slices/notificationSlice';
 import { resetFavorites } from '@/store/slices/favoriteSlice';
 import { Colors } from '@/constants/Colors';
+import { parentCategories, genders } from '@/utils/hardcode';
 
-// — Constantes de categorías —
+// — Helpers para obtener IDs desde hardcode —
+const getGenderId = (name: string) =>
+  genders.find((g) => g.name === name)?.id ?? 0;
+
+const getCategoryId = (name: string) =>
+  parentCategories.find((c) => c.name === name)?.id ?? 0;
+
+const getGenderCategoryId = (genderName: string, categoryName: string) =>
+  genders.find((g) => g.name === genderName)?.categories.find((c) => c.name === categoryName)?.id ?? 0;
+
+// — Constantes de categorías derivadas del hardcode —
 const SHOP_CATEGORIES = {
-  packs:     { genderId: 7, categoryId: 161 },
-  blanqueria:{ genderId: 7, categoryId: 130 },
-  lenceria:  { genderId: 3, categoryId: 153 },
-  calzado:   { genderId: 2, categoryId: 154 },
-  bisuteria: { genderId: 7, categoryId: 131 },
-  telas:     { genderId: 7, categoryId: 162 },
-  costura:   { genderId: 7, categoryId: 163 },
-  maquinas:  { genderId: 7, categoryId: 164 },
-} as const;
+  packs:     { genderId: getGenderId('Más'),   categoryId: getCategoryId('Packs') },
+  blanqueria:{ genderId: getGenderId('Más'),   categoryId: getCategoryId('Blanquería') },
+  lenceria:  { genderId: getGenderId('Mujer'), categoryId: getGenderCategoryId('Mujer', 'Lencería y mallas') },
+  calzado:   { genderId: getGenderId('Mujer'), categoryId: getGenderCategoryId('Mujer', 'Calzados') },
+  bisuteria: { genderId: getGenderId('Más'),   categoryId: getCategoryId('Bisutería') },
+  telas:     { genderId: getGenderId('Más'),   categoryId: getCategoryId('Telas textiles') },
+  costura:   { genderId: getGenderId('Más'),   categoryId: getCategoryId('Artículos de confección') },
+  maquinas:  { genderId: getGenderId('Más'),   categoryId: getCategoryId('Máquinas textiles') },
+};
 
 const ICON_BG    = '#e8edf5';
 const ICON_COLOR = Colors.blue.dark;
