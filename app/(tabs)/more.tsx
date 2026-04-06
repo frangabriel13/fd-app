@@ -2,9 +2,9 @@ import DataProfile from '@/components/more/DataProfile';
 import Menu from '@/components/more/Menu';
 import { View } from 'react-native';
 
-const ManusScreen = () => {
+const MoreScreen = () => {
   return (
-    <View className='flex-1'>
+    <View style={{ flex: 1 }}>
       <DataProfile />
       <Menu />
     </View>
@@ -12,4 +12,4 @@ const ManusScreen = () => {
 }
 
 
-export default ManusScreen;
+export default MoreScreen;
