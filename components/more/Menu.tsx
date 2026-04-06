@@ -21,6 +21,9 @@ const SHOP_CATEGORIES = {
   maquinas:  { genderId: 7, categoryId: 164 },
 } as const;
 
+const ICON_BG    = '#e8edf5';
+const ICON_COLOR = Colors.blue.dark;
+
 const navigateToShop = (params: { genderId?: number; categoryId?: number; sortBy?: string }) => {
   const searchParams = new URLSearchParams();
   if (params.genderId)   searchParams.append('genderId', params.genderId.toString());
@@ -32,13 +35,6 @@ const navigateToShop = (params: { genderId?: number; categoryId?: number; sortBy
 
 // — Tipos —
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
-
-interface QuickActionConfig {
-  icon:    IoniconName;
-  label:   string;
-  color:   string;
-  onPress: () => void;
-}
 
 interface MenuItemConfig {
   icon:      IoniconName;
@@ -53,19 +49,6 @@ interface MenuSectionConfig {
   title:  string;
   items:  MenuItemConfig[];
 }
-
-// — Quick action (accesos rápidos) —
-const QuickAction = React.memo(({ icon, label, color, onPress }: QuickActionConfig) => (
-  <Pressable
-    onPress={onPress}
-    style={({ pressed }) => [styles.quickAction, pressed && styles.quickActionPressed]}
-  >
-    <View style={[styles.quickActionIcon, { backgroundColor: color + '18' }]}>
-      <Ionicons name={icon} size={26} color={color} />
-    </View>
-    <Text style={styles.quickActionLabel}>{label}</Text>
-  </Pressable>
-));
 
 // — Menu item —
 const MenuItem = React.memo(({ icon, iconBg, iconColor, label, onPress, disabled }: MenuItemConfig) => (
@@ -120,43 +103,40 @@ const Menu = () => {
     }
   }, [dispatch, signOut]);
 
-  const quickActions: QuickActionConfig[] = [
-    { icon: 'bag-check-outline',   label: 'Mis compras',    color: Colors.blue.dark,    onPress: () => router.push('/(dashboard)/ver-pedidos') },
-    { icon: 'heart-outline',       label: 'Favoritos',      color: '#db2777',           onPress: () => router.push('/(tabs)/favoritos') },
-    { icon: 'notifications-outline',label: 'Notificaciones',color: Colors.orange.dark,  onPress: () => router.push('/(tabs)/notificaciones' as any) },
-  ];
-
   const sections: MenuSectionConfig[] = [
     {
       title: 'Explorar',
       items: [
-        { icon: 'home-outline',       iconBg: '#eff6ff', iconColor: '#3b82f6',         label: 'Inicio',            onPress: () => router.push('/(tabs)' as any) },
-        { icon: 'storefront-outline', iconBg: '#fff7ed', iconColor: Colors.orange.dark, label: 'Tienda',            onPress: () => router.push('/(tabs)/tienda') },
-        { icon: 'cube-outline',       iconBg: '#f5f3ff', iconColor: '#8b5cf6',         label: 'Packs/Combos',      onPress: () => navigateToShop(SHOP_CATEGORIES.packs) },
-        { icon: 'radio-outline',      iconBg: '#fef2f2', iconColor: '#ef4444',         label: 'Live Shopping',     onPress: () => router.push('/(tabs)/fabricantes') },
-        { icon: 'person-outline',     iconBg: '#eff6ff', iconColor: Colors.blue.dark,  label: 'Mi perfil',         onPress: () => router.push('/(tabs)/mi-cuenta') },
-        { icon: 'bookmark-outline',   iconBg: '#ecfdf5', iconColor: '#10b981',         label: 'Tiendas seguidas',  disabled: true },
+        { icon: 'home-outline',          iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Inicio',            onPress: () => router.push('/(tabs)' as any) },
+        { icon: 'storefront-outline',    iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Tienda',            onPress: () => router.push('/(tabs)/tienda') },
+        { icon: 'cube-outline',          iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Packs/Combos',      onPress: () => navigateToShop(SHOP_CATEGORIES.packs) },
+        { icon: 'radio-outline',         iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Live Shopping',     onPress: () => router.push('/(tabs)/fabricantes') },
+        { icon: 'person-outline',        iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Mi perfil',         onPress: () => router.push('/(tabs)/mi-cuenta') },
+        { icon: 'bag-check-outline',     iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Mis compras',       onPress: () => router.push('/(dashboard)/ver-pedidos') },
+        { icon: 'heart-outline',         iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Favoritos',         onPress: () => router.push('/(tabs)/favoritos') },
+        { icon: 'notifications-outline', iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Notificaciones',    onPress: () => router.push('/(tabs)/notificaciones' as any) },
+        { icon: 'bookmark-outline',      iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Tiendas seguidas',  disabled: true },
       ],
     },
     {
       title: 'Categorías',
       items: [
-        { icon: 'star-outline',      iconBg: '#fefce8', iconColor: '#ca8a04',          label: 'Productos destacados',       onPress: () => navigateToShop({ sortBy: 'featured' }) },
-        { icon: 'sparkles-outline',  iconBg: '#eff6ff', iconColor: '#3b82f6',          label: 'Nuevos ingresos',            onPress: () => navigateToShop({ sortBy: 'newest' }) },
-        { icon: 'pricetag-outline',  iconBg: '#fff7ed', iconColor: Colors.orange.dark, label: 'Ofertas',                   onPress: () => navigateToShop({ sortBy: 'onSale' }) },
-        { icon: 'bed-outline',       iconBg: '#f0fdf4', iconColor: '#16a34a',          label: 'Blanquería',                onPress: () => navigateToShop(SHOP_CATEGORIES.blanqueria) },
-        { icon: 'woman-outline',     iconBg: '#fdf2f8', iconColor: '#db2777',          label: 'Lencería',                  onPress: () => navigateToShop(SHOP_CATEGORIES.lenceria) },
-        { icon: 'walk-outline',      iconBg: '#f5f3ff', iconColor: '#8b5cf6',          label: 'Calzado',                   onPress: () => navigateToShop(SHOP_CATEGORIES.calzado) },
-        { icon: 'diamond-outline',   iconBg: '#fdf2f8', iconColor: '#db2777',          label: 'Bisutería',                 onPress: () => navigateToShop(SHOP_CATEGORIES.bisuteria) },
-        { icon: 'layers-outline',    iconBg: '#eff6ff', iconColor: '#3b82f6',          label: 'Telas textiles',            onPress: () => navigateToShop(SHOP_CATEGORIES.telas) },
-        { icon: 'cut-outline',       iconBg: '#f0fdf4', iconColor: '#16a34a',          label: 'Insumos para costura',      onPress: () => navigateToShop(SHOP_CATEGORIES.costura) },
-        { icon: 'construct-outline', iconBg: '#fff7ed', iconColor: Colors.orange.dark, label: 'Máquinas textiles',         onPress: () => navigateToShop(SHOP_CATEGORIES.maquinas) },
+        { icon: 'star-outline',      iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Productos destacados',  onPress: () => navigateToShop({ sortBy: 'featured' }) },
+        { icon: 'sparkles-outline',  iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Nuevos ingresos',       onPress: () => navigateToShop({ sortBy: 'newest' }) },
+        { icon: 'pricetag-outline',  iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Ofertas',               onPress: () => navigateToShop({ sortBy: 'onSale' }) },
+        { icon: 'bed-outline',       iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Blanquería',            onPress: () => navigateToShop(SHOP_CATEGORIES.blanqueria) },
+        { icon: 'woman-outline',     iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Lencería',              onPress: () => navigateToShop(SHOP_CATEGORIES.lenceria) },
+        { icon: 'walk-outline',      iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Calzado',               onPress: () => navigateToShop(SHOP_CATEGORIES.calzado) },
+        { icon: 'diamond-outline',   iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Bisutería',             onPress: () => navigateToShop(SHOP_CATEGORIES.bisuteria) },
+        { icon: 'layers-outline',    iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Telas textiles',        onPress: () => navigateToShop(SHOP_CATEGORIES.telas) },
+        { icon: 'cut-outline',       iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Insumos para costura',  onPress: () => navigateToShop(SHOP_CATEGORIES.costura) },
+        { icon: 'construct-outline', iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Máquinas textiles',     onPress: () => navigateToShop(SHOP_CATEGORIES.maquinas) },
       ],
     },
     {
       title: 'Soporte',
       items: [
-        { icon: 'headset-outline', iconBg: '#f3f4f6', iconColor: '#6b7280', label: 'Ayuda', disabled: true },
+        { icon: 'headset-outline', iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Ayuda', disabled: true },
       ],
     },
   ];
@@ -166,13 +146,6 @@ const Menu = () => {
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      {/* Accesos rápidos */}
-      <View style={styles.quickActionsRow}>
-        {quickActions.map((action) => (
-          <QuickAction key={action.label} {...action} />
-        ))}
-      </View>
-
       {/* Secciones */}
       {sections.map((section) => (
         <MenuSection key={section.title} {...section} />
@@ -182,10 +155,12 @@ const Menu = () => {
       <Pressable
         onPress={handleLogout}
         android_ripple={{ color: '#fee2e2' }}
-        style={({ pressed }) => [styles.logoutButton, pressed && styles.logoutPressed]}
+        style={({ pressed }) => pressed && styles.logoutPressed}
       >
-        <Ionicons name="log-out-outline" size={20} color="#dc2626" />
-        <Text style={styles.logoutText}>Cerrar sesión</Text>
+        <View style={styles.logoutButton}>
+          <Ionicons name="log-out-outline" size={20} color="#dc2626" />
+          <Text style={styles.logoutText}>Cerrar sesión</Text>
+        </View>
       </Pressable>
     </ScrollView>
   );
@@ -194,43 +169,6 @@ const Menu = () => {
 const styles = StyleSheet.create({
   content: {
     paddingBottom: 80,
-  },
-
-  // — Accesos rápidos —
-  quickActionsRow: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    gap: 10,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  quickAction: {
-    flex: 1,
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    backgroundColor: '#fff',
-  },
-  quickActionPressed: {
-    backgroundColor: '#f9fafb',
-  },
-  quickActionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  quickActionLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#374151',
-    textAlign: 'center',
   },
 
   // — Secciones —

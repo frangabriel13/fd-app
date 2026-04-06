@@ -7,6 +7,7 @@ import { Colors } from '@/constants/Colors';
 const ROLE_LABEL: Record<string, string> = {
   wholesaler:   'Mayorista',
   manufacturer: 'Fabricante',
+  admin:        'Administrador',
 };
 
 const getInitials = (name: string) => {
@@ -29,130 +30,78 @@ const DataProfile = () => {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Avatar */}
-      <Pressable onPress={handlePress} style={styles.avatarWrapper}>
+    <Pressable
+      onPress={handlePress}
+      style={({ pressed }) => pressed && styles.pressed}
+    >
+      <View style={styles.container}>
+        {/* Avatar */}
         <View style={styles.avatar}>
           {initials
             ? <Text style={styles.initials}>{initials}</Text>
-            : <Ionicons name="person" size={32} color="#fff" />
+            : <Ionicons name="person" size={28} color="#fff" />
           }
         </View>
-        <View style={styles.editBadge}>
-          <Ionicons name="pencil" size={10} color="#fff" />
-        </View>
-      </Pressable>
 
-      {/* Nombre y rol */}
-      <Text style={styles.name}>{user?.name ?? 'Mi cuenta'}</Text>
-      {roleLabel && (
-        <View style={styles.rolePill}>
-          <Text style={styles.roleText}>{roleLabel}</Text>
+        {/* Info */}
+        <View style={styles.info}>
+          <Text style={styles.email} numberOfLines={1}>
+            {user?.email ?? '—'}
+          </Text>
+          {roleLabel && (
+            <Text style={styles.role}>{roleLabel}</Text>
+          )}
         </View>
-      )}
-      {user?.email && (
-        <Text style={styles.email}>{user.email}</Text>
-      )}
 
-      {/* CTA */}
-      <Pressable
-        onPress={handlePress}
-        style={({ pressed }) => [styles.editButton, pressed && styles.editButtonPressed]}
-      >
-        <Text style={styles.editButtonText}>Ver perfil</Text>
-        <Ionicons name="chevron-forward" size={14} color={Colors.blue.dark} />
-      </Pressable>
-    </View>
+        {/* Chevron */}
+        <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
+      </View>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 32,
-    paddingBottom: 20,
-    paddingHorizontal: 24,
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    gap: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
-    gap: 6,
   },
-
-  // — Avatar —
-  avatarWrapper: {
-    marginBottom: 4,
+  pressed: {
+    backgroundColor: '#f9fafb',
   },
   avatar: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: Colors.blue.dark,
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
   initials: {
     color: '#fff',
-    fontSize: 26,
-    fontWeight: '700',
-    letterSpacing: 1,
-  },
-  editBadge: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: Colors.orange.dark,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#fff',
-  },
-
-  // — Info —
-  name: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#111827',
-    textAlign: 'center',
+    letterSpacing: 0.5,
   },
-  rolePill: {
-    backgroundColor: Colors.blue.dark + '12',
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 10,
-  },
-  roleText: {
-    color: Colors.blue.dark,
-    fontSize: 12,
-    fontWeight: '600',
+  info: {
+    flex: 1,
+    gap: 3,
   },
   email: {
-    fontSize: 12,
-    color: '#9ca3af',
-    textAlign: 'center',
-  },
-
-  // — CTA —
-  editButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    marginTop: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  editButtonPressed: {
-    backgroundColor: '#f9fafb',
-  },
-  editButtonText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
-    color: Colors.blue.dark,
+    color: '#111827',
+  },
+  role: {
+    fontSize: 12,
+    color: '#6b7280',
+    fontWeight: '500',
   },
 });
 
