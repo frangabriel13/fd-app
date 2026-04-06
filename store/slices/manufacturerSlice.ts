@@ -69,7 +69,7 @@ interface Manufacturer {
   updatedAt?: string;
 }
 
-interface LiveManufacturer {
+export interface LiveManufacturer {
   id: number;
   name: string;
   image: string | null;
@@ -254,33 +254,19 @@ export const fetchAllLiveManufacturers = createAsyncThunk(
     isFirstLoad?: boolean; 
   }, { rejectWithValue }) => {
     try {
-      const response = await manufacturerInstance.get('/all-live', {
-        params: { 
-          page, 
-          limit,
-          isFirstLoad: isFirstLoad.toString()
-        },
-      });
+      const params: Record<string, string | number> = {
+        page,
+        isFirstLoad: isFirstLoad.toString(),
+      };
+      if (limit !== undefined) params.limit = limit;
+
+      const response = await manufacturerInstance.get('/all-live', { params });
       return {
         data: response.data,
         page,
-        isFirstLoad
+        isFirstLoad,
+        limit,
       };
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Error al obtener fabricantes en vivo');
-    }
-  }
-);
-
-// Traer fabricantes en vivo (mantener compatibilidad)
-export const fetchLiveManufacturers = createAsyncThunk(
-  'manufacturer/fetchLiveManufacturers',
-  async ({ page, pageSize }: { page: number; pageSize: number }, { rejectWithValue }) => {
-    try {
-      const response = await manufacturerInstance.get('/live', {
-        params: { page, pageSize },
-      });
-      return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Error al obtener fabricantes en vivo');
     }
@@ -585,22 +571,19 @@ const manufacturerSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchAllLiveManufacturers.fulfilled, (state, action) => {
-        const { data, page, isFirstLoad } = action.payload;
+        const { data, page, isFirstLoad, limit } = action.payload;
         state.loading = false;
         state.isLoadingMore = false;
         state.error = null;
-        
+
         if (isFirstLoad || page === 1) {
-          // Primera carga o reset: reemplazar datos
           state.liveManufacturers = data;
         } else {
-          // Carga adicional: concatenar datos
           state.liveManufacturers = [...state.liveManufacturers, ...data];
         }
-        
+
         state.currentPage = page;
-        // Si recibimos menos datos de lo esperado, no hay más datos
-        const expectedSize = isFirstLoad ? 40 : 20;
+        const expectedSize = limit ?? (isFirstLoad ? 40 : 20);
         state.hasMoreData = data.length === expectedSize;
       })
       .addCase(fetchAllLiveManufacturers.rejected, (state, action) => {
@@ -608,22 +591,6 @@ const manufacturerSlice = createSlice({
         state.isLoadingMore = false;
         state.error = action.payload as string || 'Error al obtener fabricantes en vivo';
         state.hasMoreData = false;
-      })
-      // Fetch Live Manufacturers (mantener compatibilidad)
-      .addCase(fetchLiveManufacturers.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchLiveManufacturers.fulfilled, (state, action) => {
-        state.loading = false;
-        state.error = null;
-        // El backend devuelve directamente un array de fabricantes en vivo
-        state.liveManufacturers = action.payload;
-      })
-      .addCase(fetchLiveManufacturers.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string || 'Error al obtener fabricantes en vivo';
-        state.liveManufacturers = [];
       })
       // Get Manufacturer By ID
       .addCase(getManufacturerById.pending, (state) => {
