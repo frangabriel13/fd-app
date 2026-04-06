@@ -79,12 +79,12 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ product }) => {
             style={styles.heartButton}
             onPress={handleRemoveFavorite}
             disabled={isRemoving}
-            hitSlop={8}
+            hitSlop={10}
           >
             {isRemoving ? (
-              <ActivityIndicator size="small" color={Colors.orange.dark} />
+              <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <Ionicons name="heart" size={16} color={Colors.orange.dark} />
+              <Ionicons name="heart" size={22} color={Colors.orange.dark} style={styles.heartIcon} />
             )}
           </Pressable>
         </View>
@@ -139,19 +139,15 @@ const styles = StyleSheet.create({
   },
   heartButton: {
     position: 'absolute',
-    top: 6,
-    left: 6,
-    width: 30,
-    height: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 15,
+    bottom: 8,
+    right: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+  },
+  heartIcon: {
+    textShadowColor: 'rgba(0, 0, 0, 0.35)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
   productInfo: {
     padding: 8,
