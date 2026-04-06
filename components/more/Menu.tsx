@@ -178,7 +178,7 @@ const Menu = () => {
     {
       title: 'Soporte',
       items: [
-        { icon: 'headset-outline', iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Ayuda', disabled: true },
+        { icon: 'headset-outline', iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Ayuda', onPress: () => router.push('/(tabs)/ayuda' as any) },
       ],
     },
   ];
