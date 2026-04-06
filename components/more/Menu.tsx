@@ -51,40 +51,44 @@ interface MenuSectionConfig {
 }
 
 // — Menu item —
-const MenuItem = React.memo(({ icon, iconBg, iconColor, label, onPress, disabled }: MenuItemConfig) => (
-  <Pressable
-    onPress={onPress}
-    disabled={disabled}
-    android_ripple={{ color: '#f3f4f6' }}
-    style={({ pressed }) => [pressed && !disabled && styles.itemPressed]}
-  >
-    <View style={[styles.item, disabled && styles.itemDisabled]}>
-      <View style={[styles.iconBox, { backgroundColor: iconBg }]}>
-        <Ionicons name={icon} size={18} color={iconColor} />
+const MenuItem = React.memo(function MenuItem({ icon, iconBg, iconColor, label, onPress, disabled }: MenuItemConfig) {
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      android_ripple={{ color: '#f3f4f6' }}
+      style={({ pressed }) => [pressed && !disabled && styles.itemPressed]}
+    >
+      <View style={[styles.item, disabled && styles.itemDisabled]}>
+        <View style={[styles.iconBox, { backgroundColor: iconBg }]}>
+          <Ionicons name={icon} size={18} color={iconColor} />
+        </View>
+        <Text style={styles.itemLabel}>{label}</Text>
+        {disabled
+          ? <Text style={styles.comingSoon}>Próximamente</Text>
+          : <Ionicons name="chevron-forward" size={16} color="#9ca3af" />
+        }
       </View>
-      <Text style={styles.itemLabel}>{label}</Text>
-      {disabled
-        ? <Text style={styles.comingSoon}>Próximamente</Text>
-        : <Ionicons name="chevron-forward" size={16} color="#9ca3af" />
-      }
-    </View>
-  </Pressable>
-));
+    </Pressable>
+  );
+});
 
 // — Sección de menú —
-const MenuSection = ({ title, items }: MenuSectionConfig) => (
-  <View style={styles.section}>
-    <Text style={styles.sectionTitle}>{title}</Text>
-    <View style={styles.sectionCard}>
-      {items.map((item, index) => (
-        <React.Fragment key={item.label}>
-          <MenuItem {...item} />
-          {index < items.length - 1 && <View style={styles.separator} />}
-        </React.Fragment>
-      ))}
+function MenuSection({ title, items }: MenuSectionConfig) {
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      <View style={styles.sectionCard}>
+        {items.map((item, index) => (
+          <React.Fragment key={item.label}>
+            <MenuItem {...item} />
+            {index < items.length - 1 && <View style={styles.separator} />}
+          </React.Fragment>
+        ))}
+      </View>
     </View>
-  </View>
-);
+  );
+}
 
 // — Menú principal —
 const Menu = () => {
