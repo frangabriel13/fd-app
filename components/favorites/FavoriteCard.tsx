@@ -1,17 +1,27 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ActivityIndicator } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, Pressable, Alert, ActivityIndicator, Dimensions } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, FadeIn } from 'react-native-reanimated';
 import { removeFavorite, selectRemovingProductId } from '@/store/slices/favoriteSlice';
 import { AppDispatch, RootState } from '@/store';
+import { Colors } from '@/constants/Colors';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CARD_GAP = 3;
+const NUM_COLUMNS = 2;
+export const FAV_CARD_WIDTH = (SCREEN_WIDTH - CARD_GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
 
 interface FavoriteCardProps {
   product: {
     productId: number;
+    userId: number;
     name: string;
     mainImage: string;
-    price: number;
+    price: string;
+    logo: string | null;
   };
 }
 
@@ -19,9 +29,13 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ product }) => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const removingProductId = useSelector((state: RootState) => selectRemovingProductId(state));
-  const [imageError, setImageError] = useState(false);
-
   const isRemoving = removingProductId === product.productId;
+
+  const scale = useSharedValue(1);
+  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  const handlePressIn = () => scale.value = withSpring(0.96, { damping: 15, stiffness: 300 });
+  const handlePressOut = () => scale.value = withSpring(1, { damping: 15, stiffness: 300 });
 
   const handleProductPress = () => {
     router.push(`/(tabs)/producto/${product.productId}` as any);
@@ -35,132 +49,124 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ product }) => {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-AR', {
+  const formatPrice = (price: string) =>
+    new Intl.NumberFormat('es-AR', {
       style: 'currency',
       currency: 'ARS',
       minimumFractionDigits: 0,
-    }).format(price);
-  };
+    }).format(parseFloat(price));
 
   return (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={handleProductPress}
-      activeOpacity={0.9}
-    >
-      {/* Botón de eliminar */}
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={handleRemoveFavorite}
-        activeOpacity={0.7}
-        disabled={isRemoving}
-      >
-        {isRemoving ? (
-          <ActivityIndicator size="small" color="#f86f1a" />
-        ) : (
-          <Ionicons name="heart" size={22} color="#f86f1a" />
-        )}
-      </TouchableOpacity>
-
-      {/* Imagen del producto */}
-      <View style={styles.imageContainer}>
-        {imageError ? (
-          <View style={styles.imageFallback}>
-            <Ionicons name="image-outline" size={48} color="#ccc" />
-          </View>
-        ) : (
+    <Pressable onPress={handleProductPress} onPressIn={handlePressIn} onPressOut={handlePressOut}>
+      <Animated.View style={[styles.card, animatedStyle]} entering={FadeIn.duration(250)}>
+        <View style={styles.imageContainer}>
           <Image
             source={{ uri: product.mainImage }}
             style={styles.productImage}
-            resizeMode="cover"
-            onError={() => setImageError(true)}
+            contentFit="cover"
+            transition={200}
           />
-        )}
-      </View>
-
-      {/* Información del producto */}
-      <View style={styles.infoContainer}>
-        <Text style={styles.productName} numberOfLines={1} ellipsizeMode="tail">
-          {product.name}
-        </Text>
-        <Text style={styles.price}>{formatPrice(product.price)}</Text>
-      </View>
-    </TouchableOpacity>
+          {product.logo && (
+            <View style={styles.logoContainer}>
+              <Image
+                source={{ uri: product.logo }}
+                style={styles.logoImage}
+                contentFit="contain"
+              />
+            </View>
+          )}
+          <Pressable
+            style={styles.heartButton}
+            onPress={handleRemoveFavorite}
+            disabled={isRemoving}
+            hitSlop={8}
+          >
+            {isRemoving ? (
+              <ActivityIndicator size="small" color={Colors.orange.dark} />
+            ) : (
+              <Ionicons name="heart" size={16} color={Colors.orange.dark} />
+            )}
+          </Pressable>
+        </View>
+        <View style={styles.productInfo}>
+          <Text style={styles.productName} numberOfLines={1} ellipsizeMode="tail">
+            {product.name}
+          </Text>
+          <Text style={styles.price}>{formatPrice(product.price)}</Text>
+        </View>
+      </Animated.View>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    width: '48%',
+    width: FAV_CARD_WIDTH,
     backgroundColor: '#fff',
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 2,
     overflow: 'hidden',
-    borderWidth: 0.5,
-    borderColor: 'rgba(0, 0, 0, 0.05)',
-  },
-  deleteButton: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    zIndex: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 20,
-    width: 36,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   imageContainer: {
+    position: 'relative',
     width: '100%',
-    height: 240,
-    backgroundColor: '#f5f5f5',
+    height: FAV_CARD_WIDTH * 1.3,
+    backgroundColor: '#f3f4f6',
     overflow: 'hidden',
   },
   productImage: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#f5f5f5',
   },
-  imageFallback: {
+  logoContainer: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 30,
+    height: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 15,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  logoImage: {
     width: '100%',
     height: '100%',
+  },
+  heartButton: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
+    width: 30,
+    height: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
-  infoContainer: {
-    paddingVertical: 6,
-    paddingHorizontal: 6,
+  productInfo: {
+    padding: 8,
+    gap: 4,
   },
   productName: {
-    fontSize: 16,
-    fontWeight: '400',
-    color: '#1a1a1a',
-    lineHeight: 20,
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#374151',
+    lineHeight: 16,
   },
   price: {
-    fontSize: 20,
-    fontWeight: '500',
-    color: '#666',
-    marginTop: 2,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#111827',
   },
 });
 

@@ -1,12 +1,88 @@
 import { useCallback, useEffect } from 'react';
-import { Text, View, FlatList, ActivityIndicator, StyleSheet, RefreshControl } from 'react-native';
+import { Text, View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
-import { getFavorites, selectFavoriteProducts, selectFavoritesLoading, selectFavoritesError, FavoriteProduct } from '@/store/slices/favoriteSlice';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
+import {
+  getFavorites,
+  selectFavoriteProducts,
+  selectFavoritesLoading,
+  selectFavoritesError,
+  FavoriteProduct,
+} from '@/store/slices/favoriteSlice';
 import { AppDispatch, RootState } from '@/store';
-import FavoriteCard from '@/components/favorites/FavoriteCard';
+import FavoriteCard, { FAV_CARD_WIDTH } from '@/components/favorites/FavoriteCard';
 import { useRefresh } from '@/hooks/useRefresh';
 import { Colors } from '@/constants/Colors';
+
+const CARD_GAP = 3;
+
+// — Skeleton idéntico al de ShopProductGrid —
+const SkeletonCard = () => {
+  const opacity = useSharedValue(0.35);
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(0.85, { duration: 550 }),
+        withTiming(0.35, { duration: 550 })
+      ),
+      -1
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+  return (
+    <Animated.View style={[skeletonStyles.card, animatedStyle]}>
+      <View style={skeletonStyles.image} />
+      <View style={skeletonStyles.info}>
+        <View style={skeletonStyles.line} />
+        <View style={skeletonStyles.lineShort} />
+        <View style={skeletonStyles.price} />
+      </View>
+    </Animated.View>
+  );
+};
+
+const SkeletonGrid = () => (
+  <View style={skeletonStyles.grid}>
+    {Array.from({ length: 6 }).map((_, i) => (
+      <View key={i} style={skeletonStyles.wrapper}>
+        <SkeletonCard />
+      </View>
+    ))}
+  </View>
+);
+
+// — Separador de filas —
+const ItemSeparator = () => <View style={{ height: CARD_GAP }} />;
+
+// — Header de resultados —
+const ResultsBar = ({ count }: { count: number }) => (
+  <View style={styles.resultsBar}>
+    <Text style={styles.resultsText}>
+      {count} {count === 1 ? 'producto guardado' : 'productos guardados'}
+    </Text>
+  </View>
+);
+
+// — Estado vacío —
+const EmptyState = () => (
+  <View style={styles.feedbackContainer}>
+    <Ionicons name="heart-outline" size={52} color={Colors.gray.default} />
+    <Text style={styles.feedbackTitle}>Sin favoritos</Text>
+    <Text style={styles.feedbackText}>
+      Explorá productos y guardá tus favoritos para verlos aquí
+    </Text>
+  </View>
+);
 
 const FavsScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -23,34 +99,31 @@ const FavsScreen = () => {
     }
   }, [dispatch, userRole]);
 
-  if (loading && !refreshing) {
-    return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={Colors.blue.dark} />
-        <Text style={styles.loadingText}>Cargando favoritos...</Text>
-      </View>
-    );
-  }
-
-  // Mostrar mensaje si el usuario no es mayorista
+  // Solo para mayoristas
   if (userRole !== 'wholesaler') {
     return (
-      <View style={styles.centerContainer}>
-        <Ionicons name="heart-dislike-outline" size={80} color="#ddd" />
-        <Text style={styles.emptyText}>Funcionalidad exclusiva para mayoristas</Text>
-        <Text style={styles.emptySubtext}>
-          Inicia sesión como mayorista para poder guardar y ver tus productos favoritos
+      <View style={styles.feedbackContainer}>
+        <Ionicons name="heart-dislike-outline" size={52} color={Colors.gray.default} />
+        <Text style={styles.feedbackTitle}>Solo para mayoristas</Text>
+        <Text style={styles.feedbackText}>
+          Iniciá sesión como mayorista para guardar y ver tus productos favoritos
         </Text>
       </View>
     );
   }
 
+  // Skeleton en carga inicial
+  if (loading && !refreshing && favoriteProducts.length === 0) {
+    return <SkeletonGrid />;
+  }
+
+  // Error
   if (error) {
     return (
-      <View style={styles.centerContainer}>
-        <Ionicons name="cloud-offline-outline" size={80} color="#ddd" />
-        <Text style={styles.emptyText}>No se pudieron cargar los favoritos</Text>
-        <Text style={styles.emptySubtext}>{error}</Text>
+      <View style={styles.feedbackContainer}>
+        <Ionicons name="cloud-offline-outline" size={52} color={Colors.gray.default} />
+        <Text style={styles.feedbackTitle}>Ocurrió un error</Text>
+        <Text style={styles.feedbackText}>{error}</Text>
       </View>
     );
   }
@@ -59,35 +132,19 @@ const FavsScreen = () => {
     <FavoriteCard product={item} />
   );
 
-  const ListHeader = () => (
-    <View style={styles.header}>
-      <Text style={styles.title}>Mis Favoritos</Text>
-      <Text style={styles.subtitle}>{favoriteProducts.length} {favoriteProducts.length === 1 ? 'producto' : 'productos'}</Text>
-    </View>
-  );
-
-  const ListEmpty = () => (
-    <View style={styles.centerContainer}>
-      <Ionicons name="heart-outline" size={80} color="#ddd" />
-      <Text style={styles.emptyText}>No tienes productos favoritos</Text>
-      <Text style={styles.emptySubtext}>
-        Explora productos y guarda tus favoritos para verlos aquí
-      </Text>
-    </View>
-  );
-
   return (
     <FlatList
       data={favoriteProducts}
       renderItem={renderItem}
-      keyExtractor={(item) => item.productId.toString()}
+      keyExtractor={(item, index) => item.productId?.toString() ?? index.toString()}
       numColumns={2}
       style={styles.container}
-      contentContainerStyle={favoriteProducts.length === 0 ? styles.emptyContentContainer : styles.listContent}
-      columnWrapperStyle={styles.columnWrapper}
+      contentContainerStyle={favoriteProducts.length === 0 ? styles.emptyContent : undefined}
+      columnWrapperStyle={styles.row}
       showsVerticalScrollIndicator={false}
-      ListHeaderComponent={favoriteProducts.length > 0 ? ListHeader : null}
-      ListEmptyComponent={ListEmpty}
+      ItemSeparatorComponent={ItemSeparator}
+      ListHeaderComponent={<ResultsBar count={favoriteProducts.length} />}
+      ListEmptyComponent={EmptyState}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
@@ -98,69 +155,89 @@ const FavsScreen = () => {
       }
     />
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: Colors.gray.light,
   },
-  listContent: {
-    paddingHorizontal: 8,
-    paddingBottom: 20,
-  },
-  emptyContentContainer: {
+  emptyContent: {
     flex: 1,
   },
-  columnWrapper: {
-    justifyContent: 'space-between',
+  row: {
+    gap: CARD_GAP,
+    justifyContent: 'flex-start',
   },
-  centerContainer: {
+  resultsBar: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  resultsText: {
+    fontSize: 12,
+    color: Colors.gray.semiDark,
+  },
+  feedbackContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f8f8',
-    paddingHorizontal: 40,
+    paddingVertical: 60,
+    gap: 12,
   },
-  header: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e5e5',
-    marginBottom: 12,
-    marginHorizontal: -8,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: '700',
-    color: '#021344',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '400',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#666',
-    fontWeight: '500',
-  },
-  emptyText: {
-    fontSize: 20,
+  feedbackTitle: {
+    fontSize: 17,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-    marginTop: 16,
+    color: '#111827',
     textAlign: 'center',
   },
-  emptySubtext: {
-    fontSize: 15,
-    color: '#888',
+  feedbackText: {
+    fontSize: 13,
+    color: Colors.gray.semiDark,
     textAlign: 'center',
-    lineHeight: 22,
+    paddingHorizontal: 32,
+  },
+});
+
+const skeletonStyles = StyleSheet.create({
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: CARD_GAP,
+    backgroundColor: Colors.gray.light,
+  },
+  wrapper: {
+    width: FAV_CARD_WIDTH,
+  },
+  card: {
+    overflow: 'hidden',
+    backgroundColor: '#f3f4f6',
+  },
+  image: {
+    width: '100%',
+    height: FAV_CARD_WIDTH * 1.3,
+    backgroundColor: '#e5e7eb',
+  },
+  info: {
+    padding: 8,
+    gap: 6,
+  },
+  line: {
+    height: 10,
+    borderRadius: 4,
+    backgroundColor: '#e5e7eb',
+  },
+  lineShort: {
+    height: 10,
+    borderRadius: 4,
+    backgroundColor: '#e5e7eb',
+    width: '65%',
+  },
+  price: {
+    height: 14,
+    borderRadius: 4,
+    backgroundColor: '#e5e7eb',
+    width: '45%',
+    marginTop: 2,
   },
 });
 

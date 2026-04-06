@@ -3,9 +3,11 @@ import { favoriteInstance } from '@/services/axiosConfig';
 
 export interface FavoriteProduct {
   productId: number;
+  userId: number;
   name: string;
   mainImage: string;
-  price: number;
+  price: string;
+  logo: string | null;
 }
 
 interface FavoriteState {
