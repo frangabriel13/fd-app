@@ -23,8 +23,8 @@ const getBaseURL = () => {
   } else {
     // En producción usar las URLs de producción
     const config = {
-      API_URL_3001: 'https://your-production-api-3001.com/api',
-      API_URL_3000: 'https://your-production-api-3000.com/api'
+      API_URL_3001: 'https://nodeuser.fabricantedirecto.com/api',
+      API_URL_3000: 'https://nodeproduct.fabricantedirecto.com/api'
     };
     return config;
   }

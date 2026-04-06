@@ -1,10 +1,10 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useDispatch } from 'react-redux';
-import { removeFavorite, getFavorites } from '@/store/slices/favoriteSlice';
-import { AppDispatch } from '@/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { removeFavorite, selectRemovingProductId } from '@/store/slices/favoriteSlice';
+import { AppDispatch, RootState } from '@/store';
 
 interface FavoriteCardProps {
   product: {
@@ -18,18 +18,20 @@ interface FavoriteCardProps {
 const FavoriteCard: React.FC<FavoriteCardProps> = ({ product }) => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
+  const removingProductId = useSelector((state: RootState) => selectRemovingProductId(state));
+  const [imageError, setImageError] = useState(false);
+
+  const isRemoving = removingProductId === product.productId;
 
   const handleProductPress = () => {
     router.push(`/(tabs)/producto/${product.productId}` as any);
   };
 
-  const handleRemoveFavorite = async (e: any) => {
-    e.stopPropagation(); // Evitar que navegue al producto
+  const handleRemoveFavorite = async () => {
     try {
       await dispatch(removeFavorite(product.productId)).unwrap();
-      await dispatch(getFavorites());
-    } catch (error) {
-      console.error('Error al eliminar favorito:', error);
+    } catch (error: any) {
+      Alert.alert('Error', error || 'No se pudo eliminar el favorito. Intentá de nuevo.');
     }
   };
 
@@ -52,17 +54,29 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ product }) => {
         style={styles.deleteButton}
         onPress={handleRemoveFavorite}
         activeOpacity={0.7}
+        disabled={isRemoving}
       >
-        <Ionicons name="heart" size={22} color="#f86f1a" />
+        {isRemoving ? (
+          <ActivityIndicator size="small" color="#f86f1a" />
+        ) : (
+          <Ionicons name="heart" size={22} color="#f86f1a" />
+        )}
       </TouchableOpacity>
 
       {/* Imagen del producto */}
       <View style={styles.imageContainer}>
-        <Image
-          source={{ uri: product.mainImage || 'https://via.placeholder.com/160x200' }}
-          style={styles.productImage}
-          resizeMode="cover"
-        />
+        {imageError ? (
+          <View style={styles.imageFallback}>
+            <Ionicons name="image-outline" size={48} color="#ccc" />
+          </View>
+        ) : (
+          <Image
+            source={{ uri: product.mainImage }}
+            style={styles.productImage}
+            resizeMode="cover"
+            onError={() => setImageError(true)}
+          />
+        )}
       </View>
 
       {/* Información del producto */}
@@ -115,7 +129,6 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   imageContainer: {
-    position: 'relative',
     width: '100%',
     height: 240,
     backgroundColor: '#f5f5f5',
@@ -124,6 +137,13 @@ const styles = StyleSheet.create({
   productImage: {
     width: '100%',
     height: '100%',
+    backgroundColor: '#f5f5f5',
+  },
+  imageFallback: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#f5f5f5',
   },
   infoContainer: {

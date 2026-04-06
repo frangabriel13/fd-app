@@ -131,15 +131,15 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
     const redirectConfig: Record<string, { genderId?: number; categoryId?: number; sortBy?: string }> = {
       featured: {},
       newProducts: { sortBy: 'newest' },
-      packs: { genderId: 7, categoryId: 161 },
+      packs: { genderId: 6, categoryId: 161 },
       sales: { sortBy: 'onSale' },
-      blanqueria: { genderId: 7, categoryId: 130 },
-      lenceria: { genderId: 3, categoryId: 153 },
+      blanqueria: { genderId: 6, categoryId: 130 },
+      lenceria: { genderId: 2, categoryId: 153 },
       calzado: { genderId: 2, categoryId: 154 },
-      bisuteria: { genderId: 7, categoryId: 131 },
-      telas: { genderId: 7, categoryId: 162 },
-      insumos: { genderId: 7, categoryId: 163 },
-      maquinas: { genderId: 7, categoryId: 164 },
+      bisuteria: { genderId: 6, categoryId: 131 },
+      telas: { genderId: 6, categoryId: 162 },
+      insumos: { genderId: 6, categoryId: 163 },
+      maquinas: { genderId: 6, categoryId: 164 },
     };
 
     const config = redirectConfig[section] || {};
@@ -189,7 +189,7 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
-          ItemSeparatorComponent={() => <View style={{ width: 6 }} />}
+          ItemSeparatorComponent={() => <View style={{ width: 3 }} />}
         />
       )}
     </View>

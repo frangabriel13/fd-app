@@ -1,24 +1,36 @@
 {
   "expo": {
-    "name": "fd-app",
+    "name": "Fabricante Directo",
     "slug": "fd-app",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "fdapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "description": "Plataforma que conecta fabricantes directamente con mayoristas para compras al por mayor sin intermediarios.",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.fabricantedirecto.fdapp"
     },
     "android": {
       "package": "com.fabricantedirecto.fdapp",
+      "googleServicesFile": "./google-services.json",
+      "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ],
+      "blockedPermissions": [
+        "RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",

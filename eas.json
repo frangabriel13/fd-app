@@ -1,6 +1,11 @@
 {
+  "cli": {
+    "version": ">= 5.2.0",
+    "appVersionSource": "remote"
+  },
   "build": {
     "development": {
+      "developmentClient": true,
       "distribution": "internal",
       "android": {
         "buildType": "apk"
@@ -12,15 +17,25 @@
     "preview": {
       "distribution": "internal",
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "apk"
       }
     },
     "production": {
+      "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
       },
       "ios": {
         "simulator": false
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account-key.json",
+        "track": "internal",
+        "releaseStatus": "completed"
       }
     }
   }

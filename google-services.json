@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "588562315509",
+    "project_id": "fabricante-directo-853ea",
+    "storage_bucket": "fabricante-directo-853ea.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588562315509:android:f60c4405b5a39f03212dbc",
+        "android_client_info": {
+          "package_name": "com.fabricantedirecto.fdapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDv07ptEqKz9t4xMBrbLxjHVS8d55sjLk0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

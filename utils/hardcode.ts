@@ -51,7 +51,7 @@ export const parentCategories = [
 
 export const genders = [
   { 
-    id: 2, 
+    id: 1, 
     name: 'Hombre', 
     url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/generos/hombre.png',
     image: image,
@@ -71,7 +71,7 @@ export const genders = [
     ],
   },
   { 
-    id: 3, 
+    id: 2, 
     name: 'Mujer', 
     url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/generos/mujer.png',
     image: image,
@@ -91,7 +91,7 @@ export const genders = [
     ],
   },
   { 
-    id: 4, 
+    id: 3, 
     name: 'Niño', 
     url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/generos/ni%C3%B1o.png',
     image: image,
@@ -111,7 +111,7 @@ export const genders = [
     ], 
   },
   { 
-    id: 5, 
+    id: 4, 
     name: 'Niña', 
     url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/generos/ni%C3%B1a.png',
     image: image,
@@ -131,7 +131,7 @@ export const genders = [
     ],
   },
   { 
-    id: 6, 
+    id: 5, 
     name: 'Bebés', 
     url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/generos/bebe.png',
     image: image,
@@ -151,7 +151,7 @@ export const genders = [
     ],
   },
   { 
-    id: 7, 
+    id: 6, 
     name: 'Más', 
     url: 'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/mujer/12+otros.png',
     image: image,

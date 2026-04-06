@@ -1,0 +1,28 @@
+# Configuración de line endings para diferentes tipos de archivo
+* text=auto
+
+# Scripts de shell siempre con LF (Unix style)
+*.sh text eol=lf
+
+# Scripts de Windows siempre con CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Archivos de código con line endings automáticos
+*.js text
+*.ts text
+*.tsx text
+*.jsx text
+*.json text
+*.md text
+*.txt text
+*.yml text
+*.yaml text
+
+# Archivos binarios sin conversión
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
