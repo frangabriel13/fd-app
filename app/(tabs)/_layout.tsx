@@ -25,6 +25,7 @@ export default function TabLayout() {
         <Tabs.Screen name="tienda" options={{ href: null }} />
         <Tabs.Screen name="notificaciones" options={{ href: null }} />
         <Tabs.Screen name="seguidos" options={{ href: null }} />
+        <Tabs.Screen name="ayuda" options={{ href: null }} />
       </Tabs>
     </CartAnimationProvider>
   );
