@@ -3,7 +3,7 @@ import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
-import { useAppDispatch } from '@/hooks/redux';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { logoutAsync } from '@/store/slices/authSlice';
 import { clearNotifications } from '@/store/slices/notificationSlice';
 import { resetFavorites } from '@/store/slices/favoriteSlice';
@@ -94,6 +94,8 @@ function MenuSection({ title, items }: MenuSectionConfig) {
 const Menu = () => {
   const dispatch = useAppDispatch();
   const { signOut } = useGoogleSignIn();
+  const role           = useAppSelector((state) => state.auth?.user?.role);
+  const manufacturerId = useAppSelector((state) => state.user.user?.manufacturer?.id);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -107,34 +109,59 @@ const Menu = () => {
     }
   }, [dispatch, signOut]);
 
+  // — Sección según rol —
+  const roleSection: MenuSectionConfig | null = (() => {
+    if (role === 'wholesaler') return {
+      title: 'Mi cuenta',
+      items: [
+        { icon: 'bag-check-outline', iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Mis compras',      onPress: () => router.push('/(dashboard)/ver-pedidos' as any) },
+        { icon: 'heart-outline',     iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Favoritos',        onPress: () => router.push('/(tabs)/favoritos') },
+        { icon: 'bookmark-outline',  iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Tiendas seguidas', onPress: () => router.push('/(tabs)/seguidos' as any) },
+      ],
+    };
+    if (role === 'manufacturer') return {
+      title: 'Mi cuenta',
+      items: [
+        { icon: 'albums-outline',    iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Mis publicaciones', onPress: () => router.push('/(dashboard)/mis-publicaciones' as any) },
+        { icon: 'receipt-outline',   iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Ver ordenes',       onPress: () => router.push('/(dashboard)/ver-ordenes' as any) },
+        { icon: 'storefront-outline',iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Mi tienda',         onPress: () => manufacturerId && router.push(`/(tabs)/store/${manufacturerId}` as any) },
+      ],
+    };
+    if (role === 'admin') return {
+      title: 'Administración',
+      items: [
+        { icon: 'list-outline', iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Pedidos unificados', onPress: () => router.push('/(dashboard)/pedidos-unificados' as any) },
+      ],
+    };
+    return null;
+  })();
+
   const sections: MenuSectionConfig[] = [
     {
       title: 'Explorar',
       items: [
-        { icon: 'home-outline',          iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Inicio',            onPress: () => router.push('/(tabs)' as any) },
-        { icon: 'storefront-outline',    iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Tienda',            onPress: () => router.push('/(tabs)/tienda') },
-        { icon: 'cube-outline',          iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Packs/Combos',      onPress: () => navigateToShop(SHOP_CATEGORIES.packs) },
-        { icon: 'radio-outline',         iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Live Shopping',     onPress: () => router.push('/(tabs)/fabricantes') },
-        { icon: 'person-outline',        iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Mi perfil',         onPress: () => router.push('/(tabs)/mi-cuenta') },
-        { icon: 'bag-check-outline',     iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Mis compras',       onPress: () => router.push('/(dashboard)/ver-pedidos') },
-        { icon: 'heart-outline',         iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Favoritos',         onPress: () => router.push('/(tabs)/favoritos') },
-        { icon: 'notifications-outline', iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Notificaciones',    onPress: () => router.push('/(tabs)/notificaciones' as any) },
-        { icon: 'bookmark-outline',      iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Tiendas seguidas',  disabled: true },
+        { icon: 'home-outline',          iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Inicio',         onPress: () => router.push('/(tabs)' as any) },
+        { icon: 'storefront-outline',    iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Tienda',         onPress: () => router.push('/(tabs)/tienda') },
+        { icon: 'cube-outline',          iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Packs/Combos',   onPress: () => navigateToShop(SHOP_CATEGORIES.packs) },
+        { icon: 'radio-outline',         iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Live Shopping',  onPress: () => router.push('/(tabs)/fabricantes') },
+        { icon: 'person-outline',        iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Mi perfil',      onPress: () => router.push('/(tabs)/mi-cuenta') },
+        { icon: 'notifications-outline', iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Notificaciones', onPress: () => router.push('/(tabs)/notificaciones' as any) },
       ],
     },
+    ...(roleSection ? [roleSection] : []),
     {
       title: 'Categorías',
       items: [
-        { icon: 'star-outline',      iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Productos destacados',  onPress: () => navigateToShop({ sortBy: 'featured' }) },
-        { icon: 'sparkles-outline',  iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Nuevos ingresos',       onPress: () => navigateToShop({ sortBy: 'newest' }) },
-        { icon: 'pricetag-outline',  iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Ofertas',               onPress: () => navigateToShop({ sortBy: 'onSale' }) },
-        { icon: 'bed-outline',       iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Blanquería',            onPress: () => navigateToShop(SHOP_CATEGORIES.blanqueria) },
-        { icon: 'woman-outline',     iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Lencería',              onPress: () => navigateToShop(SHOP_CATEGORIES.lenceria) },
-        { icon: 'walk-outline',      iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Calzado',               onPress: () => navigateToShop(SHOP_CATEGORIES.calzado) },
-        { icon: 'diamond-outline',   iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Bisutería',             onPress: () => navigateToShop(SHOP_CATEGORIES.bisuteria) },
-        { icon: 'layers-outline',    iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Telas textiles',        onPress: () => navigateToShop(SHOP_CATEGORIES.telas) },
-        { icon: 'cut-outline',       iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Insumos para costura',  onPress: () => navigateToShop(SHOP_CATEGORIES.costura) },
-        { icon: 'construct-outline', iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Máquinas textiles',     onPress: () => navigateToShop(SHOP_CATEGORIES.maquinas) },
+        { icon: 'star-outline',      iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Productos destacados', onPress: () => navigateToShop({ sortBy: 'featured' }) },
+        { icon: 'sparkles-outline',  iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Nuevos ingresos',      onPress: () => navigateToShop({ sortBy: 'newest' }) },
+        { icon: 'pricetag-outline',  iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Ofertas',              onPress: () => navigateToShop({ sortBy: 'onSale' }) },
+        { icon: 'bed-outline',       iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Blanquería',           onPress: () => navigateToShop(SHOP_CATEGORIES.blanqueria) },
+        { icon: 'woman-outline',     iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Lencería',             onPress: () => navigateToShop(SHOP_CATEGORIES.lenceria) },
+        { icon: 'walk-outline',      iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Calzado',              onPress: () => navigateToShop(SHOP_CATEGORIES.calzado) },
+        { icon: 'diamond-outline',   iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Bisutería',            onPress: () => navigateToShop(SHOP_CATEGORIES.bisuteria) },
+        { icon: 'layers-outline',    iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Telas textiles',       onPress: () => navigateToShop(SHOP_CATEGORIES.telas) },
+        { icon: 'cut-outline',       iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Insumos para costura', onPress: () => navigateToShop(SHOP_CATEGORIES.costura) },
+        { icon: 'construct-outline', iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Máquinas textiles',    onPress: () => navigateToShop(SHOP_CATEGORIES.maquinas) },
       ],
     },
     {
