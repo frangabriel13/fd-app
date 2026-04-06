@@ -1,28 +1,32 @@
-import { useEffect } from 'react';
-import { Text, View, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
+import { useCallback, useEffect } from 'react';
+import { Text, View, FlatList, ActivityIndicator, StyleSheet, RefreshControl } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
-import { getFavorites, selectFavoriteProducts, selectFavoritesLoading } from '@/store/slices/favoriteSlice';
+import { getFavorites, selectFavoriteProducts, selectFavoritesLoading, selectFavoritesError, FavoriteProduct } from '@/store/slices/favoriteSlice';
 import { AppDispatch, RootState } from '@/store';
 import FavoriteCard from '@/components/favorites/FavoriteCard';
+import { useRefresh } from '@/hooks/useRefresh';
+import { Colors } from '@/constants/Colors';
 
 const FavsScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
   const favoriteProducts = useSelector((state: RootState) => selectFavoriteProducts(state));
   const loading = useSelector((state: RootState) => selectFavoritesLoading(state));
+  const error = useSelector((state: RootState) => selectFavoritesError(state));
   const userRole = useSelector((state: RootState) => state.auth.user?.role);
 
+  const { refreshing, onRefresh } = useRefresh(useCallback(() => dispatch(getFavorites()), [dispatch]));
+
   useEffect(() => {
-    // Solo cargar favoritos si el usuario es mayorista
     if (userRole === 'wholesaler') {
       dispatch(getFavorites());
     }
   }, [dispatch, userRole]);
 
-  if (loading) {
+  if (loading && !refreshing) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#f86f1a" />
+        <ActivityIndicator size="large" color={Colors.blue.dark} />
         <Text style={styles.loadingText}>Cargando favoritos...</Text>
       </View>
     );
@@ -41,33 +45,58 @@ const FavsScreen = () => {
     );
   }
 
-  if (favoriteProducts.length === 0) {
+  if (error) {
     return (
       <View style={styles.centerContainer}>
-        <Ionicons name="heart-outline" size={80} color="#ddd" />
-        <Text style={styles.emptyText}>No tienes productos favoritos</Text>
-        <Text style={styles.emptySubtext}>
-          Explora productos y guarda tus favoritos para verlos aquí
-        </Text>
+        <Ionicons name="cloud-offline-outline" size={80} color="#ddd" />
+        <Text style={styles.emptyText}>No se pudieron cargar los favoritos</Text>
+        <Text style={styles.emptySubtext}>{error}</Text>
       </View>
     );
   }
 
-  return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Mis Favoritos</Text>
-        <Text style={styles.subtitle}>{favoriteProducts.length} {favoriteProducts.length === 1 ? 'producto' : 'productos'}</Text>
-      </View>
+  const renderItem = ({ item }: { item: FavoriteProduct }) => (
+    <FavoriteCard product={item} />
+  );
 
-      {/* Grid de productos */}
-      <View style={styles.productsGrid}>
-        {favoriteProducts.map((product) => (
-          <FavoriteCard key={product.productId} product={product} />
-        ))}
-      </View>
-    </ScrollView>
+  const ListHeader = () => (
+    <View style={styles.header}>
+      <Text style={styles.title}>Mis Favoritos</Text>
+      <Text style={styles.subtitle}>{favoriteProducts.length} {favoriteProducts.length === 1 ? 'producto' : 'productos'}</Text>
+    </View>
+  );
+
+  const ListEmpty = () => (
+    <View style={styles.centerContainer}>
+      <Ionicons name="heart-outline" size={80} color="#ddd" />
+      <Text style={styles.emptyText}>No tienes productos favoritos</Text>
+      <Text style={styles.emptySubtext}>
+        Explora productos y guarda tus favoritos para verlos aquí
+      </Text>
+    </View>
+  );
+
+  return (
+    <FlatList
+      data={favoriteProducts}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.productId.toString()}
+      numColumns={2}
+      style={styles.container}
+      contentContainerStyle={favoriteProducts.length === 0 ? styles.emptyContentContainer : styles.listContent}
+      columnWrapperStyle={styles.columnWrapper}
+      showsVerticalScrollIndicator={false}
+      ListHeaderComponent={favoriteProducts.length > 0 ? ListHeader : null}
+      ListEmptyComponent={ListEmpty}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={[Colors.blue.dark]}
+          tintColor={Colors.blue.dark}
+        />
+      }
+    />
   );
 }
 
@@ -75,6 +104,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f8f8',
+  },
+  listContent: {
+    paddingHorizontal: 8,
+    paddingBottom: 20,
+  },
+  emptyContentContainer: {
+    flex: 1,
+  },
+  columnWrapper: {
+    justifyContent: 'space-between',
   },
   centerContainer: {
     flex: 1,
@@ -90,6 +129,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e5e5e5',
     marginBottom: 12,
+    marginHorizontal: -8,
   },
   title: {
     fontSize: 26,
@@ -121,13 +161,6 @@ const styles = StyleSheet.create({
     color: '#888',
     textAlign: 'center',
     lineHeight: 22,
-  },
-  productsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingHorizontal: 8,
-    paddingBottom: 20,
   },
 });
 

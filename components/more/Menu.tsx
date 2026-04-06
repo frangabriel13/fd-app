@@ -11,6 +11,7 @@ import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
 import { useAppDispatch } from '@/hooks/redux';
 import { logoutAsync } from '@/store/slices/authSlice';
 import { clearNotifications } from '@/store/slices/notificationSlice';
+import { resetFavorites } from '@/store/slices/favoriteSlice';
 import { router } from 'expo-router';
 
 interface MenuItemProps {
@@ -72,10 +73,10 @@ const Menu = () => {
       await signOut();
       await dispatch(logoutAsync()).unwrap();
       dispatch(clearNotifications());
-      console.log('Sesión cerrada con éxito');
+      dispatch(resetFavorites());
       router.replace('/(auth)/login');
     } catch(error) {
-      console.error('Error al cerrar sesión: ', error);
+      // silenciar error de logout
     }
   };
 
