@@ -2,14 +2,17 @@ import Slider from '@/components/slider/Slider';
 import Genders from '@/components/home/Genders';
 import LiveManufacturers from '@/components/home/LiveManufacturers';
 import ProductSlider from '@/components/home/ProductSlider';
-import { StyleSheet, ScrollView, View } from 'react-native';
+import { StyleSheet, ScrollView, View, RefreshControl } from 'react-native';
 import { useEffect, useRef, useCallback } from 'react';
 import { useScrollToTop } from '@react-navigation/native';
 import { useFocusEffect } from 'expo-router';
 import { useDispatch } from 'react-redux';
 import { fetchMobileHomeProducts } from '@/store/slices/productSlice';
+import { fetchAllLiveManufacturers, clearLiveManufacturers } from '@/store/slices/manufacturerSlice';
 import type { AppDispatch } from '@/store';
 import Info from '@/components/home/Info';
+import { useRefresh } from '@/hooks/useRefresh';
+import { Colors } from '@/constants/Colors';
 
 const HomeScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -26,8 +29,31 @@ const HomeScreen = () => {
     dispatch(fetchMobileHomeProducts());
   }, [dispatch]);
 
+  const { refreshing, onRefresh } = useRefresh(
+    useCallback(async () => {
+      dispatch(clearLiveManufacturers());
+      await Promise.all([
+        dispatch(fetchMobileHomeProducts()),
+        dispatch(fetchAllLiveManufacturers({ page: 1, limit: 8, isFirstLoad: true })),
+      ]);
+    }, [dispatch])
+  );
+
   return (
-    <ScrollView ref={scrollRef} style={styles.container} showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
+    <ScrollView
+      ref={scrollRef}
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ gap: 6 }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={[Colors.blue.dark]}
+          tintColor={Colors.blue.dark}
+        />
+      }
+    >
       <Slider />
       <View style={styles.homeContent}>
         <Genders />
