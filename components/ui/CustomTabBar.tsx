@@ -28,14 +28,14 @@ const INACTIVE = Colors.gray.default;
 // Configuración de spring compartida con el resto de la app
 const SPRING_CONFIG = { damping: 20, stiffness: 300 };
 
-type TabName = 'index' | 'favoritos' | 'Carrito' | 'fabricantes' | 'more';
+type TabName = 'index' | 'favoritos' | 'carrito' | 'fabricantes' | 'more';
 
-const VISIBLE_TABS: TabName[] = ['index', 'favoritos', 'Carrito', 'fabricantes', 'more'];
+const VISIBLE_TABS: TabName[] = ['index', 'favoritos', 'carrito', 'fabricantes', 'more'];
 
 const TAB_LABELS: Record<TabName, string> = {
   index: 'Inicio',
   favoritos: 'Favoritos',
-  Carrito: 'Carrito',
+  carrito: 'Carrito',
   fabricantes: 'Live',
   more: 'Más',
 };
@@ -84,7 +84,7 @@ function TabIcon({
       return <AntDesign name="home" size={23} color={color} />;
     case 'favoritos':
       return <AntDesign name="hearto" size={23} color={color} />;
-    case 'Carrito':
+    case 'carrito':
       return (
         <TabBarBadge count={cartCount}>
           <AntDesign name="shoppingcart" size={23} color={color} />

@@ -47,7 +47,6 @@ export const getCartItemsService = async (cartItems: CartRequestItem[]): Promise
     // Hacer la petición POST al backend
     // console.log('📦 Enviando carrito al backend:', JSON.stringify(cartItems, null, 2));
     const response = await productInstance.post('/mobile-cart', cartItems);
-    console.log('📦 Respuesta del backend del carrito:', response.data);
     
     // Transformar la respuesta del backend al formato que necesita nuestra app
     const transformedData: CartManufacturerDisplay[] = response.data.map((item: any) => {
@@ -82,6 +81,7 @@ export const getCartItemsService = async (cartItems: CartRequestItem[]): Promise
         manufacturerId: item.manufacturer?.userId || 0,
         manufacturerName: item.manufacturer?.name,
         manufacturerLogo: item.manufacturer?.image,
+        minPurchase: item.manufacturer?.minPurchase,
         items: products,
         totalItems,
         subtotal,
