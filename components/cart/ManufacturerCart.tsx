@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { useState, useRef } from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -49,14 +50,6 @@ const ManufacturerCart: React.FC<ManufacturerCartProps> = ({
     transform: [{ rotate: `${rotateAnim.value * 180}deg` }],
   }));
 
-  // Productos únicos para thumbnail strip (deduplicados por productId)
-  const uniqueProducts = manufacturer.items
-    .reduce<typeof manufacturer.items>((acc, item) => {
-      if (!acc.find(p => p.productId === item.productId)) acc.push(item);
-      return acc;
-    }, [])
-    .slice(0, 4);
-
   const uniqueProductCount = manufacturer.items.reduce<string[]>((acc, item) => {
     if (!acc.includes(item.productId)) acc.push(item.productId);
     return acc;
@@ -65,92 +58,90 @@ const ManufacturerCart: React.FC<ManufacturerCartProps> = ({
   const hasMinPurchase = !!manufacturer.minPurchase && manufacturer.minPurchase > 0;
   const meetsMinPurchase = !hasMinPurchase || manufacturer.subtotal >= manufacturer.minPurchase!;
   const remaining = hasMinPurchase ? manufacturer.minPurchase! - manufacturer.subtotal : 0;
+  const progress = hasMinPurchase ? Math.min(manufacturer.subtotal / manufacturer.minPurchase!, 1) : 1;
 
   return (
     <View style={styles.card}>
 
-      {/* ── Header (tap para expandir) ─────────────── */}
+      {/* ── Header ─────────────────────────────────── */}
       <Pressable
         onPress={toggle}
-        android_ripple={{ color: '#f3f4f6' }}
+        android_ripple={{ color: '#e5e7eb' }}
         style={({ pressed }) => pressed && styles.headerPressed}
       >
         <View style={styles.header}>
-          {/* Logo */}
-          <View style={styles.logoWrap}>
-            {manufacturer.manufacturerLogo && manufacturer.manufacturerLogo !== 'undefined' ? (
-              <Image
-                source={{ uri: manufacturer.manufacturerLogo }}
-                style={styles.logo}
-                resizeMode="cover"
-              />
-            ) : (
-              <View style={styles.logoPlaceholder}>
-                <Ionicons name="storefront-outline" size={18} color={Colors.gray.semiDark} />
-              </View>
-            )}
-          </View>
+          {/* Logo + Nombre → navega a la tienda del fabricante */}
+          <Pressable
+            onPress={() => router.push(`/(tabs)/store/${manufacturer.manufacturerEntityId ?? manufacturer.manufacturerId}` as any)}
+            android_ripple={{ color: '#e5e7eb', borderless: false }}
+            style={styles.manufacturerLink}
+          >
+            <View style={styles.logoWrap}>
+              {manufacturer.manufacturerLogo && manufacturer.manufacturerLogo !== 'undefined' ? (
+                <Image
+                  source={{ uri: manufacturer.manufacturerLogo }}
+                  style={styles.logo}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.logoPlaceholder}>
+                  <Ionicons name="storefront-outline" size={16} color={Colors.gray.semiDark} />
+                </View>
+              )}
+            </View>
 
-          {/* Nombre + meta */}
-          <View style={styles.headerInfo}>
-            <Text style={styles.manufacturerName} numberOfLines={1}>
-              {manufacturer.manufacturerName ?? 'Fabricante'}
-            </Text>
-            <Text style={styles.headerMeta}>
-              {manufacturer.totalItems}{' '}
-              {manufacturer.totalItems === 1 ? 'unidad' : 'unidades'} ·{' '}
-              {uniqueProductCount}{' '}
-              {uniqueProductCount === 1 ? 'producto' : 'productos'}
-            </Text>
-          </View>
+            <View style={styles.headerInfo}>
+              <Text style={styles.manufacturerName} numberOfLines={1}>
+                {manufacturer.manufacturerName ?? 'Fabricante'}
+              </Text>
+              <Text style={styles.headerMeta}>
+                {manufacturer.totalItems}{' '}
+                {manufacturer.totalItems === 1 ? 'unidad' : 'unidades'} ·{' '}
+                {uniqueProductCount}{' '}
+                {uniqueProductCount === 1 ? 'producto' : 'productos'}
+              </Text>
+            </View>
+          </Pressable>
 
           {/* Subtotal + chevron */}
           <View style={styles.headerRight}>
             <Text style={styles.subtotal}>{formatPrice(manufacturer.subtotal)}</Text>
-            <Animated.View style={animatedChevron}>
-              <Ionicons name="chevron-down" size={16} color={Colors.gray.semiDark} />
-            </Animated.View>
+            <View style={styles.chevronRow}>
+              <Text style={styles.expandHint}>{isExpanded ? 'Ocultar' : 'Ver detalle'}</Text>
+              <Animated.View style={animatedChevron}>
+                <Ionicons name="chevron-down" size={18} color={Colors.blue.dark} />
+              </Animated.View>
+            </View>
           </View>
         </View>
       </Pressable>
 
-      {/* ── Alerta compra mínima ────────────────────── */}
-      {hasMinPurchase && !meetsMinPurchase && (
-        <View style={styles.minPurchaseAlert}>
-          <Ionicons name="alert-circle-outline" size={14} color="#92400e" />
-          <Text style={styles.minPurchaseText}>
-            Mínimo {formatPrice(manufacturer.minPurchase!)} · Te faltan {formatPrice(remaining)}
-          </Text>
-        </View>
-      )}
-      {hasMinPurchase && meetsMinPurchase && (
-        <View style={styles.minPurchaseOk}>
-          <Ionicons name="checkmark-circle-outline" size={14} color="#166534" />
-          <Text style={styles.minPurchaseOkText}>Mínimo de compra alcanzado</Text>
-        </View>
-      )}
+      {/* ── Separador post-header ───────────────────── */}
+      <View style={styles.divider} />
 
-      {/* ── Thumbnail strip (solo cuando está cerrado) ── */}
-      {!isExpanded && uniqueProducts.length > 0 && (
-        <View style={styles.thumbnailStrip}>
-          {uniqueProducts.map((item) =>
-            item.productImage ? (
-              <Image
-                key={item.productId}
-                source={{ uri: item.productImage }}
-                style={styles.thumbnail}
-                resizeMode="cover"
-              />
-            ) : (
-              <View key={item.productId} style={[styles.thumbnail, styles.thumbnailPlaceholder]}>
-                <Ionicons name="image-outline" size={14} color={Colors.gray.default} />
-              </View>
-            )
-          )}
-          {uniqueProductCount > 4 && (
-            <View style={[styles.thumbnail, styles.thumbnailMore]}>
-              <Text style={styles.thumbnailMoreText}>+{uniqueProductCount - 4}</Text>
+      {/* ── Compra mínima (progress bar) ────────────── */}
+      {hasMinPurchase && (
+        <View style={styles.minSection}>
+          <View style={styles.progressTrack}>
+            <View
+              style={[
+                styles.progressFill,
+                { width: `${progress * 100}%` },
+                meetsMinPurchase && styles.progressFillMet,
+              ]}
+            />
+          </View>
+          {meetsMinPurchase ? (
+            <View style={styles.minRow}>
+              <Ionicons name="checkmark-circle" size={12} color={Colors.general.success} />
+              <Text style={styles.minMetText}>Mínimo de compra alcanzado</Text>
             </View>
+          ) : (
+            <Text style={styles.minPendingText}>
+              Te faltan{' '}
+              <Text style={styles.minPendingAmount}>{formatPrice(remaining)}</Text>
+              {' '}para el mínimo de {formatPrice(manufacturer.minPurchase!)}
+            </Text>
           )}
         </View>
       )}
@@ -180,22 +171,25 @@ const ManufacturerCart: React.FC<ManufacturerCartProps> = ({
           android_ripple={{ color: '#fee2e2' }}
           style={({ pressed }) => [styles.deleteBtn, pressed && styles.deleteBtnPressed]}
         >
-          <Ionicons name="trash-outline" size={15} color={Colors.general.error} />
-          <Text style={styles.deleteBtnText}>Eliminar</Text>
+          <View style={styles.deleteBtnInner}>
+            <Ionicons name="trash-outline" size={14} color={Colors.general.error} />
+            <Text style={styles.deleteBtnText}>Eliminar</Text>
+          </View>
         </Pressable>
 
-        <Pressable
-          onPress={() => onCreateOrder?.(manufacturer)}
-          android_ripple={{ color: '#d95f10' }}
-          style={({ pressed }) => [
-            styles.orderBtn,
-            pressed && styles.orderBtnPressed,
-            hasMinPurchase && !meetsMinPurchase && styles.orderBtnDisabled,
-          ]}
-        >
-          <Ionicons name="send-outline" size={15} color="#fff" />
-          <Text style={styles.orderBtnText}>Enviar pedido</Text>
-        </Pressable>
+        <View style={styles.orderBtnWrap}>
+          <Pressable
+            onPress={() => onCreateOrder?.(manufacturer)}
+            disabled={hasMinPurchase && !meetsMinPurchase}
+            android_ripple={{ color: '#0a2a6e' }}
+            style={[styles.orderBtn, hasMinPurchase && !meetsMinPurchase && styles.orderBtnDisabled]}
+          >
+            <View style={styles.orderBtnInner}>
+              <Text style={styles.orderBtnText}>Enviar pedido</Text>
+              <Ionicons name="arrow-forward" size={15} color="#fff" />
+            </View>
+          </Pressable>
+        </View>
       </View>
     </View>
   );
@@ -210,7 +204,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   headerPressed: {
-    backgroundColor: '#fafafa',
+    backgroundColor: '#f0f2f5',
   },
 
   // ── Header ──────────────────────────
@@ -218,13 +212,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 6,
-    paddingVertical: 12,
+    paddingVertical: 10,
+    gap: 10,
+  },
+  manufacturerLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
     gap: 10,
   },
   logoWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     overflow: 'hidden',
     backgroundColor: Colors.gray.light,
     flexShrink: 0,
@@ -240,80 +240,81 @@ const styles = StyleSheet.create({
   },
   headerInfo: {
     flex: 1,
-    gap: 3,
+    gap: 2,
   },
   manufacturerName: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
     color: '#111827',
   },
   headerMeta: {
-    fontSize: 12,
+    fontSize: 11,
     color: Colors.gray.semiDark,
   },
   headerRight: {
     alignItems: 'flex-end',
-    gap: 5,
+    gap: 4,
+  },
+  chevronRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  expandHint: {
+    fontSize: 10,
+    color: Colors.blue.dark,
+    fontWeight: '500',
+    opacity: 0.7,
   },
   subtotal: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '800',
     color: Colors.blue.dark,
   },
 
-  // ── Alertas compra mínima ────────────
-  minPurchaseAlert: {
+  // ── Compra mínima ─────────────────────
+  minSection: {
+    paddingHorizontal: 6,
+    paddingBottom: 10,
+    gap: 5,
+  },
+  progressTrack: {
+    height: 4,
+    backgroundColor: '#e5e7eb',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: Colors.orange.dark,
+    borderRadius: 2,
+  },
+  progressFillMet: {
+    backgroundColor: Colors.general.success,
+  },
+  minRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#fef3c7',
-    paddingHorizontal: 14,
-    paddingVertical: 7,
+    gap: 4,
   },
-  minPurchaseText: {
-    fontSize: 12,
-    color: '#92400e',
-    flex: 1,
+  minMetText: {
+    fontSize: 11,
+    color: Colors.general.success,
+    fontWeight: '500',
   },
-  minPurchaseOk: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#f0fdf4',
-    paddingHorizontal: 14,
-    paddingVertical: 7,
+  minPendingText: {
+    fontSize: 11,
+    color: Colors.gray.semiDark,
   },
-  minPurchaseOkText: {
-    fontSize: 12,
-    color: '#166534',
+  minPendingAmount: {
+    fontWeight: '700',
+    color: Colors.orange.dark,
   },
 
-  // ── Thumbnail strip ──────────────────
-  thumbnailStrip: {
-    flexDirection: 'row',
-    paddingHorizontal: 6,
-    paddingBottom: 12,
-    gap: 6,
-  },
-  thumbnail: {
-    width: 50,
-    height: 50,
-    borderRadius: 8,
-    backgroundColor: Colors.gray.light,
-  },
-  thumbnailPlaceholder: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  thumbnailMore: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#e5e7eb',
-  },
-  thumbnailMoreText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: Colors.gray.semiDark,
+  // ── Divider ──────────────────────────
+  divider: {
+    height: 1,
+    backgroundColor: '#f3f4f6',
   },
 
   // ── Measure hidden ───────────────────
@@ -326,30 +327,32 @@ const styles = StyleSheet.create({
   detailWrap: {
     borderTopWidth: 1,
     borderTopColor: '#f3f4f6',
+    paddingVertical: 6,
     paddingHorizontal: 6,
-    paddingVertical: 12,
   },
 
   // ── Actions ──────────────────────────
   actions: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
     paddingHorizontal: 6,
-    paddingBottom: 12,
-    paddingTop: 10,
+    paddingVertical: 10,
     borderTopWidth: 1,
     borderTopColor: '#f3f4f6',
   },
   deleteBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingVertical: 10,
-    paddingHorizontal: 6,
-    borderRadius: 10,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: '#fca5a5',
-    backgroundColor: '#fff',
+    overflow: 'hidden',
+  },
+  deleteBtnInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
   },
   deleteBtnPressed: {
     backgroundColor: '#fee2e2',
@@ -359,21 +362,25 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.general.error,
   },
-  orderBtn: {
+  orderBtnWrap: {
     flex: 1,
+  },
+  orderBtn: {
+    borderRadius: 6,
+    overflow: 'hidden',
+    width: '100%',
+  },
+  orderBtnInner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
     paddingVertical: 10,
-    borderRadius: 10,
-    backgroundColor: Colors.orange.dark,
-  },
-  orderBtnPressed: {
-    backgroundColor: '#d95f10',
+    backgroundColor: Colors.blue.dark,
+    borderRadius: 6,
   },
   orderBtnDisabled: {
-    opacity: 0.5,
+    opacity: 0.45,
   },
   orderBtnText: {
     fontSize: 14,

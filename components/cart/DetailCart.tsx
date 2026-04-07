@@ -87,6 +87,7 @@ const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => 
           <Pressable
             onPress={() => updateQuantity(item, qty - 1)}
             disabled={qty === 0}
+            hitSlop={{ top: 9, bottom: 9, left: 9, right: 9 }}
             android_ripple={{ color: '#e5e7eb', borderless: true, radius: 16 }}
             style={({ pressed }) => [styles.stepBtn, pressed && styles.stepBtnPressed, qty === 0 && styles.stepBtnDisabled]}
           >
@@ -97,6 +98,7 @@ const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => 
 
           <Pressable
             onPress={() => updateQuantity(item, qty + 1)}
+            hitSlop={{ top: 9, bottom: 9, left: 9, right: 9 }}
             android_ripple={{ color: '#e5e7eb', borderless: true, radius: 16 }}
             style={({ pressed }) => [styles.stepBtn, pressed && styles.stepBtnPressed]}
           >
@@ -107,25 +109,24 @@ const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => 
     );
   };
 
-  const renderProduct = (product: GroupedProduct) => {
+  const renderProduct = (product: GroupedProduct, index: number, total: number) => {
     const isVariable = product.variations.some(v => v.color && v.color.trim() !== '');
     const displayPrice = product.variations[0]?.salePrice || product.variations[0]?.price || 0;
     const hasSalePrice = !!product.variations[0]?.salePrice && product.variations[0].salePrice !== product.variations[0].price;
 
     return (
-      <View key={product.productId} style={styles.product}>
-        {/* Image + info */}
+      <View key={product.productId} style={[styles.product, index < total - 1 && styles.productBorder]}>
+        {/* Imagen + nombre + precio */}
         <View style={styles.productHeader}>
           <View style={styles.imageWrap}>
             {product.productImage ? (
               <Image source={{ uri: product.productImage }} style={styles.image} resizeMode="cover" />
             ) : (
               <View style={[styles.image, styles.imagePlaceholder]}>
-                <Ionicons name="image-outline" size={22} color={Colors.gray.default} />
+                <Ionicons name="image-outline" size={20} color={Colors.gray.default} />
               </View>
             )}
           </View>
-
           <View style={styles.productInfo}>
             <Text style={styles.productName} numberOfLines={2}>
               {product.productName || 'Producto sin nombre'}
@@ -143,65 +144,66 @@ const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => 
           </View>
         </View>
 
-        {/* Variations */}
+        {/* Variaciones */}
         <View style={styles.variations}>
           {product.variations.map(item => renderVariation(item, isVariable))}
         </View>
+
       </View>
     );
   };
 
   return (
     <View style={styles.container}>
-      {groupedProducts.map(renderProduct)}
+      {groupedProducts.map((product, index) => renderProduct(product, index, groupedProducts.length))}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    gap: 10,
-  },
+  container: {},
 
-  // Product card
+  // ── Producto ──────────────────────────
   product: {
-    backgroundColor: '#fff',
     paddingHorizontal: 6,
-    paddingVertical: 12,
+    paddingVertical: 10,
+  },
+  productBorder: {
     borderBottomWidth: 1,
     borderBottomColor: '#f3f4f6',
   },
   productHeader: {
     flexDirection: 'row',
     gap: 10,
-    marginBottom: 12,
+    marginBottom: 8,
+    borderRadius: 6,
   },
   imageWrap: {
-    width: 72,
-    height: 72,
-    borderRadius: 8,
+    width: 64,
+    height: 64,
+    borderRadius: 6,
     overflow: 'hidden',
     flexShrink: 0,
+    backgroundColor: Colors.gray.light,
   },
   image: {
     width: '100%',
     height: '100%',
   },
   imagePlaceholder: {
-    backgroundColor: Colors.gray.light,
     alignItems: 'center',
     justifyContent: 'center',
   },
   productInfo: {
     flex: 1,
-    justifyContent: 'center',
-    gap: 6,
+    justifyContent: 'flex-start',
+    gap: 4,
   },
   productName: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: '#111827',
-    lineHeight: 19,
+    lineHeight: 18,
   },
   priceRow: {
     flexDirection: 'row',
@@ -209,7 +211,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   price: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
     color: Colors.blue.dark,
   },
@@ -219,18 +221,20 @@ const styles = StyleSheet.create({
     textDecorationLine: 'line-through',
   },
 
-  // Variations
+  // ── Variaciones ───────────────────────
   variations: {
+    gap: 2,
+    marginLeft: 74,
     borderTopWidth: 1,
     borderTopColor: '#f3f4f6',
-    paddingTop: 10,
-    gap: 2,
+    paddingTop: 6,
+    marginTop: 4,
   },
   variationRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 6,
+    paddingVertical: 5,
   },
   variationLeft: {
     flexDirection: 'row',
@@ -239,8 +243,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   colorDot: {
-    width: 14,
-    height: 14,
+    width: 13,
+    height: 13,
     borderRadius: 7,
     borderWidth: 1,
     borderColor: '#e0e0e0',
@@ -251,7 +255,7 @@ const styles = StyleSheet.create({
     color: '#374151',
   },
 
-  // Quantity stepper
+  // ── Stepper ───────────────────────────
   stepper: {
     flexDirection: 'row',
     alignItems: 'center',

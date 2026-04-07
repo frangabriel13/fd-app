@@ -1,9 +1,10 @@
-import { Text, View, ScrollView, StyleSheet, Pressable } from 'react-native';
+import { Text, View, ScrollView, StyleSheet, Pressable, RefreshControl } from 'react-native';
 import { useMemo, useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useCart } from '@/hooks/useCart';
+import { useRefresh } from '@/hooks/useRefresh';
 import { Colors } from '@/constants/Colors';
 import { spacing, shadows } from '@/constants/Styles';
 import ManufacturerCart from '@/components/cart/ManufacturerCart';
@@ -13,6 +14,7 @@ import type { CartManufacturerDisplay } from '@/types/cart';
 
 const CartScreen = () => {
   const { cartData, fetchCartData, isEmpty, removeManufacturer, clearCart } = useCart();
+  const { refreshing, onRefresh } = useRefresh(fetchCartData);
 
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [orderType, setOrderType] = useState<'single' | 'unified'>('single');
@@ -25,7 +27,7 @@ const CartScreen = () => {
           console.error('❌ Error fetching cart:', error);
         });
       }
-    }, [isEmpty])
+    }, [isEmpty, fetchCartData])
   );
 
   const handleCreateSingleOrder = (manufacturer: CartManufacturerDisplay) => {
@@ -99,6 +101,14 @@ const CartScreen = () => {
             style={styles.scroll}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[Colors.blue.dark]}
+                tintColor={Colors.blue.dark}
+              />
+            }
           >
             {cartData.map((manufacturer) => (
               <ManufacturerCart

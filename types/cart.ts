@@ -63,7 +63,8 @@ export interface CartItemDisplay {
 
 // Fabricante con sus productos y totales calculados
 export interface CartManufacturerDisplay {
-  manufacturerId: number;
+  manufacturerId: number;       // userId del fabricante (usado para operaciones del carrito)
+  manufacturerEntityId?: number; // id de la entidad fabricante (usado para navegar a la tienda)
   manufacturerName?: string;
   manufacturerLogo?: string;
   minPurchase?: number;

@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { RootState, AppDispatch } from '@/store';
 import { addToCart, updateCartItem, removeFromCart, removeManufacturer, clearCart } from '@/store/slices/cartSlice';
 import { isCartEmpty } from '@/utils/cartUtils';
@@ -13,19 +13,26 @@ export const useCart = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [cartData, setCartData] = useState<CartManufacturerDisplay[]>([]);
 
+  // Ref que siempre apunta al estado actual del carrito
+  const cartRef = useRef(cart);
+  cartRef.current = cart;
+
   // Estado básico
   const isEmpty = isCartEmpty(cart.manufacturers);
 
-  // Obtener datos completos del carrito
-  const fetchCartData = async () => {
-    if (isEmpty) {
+  // Obtener datos completos del carrito (estable, lee siempre el estado más reciente via ref)
+  const fetchCartData = useCallback(async () => {
+    const currentCart = cartRef.current;
+    const currentIsEmpty = isCartEmpty(currentCart.manufacturers);
+
+    if (currentIsEmpty) {
       setCartData([]);
       return [];
     }
 
     setIsLoading(true);
     try {
-      const requestData = transformCartStateToRequest(cart.manufacturers);
+      const requestData = transformCartStateToRequest(currentCart.manufacturers);
       const data = await getCartItemsService(requestData);
       setCartData(data);
       return data;
@@ -35,7 +42,7 @@ export const useCart = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   // Agregar al carrito
   const handleAddToCart = (payload: AddToCartPayload) => {
