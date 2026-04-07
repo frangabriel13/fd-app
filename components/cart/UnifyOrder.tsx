@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 import { shadows } from '@/constants/Styles';
+import { formatPrice } from '@/utils/formatPrice';
 
 interface UnifyOrderProps {
   totalAmount: number;
@@ -10,13 +11,6 @@ interface UnifyOrderProps {
   onClearCart?: () => void;
   onUnifyOrder?: () => void;
 }
-
-const formatPrice = (price: number) =>
-  new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    minimumFractionDigits: 0,
-  }).format(price);
 
 const UnifyOrder: React.FC<UnifyOrderProps> = ({
   totalAmount,

@@ -57,14 +57,37 @@ export const useCart = () => {
     }
   };
 
-  // Actualizar cantidad
+  // Actualizar cantidad (con actualización optimista del cartData)
   const handleUpdateCartItem = (payload: UpdateCartItemPayload) => {
     dispatch(updateCartItem(payload));
+    setCartData(prev => prev.map(mfr => {
+      if (mfr.manufacturerId !== payload.manufacturerId) return mfr;
+      const updatedItems = payload.quantity <= 0
+        ? mfr.items.filter(item => !(item.productId === payload.productId && item.inventoryId === payload.inventoryId))
+        : mfr.items.map(item => {
+            if (item.productId === payload.productId && item.inventoryId === payload.inventoryId) {
+              return { ...item, quantity: payload.quantity };
+            }
+            return item;
+          });
+      const totalItems = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
+      const subtotal = updatedItems.reduce((sum, item) => sum + (item.salePrice || item.price || 0) * item.quantity, 0);
+      return { ...mfr, items: updatedItems, totalItems, subtotal };
+    }).filter(mfr => mfr.items.length > 0));
   };
 
-  // Eliminar del carrito
+  // Eliminar del carrito (con actualización optimista del cartData)
   const handleRemoveFromCart = (payload: RemoveCartItemPayload) => {
     dispatch(removeFromCart(payload));
+    setCartData(prev => prev.map(mfr => {
+      if (mfr.manufacturerId !== payload.manufacturerId) return mfr;
+      const updatedItems = mfr.items.filter(item =>
+        !(item.productId === payload.productId && item.inventoryId === payload.inventoryId)
+      );
+      const totalItems = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
+      const subtotal = updatedItems.reduce((sum, item) => sum + (item.salePrice || item.price || 0) * item.quantity, 0);
+      return { ...mfr, items: updatedItems, totalItems, subtotal };
+    }).filter(mfr => mfr.items.length > 0));
   };
 
   // Eliminar fabricante completo
