@@ -216,7 +216,6 @@ const styles = StyleSheet.create({
   // — Secciones —
   section: {
     marginTop: 20,
-    paddingHorizontal: 16,
   },
   sectionTitle: {
     fontSize: 11,
@@ -225,12 +224,12 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     textTransform: 'uppercase',
     marginBottom: 8,
-    marginLeft: 4,
+    paddingHorizontal: 16,
   },
   sectionCard: {
     backgroundColor: '#fff',
-    borderRadius: 12,
-    borderWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
     borderColor: '#e5e7eb',
     overflow: 'hidden',
   },
@@ -280,11 +279,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    marginHorizontal: 16,
     marginTop: 20,
     paddingVertical: 14,
-    borderRadius: 12,
-    borderWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
     borderColor: '#fecaca',
     backgroundColor: '#fff',
   },

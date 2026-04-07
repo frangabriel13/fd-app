@@ -1,8 +1,7 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
-import { spacing, borderRadius, shadows } from '@/constants/Styles';
-import type { CartManufacturerDisplay } from '@/types/cart';
+import { shadows } from '@/constants/Styles';
 
 interface UnifyOrderProps {
   totalAmount: number;
@@ -12,129 +11,114 @@ interface UnifyOrderProps {
   onUnifyOrder?: () => void;
 }
 
-const UnifyOrder: React.FC<UnifyOrderProps> = ({ 
-  totalAmount, 
-  totalItems, 
-  manufacturersCount, 
+const formatPrice = (price: number) =>
+  new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    minimumFractionDigits: 0,
+  }).format(price);
+
+const UnifyOrder: React.FC<UnifyOrderProps> = ({
+  totalAmount,
+  totalItems,
+  manufacturersCount,
   onClearCart,
-  onUnifyOrder
-}) => {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
-
-  return (
-    <View style={styles.cartSummary}>
-      <View style={styles.summaryHeader}>
-        <Text style={styles.summaryTitle}>Resumen del pedido</Text>
-        <Text style={styles.summaryTotal}>{formatPrice(totalAmount)}</Text>
+  onUnifyOrder,
+}) => (
+  <View style={styles.container}>
+    {/* ── Resumen ─────────────────────────── */}
+    <View style={styles.summaryRow}>
+      <View style={styles.summaryLeft}>
+        <Text style={styles.summaryLabel}>Total general</Text>
+        <Text style={styles.summaryMeta}>
+          {totalItems} {totalItems === 1 ? 'unidad' : 'unidades'} ·{' '}
+          {manufacturersCount} {manufacturersCount === 1 ? 'fabricante' : 'fabricantes'}
+        </Text>
       </View>
-      
-      <Text style={styles.summarySubtitle}>
-        {totalItems} {totalItems === 1 ? 'producto' : 'productos'} de {manufacturersCount} {manufacturersCount === 1 ? 'fabricante' : 'fabricantes'}
-      </Text>
-
-      <View style={styles.summaryActions}>
-        <TouchableOpacity 
-          style={styles.unifyOrderButton}
-          onPress={onUnifyOrder}
-        >
-          <Ionicons name="bag-outline" size={20} color="white" />
-          <Text style={styles.unifyOrderButtonText}>Unificar pedido</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.clearCartButton}
-          onPress={onClearCart}
-        >
-          <Ionicons name="trash-outline" size={18} color={Colors.general.error} />
-          <Text style={styles.clearCartButtonText}>Vaciar carrito</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.unifyDescription}>
-        Unifica el pedido para que todas tus compras se agrupen en un único envío.
-      </Text>
+      <Text style={styles.totalAmount}>{formatPrice(totalAmount)}</Text>
     </View>
-  );
-};
+
+    {/* ── CTA principal ───────────────────── */}
+    <Pressable
+      onPress={onUnifyOrder}
+      android_ripple={{ color: '#d95f10' }}
+      style={({ pressed }) => [styles.unifyBtn, pressed && styles.unifyBtnPressed]}
+    >
+      <Ionicons name="bag-check-outline" size={19} color="#fff" />
+      <Text style={styles.unifyBtnText}>Unificar todos los pedidos</Text>
+    </Pressable>
+
+    {/* ── Vaciar carrito ──────────────────── */}
+    <Pressable onPress={onClearCart} style={({ pressed }) => [styles.clearBtn, pressed && styles.clearBtnPressed]}>
+      <Text style={styles.clearBtnText}>Vaciar carrito</Text>
+    </Pressable>
+  </View>
+);
 
 const styles = StyleSheet.create({
-  cartSummary: {
-    backgroundColor: 'white',
-    margin: spacing.md,
-    marginTop: 0,
-    padding: spacing.md,
-    borderRadius: borderRadius.lg,
+  container: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 6,
+    paddingTop: 14,
+    paddingBottom: 18,
+    gap: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
     ...shadows.lg,
   },
-  summaryHeader: {
+
+  summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
+    alignItems: 'flex-start',
   },
-  summaryTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: Colors.light.text,
+  summaryLeft: {
+    gap: 3,
   },
-  summaryTotal: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: Colors.blue.default,
-  },
-  summarySubtitle: {
-    fontSize: 14,
-    color: Colors.gray.semiDark,
-    marginBottom: spacing.lg,
-  },
-  summaryActions: {
-    gap: spacing.md,
-    marginBottom: spacing.md,
-  },
-  unifyOrderButton: {
-    backgroundColor: Colors.orange.default,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: borderRadius.lg,
-    gap: spacing.sm,
-    ...shadows.md,
-  },
-  unifyOrderButtonText: {
-    fontSize: 16,
+  summaryLabel: {
+    fontSize: 13,
     fontWeight: '600',
-    color: 'white',
+    color: Colors.gray.semiDark,
   },
-  clearCartButton: {
-    backgroundColor: 'white',
+  summaryMeta: {
+    fontSize: 12,
+    color: Colors.gray.default,
+  },
+  totalAmount: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: Colors.blue.dark,
+  },
+
+  unifyBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    borderColor: Colors.general.error,
-    gap: spacing.sm,
+    gap: 8,
+    backgroundColor: Colors.orange.dark,
+    paddingVertical: 14,
+    borderRadius: 12,
   },
-  clearCartButtonText: {
-    fontSize: 14,
+  unifyBtnPressed: {
+    backgroundColor: '#d95f10',
+  },
+  unifyBtnText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#fff',
+  },
+
+  clearBtn: {
+    alignItems: 'center',
+    paddingVertical: 4,
+  },
+  clearBtnPressed: {
+    opacity: 0.6,
+  },
+  clearBtnText: {
+    fontSize: 13,
     fontWeight: '500',
     color: Colors.general.error,
-  },
-  unifyDescription: {
-    fontSize: 12,
-    color: Colors.gray.semiDark,
-    textAlign: 'center',
-    lineHeight: 16,
   },
 });
 

@@ -1,8 +1,9 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from '@/hooks/useCart';
 import { useCartAnimationContext } from '@/contexts/CartAnimationContext';
 import { CartManufacturerDisplay, CartItemDisplay } from '@/types/cart';
+import { Colors } from '@/constants/Colors';
 
 interface DetailCartProps {
   manufacturer: CartManufacturerDisplay;
@@ -18,16 +19,23 @@ interface GroupedProduct {
   variations: CartItemDisplay[];
 }
 
+const getColorValue = (color?: string) => {
+  if (!color) return '#ccc';
+  if (color.startsWith('#')) return color;
+  if (/^[a-zA-Z]+$/.test(color)) return color;
+  if (color.startsWith('rgb') || color.startsWith('hsl')) return color;
+  if (/^[0-9A-Fa-f]{6}$/.test(color)) return `#${color}`;
+  return '#ccc';
+};
+
 const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => {
   const { updateCartItem, removeFromCart } = useCart();
   const { triggerAnimation } = useCartAnimationContext();
 
-  // Agrupar items por producto
   const groupedProducts: GroupedProduct[] = manufacturer.items.reduce((acc: GroupedProduct[], item) => {
-    const existingProduct = acc.find(p => p.productId === item.productId);
-    
-    if (existingProduct) {
-      existingProduct.variations.push(item);
+    const existing = acc.find(p => p.productId === item.productId);
+    if (existing) {
+      existing.variations.push(item);
     } else {
       acc.push({
         productId: item.productId,
@@ -35,164 +43,109 @@ const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => 
         productImage: item.productImage,
         price: item.price,
         salePrice: item.salePrice,
-        variations: [item]
+        variations: [item],
       });
     }
-    
     return acc;
   }, []);
 
   const updateQuantity = (item: CartItemDisplay, newQuantity: number) => {
-    // No permitir cantidades negativas
     const validQuantity = Math.max(0, newQuantity);
-    
     if (validQuantity > 0) {
-      const currentQuantity = item.quantity;
-      
-      // Actualizar cantidad
+      if (validQuantity > item.quantity) triggerAnimation();
       updateCartItem({
         manufacturerId: item.manufacturerId,
         productId: item.productId,
         inventoryId: item.inventoryId,
-        quantity: validQuantity
+        quantity: validQuantity,
       });
-      
-      // Disparar animación solo si incrementamos la cantidad
-      if (validQuantity > currentQuantity) {
-        triggerAnimation();
-      }
     } else {
-      // Eliminar del carrito si la cantidad es 0
       removeFromCart({
         manufacturerId: item.manufacturerId,
         productId: item.productId,
-        inventoryId: item.inventoryId
+        inventoryId: item.inventoryId,
       });
     }
   };
 
-  const renderVariationRow = (item: CartItemDisplay, isVariable: boolean) => {
-    // Si el color es "Sin color" o está vacío, mostrar el size en su lugar
+  const renderVariation = (item: CartItemDisplay, isVariable: boolean) => {
     const shouldShowSize = !item.color || item.color.trim() === '' || item.color.toLowerCase() === 'sin color';
     const displayLabel = shouldShowSize ? item.size : item.color;
-    const showColorIndicator = isVariable && !shouldShowSize && item.color;
-    
-    const currentQuantity = item.quantity;
-    const displayPrice = item.salePrice || item.price || 0;
-
-    // Formatear el color para asegurar compatibilidad
-    const getColorValue = (color?: string) => {
-      if (!color) return '#ccc';
-      
-      // Si ya tiene formato hex, devolverlo tal como está
-      if (color.startsWith('#')) return color;
-      
-      // Si es un nombre de color CSS, devolverlo
-      if (/^[a-zA-Z]+$/.test(color)) return color;
-      
-      // Si es RGB/HSL, devolverlo
-      if (color.startsWith('rgb') || color.startsWith('hsl')) return color;
-      
-      // Si es solo hex sin #, añadir el #
-      if (/^[0-9A-Fa-f]{6}$/.test(color)) return `#${color}`;
-      
-      // Por defecto, gris claro
-      return '#ccc';
-    };
-
-    console.log('item:', item);
+    const showColorDot = isVariable && !shouldShowSize && item.color;
+    const qty = item.quantity;
 
     return (
       <View key={item.inventoryId} style={styles.variationRow}>
-        {/* Información de la variación a la izquierda */}
-        <View style={styles.variationInfo}>
-          <View style={styles.variationLabel}>
-            {showColorIndicator && (
-              <View style={[
-                styles.colorIndicator, 
-                { backgroundColor: getColorValue(item.color) }
-              ]} />
-            )}
-            <Text style={styles.variationText}>
-              {displayLabel || 'N/A'}
-            </Text>
-          </View>
-          {/* <Text style={styles.priceText}>
-            ${displayPrice.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
-          </Text> */}
+        <View style={styles.variationLeft}>
+          {showColorDot && (
+            <View style={[styles.colorDot, { backgroundColor: getColorValue(item.color) }]} />
+          )}
+          <Text style={styles.variationLabel}>{displayLabel || 'N/A'}</Text>
         </View>
 
-        {/* Controles de cantidad a la derecha */}
-        <View style={styles.quantityControls}>
-          <TouchableOpacity
-            style={[
-              styles.quantityButton,
-              currentQuantity === 0 && styles.quantityButtonDisabled
-            ]}
-            onPress={() => updateQuantity(item, currentQuantity - 1)}
-            disabled={currentQuantity === 0}
+        <View style={styles.stepper}>
+          <Pressable
+            onPress={() => updateQuantity(item, qty - 1)}
+            disabled={qty === 0}
+            android_ripple={{ color: '#e5e7eb', borderless: true, radius: 16 }}
+            style={({ pressed }) => [styles.stepBtn, pressed && styles.stepBtnPressed, qty === 0 && styles.stepBtnDisabled]}
           >
-            <Ionicons name="remove" size={18} color="#666" />
-          </TouchableOpacity>
+            <Ionicons name={qty === 1 ? 'trash-outline' : 'remove'} size={15} color={qty === 1 ? Colors.general.error : '#374151'} />
+          </Pressable>
 
-          <Text style={styles.quantityText}>
-            {currentQuantity}
-          </Text>
+          <Text style={styles.stepQty}>{qty}</Text>
 
-          <TouchableOpacity
-            style={styles.quantityButton}
-            onPress={() => updateQuantity(item, currentQuantity + 1)}
+          <Pressable
+            onPress={() => updateQuantity(item, qty + 1)}
+            android_ripple={{ color: '#e5e7eb', borderless: true, radius: 16 }}
+            style={({ pressed }) => [styles.stepBtn, pressed && styles.stepBtnPressed]}
           >
-            <Ionicons name="add" size={18} color="#666" />
-          </TouchableOpacity>
+            <Ionicons name="add" size={15} color="#374151" />
+          </Pressable>
         </View>
       </View>
     );
   };
 
   const renderProduct = (product: GroupedProduct) => {
-    const hasColorVariations = product.variations.some(v => v.color && v.color.trim() !== '');
-    const isVariable = hasColorVariations;
-    
-    // Obtener el precio del producto (todas las variaciones tienen el mismo precio)
-    const productPrice = product.variations[0]?.salePrice || product.variations[0]?.price || 0;
+    const isVariable = product.variations.some(v => v.color && v.color.trim() !== '');
+    const displayPrice = product.variations[0]?.salePrice || product.variations[0]?.price || 0;
+    const hasSalePrice = !!product.variations[0]?.salePrice && product.variations[0].salePrice !== product.variations[0].price;
 
     return (
-      <View key={product.productId} style={styles.productContainer}>
-        {/* Header del producto */}
+      <View key={product.productId} style={styles.product}>
+        {/* Image + info */}
         <View style={styles.productHeader}>
-          {/* Imagen del producto */}
-          <View style={styles.imageContainer}>
+          <View style={styles.imageWrap}>
             {product.productImage ? (
-              <Image 
-                source={{ uri: product.productImage }} 
-                style={styles.productImage}
-                resizeMode="cover"
-              />
+              <Image source={{ uri: product.productImage }} style={styles.image} resizeMode="cover" />
             ) : (
-              <View style={[styles.productImage, styles.placeholderImage]}>
-                <Ionicons name="image-outline" size={24} color="#ccc" />
+              <View style={[styles.image, styles.imagePlaceholder]}>
+                <Ionicons name="image-outline" size={22} color={Colors.gray.default} />
               </View>
             )}
           </View>
-          
-          {/* Información del producto */}
+
           <View style={styles.productInfo}>
             <Text style={styles.productName} numberOfLines={2}>
               {product.productName || 'Producto sin nombre'}
             </Text>
-            <Text style={styles.productPrice}>
-              ${productPrice.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
-            </Text>
+            <View style={styles.priceRow}>
+              <Text style={styles.price}>
+                ${displayPrice.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
+              </Text>
+              {hasSalePrice && (
+                <Text style={styles.originalPrice}>
+                  ${(product.price || 0).toLocaleString('es-AR', { minimumFractionDigits: 0 })}
+                </Text>
+              )}
+            </View>
           </View>
         </View>
 
-        {/* Variaciones */}
-        <View style={styles.variationsContainer}>
-          {/* <Text style={styles.variationsTitle}>
-            {isVariable ? 'Colores y talles' : 'Talles disponibles'}
-          </Text> */}
-          {product.variations.map(item => renderVariationRow(item, isVariable))}
+        {/* Variations */}
+        <View style={styles.variations}>
+          {product.variations.map(item => renderVariation(item, isVariable))}
         </View>
       </View>
     );
@@ -207,121 +160,126 @@ const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => 
 
 const styles = StyleSheet.create({
   container: {
-    // padding: 16,
-    gap: 12,
+    gap: 10,
   },
-  productContainer: {
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 12,
-    borderWidth: 0.5,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+
+  // Product card
+  product: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 6,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
   },
   productHeader: {
     flexDirection: 'row',
-    marginBottom: 16,
-    gap: 12,
+    gap: 10,
+    marginBottom: 12,
   },
-  imageContainer: {
-    width: 80,
-    height: 80,
-  },
-  productImage: {
-    width: 80,
-    height: 80,
+  imageWrap: {
+    width: 72,
+    height: 72,
     borderRadius: 8,
+    overflow: 'hidden',
+    flexShrink: 0,
   },
-  placeholderImage: {
-    backgroundColor: '#f5f5f5',
-    justifyContent: 'center',
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  imagePlaceholder: {
+    backgroundColor: Colors.gray.light,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   productInfo: {
     flex: 1,
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
+    gap: 6,
   },
   productName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    lineHeight: 20,
-    marginBottom: 4,
-  },
-  productPrice: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#666',
-  },
-  variationsContainer: {
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    paddingTop: 12,
-  },
-  variationsTitle: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#666',
-    marginBottom: 8,
+    fontWeight: '600',
+    color: '#111827',
+    lineHeight: 19,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  price: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.blue.dark,
+  },
+  originalPrice: {
+    fontSize: 12,
+    color: Colors.gray.default,
+    textDecorationLine: 'line-through',
+  },
+
+  // Variations
+  variations: {
+    borderTopWidth: 1,
+    borderTopColor: '#f3f4f6',
+    paddingTop: 10,
+    gap: 2,
   },
   variationRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f8f8f8',
+    paddingVertical: 6,
   },
-  variationInfo: {
-    flex: 1,
-  },
-  variationLabel: {
+  variationLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 4,
+    flex: 1,
   },
-  colorIndicator: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
+  colorDot: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
     borderWidth: 1,
     borderColor: '#e0e0e0',
   },
-  variationText: {
-    fontSize: 14,
+  variationLabel: {
+    fontSize: 13,
     fontWeight: '500',
-    color: '#333',
+    color: '#374151',
   },
-  priceText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '400',
-  },
-  quantityControls: {
+
+  // Quantity stepper
+  stepper: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 4,
+    backgroundColor: Colors.gray.light,
+    borderRadius: 20,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
   },
-  quantityButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#f5f5f5',
-    justifyContent: 'center',
+  stepBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
+    justifyContent: 'center',
   },
-  quantityButtonDisabled: {
-    backgroundColor: '#f9f9f9',
-    borderColor: '#f0f0f0',
+  stepBtnPressed: {
+    backgroundColor: '#e5e7eb',
   },
-  quantityText: {
-    fontSize: 16,
-    fontWeight: '600',
-    minWidth: 30,
+  stepBtnDisabled: {
+    opacity: 0.4,
+  },
+  stepQty: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#111827',
+    minWidth: 24,
     textAlign: 'center',
-    color: '#333',
   },
 });
 
