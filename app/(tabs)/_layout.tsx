@@ -15,7 +15,7 @@ export default function TabLayout() {
       >
         <Tabs.Screen name="index" />
         <Tabs.Screen name="favoritos" />
-        <Tabs.Screen name="Carrito" />
+        <Tabs.Screen name="carrito" />
         <Tabs.Screen name="fabricantes" />
         <Tabs.Screen name="more" />
 

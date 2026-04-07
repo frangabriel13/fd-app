@@ -66,6 +66,7 @@ export interface CartManufacturerDisplay {
   manufacturerId: number;
   manufacturerName?: string;
   manufacturerLogo?: string;
+  minPurchase?: number;
   items: CartItemDisplay[];
   totalItems: number;
   subtotal: number;
