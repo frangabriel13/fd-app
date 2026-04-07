@@ -148,6 +148,17 @@ const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => 
               )}
             </View>
           </View>
+          <Pressable
+            style={styles.deleteProductBtn}
+            onPress={() => product.variations.forEach(v => removeFromCart({
+              manufacturerId: v.manufacturerId,
+              productId: v.productId,
+              inventoryId: v.inventoryId,
+            }))}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          >
+            <Ionicons name="trash-outline" size={20} color={Colors.general.error} />
+          </Pressable>
         </Pressable>
 
         {/* Variaciones */}
@@ -184,9 +195,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 6,
   },
+  deleteProductBtn: {
+    alignSelf: 'center',
+    padding: 4,
+  },
   imageWrap: {
-    width: 52,
-    height: 65,
+    width: 42,
+    height: 52,
     borderRadius: 6,
     overflow: 'hidden',
     flexShrink: 0,
@@ -230,7 +245,7 @@ const styles = StyleSheet.create({
   // ── Variaciones ───────────────────────
   variations: {
     gap: 2,
-    marginLeft: 62,
+    marginLeft: 0,
     borderTopWidth: 1,
     borderTopColor: '#f3f4f6',
     paddingTop: 6,
@@ -238,7 +253,6 @@ const styles = StyleSheet.create({
   },
   variationRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 5,
   },
