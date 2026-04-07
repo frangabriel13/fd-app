@@ -42,10 +42,12 @@ const UnifyOrder: React.FC<UnifyOrderProps> = ({
     <Pressable
       onPress={onUnifyOrder}
       android_ripple={{ color: '#d95f10' }}
-      style={({ pressed }) => [styles.unifyBtn, pressed && styles.unifyBtnPressed]}
+      style={styles.unifyBtn}
     >
-      <Ionicons name="bag-check-outline" size={19} color="#fff" />
-      <Text style={styles.unifyBtnText}>Unificar todos los pedidos</Text>
+      <View style={styles.unifyBtnInner}>
+        <Ionicons name="bag-check-outline" size={19} color="#fff" />
+        <Text style={styles.unifyBtnText}>Unificar todos los pedidos</Text>
+      </View>
     </Pressable>
 
     {/* ── Vaciar carrito ──────────────────── */}
@@ -91,16 +93,17 @@ const styles = StyleSheet.create({
   },
 
   unifyBtn: {
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  unifyBtnInner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
     backgroundColor: Colors.orange.dark,
     paddingVertical: 14,
-    borderRadius: 12,
-  },
-  unifyBtnPressed: {
-    backgroundColor: '#d95f10',
+    borderRadius: 6,
   },
   unifyBtnText: {
     fontSize: 15,
@@ -109,16 +112,17 @@ const styles = StyleSheet.create({
   },
 
   clearBtn: {
-    alignItems: 'center',
+    alignSelf: 'center',
     paddingVertical: 4,
   },
   clearBtnPressed: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
   clearBtnText: {
     fontSize: 13,
     fontWeight: '500',
     color: Colors.general.error,
+    textAlign: 'center',
   },
 });
 
