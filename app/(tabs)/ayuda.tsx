@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet, Pressable, Linking } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRef, useState } from 'react';
 import Animated, {
@@ -7,9 +7,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { Colors } from '@/constants/Colors';
-
-// — Actualizar con el número real de WhatsApp —
-const WHATSAPP_NUMBER = '5491100000000';
+import { contactarSoporte } from '@/utils/whatsapp';
 
 const FAQ_ITEMS = [
   {
@@ -107,9 +105,7 @@ const FaqItem = ({ question, answer, isLast }: { question: string; answer: strin
 
 // — Pantalla principal —
 const AyudaScreen = () => {
-  const handleWhatsApp = () => {
-    Linking.openURL(`https://wa.me/${WHATSAPP_NUMBER}`);
-  };
+  const handleWhatsApp = () => contactarSoporte();
 
   return (
     <ScrollView
