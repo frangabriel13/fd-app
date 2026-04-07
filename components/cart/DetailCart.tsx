@@ -1,14 +1,15 @@
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useCart } from '@/hooks/useCart';
 import { useCartAnimationContext } from '@/contexts/CartAnimationContext';
-import { CartManufacturerDisplay, CartItemDisplay } from '@/types/cart';
+import { CartManufacturerDisplay, CartItemDisplay, UpdateCartItemPayload, RemoveCartItemPayload } from '@/types/cart';
 import { Colors } from '@/constants/Colors';
 
 interface DetailCartProps {
   manufacturer: CartManufacturerDisplay;
   onRemoveManufacturer?: (manufacturerId: number) => void;
+  onUpdateCartItem: (payload: UpdateCartItemPayload) => void;
+  onRemoveFromCart: (payload: RemoveCartItemPayload) => void;
 }
 
 interface GroupedProduct {
@@ -29,8 +30,7 @@ const getColorValue = (color?: string) => {
   return '#ccc';
 };
 
-const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => {
-  const { updateCartItem, removeFromCart } = useCart();
+const DetailCart = ({ manufacturer, onRemoveManufacturer, onUpdateCartItem, onRemoveFromCart }: DetailCartProps) => {
   const { triggerAnimation } = useCartAnimationContext();
   const router = useRouter();
 
@@ -55,14 +55,14 @@ const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => 
     const validQuantity = Math.max(0, newQuantity);
     if (validQuantity > 0) {
       if (validQuantity > item.quantity) triggerAnimation();
-      updateCartItem({
+      onUpdateCartItem({
         manufacturerId: item.manufacturerId,
         productId: item.productId,
         inventoryId: item.inventoryId,
         quantity: validQuantity,
       });
     } else {
-      removeFromCart({
+      onRemoveFromCart({
         manufacturerId: item.manufacturerId,
         productId: item.productId,
         inventoryId: item.inventoryId,
@@ -150,7 +150,7 @@ const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => 
           </View>
           <Pressable
             style={styles.deleteProductBtn}
-            onPress={() => product.variations.forEach(v => removeFromCart({
+            onPress={() => product.variations.forEach(v => onRemoveFromCart({
               manufacturerId: v.manufacturerId,
               productId: v.productId,
               inventoryId: v.inventoryId,

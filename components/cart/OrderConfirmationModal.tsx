@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useDispatch, useSelector } from 'react-redux';
 import { useAppSelector, useAppDispatch } from '@/hooks/redux';
 import { createOrder, clearCreatedOrder, type CreateOrderPayload } from '@/store/slices/orderSlice';
+import { removeManufacturer, clearCart } from '@/store/slices/cartSlice';
 import { Colors } from '@/constants/Colors';
 import { spacing, borderRadius, shadows } from '@/constants/Styles';
+import { formatPrice } from '@/utils/formatPrice';
 import type { CartManufacturerDisplay } from '@/types/cart';
 
 interface OrderConfirmationModalProps {
@@ -33,20 +34,12 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
   // Verificar si el usuario es wholesaler
   const isWholesaler = myUser?.role === 'wholesaler';
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
-
   const transformCartToOrderFormat = (manufacturers: CartManufacturerDisplay[]): CreateOrderPayload => {
     return {
       carts: manufacturers.map(manufacturer => ({
         manufacturer: {
           userId: manufacturer.manufacturerId,
-          id: manufacturer.manufacturerId,
+          id: manufacturer.manufacturerEntityId || manufacturer.manufacturerId,
           name: manufacturer.manufacturerName || 'Fabricante desconocido'
         },
         products: manufacturer.items.map(item => ({
@@ -85,6 +78,13 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
       const result = await dispatch(createOrder(orderData));
       
       if (createOrder.fulfilled.match(result)) {
+        // Limpiar los items del carrito en Redux
+        if (orderType === 'unified') {
+          dispatch(clearCart());
+        } else if (selectedManufacturer) {
+          dispatch(removeManufacturer({ manufacturerId: selectedManufacturer.manufacturerId }));
+        }
+
         Alert.alert(
           'Pedido creado exitosamente',
           `Tu pedido #${result.payload.id} ha sido creado por un total de ${formatPrice(result.payload.total)}`,

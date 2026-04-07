@@ -8,28 +8,27 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { Colors } from '@/constants/Colors';
-import type { CartManufacturerDisplay } from '@/types/cart';
+import { formatPrice } from '@/utils/formatPrice';
+import type { CartManufacturerDisplay, UpdateCartItemPayload, RemoveCartItemPayload } from '@/types/cart';
 import DetailCart from './DetailCart';
 
 interface ManufacturerCartProps {
   manufacturer: CartManufacturerDisplay;
   onRemoveManufacturer?: (manufacturerId: number) => void;
   onCreateOrder?: (manufacturer: CartManufacturerDisplay) => void;
+  onUpdateCartItem: (payload: UpdateCartItemPayload) => void;
+  onRemoveFromCart: (payload: RemoveCartItemPayload) => void;
 }
-
-const formatPrice = (price: number) =>
-  new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    minimumFractionDigits: 0,
-  }).format(price);
 
 const ManufacturerCart: React.FC<ManufacturerCartProps> = ({
   manufacturer,
   onRemoveManufacturer,
   onCreateOrder,
+  onUpdateCartItem,
+  onRemoveFromCart,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const isExpandedRef = useRef(false);
   const measuredHeight = useRef(0);
   const heightAnim = useSharedValue(0);
   const rotateAnim = useSharedValue(0);
@@ -37,6 +36,7 @@ const ManufacturerCart: React.FC<ManufacturerCartProps> = ({
   const toggle = () => {
     const next = !isExpanded;
     setIsExpanded(next);
+    isExpandedRef.current = next;
     heightAnim.value = withTiming(next ? measuredHeight.current : 0, { duration: 280 });
     rotateAnim.value = withTiming(next ? 1 : 0, { duration: 280 });
   };
@@ -149,18 +149,24 @@ const ManufacturerCart: React.FC<ManufacturerCartProps> = ({
       {/* ── Vista oculta para medir altura ─────────── */}
       <View
         pointerEvents="none"
-        onLayout={(e) => { measuredHeight.current = e.nativeEvent.layout.height; }}
+        onLayout={(e) => {
+          const h = e.nativeEvent.layout.height;
+          measuredHeight.current = h;
+          if (isExpandedRef.current) {
+            heightAnim.value = withTiming(h, { duration: 200 });
+          }
+        }}
         style={styles.measureHidden}
       >
         <View style={styles.detailWrap}>
-          <DetailCart manufacturer={manufacturer} onRemoveManufacturer={onRemoveManufacturer} />
+          <DetailCart manufacturer={manufacturer} onRemoveManufacturer={onRemoveManufacturer} onUpdateCartItem={onUpdateCartItem} onRemoveFromCart={onRemoveFromCart} />
         </View>
       </View>
 
       {/* ── Contenido animado ───────────────────────── */}
       <Animated.View style={animatedContent}>
         <View style={styles.detailWrap}>
-          <DetailCart manufacturer={manufacturer} onRemoveManufacturer={onRemoveManufacturer} />
+          <DetailCart manufacturer={manufacturer} onRemoveManufacturer={onRemoveManufacturer} onUpdateCartItem={onUpdateCartItem} onRemoveFromCart={onRemoveFromCart} />
         </View>
       </Animated.View>
 

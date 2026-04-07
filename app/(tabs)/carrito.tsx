@@ -1,4 +1,4 @@
-import { Text, View, ScrollView, StyleSheet, Pressable, RefreshControl } from 'react-native';
+import { Text, View, ScrollView, StyleSheet, Pressable, RefreshControl, Alert } from 'react-native';
 import { useMemo, useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,7 +13,7 @@ import OrderConfirmationModal from '@/components/cart/OrderConfirmationModal';
 import type { CartManufacturerDisplay } from '@/types/cart';
 
 const CartScreen = () => {
-  const { cartData, fetchCartData, isEmpty, removeManufacturer, clearCart } = useCart();
+  const { cartData, fetchCartData, isEmpty, removeManufacturer, clearCart, updateCartItem, removeFromCart } = useCart();
   const { refreshing, onRefresh } = useRefresh(fetchCartData);
 
   const [showOrderModal, setShowOrderModal] = useState(false);
@@ -22,18 +22,27 @@ const CartScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      if (!isEmpty) {
-        fetchCartData().catch((error) => {
-          console.error('❌ Error fetching cart:', error);
-        });
-      }
-    }, [isEmpty, fetchCartData])
+      fetchCartData().catch((error) => {
+        console.error('❌ Error fetching cart:', error);
+      });
+    }, [fetchCartData])
   );
 
   const handleCreateSingleOrder = (manufacturer: CartManufacturerDisplay) => {
     setSelectedManufacturer(manufacturer);
     setOrderType('single');
     setShowOrderModal(true);
+  };
+
+  const handleClearCart = () => {
+    Alert.alert(
+      'Vaciar carrito',
+      '¿Estás seguro de que querés vaciar todo el carrito?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Vaciar', style: 'destructive', onPress: clearCart },
+      ]
+    );
   };
 
   const handleCreateUnifiedOrder = () => {
@@ -116,6 +125,8 @@ const CartScreen = () => {
                 manufacturer={manufacturer}
                 onRemoveManufacturer={removeManufacturer}
                 onCreateOrder={handleCreateSingleOrder}
+                onUpdateCartItem={updateCartItem}
+                onRemoveFromCart={removeFromCart}
               />
             ))}
           </ScrollView>
@@ -125,7 +136,7 @@ const CartScreen = () => {
             totalAmount={grandTotal}
             totalItems={totalItems}
             manufacturersCount={cartData.length}
-            onClearCart={clearCart}
+            onClearCart={handleClearCart}
             onUnifyOrder={handleCreateUnifiedOrder}
           />
         </>
