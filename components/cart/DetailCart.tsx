@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useCart } from '@/hooks/useCart';
 import { useCartAnimationContext } from '@/contexts/CartAnimationContext';
 import { CartManufacturerDisplay, CartItemDisplay } from '@/types/cart';
@@ -31,6 +32,7 @@ const getColorValue = (color?: string) => {
 const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => {
   const { updateCartItem, removeFromCart } = useCart();
   const { triggerAnimation } = useCartAnimationContext();
+  const router = useRouter();
 
   const groupedProducts: GroupedProduct[] = manufacturer.items.reduce((acc: GroupedProduct[], item) => {
     const existing = acc.find(p => p.productId === item.productId);
@@ -117,7 +119,11 @@ const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => 
     return (
       <View key={product.productId} style={[styles.product, index < total - 1 && styles.productBorder]}>
         {/* Imagen + nombre + precio */}
-        <View style={styles.productHeader}>
+        <Pressable
+          style={styles.productHeader}
+          onPress={() => router.push(`/(tabs)/producto/${product.productId}`)}
+          android_ripple={{ color: '#e5e7eb' }}
+        >
           <View style={styles.imageWrap}>
             {product.productImage ? (
               <Image source={{ uri: product.productImage }} style={styles.image} resizeMode="cover" />
@@ -142,7 +148,7 @@ const DetailCart = ({ manufacturer, onRemoveManufacturer }: DetailCartProps) => 
               )}
             </View>
           </View>
-        </View>
+        </Pressable>
 
         {/* Variaciones */}
         <View style={styles.variations}>
@@ -165,7 +171,7 @@ const styles = StyleSheet.create({
 
   // ── Producto ──────────────────────────
   product: {
-    paddingHorizontal: 6,
+    paddingHorizontal: 0,
     paddingVertical: 10,
   },
   productBorder: {
@@ -179,8 +185,8 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   imageWrap: {
-    width: 64,
-    height: 64,
+    width: 52,
+    height: 65,
     borderRadius: 6,
     overflow: 'hidden',
     flexShrink: 0,
@@ -224,7 +230,7 @@ const styles = StyleSheet.create({
   // ── Variaciones ───────────────────────
   variations: {
     gap: 2,
-    marginLeft: 74,
+    marginLeft: 62,
     borderTopWidth: 1,
     borderTopColor: '#f3f4f6',
     paddingTop: 6,
