@@ -1,46 +1,36 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
+import { formatPrice } from '@/utils/formatPrice';
+import type { Product } from '@/types/product';
 
-interface Product {
-  id: number;
-  name: string;
-  price: number;
+type RelatedProduct = Pick<Product, 'id' | 'name' | 'price' | 'mainImage'> & {
   salePrice?: number;
   onSale?: boolean;
-  mainImage?: string;
   logo?: string;
-}
+};
 
 interface RelatedProductSliderProps {
   title: string;
-  products: Product[];
+  products: RelatedProduct[];
   onMorePress?: () => void;
 }
 
-const RelatedProductSlider: React.FC<RelatedProductSliderProps> = ({ 
-  title, 
-  products, 
-  onMorePress 
+const RelatedProductSlider: React.FC<RelatedProductSliderProps> = ({
+  title,
+  products,
+  onMorePress,
 }) => {
   const router = useRouter();
 
-  const handleProductPress = (product: Product) => {
-    console.log('🛍️ Navegando al producto:', product.id);
+  const handleProductPress = (product: RelatedProduct) => {
     router.push(`/(tabs)/producto/${product.id}` as any);
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
-
-  const renderProduct = ({ item }: { item: Product }) => (
+  const renderProduct = (item: RelatedProduct) => (
     <TouchableOpacity
       style={styles.productCard}
       onPress={() => handleProductPress(item)}
@@ -48,16 +38,16 @@ const RelatedProductSlider: React.FC<RelatedProductSliderProps> = ({
     >
       <View style={styles.imageContainer}>
         <Image
-          source={{ uri: item.mainImage || 'https://via.placeholder.com/140x186' }}
+          source={{ uri: item.mainImage }}
           style={styles.productImage}
-          resizeMode="cover"
+          contentFit="cover"
         />
         {item.logo && (
           <View style={styles.logoContainer}>
             <Image
               source={{ uri: item.logo }}
               style={styles.logoImage}
-              resizeMode="contain"
+              contentFit="contain"
             />
           </View>
         )}
@@ -95,15 +85,18 @@ const RelatedProductSlider: React.FC<RelatedProductSliderProps> = ({
           </TouchableOpacity>
         )}
       </View>
-      <FlatList
-        data={products}
-        renderItem={renderProduct}
-        keyExtractor={(item) => item.id.toString()}
+      <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.listContainer}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-      />
+      >
+        {products.map((item, index) => (
+          <React.Fragment key={item.id.toString()}>
+            {renderProduct(item)}
+            {index < products.length - 1 && <View style={styles.separator} />}
+          </React.Fragment>
+        ))}
+      </ScrollView>
     </View>
   );
 };
@@ -172,7 +165,6 @@ const styles = StyleSheet.create({
   productImage: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#f5f5f5',
   },
   logoContainer: {
     position: 'absolute',

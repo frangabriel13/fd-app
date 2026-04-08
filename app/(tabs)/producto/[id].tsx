@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProductWithManufacturer } from '@/store/slices/productSlice';
+import { fetchProductWithManufacturer, clearCurrentProduct } from '@/store/slices/productSlice';
 import { RootState, AppDispatch } from '@/store';
+import { formatPrice } from '@/utils/formatPrice';
 import DetailProduct from '@/components/detailProduct/DetailProduct';
 import Gallery from '@/components/detailProduct/Gallery';
 import Quantities from '@/components/detailProduct/Quantities';
@@ -23,31 +24,33 @@ const ProductoScreen = () => {
   } = useSelector((state: RootState) => state.product);
 
   useEffect(() => {
-    if(id) {
-      // console.log('🛍️ Cargando producto con ID:', id);
+    if (id) {
+      dispatch(clearCurrentProduct());
       dispatch(fetchProductWithManufacturer(id));
     }
+    return () => {
+      dispatch(clearCurrentProduct());
+    };
   }, [id, dispatch]);
-
-  useEffect(() => {
-    if (currentProduct) {
-      console.log('✅ Datos del producto cargados:', currentProduct);
-      console.log('🏭 Datos del fabricante:', currentManufacturer);
-      // console.log('📦 Productos del fabricante:', manufacturerProducts);
-      // console.log('🏷️ Productos de la categoría:', categoryProducts);
-    }
-  }, [currentProduct, currentManufacturer, manufacturerProducts, categoryProducts]);
-
-  useEffect(() => {
-    if (error) {
-      console.log('❌ Error al cargar producto:', error);
-    }
-  }, [error]);
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <Text>Cargando producto...</Text>
+      <View style={styles.centeredState}>
+        <Text style={styles.loadingText}>Cargando producto...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.centeredState}>
+        <Text style={styles.errorText}>No se pudo cargar el producto</Text>
+        <Pressable
+          style={styles.retryBtn}
+          onPress={() => id && dispatch(fetchProductWithManufacturer(id))}
+        >
+          <Text style={styles.retryBtnText}>Reintentar</Text>
+        </Pressable>
       </View>
     );
   }
@@ -56,7 +59,7 @@ const ProductoScreen = () => {
     <ScrollView>
     <View style={styles.container}>
       <View style={styles.productContainer}>
-        <Text className="text-white text-center py-1 font-mont-bold text-base">Compra mínima de ${currentManufacturer?.minPurchase} en {currentManufacturer?.name}</Text>
+        <Text className="text-white text-center py-1 font-mont-bold text-base">Compra mínima de {formatPrice(currentManufacturer?.minPurchase ?? 0)} en {currentManufacturer?.name}</Text>
       </View>
       <View style={styles.detailContainer}>  
         <Gallery images={currentProduct?.images} mainImage={currentProduct?.mainImage} />
@@ -99,13 +102,37 @@ const styles = StyleSheet.create({
   container: {
     padding: 0,
   },
-
+  centeredState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+    gap: 16,
+  },
+  loadingText: {
+    fontSize: 15,
+    color: '#6b7280',
+  },
+  errorText: {
+    fontSize: 15,
+    color: '#ef4444',
+    textAlign: 'center',
+  },
+  retryBtn: {
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    backgroundColor: '#021344',
+  },
+  retryBtnText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
   productContainer: {
     backgroundColor: '#b91c1c',
   },
-
   detailContainer: {
-    // paddingVertical: 12,
     paddingHorizontal: 8,
     backgroundColor: 'white',
   },
