@@ -1,11 +1,20 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Modal,
+  ScrollView,
+  ActivityIndicator,
+  Image,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector, useAppDispatch } from '@/hooks/redux';
 import { createOrder, clearCreatedOrder, type CreateOrderPayload } from '@/store/slices/orderSlice';
 import { removeManufacturer, clearCart } from '@/store/slices/cartSlice';
 import { Colors } from '@/constants/Colors';
-import { spacing, borderRadius, shadows } from '@/constants/Styles';
+import { shadows } from '@/constants/Styles';
 import { formatPrice } from '@/utils/formatPrice';
 import type { CartManufacturerDisplay } from '@/types/cart';
 
@@ -24,180 +33,216 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
   orderType,
   cartData,
   selectedManufacturer,
-  onOrderCreated
+  onOrderCreated,
 }) => {
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector(state => state.auth);
   const { user: myUser } = useAppSelector(state => state.user);
-  const { loadingCreateOrder, errorCreateOrder, createdOrder } = useAppSelector(state => state.order);
+  const { loadingCreateOrder, errorCreateOrder } = useAppSelector(state => state.order);
+  const [successData, setSuccessData] = useState<{ id: number; total: number } | null>(null);
 
-  // Verificar si el usuario es wholesaler
   const isWholesaler = myUser?.role === 'wholesaler';
 
-  const transformCartToOrderFormat = (manufacturers: CartManufacturerDisplay[]): CreateOrderPayload => {
-    return {
-      carts: manufacturers.map(manufacturer => ({
+  const manufacturersToProcess =
+    orderType === 'single' && selectedManufacturer ? [selectedManufacturer] : cartData;
+
+  const totalAmount = manufacturersToProcess.reduce((s, m) => s + m.subtotal, 0);
+  const totalItems  = manufacturersToProcess.reduce((s, m) => s + m.totalItems, 0);
+
+  // Limpiar estado de éxito al cerrar externamente
+  useEffect(() => {
+    if (!visible) setSuccessData(null);
+  }, [visible]);
+
+  const buildOrderPayload = (manufacturers: CartManufacturerDisplay[]): CreateOrderPayload => ({
+    carts: manufacturers.map(m => {
+      // Agrupar variaciones por productId
+      const productsMap = new Map<string, typeof m.items>();
+      m.items.forEach(item => {
+        if (!productsMap.has(item.productId)) productsMap.set(item.productId, []);
+        productsMap.get(item.productId)!.push(item);
+      });
+
+      return {
         manufacturer: {
-          userId: manufacturer.manufacturerId,
-          id: manufacturer.manufacturerEntityId || manufacturer.manufacturerId,
-          name: manufacturer.manufacturerName || 'Fabricante desconocido'
+          userId: m.manufacturerUserId || m.manufacturerId,
         },
-        products: manufacturer.items.map(item => ({
-          id: item.productId,
-          name: item.productName || 'Producto',
-          price: item.price || 0,
-          inventories: [{
-            color: item.color || 'Sin especificar',
-            size: item.size || 'Sin especificar',
-            totalItem: item.quantity
-          }]
+        products: Array.from(productsMap.entries()).map(([productId, variations]) => ({
+          id: productId,
+          name: variations[0].productName || 'Producto',
+          price: variations[0].price || 0,
+          inventories: variations.map(v => ({
+            color: v.color || 'Sin especificar',
+            size: v.size || 'Sin especificar',
+            totalItem: v.quantity,
+          })),
         })),
-        packs: [], // Si tienes lógica de packs, agrégala aquí
-        totalCart: manufacturer.subtotal
-      }))
-    };
-  };
+        packs: [],
+        totalCart: m.subtotal,
+      };
+    }),
+  });
 
-  const handleCreateOrder = async () => {
-    if (!isWholesaler) {
-      Alert.alert(
-        'Acceso restringido',
-        'Debes tener una cuenta de mayorista para realizar pedidos.',
-        [{ text: 'OK', style: 'default' }]
-      );
-      return;
-    }
+  const handleConfirm = async () => {
+    const result = await dispatch(createOrder(buildOrderPayload(manufacturersToProcess)));
 
-    const manufacturersToProcess = orderType === 'single' && selectedManufacturer 
-      ? [selectedManufacturer] 
-      : cartData;
-
-    const orderData = transformCartToOrderFormat(manufacturersToProcess);
-
-    try {
-      const result = await dispatch(createOrder(orderData));
-      
-      if (createOrder.fulfilled.match(result)) {
-        // Limpiar los items del carrito en Redux
-        if (orderType === 'unified') {
-          dispatch(clearCart());
-        } else if (selectedManufacturer) {
-          dispatch(removeManufacturer({ manufacturerId: selectedManufacturer.manufacturerId }));
-        }
-
-        Alert.alert(
-          'Pedido creado exitosamente',
-          `Tu pedido #${result.payload.id} ha sido creado por un total de ${formatPrice(result.payload.total)}`,
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                onClose();
-                onOrderCreated?.();
-                dispatch(clearCreatedOrder());
-              }
-            }
-          ]
-        );
+    if (createOrder.fulfilled.match(result)) {
+      if (orderType === 'unified') {
+        dispatch(clearCart());
+      } else if (selectedManufacturer) {
+        dispatch(removeManufacturer({ manufacturerId: selectedManufacturer.manufacturerId }));
       }
-    } catch (error) {
-      console.error('Error creating order:', error);
+      setSuccessData({ id: result.payload.id, total: result.payload.total });
     }
   };
 
-  const getOrderSummary = () => {
-    const manufacturersToProcess = orderType === 'single' && selectedManufacturer 
-      ? [selectedManufacturer] 
-      : cartData;
-
-    const totalAmount = manufacturersToProcess.reduce((total, manufacturer) => total + manufacturer.subtotal, 0);
-    const totalItems = manufacturersToProcess.reduce((total, manufacturer) => total + manufacturer.totalItems, 0);
-
-    return {
-      manufacturersCount: manufacturersToProcess.length,
-      totalAmount,
-      totalItems
-    };
+  const handleClose = () => {
+    if (successData) {
+      dispatch(clearCreatedOrder());
+      setSuccessData(null);
+      onOrderCreated?.();
+    }
+    onClose();
   };
 
-  const { manufacturersCount, totalAmount, totalItems } = getOrderSummary();
-
-  if (!isWholesaler) {
+  const renderManufacturerRow = (mfr: CartManufacturerDisplay) => {
+    const uniqueProducts = new Set(mfr.items.map(i => i.productId)).size;
     return (
-      <Modal visible={visible} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Ionicons name="warning" size={24} color={Colors.general.error} />
-              <Text style={styles.modalTitle}>Acceso restringido</Text>
-            </View>
-            
-            <Text style={styles.modalMessage}>
-              Para realizar pedidos necesitas tener una cuenta de mayorista verificada.
-            </Text>
-            
-            <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                <Text style={styles.closeButtonText}>Entendido</Text>
-              </TouchableOpacity>
-            </View>
+      <View key={mfr.manufacturerId} style={styles.mfrRow}>
+        {mfr.manufacturerLogo && mfr.manufacturerLogo !== 'undefined' ? (
+          <Image source={{ uri: mfr.manufacturerLogo }} style={styles.mfrLogo} />
+        ) : (
+          <View style={[styles.mfrLogo, styles.mfrLogoFallback]}>
+            <Ionicons name="storefront-outline" size={14} color={Colors.gray.semiDark} />
           </View>
+        )}
+        <View style={styles.mfrInfo}>
+          <Text style={styles.mfrName} numberOfLines={1}>
+            {mfr.manufacturerName ?? 'Fabricante'}
+          </Text>
+          <Text style={styles.mfrMeta}>
+            {mfr.totalItems} {mfr.totalItems === 1 ? 'unidad' : 'unidades'} ·{' '}
+            {uniqueProducts} {uniqueProducts === 1 ? 'producto' : 'productos'}
+          </Text>
         </View>
-      </Modal>
+        <Text style={styles.mfrSubtotal}>{formatPrice(mfr.subtotal)}</Text>
+      </View>
     );
-  }
+  };
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Ionicons name="bag-check" size={24} color={Colors.orange.default} />
-            <Text style={styles.modalTitle}>
-              {orderType === 'single' ? 'Confirmar pedido' : 'Confirmar pedido unificado'}
-            </Text>
-          </View>
-          
-          <View style={styles.orderSummary}>
-            <Text style={styles.summaryText}>
-              {totalItems} {totalItems === 1 ? 'producto' : 'productos'} de {manufacturersCount} {manufacturersCount === 1 ? 'fabricante' : 'fabricantes'}
-            </Text>
-            <Text style={styles.totalAmount}>{formatPrice(totalAmount)}</Text>
-          </View>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+      <View style={styles.overlay}>
+        <Pressable style={styles.backdrop} onPress={handleClose} />
 
-          {orderType === 'unified' && (
-            <Text style={styles.unifiedNote}>
-              Este pedido unificará las compras de todos los fabricantes en tu carrito.
-            </Text>
-          )}
+        <View style={styles.sheet}>
+          {/* Barra decorativa */}
+          <View style={styles.handle} />
 
-          {errorCreateOrder && (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{errorCreateOrder}</Text>
+          {/* ── Estado: éxito ────────────────────── */}
+          {successData ? (
+            <View style={styles.centeredContainer}>
+              <View style={styles.successIconWrap}>
+                <Ionicons name="checkmark" size={38} color="#fff" />
+              </View>
+              <Text style={styles.centeredTitle}>¡Pedido enviado!</Text>
+              <Text style={styles.successOrderId}>Pedido #{successData.id}</Text>
+              <Text style={styles.successTotal}>{formatPrice(successData.total)}</Text>
+              <Text style={styles.centeredNote}>
+                El fabricante recibirá tu pedido y se pondrá en contacto con vos pronto.
+              </Text>
+              <Pressable
+                style={styles.primaryBtn}
+                onPress={handleClose}
+                android_ripple={{ color: '#0a2a6e' }}
+              >
+                <View style={styles.primaryBtnInner}>
+                  <Text style={styles.primaryBtnText}>Continuar comprando</Text>
+                </View>
+              </Pressable>
             </View>
-          )}
-          
-          <View style={styles.modalActions}>
-            <TouchableOpacity 
-              style={styles.cancelButton} 
-              onPress={onClose}
-              disabled={loadingCreateOrder}
-            >
-              <Text style={styles.cancelButtonText}>Cancelar</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.confirmButton, loadingCreateOrder && styles.disabledButton]} 
-              onPress={handleCreateOrder}
-              disabled={loadingCreateOrder}
-            >
-              {loadingCreateOrder ? (
-                <Text style={styles.confirmButtonText}>Creando...</Text>
-              ) : (
-                <Text style={styles.confirmButtonText}>Confirmar pedido</Text>
+
+          /* ── Estado: acceso restringido ──────── */
+          ) : !isWholesaler ? (
+            <View style={styles.centeredContainer}>
+              <View style={styles.lockIconWrap}>
+                <Ionicons name="lock-closed-outline" size={30} color={Colors.blue.dark} />
+              </View>
+              <Text style={styles.centeredTitle}>Solo para mayoristas</Text>
+              <Text style={styles.centeredNote}>
+                Para realizar pedidos necesitás tener una cuenta de mayorista verificada.
+              </Text>
+              <Pressable style={styles.outlineBtn} onPress={handleClose}>
+                <Text style={styles.outlineBtnText}>Entendido</Text>
+              </Pressable>
+            </View>
+
+          /* ── Estado: confirmación ────────────── */
+          ) : (
+            <>
+              {/* Header */}
+              <View style={styles.header}>
+                <Text style={styles.title}>
+                  {orderType === 'unified' ? 'Pedido unificado' : 'Confirmar pedido'}
+                </Text>
+                <Pressable style={styles.closeBtn} onPress={handleClose} hitSlop={10}>
+                  <Ionicons name="close" size={20} color={Colors.gray.semiDark} />
+                </Pressable>
+              </View>
+
+              {/* Lista de fabricantes */}
+              <ScrollView
+                style={styles.scroll}
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+              >
+                {manufacturersToProcess.map(renderManufacturerRow)}
+              </ScrollView>
+
+              {/* Total */}
+              <View style={styles.divider} />
+              <View style={styles.totalRow}>
+                <View>
+                  <Text style={styles.totalLabel}>Total del pedido</Text>
+                  <Text style={styles.totalMeta}>
+                    {totalItems} {totalItems === 1 ? 'unidad' : 'unidades'}
+                    {manufacturersToProcess.length > 1 &&
+                      ` · ${manufacturersToProcess.length} fabricantes`}
+                  </Text>
+                </View>
+                <Text style={styles.totalAmount}>{formatPrice(totalAmount)}</Text>
+              </View>
+
+              {/* Error inline */}
+              {errorCreateOrder && (
+                <View style={styles.errorBox}>
+                  <Ionicons name="alert-circle-outline" size={15} color={Colors.general.error} />
+                  <Text style={styles.errorText}>{errorCreateOrder}</Text>
+                </View>
               )}
-            </TouchableOpacity>
-          </View>
+
+              {/* CTA */}
+              <Pressable
+                style={({ pressed }) => [
+                  styles.primaryBtn,
+                  (loadingCreateOrder || pressed) && styles.primaryBtnPressed,
+                ]}
+                onPress={handleConfirm}
+                disabled={loadingCreateOrder}
+                android_ripple={{ color: '#0a2a6e' }}
+              >
+                <View style={styles.primaryBtnInner}>
+                  {loadingCreateOrder ? (
+                    <ActivityIndicator color="#fff" size="small" />
+                  ) : (
+                    <>
+                      <Ionicons name="bag-check-outline" size={19} color="#fff" />
+                      <Text style={styles.primaryBtnText}>Confirmar pedido</Text>
+                    </>
+                  )}
+                </View>
+              </Pressable>
+            </>
+          )}
         </View>
       </View>
     </Modal>
@@ -205,122 +250,237 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
 };
 
 const styles = StyleSheet.create({
-  modalOverlay: {
+  overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.45)',
   },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: borderRadius.xl,
-    padding: spacing.lg,
-    width: '100%',
-    maxWidth: 400,
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  sheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 16,
+    paddingBottom: 28,
     ...shadows.lg,
   },
-  modalHeader: {
+  handle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#e5e7eb',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+
+  // ── Header ──────────────────────────────
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.lg,
-    gap: spacing.md,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: Colors.light.text,
+  title: {
     flex: 1,
-  },
-  orderSummary: {
-    backgroundColor: Colors.gray.light,
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    marginBottom: spacing.lg,
-  },
-  summaryText: {
-    fontSize: 14,
-    color: Colors.gray.semiDark,
-    marginBottom: spacing.sm,
-  },
-  totalAmount: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
-    color: Colors.blue.default,
+    color: '#111827',
   },
-  unifiedNote: {
+  closeBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.gray.light,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // ── Lista de fabricantes ─────────────────
+  scroll: {
+    maxHeight: 240,
+  },
+  scrollContent: {
+    paddingVertical: 6,
+  },
+  mfrRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f9fafb',
+  },
+  mfrLogo: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    flexShrink: 0,
+  },
+  mfrLogoFallback: {
+    backgroundColor: Colors.gray.light,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mfrInfo: {
+    flex: 1,
+    gap: 3,
+  },
+  mfrName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  mfrMeta: {
     fontSize: 12,
     color: Colors.gray.semiDark,
-    textAlign: 'center',
-    marginBottom: spacing.lg,
-    fontStyle: 'italic',
   },
-  modalMessage: {
-    fontSize: 16,
-    color: Colors.light.text,
-    textAlign: 'center',
-    marginBottom: spacing.lg,
-    lineHeight: 22,
-  },
-  errorContainer: {
-    backgroundColor: Colors.general.error + '20',
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    marginBottom: spacing.lg,
-  },
-  errorText: {
+  mfrSubtotal: {
     fontSize: 14,
-    color: Colors.general.error,
-    textAlign: 'center',
+    fontWeight: '700',
+    color: Colors.blue.dark,
   },
-  modalActions: {
+
+  // ── Total ────────────────────────────────
+  divider: {
+    height: 1,
+    backgroundColor: '#e5e7eb',
+    marginVertical: 4,
+  },
+  totalRow: {
     flexDirection: 'row',
-    gap: spacing.md,
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingVertical: 14,
   },
-  cancelButton: {
-    flex: 1,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    borderColor: Colors.gray.semiDark,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    fontSize: 16,
+  totalLabel: {
+    fontSize: 13,
     fontWeight: '600',
     color: Colors.gray.semiDark,
   },
-  confirmButton: {
-    flex: 1,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: borderRadius.lg,
-    backgroundColor: Colors.orange.default,
+  totalMeta: {
+    fontSize: 12,
+    color: Colors.gray.default,
+    marginTop: 2,
+  },
+  totalAmount: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: Colors.blue.dark,
+  },
+
+  // ── Error ────────────────────────────────
+  errorBox: {
+    flexDirection: 'row',
     alignItems: 'center',
-    ...shadows.md,
+    gap: 8,
+    backgroundColor: Colors.general.error + '12',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginBottom: 12,
   },
-  confirmButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'white',
-  },
-  closeButton: {
+  errorText: {
     flex: 1,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: borderRadius.lg,
-    backgroundColor: Colors.blue.default,
+    fontSize: 13,
+    color: Colors.general.error,
+  },
+
+  // ── Botones ──────────────────────────────
+  primaryBtn: {
+    borderRadius: 6,
+    overflow: 'hidden',
+    alignSelf: 'stretch',
+  },
+  primaryBtnInner: {
+    flexDirection: 'row',
     alignItems: 'center',
-    ...shadows.md,
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: Colors.blue.dark,
+    paddingVertical: 15,
+    minHeight: 50,
+    borderRadius: 6,
   },
-  closeButtonText: {
-    fontSize: 16,
+  primaryBtnPressed: {
+    backgroundColor: '#0a2a6e',
+  },
+  primaryBtnText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  outlineBtn: {
+    width: '100%',
+    borderWidth: 1.5,
+    borderColor: Colors.blue.dark,
+    paddingVertical: 13,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  outlineBtnText: {
+    fontSize: 15,
     fontWeight: '600',
-    color: 'white',
+    color: Colors.blue.dark,
   },
-  disabledButton: {
-    opacity: 0.6,
+
+  // ── Estados centrados (éxito / restringido) ──
+  centeredContainer: {
+    alignItems: 'center',
+    paddingTop: 20,
+    paddingBottom: 8,
+    gap: 10,
+  },
+  centeredTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#111827',
+    marginTop: 4,
+  },
+  centeredNote: {
+    fontSize: 13,
+    color: Colors.gray.semiDark,
+    textAlign: 'center',
+    lineHeight: 19,
+    paddingHorizontal: 12,
+    marginBottom: 8,
+  },
+
+  // Éxito
+  successIconWrap: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: Colors.general.success,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  successOrderId: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: Colors.gray.semiDark,
+  },
+  successTotal: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: Colors.blue.dark,
+  },
+
+  // Restringido
+  lockIconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: Colors.blue.dark + '10',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

@@ -80,6 +80,7 @@ export const getCartItemsService = async (cartItems: CartRequestItem[]): Promise
       return {
         manufacturerId: item.manufacturer?.id || 0,
         manufacturerEntityId: item.manufacturer?.id,
+        manufacturerUserId: item.manufacturer?.userId,
         manufacturerName: item.manufacturer?.name,
         manufacturerLogo: item.manufacturer?.image,
         minPurchase: item.manufacturer?.minPurchase,

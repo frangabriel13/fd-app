@@ -65,6 +65,7 @@ export interface CartItemDisplay {
 export interface CartManufacturerDisplay {
   manufacturerId: number;       // id de la entidad fabricante (clave usada en el estado Redux del carrito)
   manufacturerEntityId?: number; // id de la entidad fabricante (usado para navegar a la tienda)
+  manufacturerUserId?: number;   // userId del fabricante (usado en el payload de creación de pedido)
   manufacturerName?: string;
   manufacturerLogo?: string;
   minPurchase?: number;
