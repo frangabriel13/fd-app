@@ -55,4 +55,5 @@ export interface ProductWithManufacturerResponse {
   manufacturerProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
   categoryProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
   views?: number;
+  isFavorite?: boolean | null;
 }
