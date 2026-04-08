@@ -3,7 +3,6 @@ import { useLocalSearchParams } from 'expo-router';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductWithManufacturer } from '@/store/slices/productSlice';
-import { getFavorites } from '@/store/slices/favoriteSlice';
 import { RootState, AppDispatch } from '@/store';
 import DetailProduct from '@/components/detailProduct/DetailProduct';
 import Gallery from '@/components/detailProduct/Gallery';
@@ -29,11 +28,6 @@ const ProductoScreen = () => {
       dispatch(fetchProductWithManufacturer(id));
     }
   }, [id, dispatch]);
-
-  // Cargar favoritos al montar el componente
-  useEffect(() => {
-    dispatch(getFavorites());
-  }, [dispatch]);
 
   useEffect(() => {
     if (currentProduct) {

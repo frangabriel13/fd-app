@@ -191,6 +191,7 @@ interface ProductState {
   manufacturerProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
   categoryProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
   currentProductViews: number | null;
+  currentProductIsFavorite: boolean | null;
   shopProducts: ShopProduct[];
   shopPagination: ShopPagination | null;
   shopFilters: ShopFilters;
@@ -237,6 +238,7 @@ const initialState: ProductState = {
   manufacturerProducts: [],
   categoryProducts: [],
   currentProductViews: null,
+  currentProductIsFavorite: null,
   shopProducts: [],
   shopPagination: null,
   shopFilters: {
@@ -499,6 +501,10 @@ const productSlice = createSlice({
       state.currentManufacturer = null;
       state.manufacturerProducts = [];
       state.categoryProducts = [];
+      state.currentProductIsFavorite = null;
+    },
+    setCurrentProductIsFavorite: (state, action: PayloadAction<boolean>) => {
+      state.currentProductIsFavorite = action.payload;
     },
     setShopFilters: (state, action: PayloadAction<Partial<ShopFilters>>) => {
       state.shopFilters = { ...state.shopFilters, ...action.payload };
@@ -629,6 +635,7 @@ const productSlice = createSlice({
         state.manufacturerProducts = action.payload.manufacturerProducts;
         state.categoryProducts = action.payload.categoryProducts;
         state.currentProductViews = action.payload.views ?? null;
+        state.currentProductIsFavorite = action.payload.isFavorite ?? null;
         state.loading = false;
       })
       .addCase(fetchProductWithManufacturer.rejected, (state, action: PayloadAction<any>) => {
@@ -829,10 +836,11 @@ const productSlice = createSlice({
   },
 });
 
-export const { 
-  setLoading, 
-  setError, 
-  clearCurrentProduct, 
+export const {
+  setLoading,
+  setError,
+  clearCurrentProduct,
+  setCurrentProductIsFavorite,
   setShopFilters, 
   clearShopProducts, 
   resetShopFilters, 

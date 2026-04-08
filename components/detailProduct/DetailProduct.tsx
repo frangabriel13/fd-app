@@ -2,7 +2,8 @@ import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { Product, Manufacturer } from '@/types/product';
-import { addFavorite, removeFavorite, getFavorites, selectIsProductFavorite } from '@/store/slices/favoriteSlice';
+import { addFavorite, removeFavorite } from '@/store/slices/favoriteSlice';
+import { setCurrentProductIsFavorite } from '@/store/slices/productSlice';
 import { AppDispatch, RootState } from '@/store';
 
 interface DetailProductProps {
@@ -14,13 +15,8 @@ interface DetailProductProps {
 const DetailProduct = ({ product, manufacturer, views }: DetailProductProps) => {
   const dispatch = useDispatch<AppDispatch>();
   
-  // Convertir el ID del producto a número para el selector
-  const productIdNumber = product?.id ? parseInt(product.id) : 0;
-  
   // Verificar si el producto está en favoritos
-  const isFavorite = useSelector((state: RootState) => 
-    selectIsProductFavorite(productIdNumber)(state)
-  );
+  const isFavorite = useSelector((state: RootState) => state.product.currentProductIsFavorite);
   
   // Obtener el rol del usuario autenticado
   const userRole = useSelector((state: RootState) => state.auth.user?.role);
@@ -44,12 +40,10 @@ const DetailProduct = ({ product, manufacturer, views }: DetailProductProps) => 
     try {
       if (isFavorite) {
         await dispatch(removeFavorite(productId)).unwrap();
-        // Recargar favoritos para sincronizar el estado
-        await dispatch(getFavorites());
+        dispatch(setCurrentProductIsFavorite(false));
       } else {
         await dispatch(addFavorite(productId)).unwrap();
-        // Recargar favoritos para sincronizar el estado
-        await dispatch(getFavorites());
+        dispatch(setCurrentProductIsFavorite(true));
       }
     } catch (error: any) {
       console.error('Error al actualizar favoritos:', error);
