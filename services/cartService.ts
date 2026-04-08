@@ -56,7 +56,7 @@ export const getCartItemsService = async (cartItems: CartRequestItem[]): Promise
         const inventoriesWithQuantity = product.inventories?.filter(inv => inv.totalItem !== undefined) || [];
         
         return inventoriesWithQuantity.map(inventory => ({
-          manufacturerId: item.manufacturer?.userId || 0,
+          manufacturerId: item.manufacturer?.id || 0,
           productId: product.id.toString(),
           inventoryId: inventory.id,
           quantity: inventory.totalItem || 0,
@@ -78,7 +78,7 @@ export const getCartItemsService = async (cartItems: CartRequestItem[]): Promise
       }, 0);
 
       return {
-        manufacturerId: item.manufacturer?.userId || 0,
+        manufacturerId: item.manufacturer?.id || 0,
         manufacturerEntityId: item.manufacturer?.id,
         manufacturerName: item.manufacturer?.name,
         manufacturerLogo: item.manufacturer?.image,
