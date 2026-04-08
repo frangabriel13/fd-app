@@ -10,6 +10,21 @@ import Gallery from '@/components/detailProduct/Gallery';
 import Quantities from '@/components/detailProduct/Quantities';
 import RelatedProductSlider from '@/components/detailProduct/RelatedProductSlider';
 
+const LoadingState = () => (
+  <View style={styles.centeredState}>
+    <Text style={styles.loadingText}>Cargando producto...</Text>
+  </View>
+);
+
+const ErrorState = ({ onRetry }: { onRetry: () => void }) => (
+  <View style={styles.centeredState}>
+    <Text style={styles.errorText}>No se pudo cargar el producto</Text>
+    <Pressable style={styles.retryBtn} onPress={onRetry}>
+      <Text style={styles.retryBtnText}>Reintentar</Text>
+    </Pressable>
+  </View>
+);
+
 const ProductoScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
@@ -33,67 +48,49 @@ const ProductoScreen = () => {
     };
   }, [id, dispatch]);
 
-  if (loading) {
-    return (
-      <View style={styles.centeredState}>
-        <Text style={styles.loadingText}>Cargando producto...</Text>
-      </View>
-    );
-  }
+  if (loading) return <LoadingState />;
 
-  if (error) {
-    return (
-      <View style={styles.centeredState}>
-        <Text style={styles.errorText}>No se pudo cargar el producto</Text>
-        <Pressable
-          style={styles.retryBtn}
-          onPress={() => id && dispatch(fetchProductWithManufacturer(id))}
-        >
-          <Text style={styles.retryBtnText}>Reintentar</Text>
-        </Pressable>
-      </View>
-    );
-  }
+  if (error) return <ErrorState onRetry={() => id && dispatch(fetchProductWithManufacturer(id))} />;
 
   return (
     <ScrollView>
-    <View style={styles.container}>
-      <View style={styles.productContainer}>
-        <Text className="text-white text-center py-1 font-mont-bold text-base">Compra mínima de {formatPrice(currentManufacturer?.minPurchase ?? 0)} en {currentManufacturer?.name}</Text>
-      </View>
-      <View style={styles.detailContainer}>  
-        <Gallery images={currentProduct?.images} mainImage={currentProduct?.mainImage} />
-        <DetailProduct
-          product={currentProduct || undefined}
-          manufacturer={currentManufacturer || undefined}
-          views={currentProductViews ?? undefined}
-        />
-        <Quantities 
-          isVariable={currentProduct?.isVariable} 
-          inventories={currentProduct?.inventories}
-          manufacturerId={currentManufacturer?.id || 0}
-          productId={currentProduct?.id?.toString() || ''}
-        />
-        
-        {/* Productos del mismo fabricante */}
-        {manufacturerProducts && manufacturerProducts.length > 0 && (
-          <RelatedProductSlider
-            title={`Más de ${currentManufacturer?.name || 'este fabricante'}`}
-            products={manufacturerProducts.filter(p => p.id !== currentProduct?.id)}
-            onMorePress={() => console.log('Ver más productos del fabricante')}
+      <View style={styles.container}>
+        <View style={styles.productContainer}>
+          <Text className="text-white text-center py-1 font-mont-bold text-base">
+            Compra mínima de {formatPrice(currentManufacturer?.minPurchase ?? 0)} en {currentManufacturer?.name}
+          </Text>
+        </View>
+        <View style={styles.detailContainer}>
+          <Gallery images={currentProduct?.images} mainImage={currentProduct?.mainImage} />
+          <DetailProduct
+            product={currentProduct || undefined}
+            manufacturer={currentManufacturer || undefined}
+            views={currentProductViews ?? undefined}
           />
-        )}
-        
-        {/* Productos relacionados */}
-        {categoryProducts && categoryProducts.length > 0 && (
-          <RelatedProductSlider
-            title="Productos relacionados"
-            products={categoryProducts.filter(p => p.id !== currentProduct?.id)}
-            onMorePress={() => console.log('Ver más productos relacionados')}
+          <Quantities
+            isVariable={currentProduct?.isVariable}
+            inventories={currentProduct?.inventories}
+            manufacturerId={currentManufacturer?.id || 0}
+            productId={currentProduct?.id?.toString() || ''}
           />
-        )}
+
+          {manufacturerProducts && manufacturerProducts.length > 0 && (
+            <RelatedProductSlider
+              title={`Más de ${currentManufacturer?.name || 'este fabricante'}`}
+              products={manufacturerProducts.filter(p => p.id !== currentProduct?.id)}
+              onMorePress={() => console.log('Ver más productos del fabricante')}
+            />
+          )}
+
+          {categoryProducts && categoryProducts.length > 0 && (
+            <RelatedProductSlider
+              title="Productos relacionados"
+              products={categoryProducts.filter(p => p.id !== currentProduct?.id)}
+              onMorePress={() => console.log('Ver más productos relacionados')}
+            />
+          )}
+        </View>
       </View>
-    </View>
     </ScrollView>
   );
 };
@@ -137,6 +134,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
 });
-
 
 export default ProductoScreen;
