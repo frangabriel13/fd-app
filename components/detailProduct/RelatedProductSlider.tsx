@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -8,9 +8,9 @@ import { formatPrice } from '@/utils/formatPrice';
 import type { Product } from '@/types/product';
 
 type RelatedProduct = Pick<Product, 'id' | 'name' | 'price' | 'mainImage'> & {
-  salePrice?: number;
-  onSale?: boolean;
   logo?: string;
+  onSale?: boolean;
+  salePrice?: number;
 };
 
 interface RelatedProductSliderProps {
@@ -19,56 +19,57 @@ interface RelatedProductSliderProps {
   onMorePress?: () => void;
 }
 
-const RelatedProductSlider: React.FC<RelatedProductSliderProps> = ({
-  title,
-  products,
-  onMorePress,
-}) => {
+interface RelatedProductCardProps {
+  item: RelatedProduct;
+  onPress: (item: RelatedProduct) => void;
+}
+
+const RelatedProductCard = memo(function RelatedProductCard({ item, onPress }: RelatedProductCardProps) { return (
+  <TouchableOpacity
+    style={styles.productCard}
+    onPress={() => onPress(item)}
+    activeOpacity={0.7}
+  >
+    <View style={styles.imageContainer}>
+      <Image
+        source={{ uri: item.mainImage }}
+        style={styles.productImage}
+        contentFit="cover"
+      />
+      {item.logo && (
+        <View style={styles.logoContainer}>
+          <Image
+            source={{ uri: item.logo }}
+            style={styles.logoImage}
+            contentFit="contain"
+          />
+        </View>
+      )}
+    </View>
+    <View style={styles.productInfo}>
+      <Text style={styles.productName} numberOfLines={2}>
+        {item.name}
+      </Text>
+      <View style={styles.priceContainer}>
+        {item.onSale && item.salePrice && item.salePrice > 0 ? (
+          <>
+            <Text style={styles.originalPrice}>{formatPrice(item.price)}</Text>
+            <Text style={styles.salePrice}>{formatPrice(item.salePrice)}</Text>
+          </>
+        ) : (
+          <Text style={styles.price}>{formatPrice(item.price)}</Text>
+        )}
+      </View>
+    </View>
+  </TouchableOpacity>
+); });
+
+const RelatedProductSlider = ({ title, products, onMorePress }: RelatedProductSliderProps) => {
   const router = useRouter();
 
   const handleProductPress = (product: RelatedProduct) => {
     router.push(`/(tabs)/producto/${product.id}` as any);
   };
-
-  const renderProduct = (item: RelatedProduct) => (
-    <TouchableOpacity
-      style={styles.productCard}
-      onPress={() => handleProductPress(item)}
-      activeOpacity={0.7}
-    >
-      <View style={styles.imageContainer}>
-        <Image
-          source={{ uri: item.mainImage }}
-          style={styles.productImage}
-          contentFit="cover"
-        />
-        {item.logo && (
-          <View style={styles.logoContainer}>
-            <Image
-              source={{ uri: item.logo }}
-              style={styles.logoImage}
-              contentFit="contain"
-            />
-          </View>
-        )}
-      </View>
-      <View style={styles.productInfo}>
-        <Text style={styles.productName} numberOfLines={2}>
-          {item.name}
-        </Text>
-        <View style={styles.priceContainer}>
-          {item.onSale && item.salePrice && item.salePrice > 0 ? (
-            <>
-              <Text style={styles.originalPrice}>{formatPrice(item.price)}</Text>
-              <Text style={styles.salePrice}>{formatPrice(item.salePrice)}</Text>
-            </>
-          ) : (
-            <Text style={styles.price}>{formatPrice(item.price)}</Text>
-          )}
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
 
   if (!products || products.length === 0) {
     return null;
@@ -91,8 +92,8 @@ const RelatedProductSlider: React.FC<RelatedProductSliderProps> = ({
         contentContainerStyle={styles.listContainer}
       >
         {products.map((item, index) => (
-          <React.Fragment key={item.id.toString()}>
-            {renderProduct(item)}
+          <React.Fragment key={item.id ?? index}>
+            <RelatedProductCard item={item} onPress={handleProductPress} />
             {index < products.length - 1 && <View style={styles.separator} />}
           </React.Fragment>
         ))}
@@ -144,10 +145,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 12,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 4,
@@ -176,10 +174,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 2,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,

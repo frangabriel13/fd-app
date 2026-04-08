@@ -1,3 +1,12 @@
+export const getColorValue = (code: string | null): string => {
+  if (!code) return '#ccc';
+  if (code.startsWith('#')) return code;
+  if (/^[a-zA-Z]+$/.test(code)) return code;
+  if (code.startsWith('rgb') || code.startsWith('hsl')) return code;
+  if (/^[0-9A-Fa-f]{6}$/.test(code)) return `#${code}`;
+  return '#ccc';
+};
+
 export const formatToARS = (amount: number): string => {
   return new Intl.NumberFormat('es-AR', {
     // style: 'currency',
