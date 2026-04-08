@@ -22,20 +22,21 @@ interface QuantitiesProps {
 
 const Quantities = ({ isVariable, inventories = [], onQuantityChange, manufacturerId, productId }: QuantitiesProps) => {
   const [quantities, setQuantities] = useState<Record<number, number>>({});
-  const { addToCart, updateCartItem, manufacturers } = useCart();
+  const { addToCart, updateCartItem, removeFromCart, manufacturers } = useCart();
   const { triggerAnimation } = useCartAnimationContext();
 
-  // Sincronizar con el carrito cuando cambie el estado del carrito
+  // Solo los inventarios de este producto en el carrito — cambia de referencia únicamente cuando este producto específico se modifica
+  const cartItems = manufacturers[manufacturerId]?.[productId];
+
+  // Sincronizar con el carrito cuando cambien los items de este producto
   useEffect(() => {
     const initialQuantities: Record<number, number> = {};
     inventories.forEach(inventory => {
-      const product = manufacturers[manufacturerId]?.[productId];
-      const cartItem = product?.find(item => item.inventoryId === inventory.id);
-      const cartQuantity = cartItem?.quantity || 0;
-      initialQuantities[inventory.id] = cartQuantity;
+      const cartItem = cartItems?.find(item => item.inventoryId === inventory.id);
+      initialQuantities[inventory.id] = cartItem?.quantity || 0;
     });
     setQuantities(initialQuantities);
-  }, [inventories, manufacturerId, productId, manufacturers]);
+  }, [inventories, manufacturerId, productId, cartItems]);
 
   const updateQuantity = (inventoryId: number, newQuantity: number) => {
     const inventory = inventories.find(inv => inv.id === inventoryId);
@@ -80,13 +81,7 @@ const Quantities = ({ isVariable, inventories = [], onQuantityChange, manufactur
         }
       }
     } else {
-      // Eliminar del carrito si la cantidad es 0
-      updateCartItem({
-        manufacturerId,
-        productId,
-        inventoryId,
-        quantity: 0
-      });
+      removeFromCart({ manufacturerId, productId, inventoryId });
     }
 
     // Callback opcional

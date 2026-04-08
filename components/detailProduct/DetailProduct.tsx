@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { Product, Manufacturer } from '@/types/product';
@@ -21,6 +21,12 @@ const DetailProduct = ({ product, manufacturer, views }: DetailProductProps) => 
   // Obtener el rol del usuario autenticado
   const userRole = useSelector((state: RootState) => state.auth.user?.role);
   
+  const handleWhatsApp = () => {
+    if (!manufacturer?.phone) return;
+    const phone = manufacturer.phone.replace(/\D/g, '');
+    Linking.openURL(`https://wa.me/${phone}`);
+  };
+
   // Handler para toggle de favoritos
   const handleToggleFavorite = async () => {
     if (!product?.id) return;
@@ -97,7 +103,11 @@ const DetailProduct = ({ product, manufacturer, views }: DetailProductProps) => 
         </Text>
         <View className="flex-row items-center mb-4">
           {/* Botón WhatsApp */}
-          <TouchableOpacity className="bg-green-500 flex-row items-center px-4 py-2 rounded-lg mr-4">
+          <TouchableOpacity
+            className="bg-green-500 flex-row items-center px-4 py-2 rounded-lg mr-4"
+            onPress={handleWhatsApp}
+            disabled={!manufacturer?.phone}
+          >
             <Ionicons name="logo-whatsapp" size={20} color="white" />
             <Text className="text-white font-mont-medium ml-2">WhatsApp</Text>
           </TouchableOpacity>
