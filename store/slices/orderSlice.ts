@@ -25,8 +25,8 @@ export interface CreateOrderPack {
 export interface CreateOrderCart {
   manufacturer: {
     userId: number;
-    id: number;
-    name: string;
+    id?: number;
+    name?: string;
   };
   products: CreateOrderProduct[];
   packs: CreateOrderPack[];
