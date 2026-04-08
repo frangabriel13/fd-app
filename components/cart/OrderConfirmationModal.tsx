@@ -36,8 +36,9 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
   onOrderCreated,
 }) => {
   const dispatch = useAppDispatch();
-  const { user: myUser } = useAppSelector(state => state.user);
-  const { loadingCreateOrder, errorCreateOrder } = useAppSelector(state => state.order);
+  const myUser = useAppSelector(state => state.user?.user);
+  const loadingCreateOrder = useAppSelector(state => state.order?.loadingCreateOrder ?? false);
+  const errorCreateOrder = useAppSelector(state => state.order?.errorCreateOrder ?? null);
   const [successData, setSuccessData] = useState<{ id: number; total: number } | null>(null);
 
   const isWholesaler = myUser?.role === 'wholesaler';
@@ -47,6 +48,11 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
 
   const totalAmount = manufacturersToProcess.reduce((s, m) => s + m.subtotal, 0);
   const totalItems  = manufacturersToProcess.reduce((s, m) => s + m.totalItems, 0);
+
+  const unmetMinimums = manufacturersToProcess.filter(
+    m => m.minPurchase && m.minPurchase > 0 && m.subtotal < m.minPurchase
+  );
+  const canConfirm = unmetMinimums.length === 0;
 
   // Limpiar estado de éxito al cerrar externamente
   useEffect(() => {
@@ -106,25 +112,38 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
 
   const renderManufacturerRow = (mfr: CartManufacturerDisplay) => {
     const uniqueProducts = new Set(mfr.items.map(i => i.productId)).size;
+    const hasMin = !!mfr.minPurchase && mfr.minPurchase > 0;
+    const meetsMin = !hasMin || mfr.subtotal >= mfr.minPurchase!;
+
     return (
-      <View key={mfr.manufacturerId} style={styles.mfrRow}>
-        {mfr.manufacturerLogo && mfr.manufacturerLogo !== 'undefined' ? (
-          <Image source={{ uri: mfr.manufacturerLogo }} style={styles.mfrLogo} />
-        ) : (
-          <View style={[styles.mfrLogo, styles.mfrLogoFallback]}>
-            <Ionicons name="storefront-outline" size={14} color={Colors.gray.semiDark} />
+      <View key={mfr.manufacturerId}>
+        <View style={styles.mfrRow}>
+          {mfr.manufacturerLogo && mfr.manufacturerLogo !== 'undefined' ? (
+            <Image source={{ uri: mfr.manufacturerLogo }} style={styles.mfrLogo} />
+          ) : (
+            <View style={[styles.mfrLogo, styles.mfrLogoFallback]}>
+              <Ionicons name="storefront-outline" size={14} color={Colors.gray.semiDark} />
+            </View>
+          )}
+          <View style={styles.mfrInfo}>
+            <Text style={styles.mfrName} numberOfLines={1}>
+              {mfr.manufacturerName ?? 'Fabricante'}
+            </Text>
+            <Text style={styles.mfrMeta}>
+              {mfr.totalItems} {mfr.totalItems === 1 ? 'unidad' : 'unidades'} ·{' '}
+              {uniqueProducts} {uniqueProducts === 1 ? 'producto' : 'productos'}
+            </Text>
+          </View>
+          <Text style={styles.mfrSubtotal}>{formatPrice(mfr.subtotal)}</Text>
+        </View>
+        {!meetsMin && (
+          <View style={styles.minWarningRow}>
+            <Ionicons name="alert-circle-outline" size={13} color={Colors.general.error} />
+            <Text style={styles.minWarningText}>
+              Te faltan {formatPrice(mfr.minPurchase! - mfr.subtotal)} para el mínimo de {formatPrice(mfr.minPurchase!)}
+            </Text>
           </View>
         )}
-        <View style={styles.mfrInfo}>
-          <Text style={styles.mfrName} numberOfLines={1}>
-            {mfr.manufacturerName ?? 'Fabricante'}
-          </Text>
-          <Text style={styles.mfrMeta}>
-            {mfr.totalItems} {mfr.totalItems === 1 ? 'unidad' : 'unidades'} ·{' '}
-            {uniqueProducts} {uniqueProducts === 1 ? 'producto' : 'productos'}
-          </Text>
-        </View>
-        <Text style={styles.mfrSubtotal}>{formatPrice(mfr.subtotal)}</Text>
       </View>
     );
   };
@@ -222,12 +241,9 @@ const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
 
               {/* CTA */}
               <Pressable
-                style={({ pressed }) => [
-                  styles.primaryBtn,
-                  (loadingCreateOrder || pressed) && styles.primaryBtnPressed,
-                ]}
+                style={[styles.primaryBtn, !canConfirm && styles.primaryBtnDisabled]}
                 onPress={handleConfirm}
-                disabled={loadingCreateOrder}
+                disabled={loadingCreateOrder || !canConfirm}
                 android_ripple={{ color: '#0a2a6e' }}
               >
                 <View style={styles.primaryBtnInner}>
@@ -411,6 +427,21 @@ const styles = StyleSheet.create({
   },
   primaryBtnPressed: {
     backgroundColor: '#0a2a6e',
+  },
+  primaryBtnDisabled: {
+    opacity: 0.45,
+  },
+  minWarningRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingBottom: 8,
+    paddingHorizontal: 2,
+  },
+  minWarningText: {
+    fontSize: 11,
+    color: Colors.general.error,
+    flex: 1,
   },
   primaryBtnText: {
     fontSize: 15,
