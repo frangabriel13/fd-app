@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import { View, Text, StyleSheet, ScrollView, Pressable, Alert, Share } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductWithManufacturer, clearCurrentProduct, setCurrentProductIsFavorite } from '@/store/slices/productSlice';
@@ -90,6 +90,7 @@ const ProductoScreen = () => {
     };
   }, [id, dispatch]);
 
+
   if (loading) return <LoadingState />;
   if (error) return <ErrorState onRetry={() => id && dispatch(fetchProductWithManufacturer(id))} />;
 
@@ -147,6 +148,7 @@ const ProductoScreen = () => {
           <ProductSlider
             title={`Más de ${currentManufacturer?.name || 'este fabricante'}`}
             products={manufacturerProducts.filter(p => p.id !== currentProduct?.id)}
+            onMorePress={() => currentManufacturer?.id && router.push(`/(tabs)/store/${currentManufacturer.id}` as any)}
           />
         </View>
       )}
@@ -246,8 +248,6 @@ const styles = StyleSheet.create({
     ...shadows.sm,
   },
   sliderCard: {
-    paddingHorizontal: 6,
-    paddingVertical: 10,
     marginTop: 6,
   },
 
