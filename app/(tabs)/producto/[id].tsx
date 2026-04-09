@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.gray.light,
   },
   scrollContent: {
-    gap: 6,
+    gap: 0,
   },
 
   // Estados
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
 
   // Banner compra mínima
   minPurchaseBanner: {
-    backgroundColor: Colors.blue.dark,
+    backgroundColor: Colors.general.error,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   },
   minPurchaseAmount: {
     fontWeight: '700',
-    color: Colors.orange.dark,
+    color: '#fff',
   },
 
   // Cards
@@ -210,6 +210,7 @@ const styles = StyleSheet.create({
   sliderCard: {
     paddingHorizontal: 12,
     paddingVertical: 12,
+    marginTop: 6,
   },
 
   bottomSpacer: {

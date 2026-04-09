@@ -58,50 +58,6 @@ const DetailProduct = ({ product, manufacturer, views }: DetailProductProps) => 
 
   return (
     <View>
-      {/* ── Fabricante: logo + nombre + ubicación ── */}
-      <View style={styles.manufacturerRow}>
-        {manufacturer?.image ? (
-          <Image
-            source={{ uri: manufacturer.image }}
-            style={styles.manufacturerLogo}
-            contentFit="contain"
-          />
-        ) : (
-          <View style={styles.manufacturerLogoFallback}>
-            <Ionicons name="business-outline" size={18} color={Colors.blue.dark} />
-          </View>
-        )}
-
-        <View style={styles.manufacturerInfo}>
-          <Text style={styles.manufacturerName} numberOfLines={1}>
-            {manufacturer?.name}
-          </Text>
-          {manufacturer?.street ? (
-            <View style={styles.locationRow}>
-              <Ionicons name="location-outline" size={12} color={Colors.gray.semiDark} />
-              <Text style={styles.locationText} numberOfLines={1}>
-                {manufacturer.street}
-              </Text>
-            </View>
-          ) : null}
-        </View>
-
-        {/* Favorito */}
-        <Pressable
-          style={({ pressed }) => [styles.favoriteBtn, pressed && { opacity: 0.7 }]}
-          onPress={handleToggleFavorite}
-          hitSlop={8}
-        >
-          <Ionicons
-            name={isFavorite ? 'heart' : 'heart-outline'}
-            size={24}
-            color={Colors.orange.dark}
-          />
-        </Pressable>
-      </View>
-
-      <View style={styles.divider} />
-
       {/* ── Tags: categoría, género, importado, vistas ── */}
       <View style={styles.tagsRow}>
         <View style={styles.tag}>
@@ -125,8 +81,29 @@ const DetailProduct = ({ product, manufacturer, views }: DetailProductProps) => 
         )}
       </View>
 
-      {/* ── Nombre del producto ── */}
-      <Text style={styles.productName}>{product?.name}</Text>
+      {/* ── Nombre + compartir + favorito ── */}
+      <View style={styles.nameRow}>
+        <Text style={styles.productName}>{product?.name}</Text>
+        <View style={styles.actions}>
+          <Pressable
+            style={({ pressed }) => [styles.actionBtn, pressed && { opacity: 0.7 }]}
+            hitSlop={8}
+          >
+            <Ionicons name="share-outline" size={22} color={Colors.blue.dark} />
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [styles.actionBtn, pressed && { opacity: 0.7 }]}
+            onPress={handleToggleFavorite}
+            hitSlop={8}
+          >
+            <Ionicons
+              name={isFavorite ? 'heart' : 'heart-outline'}
+              size={22}
+              color={Colors.orange.dark}
+            />
+          </Pressable>
+        </View>
+      </View>
 
       {/* ── Precio ── */}
       <View style={styles.priceBlock}>
@@ -146,13 +123,38 @@ const DetailProduct = ({ product, manufacturer, views }: DetailProductProps) => 
 
       <View style={styles.divider} />
 
+      {/* ── Fabricante: logo + nombre + ubicación ── */}
+      <View style={styles.manufacturerRow}>
+        {manufacturer?.image ? (
+          <Image
+            source={{ uri: manufacturer.image }}
+            style={styles.manufacturerLogo}
+            contentFit="contain"
+          />
+        ) : (
+          <View style={styles.manufacturerLogoFallback}>
+            <Ionicons name="business-outline" size={18} color={Colors.blue.dark} />
+          </View>
+        )}
+        <View style={styles.manufacturerInfo}>
+          <Text style={styles.manufacturerName} numberOfLines={1}>
+            {manufacturer?.name}
+          </Text>
+          {manufacturer?.street ? (
+            <View style={styles.locationRow}>
+              <Ionicons name="location-outline" size={12} color={Colors.gray.semiDark} />
+              <Text style={styles.locationText} numberOfLines={1}>
+                {manufacturer.street}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+      </View>
+
       {/* ── WhatsApp ── */}
       <Pressable
-        style={({ pressed }) => [
-          styles.whatsappBtn,
-          pressed && styles.whatsappBtnPressed,
-          !manufacturer?.phone && styles.whatsappDisabled,
-        ]}
+        style={[styles.whatsappBtn, !manufacturer?.phone && styles.whatsappDisabled]}
+        android_ripple={{ color: 'rgba(0,0,0,0.12)' }}
         onPress={handleWhatsApp}
         disabled={!manufacturer?.phone}
       >
@@ -174,6 +176,30 @@ const DetailProduct = ({ product, manufacturer, views }: DetailProductProps) => 
 };
 
 const styles = StyleSheet.create({
+  // Nombre + acciones
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    marginBottom: 10,
+  },
+  productName: {
+    flex: 1,
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#111827',
+    lineHeight: 26,
+  },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingTop: 2,
+  },
+  actionBtn: {
+    padding: 4,
+  },
+
   // Fabricante
   manufacturerRow: {
     flexDirection: 'row',
@@ -218,10 +244,6 @@ const styles = StyleSheet.create({
     color: Colors.gray.semiDark,
     flex: 1,
   },
-  favoriteBtn: {
-    padding: 4,
-  },
-
   divider: {
     height: 1,
     backgroundColor: Colors.gray.light,
@@ -262,15 +284,6 @@ const styles = StyleSheet.create({
   viewsText: {
     fontSize: 12,
     color: Colors.gray.semiDark,
-  },
-
-  // Nombre
-  productName: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#111827',
-    lineHeight: 26,
-    marginBottom: 10,
   },
 
   // Precio
@@ -326,9 +339,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 12,
     marginBottom: 4,
-  },
-  whatsappBtnPressed: {
-    backgroundColor: '#1fba59',
   },
   whatsappDisabled: {
     backgroundColor: Colors.gray.default,
