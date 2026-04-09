@@ -139,6 +139,7 @@ const HeaderProfile = () => {
               </TouchableOpacity>
 
               <TouchableOpacity style={[styles.actionButton, styles.shareButton]} onPress={handleShare}>
+                <Ionicons name="share-social-outline" size={14} color="#262626" />
                 <Text style={styles.shareButtonText}>Compartir</Text>
               </TouchableOpacity>
             </View>
@@ -215,9 +216,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 3,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
     borderRadius: 0,
+    paddingHorizontal: 6,
+    paddingVertical: 6,
   },
   headerSection: {
     flexDirection: 'row',
@@ -291,6 +292,8 @@ const styles = StyleSheet.create({
   shareButton: {
     backgroundColor: '#e5e7eb',
     borderColor: '#e5e7eb',
+    flexDirection: 'row',
+    gap: 4,
   },
   actionButtonText: {
     fontSize: 12,
@@ -364,7 +367,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#25D366',
   },
   divDescription: {
-    paddingTop: 2,
+    paddingTop: 6,
   },
   description: {
     fontSize: 16,

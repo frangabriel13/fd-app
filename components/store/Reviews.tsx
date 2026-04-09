@@ -253,9 +253,8 @@ const Reviews = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
-    paddingVertical: 0,
-    paddingHorizontal: 12,
-    marginBottom: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 6,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -303,8 +302,6 @@ const styles = StyleSheet.create({
   },
   reviewItem: {
     marginBottom: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#f3f4f6',
     backgroundColor: '#f3f4f6',

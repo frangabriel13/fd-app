@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import { View, Text } from 'react-native';
+import { View, Text, SafeAreaView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { Container } from '@/components/ui';
 import { getManufacturerById, clearSelectedManufacturer } from '@/store/slices/manufacturerSlice';
 import { clearStoreProducts } from '@/store/slices/productSlice';
 import { RootState, AppDispatch } from '@/store';
@@ -26,23 +25,23 @@ const StoreScreen = () => {
 
   if (loadingDetail) {
     return (
-      <Container type="page">
+      <SafeAreaView style={{ flex: 1 }}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <Text>Cargando...</Text>
         </View>
-      </Container>
+      </SafeAreaView>
     );
   }
 
   if (error) {
     return (
-      <Container type="page">
+      <SafeAreaView style={{ flex: 1 }}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ color: 'red', textAlign: 'center', paddingHorizontal: 20 }}>
+          <Text style={{ color: 'red', textAlign: 'center' }}>
             No se pudo cargar la tienda. Intentá de nuevo más tarde.
           </Text>
         </View>
-      </Container>
+      </SafeAreaView>
     );
   }
 
