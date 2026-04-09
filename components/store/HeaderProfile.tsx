@@ -3,16 +3,17 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
   Linking,
   Share,
   ActivityIndicator,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { followManufacturer, unfollowManufacturer } from '@/store/slices/userSlice';
 import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '@/constants/Colors';
 
 const HeaderProfile = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -88,9 +89,9 @@ const HeaderProfile = () => {
       stars.push(
         <Ionicons
           key={i}
-          name={i <= ratingValue ? "star" : "star-outline"}
-          size={18}
-          color={i <= ratingValue ? "#f86f1a" : "#d1d5db"}
+          name={i <= ratingValue ? 'star' : 'star-outline'}
+          size={16}
+          color={i <= ratingValue ? Colors.orange.dark : '#d1d5db'}
         />
       );
     }
@@ -106,10 +107,14 @@ const HeaderProfile = () => {
             onPress={selectedManufacturer.live && selectedManufacturer.tiktokUrl ? handleTikTok : undefined}
             disabled={!(selectedManufacturer.live && selectedManufacturer.tiktokUrl)}
           >
-            <Image
-              source={selectedManufacturer.image ? { uri: selectedManufacturer.image } : require('@/assets/images/react-logo.png')}
-              style={styles.profileImage}
-            />
+            <View style={[styles.imageRing, selectedManufacturer.live && styles.imageRingLive]}>
+              <Image
+                source={selectedManufacturer.image ? { uri: selectedManufacturer.image } : require('@/assets/images/react-logo.png')}
+                style={styles.profileImage}
+                contentFit="cover"
+                transition={200}
+              />
+            </View>
           </TouchableOpacity>
         </View>
 
@@ -130,7 +135,7 @@ const HeaderProfile = () => {
                 disabled={followLoading}
               >
                 {followLoading ? (
-                  <ActivityIndicator size="small" color={isFollowed ? '#262626' : 'white'} />
+                  <ActivityIndicator size="small" color={isFollowed ? Colors.blue.dark : '#fff'} />
                 ) : (
                   <Text style={[styles.actionButtonText, isFollowed && styles.followingText]}>
                     {isFollowed ? 'Siguiendo' : 'Seguir'}
@@ -139,7 +144,7 @@ const HeaderProfile = () => {
               </TouchableOpacity>
 
               <TouchableOpacity style={[styles.actionButton, styles.shareButton]} onPress={handleShare}>
-                <Ionicons name="share-social-outline" size={14} color="#262626" />
+                <Ionicons name="share-social-outline" size={14} color={Colors.gray.semiDark} />
                 <Text style={styles.shareButtonText}>Compartir</Text>
               </TouchableOpacity>
             </View>
@@ -152,7 +157,7 @@ const HeaderProfile = () => {
                 style={[styles.socialIcon, styles.instagramIcon]}
                 onPress={handleInstagram}
               >
-                <Ionicons name="logo-instagram" size={26} color="white" />
+                <Ionicons name="logo-instagram" size={22} color="white" />
               </TouchableOpacity>
             )}
             {selectedManufacturer.tiktokUrl && (
@@ -161,7 +166,7 @@ const HeaderProfile = () => {
                 onPress={handleTikTok}
               >
                 <View style={styles.tiktokContainer}>
-                  <Ionicons name="logo-tiktok" size={26} color="white" />
+                  <Ionicons name="logo-tiktok" size={22} color="white" />
                   {selectedManufacturer.live && (
                     <View style={styles.liveIndicator}>
                       <Text style={styles.liveText}>LIVE</Text>
@@ -175,7 +180,7 @@ const HeaderProfile = () => {
                 style={[styles.socialIcon, styles.whatsappIcon]}
                 onPress={handleWhatsApp}
               >
-                <Ionicons name="logo-whatsapp" size={26} color="white" />
+                <Ionicons name="logo-whatsapp" size={22} color="white" />
               </TouchableOpacity>
             )}
           </View>
@@ -188,7 +193,7 @@ const HeaderProfile = () => {
           <Text style={styles.description}>{selectedManufacturer.description}</Text>
         )}
         <View style={styles.divRating}>
-          <Text style={styles.pRating}>Calificación de los usuarios:</Text>
+          <Text style={styles.pRating}>Calificación:</Text>
           <View style={styles.divRatingStars}>
             <View style={styles.divStars}>
               {renderStars(selectedManufacturer.averageRating)}
@@ -207,127 +212,121 @@ const HeaderProfile = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
-    borderRadius: 0,
+    backgroundColor: '#fff',
     paddingHorizontal: 6,
     paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
   },
   headerSection: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    gap: 10,
   },
-  profileImageContainer: {
-    marginRight: 8,
+  profileImageContainer: {},
+  imageRing: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+    padding: 2,
+    backgroundColor: '#fff',
+  },
+  imageRingLive: {
+    borderColor: '#ef4444',
   },
   profileImage: {
-    width: 86,
-    height: 86,
-    borderRadius: 43,
-    backgroundColor: '#f5f5f5',
-    borderWidth: 2,
-    borderColor: '#e1e1e1',
+    width: '100%',
+    height: '100%',
+    borderRadius: 100,
+    backgroundColor: '#f3f4f6',
   },
   profileInfo: {
     flex: 1,
     justifyContent: 'flex-start',
   },
   profileName: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
-    color: '#262626',
+    color: '#111827',
+    lineHeight: 22,
   },
   statsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 0,
-    marginTop: 4,
-    marginBottom: 4,
+    marginTop: 6,
+    marginBottom: 6,
+    gap: 8,
   },
   statItem: {
     alignItems: 'flex-start',
   },
   statNumber: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#262626',
-    lineHeight: 14,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#111827',
+    lineHeight: 18,
   },
   statLabel: {
-    fontSize: 14,
-    color: '#8e8e8e',
-    lineHeight: 14,
+    fontSize: 11,
+    color: Colors.gray.default,
+    lineHeight: 13,
+    letterSpacing: 0.3,
   },
   actionsContainer: {
     flexDirection: 'row',
     gap: 6,
     flex: 1,
-    marginLeft: 6,
   },
   actionButton: {
     flex: 1,
-    paddingVertical: 4,
+    paddingVertical: 6,
     paddingHorizontal: 8,
-    borderRadius: 4,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    minWidth: 60,
   },
   followButton: {
-    backgroundColor: '#021344',
-    borderColor: '#021344',
+    backgroundColor: Colors.blue.dark,
+    borderColor: Colors.blue.dark,
   },
   followingButton: {
-    backgroundColor: 'white',
-    borderColor: '#dbdbdb',
+    backgroundColor: '#fff',
+    borderColor: '#d1d5db',
   },
   shareButton: {
-    backgroundColor: '#e5e7eb',
-    borderColor: '#e5e7eb',
+    backgroundColor: '#fff',
+    borderColor: '#d1d5db',
     flexDirection: 'row',
     gap: 4,
   },
   actionButtonText: {
     fontSize: 12,
     fontWeight: '600',
-    color: 'white',
+    color: '#fff',
   },
   followingText: {
-    color: '#262626',
+    color: '#111827',
   },
   shareButtonText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#262626',
+    color: Colors.gray.semiDark,
   },
   socialNetworksContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 12,
-    marginBottom: 6,
+    justifyContent: 'flex-start',
+    gap: 8,
+    marginBottom: 4,
   },
   socialIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 38,
+    height: 38,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   instagramIcon: {
     backgroundColor: '#E4405F',
@@ -343,37 +342,32 @@ const styles = StyleSheet.create({
   },
   liveIndicator: {
     position: 'absolute',
-    top: 26,
+    top: 18,
     backgroundColor: '#ff3040',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    shadowColor: '#ff3040',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
-    elevation: 3,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 3,
   },
   liveText: {
     color: 'white',
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: 'bold',
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
   whatsappIcon: {
     backgroundColor: '#25D366',
   },
   divDescription: {
     paddingTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: '#f3f4f6',
+    marginTop: 4,
+    gap: 4,
   },
   description: {
-    fontSize: 16,
-    color: '#262626',
-    lineHeight: 20,
-    marginBottom: 8,
+    fontSize: 13,
+    color: '#374151',
+    lineHeight: 18,
   },
   divRating: {
     flexDirection: 'row',
@@ -381,22 +375,22 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   pRating: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
-    color: '#8e8e8e',
+    color: Colors.gray.semiDark,
   },
   divRatingStars: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
   },
   divStars: {
     flexDirection: 'row',
     gap: 2,
   },
   averageRating: {
-    fontSize: 14,
-    color: '#8e8e8e',
+    fontSize: 13,
+    color: Colors.gray.semiDark,
     fontWeight: '600',
   },
 });
