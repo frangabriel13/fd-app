@@ -1,35 +1,36 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions, Text } from 'react-native';
 import { Image } from 'expo-image';
+import { Colors } from '@/constants/Colors';
 
 interface GalleryProps {
   images?: string[];
   mainImage?: string;
 }
 
-const { width: screenWidth } = Dimensions.get('window');
+const { width: SCREEN_W } = Dimensions.get('window');
+const GALLERY_H = 380;
 
 const Gallery = ({ images = [], mainImage }: GalleryProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  
-  // Combinar imagen principal con el resto de imágenes
-  const allImages = mainImage 
-    ? [mainImage, ...images.filter(image => image !== mainImage)] 
+
+  // Imagen principal al comienzo, sin duplicados
+  const allImages = mainImage
+    ? [mainImage, ...images.filter(img => img !== mainImage)]
     : images;
-  
+
   const handleScroll = (event: any) => {
-    const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const currentIndex = Math.round(contentOffsetX / screenWidth);
-    setCurrentIndex(currentIndex);
+    const index = Math.round(event.nativeEvent.contentOffset.x / SCREEN_W);
+    setCurrentIndex(index);
   };
 
   if (allImages.length === 0) {
     return (
       <View style={styles.container}>
-        <View style={styles.placeholderContainer}>
+        <View style={styles.placeholder}>
           <Image
+            source={require('@/assets/images/logo-default.png')}
             style={styles.placeholderImage}
-            source={{ uri: 'https://via.placeholder.com/400x300/E5E5E5/999999?text=Sin+Imagen' }}
             contentFit="contain"
           />
         </View>
@@ -45,12 +46,11 @@ const Gallery = ({ images = [], mainImage }: GalleryProps) => {
         showsHorizontalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}
-        style={styles.scrollView}
       >
-        {allImages.map((imageUri, index) => (
-          <View key={index} style={styles.imageContainer}>
+        {allImages.map((uri, index) => (
+          <View key={index} style={styles.slide}>
             <Image
-              source={{ uri: imageUri }}
+              source={{ uri }}
               style={styles.image}
               contentFit="contain"
               transition={200}
@@ -58,30 +58,23 @@ const Gallery = ({ images = [], mainImage }: GalleryProps) => {
           </View>
         ))}
       </ScrollView>
-      
-      {/* Indicadores de página */}
+
+      {/* Pills indicadores */}
       {allImages.length > 1 && (
-        <View style={styles.indicatorContainer}>
-          {allImages.map((_, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.indicator,
-                index === currentIndex ? styles.activeIndicator : styles.inactiveIndicator
-              ]}
+        <View style={styles.dotsRow}>
+          {allImages.map((_, i) => (
+            <View
+              key={i}
+              style={[styles.dot, i === currentIndex ? styles.dotActive : styles.dotInactive]}
             />
           ))}
         </View>
       )}
-      
-      {/* Contador de imágenes */}
+
+      {/* Contador esquina superior derecha */}
       {allImages.length > 1 && (
-        <View style={styles.counterContainer}>
-          <View style={styles.counter}>
-            <Text style={styles.counterText}>
-              {currentIndex + 1}/{allImages.length}
-            </Text>
-          </View>
+        <View style={styles.counterBadge}>
+          <Text style={styles.counterText}>{currentIndex + 1} / {allImages.length}</Text>
         </View>
       )}
     </View>
@@ -90,72 +83,72 @@ const Gallery = ({ images = [], mainImage }: GalleryProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    height: 400,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  imageContainer: {
-    // width: screenWidth,
-    height: 400,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // backgroundColor: 'black',
-  },
-  image: {
-    width: screenWidth - 20,
-    height: 380,
-  },
-  placeholderContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    height: GALLERY_H,
     backgroundColor: '#fff',
   },
-  placeholderImage: {
-    width: screenWidth - 20,
-    height: 380,
+  slide: {
+    width: SCREEN_W,
+    height: GALLERY_H,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  indicatorContainer: {
+  image: {
+    width: SCREEN_W,
+    height: GALLERY_H,
+  },
+
+  // Placeholder sin imagen
+  placeholder: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.gray.light,
+  },
+  placeholderImage: {
+    width: 120,
+    height: 120,
+    opacity: 0.35,
+  },
+
+  // Indicadores tipo pill
+  dotsRow: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 14,
     left: 0,
     right: 0,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    gap: 5,
   },
-  indicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginHorizontal: 4,
+  dot: {
+    height: 5,
+    borderRadius: 3,
   },
-  activeIndicator: {
-    backgroundColor: '#007AFF',
+  dotActive: {
+    width: 20,
+    backgroundColor: Colors.blue.dark,
   },
-  inactiveIndicator: {
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.2)',
+  dotInactive: {
+    width: 6,
+    backgroundColor: 'rgba(0,0,0,0.18)',
   },
-  counterContainer: {
+
+  // Contador
+  counterBadge: {
     position: 'absolute',
-    top: 15,
-    right: 15,
-  },
-  counter: {
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    borderRadius: 12,
+    top: 12,
+    right: 12,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 10,
     paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingVertical: 3,
   },
   counterText: {
     color: '#fff',
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 11,
+    fontWeight: '600',
   },
 });
-
 
 export default Gallery;
