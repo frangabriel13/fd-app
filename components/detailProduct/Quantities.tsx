@@ -37,67 +37,68 @@ const QuantityRow = memo(function QuantityRow({
   onDecrement,
   onIncrement,
 }: QuantityRowProps) {
-  const displayLabel = isVariable ? inventory.color : inventory.size;
-  const isOutOfStock = inventory.stock === 0;
   const isActive = currentQuantity > 0;
 
   return (
     <View style={[styles.row, isActive && styles.rowActive]}>
-      {/* Color/Talle */}
+      {/* Acento lateral */}
+      {isActive && <View style={styles.rowAccent} />}
+
+      {/* Identificador: color o talle */}
       <View style={styles.labelSide}>
-        {isVariable && (
-          <View
-            style={[
-              styles.colorDot,
-              { backgroundColor: getColorValue(inventory.code) },
-            ]}
-          />
+        {isVariable ? (
+          <>
+            <View
+              style={[
+                styles.colorCircle,
+                { backgroundColor: getColorValue(inventory.code) },
+                isActive && styles.colorCircleActive,
+              ]}
+            />
+            <Text style={[styles.label, isActive && styles.labelActive]} numberOfLines={1}>
+              {inventory.color}
+            </Text>
+          </>
+        ) : (
+          <View style={[styles.sizeChip, isActive && styles.sizeChipActive]}>
+            <Text style={[styles.sizeChipText, isActive && styles.sizeChipTextActive]}>
+              {inventory.size}
+            </Text>
+          </View>
         )}
-        <Text style={[styles.label, isOutOfStock && styles.labelDisabled]}>
-          {displayLabel}
-        </Text>
       </View>
 
-      {/* Controles */}
-      <View style={styles.controls}>
+      {/* Pill unificado: − cantidad + */}
+      <View style={[styles.pill, isActive && styles.pillActive]}>
         <Pressable
-          style={({ pressed }) => [
-            styles.controlBtn,
-            (currentQuantity === 0 || isOutOfStock) && styles.controlBtnDisabled,
-            pressed && currentQuantity > 0 && styles.controlBtnPressed,
-          ]}
+          style={styles.pillBtn}
           onPress={() => onDecrement(inventory.id)}
-          disabled={currentQuantity === 0 || isOutOfStock}
+          disabled={currentQuantity === 0}
+          android_ripple={{ color: Colors.gray.light, borderless: true }}
+          hitSlop={4}
         >
           <Ionicons
             name="remove"
-            size={18}
-            color={currentQuantity === 0 || isOutOfStock ? Colors.gray.default : Colors.blue.dark}
+            size={16}
+            color={currentQuantity === 0 ? Colors.gray.default : Colors.blue.dark}
           />
         </Pressable>
 
-        <Text style={[styles.quantityText, isActive && styles.quantityTextActive]}>
+        <View style={styles.pillDivider} />
+
+        <Text style={[styles.pillQty, isActive && styles.pillQtyActive]}>
           {currentQuantity}
         </Text>
 
+        <View style={styles.pillDivider} />
+
         <Pressable
-          style={({ pressed }) => [
-            styles.controlBtn,
-            (currentQuantity >= inventory.stock || isOutOfStock) && styles.controlBtnDisabled,
-            pressed && currentQuantity < inventory.stock && styles.controlBtnPressed,
-          ]}
+          style={styles.pillBtn}
           onPress={() => onIncrement(inventory.id)}
-          disabled={currentQuantity >= inventory.stock || isOutOfStock}
+          android_ripple={{ color: Colors.gray.light, borderless: true }}
+          hitSlop={4}
         >
-          <Ionicons
-            name="add"
-            size={18}
-            color={
-              currentQuantity >= inventory.stock || isOutOfStock
-                ? Colors.gray.default
-                : Colors.blue.dark
-            }
-          />
+          <Ionicons name="add" size={16} color={Colors.blue.dark} />
         </Pressable>
       </View>
     </View>
@@ -132,8 +133,7 @@ const Quantities = ({
     const inventory = inventories.find(inv => inv.id === inventoryId);
     if (!inventory) return;
 
-    const validQuantity = Math.max(0, Math.min(newQuantity, inventory.stock));
-
+    const validQuantity = Math.max(0, newQuantity);
     setQuantities(prev => ({ ...prev, [inventoryId]: validQuantity }));
 
     if (validQuantity > 0) {
@@ -179,36 +179,39 @@ const Quantities = ({
       {/* Encabezado */}
       <View style={styles.header}>
         <Text style={styles.title}>
-          {isVariable ? 'Seleccionar colores' : 'Seleccionar talles'}
+          {isVariable ? 'Colores' : 'Talles'}
         </Text>
         {totalSelected > 0 && (
           <View style={styles.totalBadge}>
-            <Text style={styles.totalBadgeText}>{totalSelected} u.</Text>
+            <Text style={styles.totalBadgeText}>{totalSelected} u. seleccionadas</Text>
           </View>
         )}
       </View>
 
-      {/* Filas de inventario */}
-      {inventories.map(inventory => (
-        <QuantityRow
-          key={inventory.id}
-          inventory={inventory}
-          isVariable={isVariable}
-          currentQuantity={quantities[inventory.id] || 0}
-          onDecrement={handleDecrement}
-          onIncrement={handleIncrement}
-        />
-      ))}
+      {/* Lista de variantes */}
+      <View style={styles.list}>
+        {inventories.map(inventory => (
+          <QuantityRow
+            key={inventory.id}
+            inventory={inventory}
+            isVariable={isVariable}
+            currentQuantity={quantities[inventory.id] || 0}
+            onDecrement={handleDecrement}
+            onIncrement={handleIncrement}
+          />
+        ))}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  // Encabezado
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   title: {
     fontSize: 15,
@@ -223,79 +226,129 @@ const styles = StyleSheet.create({
   },
   totalBadgeText: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
   },
 
-  // Filas
+  // Lista
+  list: {
+    gap: 6,
+  },
+
+  // Fila
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,
-    paddingHorizontal: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.gray.light,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.gray.light,
+    backgroundColor: '#fff',
+    gap: 8,
   },
   rowActive: {
-    backgroundColor: Colors.blue.dark + '06',
-    borderRadius: 8,
-    borderBottomColor: 'transparent',
-    marginBottom: 2,
+    borderColor: Colors.blue.dark + '30',
+    backgroundColor: Colors.blue.dark + '05',
   },
+  rowAccent: {
+    position: 'absolute',
+    left: 0,
+    top: 6,
+    bottom: 6,
+    width: 3,
+    borderRadius: 2,
+    backgroundColor: Colors.blue.dark,
+  },
+
+  // Label side
   labelSide: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
   },
-  colorDot: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.08)',
+
+  // Color
+  colorCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: 'rgba(0,0,0,0.1)',
+    flexShrink: 0,
+  },
+  colorCircleActive: {
+    borderColor: Colors.blue.dark,
+    borderWidth: 2,
   },
   label: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '500',
-    color: '#374151',
+    color: Colors.gray.dark,
+    flex: 1,
   },
-  labelDisabled: {
-    color: Colors.gray.default,
+  labelActive: {
+    color: '#111827',
+    fontWeight: '600',
   },
 
-  // Controles +/-
-  controls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  controlBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    borderWidth: 1.5,
-    borderColor: Colors.blue.dark + '40',
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  controlBtnDisabled: {
+  // Talle chip
+  sizeChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 6,
+    borderWidth: 1,
     borderColor: Colors.gray.light,
     backgroundColor: Colors.gray.light,
   },
-  controlBtnPressed: {
-    backgroundColor: Colors.blue.dark + '10',
+  sizeChipActive: {
+    borderColor: Colors.blue.dark,
+    backgroundColor: Colors.blue.dark + '0D',
   },
-  quantityText: {
-    fontSize: 16,
+  sizeChipText: {
+    fontSize: 13,
     fontWeight: '600',
-    minWidth: 28,
-    textAlign: 'center',
-    color: Colors.gray.semiDark,
+    color: Colors.gray.dark,
   },
-  quantityTextActive: {
+  sizeChipTextActive: {
+    color: Colors.blue.dark,
+  },
+
+  // Pill unificado
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.gray.light,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+  },
+  pillActive: {
+    borderColor: Colors.blue.dark + '50',
+  },
+  pillBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pillDivider: {
+    width: 1,
+    height: 20,
+    backgroundColor: Colors.gray.light,
+  },
+  pillQty: {
+    minWidth: 32,
+    textAlign: 'center',
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.gray.semiDark,
+    paddingHorizontal: 4,
+  },
+  pillQtyActive: {
     color: Colors.blue.dark,
     fontWeight: '700',
   },
@@ -310,7 +363,6 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     color: Colors.gray.semiDark,
-    textAlign: 'center',
   },
 });
 

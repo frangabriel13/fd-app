@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { Text, View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -17,13 +18,12 @@ import {
   FavoriteProduct,
 } from '@/store/slices/favoriteSlice';
 import { AppDispatch, RootState } from '@/store';
-import FavoriteCard, { FAV_CARD_WIDTH } from '@/components/favorites/FavoriteCard';
+import FavoriteCard from '@/components/favorites/FavoriteCard';
 import { useRefresh } from '@/hooks/useRefresh';
 import { Colors } from '@/constants/Colors';
+import { shadows } from '@/constants/Styles';
 
-const CARD_GAP = 3;
-
-// — Skeleton idéntico al de ShopProductGrid —
+// ── Skeleton ─────────────────────────────────────────────────────────────────
 const SkeletonCard = () => {
   const opacity = useSharedValue(0.35);
 
@@ -35,7 +35,7 @@ const SkeletonCard = () => {
       ),
       -1
     );
-  }, []);
+  }, [opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
@@ -43,47 +43,47 @@ const SkeletonCard = () => {
     <Animated.View style={[skeletonStyles.card, animatedStyle]}>
       <View style={skeletonStyles.image} />
       <View style={skeletonStyles.info}>
-        <View style={skeletonStyles.line} />
+        <View style={skeletonStyles.lineLong} />
         <View style={skeletonStyles.lineShort} />
-        <View style={skeletonStyles.price} />
+        <View style={skeletonStyles.linePrice} />
+        <View style={skeletonStyles.footer}>
+          <View style={skeletonStyles.btnSkeleton} />
+        </View>
       </View>
     </Animated.View>
   );
 };
 
-const SkeletonGrid = () => (
-  <View style={skeletonStyles.grid}>
-    {Array.from({ length: 6 }).map((_, i) => (
-      <View key={i} style={skeletonStyles.wrapper}>
-        <SkeletonCard />
-      </View>
+const SkeletonList = () => (
+  <View style={skeletonStyles.list}>
+    {Array.from({ length: 5 }).map((_, i) => (
+      <SkeletonCard key={i} />
     ))}
   </View>
 );
 
-// — Separador de filas —
-const ItemSeparator = () => <View style={{ height: CARD_GAP }} />;
-
-// — Header de resultados —
-const ResultsBar = ({ count }: { count: number }) => (
-  <View style={styles.resultsBar}>
-    <Text style={styles.resultsText}>
-      {count} {count === 1 ? 'producto guardado' : 'productos guardados'}
-    </Text>
-  </View>
-);
-
-// — Estado vacío —
+// ── Estado vacío ─────────────────────────────────────────────────────────────
 const EmptyState = () => (
   <View style={styles.feedbackContainer}>
-    <Ionicons name="heart-outline" size={52} color={Colors.gray.default} />
-    <Text style={styles.feedbackTitle}>Sin favoritos</Text>
+    <View style={styles.feedbackIconWrap}>
+      <Ionicons name="heart-outline" size={44} color={Colors.blue.dark} />
+    </View>
+    <Text style={styles.feedbackTitle}>Sin favoritos aún</Text>
     <Text style={styles.feedbackText}>
-      Explorá productos y guardá tus favoritos para verlos aquí
+      Explorá productos y guardá tus favoritos para encontrarlos fácil
     </Text>
+    <Animated.View>
+      <Text
+        style={styles.goShopLink}
+        onPress={() => router.push('/(tabs)/tienda')}
+      >
+        Ir a la tienda →
+      </Text>
+    </Animated.View>
   </View>
 );
 
+// ── Pantalla principal ────────────────────────────────────────────────────────
 const FavsScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
   const favoriteProducts = useSelector((state: RootState) => selectFavoriteProducts(state));
@@ -91,7 +91,9 @@ const FavsScreen = () => {
   const error = useSelector((state: RootState) => selectFavoritesError(state));
   const userRole = useSelector((state: RootState) => state.auth.user?.role);
 
-  const { refreshing, onRefresh } = useRefresh(useCallback(() => dispatch(getFavorites()), [dispatch]));
+  const { refreshing, onRefresh } = useRefresh(
+    useCallback(() => dispatch(getFavorites()), [dispatch])
+  );
 
   useEffect(() => {
     if (userRole === 'wholesaler') {
@@ -103,7 +105,9 @@ const FavsScreen = () => {
   if (userRole !== 'wholesaler') {
     return (
       <View style={styles.feedbackContainer}>
-        <Ionicons name="heart-dislike-outline" size={52} color={Colors.gray.default} />
+        <View style={styles.feedbackIconWrap}>
+          <Ionicons name="heart-dislike-outline" size={44} color={Colors.blue.dark} />
+        </View>
         <Text style={styles.feedbackTitle}>Solo para mayoristas</Text>
         <Text style={styles.feedbackText}>
           Iniciá sesión como mayorista para guardar y ver tus productos favoritos
@@ -114,130 +118,207 @@ const FavsScreen = () => {
 
   // Skeleton en carga inicial
   if (loading && !refreshing && favoriteProducts.length === 0) {
-    return <SkeletonGrid />;
+    return (
+      <View style={styles.container}>
+        <Header count={0} loading />
+        <SkeletonList />
+      </View>
+    );
   }
 
   // Error
   if (error) {
     return (
       <View style={styles.feedbackContainer}>
-        <Ionicons name="cloud-offline-outline" size={52} color={Colors.gray.default} />
+        <View style={styles.feedbackIconWrap}>
+          <Ionicons name="cloud-offline-outline" size={44} color={Colors.blue.dark} />
+        </View>
         <Text style={styles.feedbackTitle}>Ocurrió un error</Text>
         <Text style={styles.feedbackText}>{error}</Text>
       </View>
     );
   }
 
-  const renderItem = ({ item }: { item: FavoriteProduct }) => (
-    <FavoriteCard product={item} />
+  const renderItem = ({ item, index }: { item: FavoriteProduct; index: number }) => (
+    <FavoriteCard product={item} index={index} />
   );
 
   return (
-    <FlatList
-      data={favoriteProducts}
-      renderItem={renderItem}
-      keyExtractor={(item, index) => item.productId?.toString() ?? index.toString()}
-      numColumns={2}
-      style={styles.container}
-      contentContainerStyle={favoriteProducts.length === 0 ? styles.emptyContent : undefined}
-      columnWrapperStyle={styles.row}
-      showsVerticalScrollIndicator={false}
-      ItemSeparatorComponent={ItemSeparator}
-      ListHeaderComponent={<ResultsBar count={favoriteProducts.length} />}
-      ListEmptyComponent={EmptyState}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          colors={[Colors.blue.dark]}
-          tintColor={Colors.blue.dark}
-        />
-      }
-    />
+    <View style={styles.container}>
+      <Header count={favoriteProducts.length} />
+      <FlatList
+        data={favoriteProducts}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => item.productId?.toString() ?? index.toString()}
+        contentContainerStyle={[
+          styles.listContent,
+          favoriteProducts.length === 0 && styles.listContentEmpty,
+        ]}
+        showsVerticalScrollIndicator={false}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ListEmptyComponent={EmptyState}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[Colors.blue.dark]}
+            tintColor={Colors.blue.dark}
+          />
+        }
+      />
+    </View>
   );
 };
 
+// ── Header ────────────────────────────────────────────────────────────────────
+const Header = ({ count, loading = false }: { count: number; loading?: boolean }) => (
+  <View style={styles.header}>
+    <Text style={styles.headerTitle}>Mis favoritos</Text>
+    {!loading && count > 0 && (
+      <View style={styles.headerBadge}>
+        <Text style={styles.headerBadgeText}>
+          {count} {count === 1 ? 'producto' : 'productos'}
+        </Text>
+      </View>
+    )}
+  </View>
+);
+
+// ── Estilos ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.gray.light,
   },
-  emptyContent: {
+
+  // ── Header ──────────────────────────
+  header: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    ...shadows.sm,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: Colors.blue.dark,
+  },
+  headerBadge: {
+    backgroundColor: Colors.blue.dark + '12',
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 20,
+  },
+  headerBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.blue.dark,
+  },
+
+  // ── Lista ────────────────────────────
+  listContent: {
+    padding: 12,
+    paddingBottom: 32,
+  },
+  listContentEmpty: {
     flex: 1,
   },
-  row: {
-    gap: CARD_GAP,
-    justifyContent: 'flex-start',
+  separator: {
+    height: 8,
   },
-  resultsBar: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  resultsText: {
-    fontSize: 12,
-    color: Colors.gray.semiDark,
-  },
+
+  // ── Estados vacío / error ────────────
   feedbackContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 60,
+    paddingHorizontal: 36,
     gap: 12,
+    backgroundColor: Colors.gray.light,
+  },
+  feedbackIconWrap: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: Colors.blue.dark + '0F',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
   },
   feedbackTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: '700',
     color: '#111827',
     textAlign: 'center',
   },
   feedbackText: {
-    fontSize: 13,
+    fontSize: 14,
     color: Colors.gray.semiDark,
     textAlign: 'center',
-    paddingHorizontal: 32,
+    lineHeight: 20,
+  },
+  goShopLink: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.orange.dark,
+    marginTop: 4,
   },
 });
 
+// ── Skeleton styles ───────────────────────────────────────────────────────────
 const skeletonStyles = StyleSheet.create({
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: CARD_GAP,
-    backgroundColor: Colors.gray.light,
-  },
-  wrapper: {
-    width: FAV_CARD_WIDTH,
+  list: {
+    padding: 12,
+    gap: 8,
   },
   card: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderRadius: 12,
     overflow: 'hidden',
-    backgroundColor: '#f3f4f6',
+    height: 100,
   },
   image: {
-    width: '100%',
-    height: FAV_CARD_WIDTH * 1.3,
+    width: 100,
+    height: 100,
     backgroundColor: '#e5e7eb',
   },
   info: {
-    padding: 8,
-    gap: 6,
+    flex: 1,
+    padding: 10,
+    justifyContent: 'space-between',
   },
-  line: {
+  lineLong: {
     height: 10,
     borderRadius: 4,
     backgroundColor: '#e5e7eb',
+    width: '80%',
   },
   lineShort: {
     height: 10,
     borderRadius: 4,
     backgroundColor: '#e5e7eb',
-    width: '65%',
+    width: '55%',
+    marginTop: 4,
   },
-  price: {
+  linePrice: {
     height: 14,
     borderRadius: 4,
     backgroundColor: '#e5e7eb',
-    width: '45%',
-    marginTop: 2,
+    width: '40%',
+    marginTop: 6,
+  },
+  footer: {
+    alignItems: 'flex-end',
+  },
+  btnSkeleton: {
+    height: 24,
+    width: 72,
+    borderRadius: 6,
+    backgroundColor: '#e5e7eb',
   },
 });
 
