@@ -4,6 +4,7 @@ import { View, Text } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Container } from '@/components/ui';
 import { getManufacturerById, clearSelectedManufacturer } from '@/store/slices/manufacturerSlice';
+import { clearStoreProducts } from '@/store/slices/productSlice';
 import { RootState, AppDispatch } from '@/store';
 import StoreProducts from '@/components/store/StoreProducts';
 
@@ -19,6 +20,7 @@ const StoreScreen = () => {
     }
     return () => {
       dispatch(clearSelectedManufacturer());
+      dispatch(clearStoreProducts());
     };
   }, [id, dispatch]);
 
