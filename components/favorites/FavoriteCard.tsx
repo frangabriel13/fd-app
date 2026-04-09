@@ -1,18 +1,13 @@
-import React from 'react';
-import { View, Text, StyleSheet, Pressable, Alert, ActivityIndicator, Dimensions } from 'react-native';
-import { Image } from 'expo-image';
+import { View, Text, StyleSheet, Pressable, ActivityIndicator, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, FadeIn } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, FadeInDown } from 'react-native-reanimated';
 import { removeFavorite, selectRemovingProductId } from '@/store/slices/favoriteSlice';
 import { AppDispatch, RootState } from '@/store';
 import { Colors } from '@/constants/Colors';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_GAP = 3;
-const NUM_COLUMNS = 2;
-export const FAV_CARD_WIDTH = (SCREEN_WIDTH - CARD_GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
+import { shadows } from '@/constants/Styles';
+import { formatPrice } from '@/utils/formatPrice';
 
 interface FavoriteCardProps {
   product: {
@@ -23,9 +18,12 @@ interface FavoriteCardProps {
     price: string;
     logo: string | null;
   };
+  index?: number;
 }
 
-const FavoriteCard: React.FC<FavoriteCardProps> = ({ product }) => {
+const IMAGE_SIZE = 100;
+
+const FavoriteCard = ({ product, index = 0 }: FavoriteCardProps) => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const removingProductId = useSelector((state: RootState) => selectRemovingProductId(state));
@@ -34,8 +32,8 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ product }) => {
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
-  const handlePressIn = () => scale.value = withSpring(0.96, { damping: 15, stiffness: 300 });
-  const handlePressOut = () => scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+  const handlePressIn = () => { scale.value = withSpring(0.985, { damping: 15, stiffness: 300 }); };
+  const handlePressOut = () => { scale.value = withSpring(1, { damping: 15, stiffness: 300 }); };
 
   const handleProductPress = () => {
     router.push(`/(tabs)/producto/${product.productId}` as any);
@@ -44,125 +42,161 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ product }) => {
   const handleRemoveFavorite = async () => {
     try {
       await dispatch(removeFavorite(product.productId)).unwrap();
-    } catch (error: any) {
-      Alert.alert('Error', error || 'No se pudo eliminar el favorito. Intentá de nuevo.');
-    }
+    } catch { /* el slice maneja el error en estado global */ }
   };
 
-  const formatPrice = (price: string) =>
-    new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      minimumFractionDigits: 0,
-    }).format(parseFloat(price));
+  const numericPrice = parseFloat(product.price);
+  const displayPrice = isNaN(numericPrice) ? product.price : formatPrice(numericPrice);
 
   return (
-    <Pressable onPress={handleProductPress} onPressIn={handlePressIn} onPressOut={handlePressOut}>
-      <Animated.View style={[styles.card, animatedStyle]} entering={FadeIn.duration(250)}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={{ uri: product.mainImage }}
-            style={styles.productImage}
-            contentFit="cover"
-            transition={200}
-          />
-          {product.logo && (
-            <View style={styles.logoContainer}>
-              <Image
-                source={{ uri: product.logo }}
-                style={styles.logoImage}
-                contentFit="contain"
-              />
+    <Animated.View
+      entering={FadeInDown.delay(index * 40).duration(250)}
+      style={animatedStyle}
+    >
+      <Pressable
+        onPress={handleProductPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        android_ripple={{ color: '#e5e7eb' }}
+        style={styles.card}
+      >
+        {/* Imagen */}
+        <View style={styles.imageWrap}>
+          {product.mainImage ? (
+            <Image
+              source={{ uri: product.mainImage }}
+              style={styles.image}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={styles.imagePlaceholder}>
+              <Ionicons name="image-outline" size={28} color={Colors.gray.default} />
             </View>
           )}
-          <Pressable
-            style={styles.heartButton}
-            onPress={handleRemoveFavorite}
-            disabled={isRemoving}
-            hitSlop={10}
-          >
-            {isRemoving ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <Ionicons name="heart" size={22} color={Colors.orange.dark} style={styles.heartIcon} />
-            )}
-          </Pressable>
+          {product.logo ? (
+            <View style={styles.logoBadge}>
+              <Image source={{ uri: product.logo }} style={styles.logo} resizeMode="cover" />
+            </View>
+          ) : null}
         </View>
-        <View style={styles.productInfo}>
-          <Text style={styles.productName} numberOfLines={1} ellipsizeMode="tail">
+
+        {/* Información */}
+        <View style={styles.info}>
+          <Text style={styles.name} numberOfLines={2} ellipsizeMode="tail">
             {product.name}
           </Text>
-          <Text style={styles.price}>{formatPrice(product.price)}</Text>
+
+          <Text style={styles.price}>{displayPrice}</Text>
+
+          {/* Footer: botón eliminar */}
+          <View style={styles.footer}>
+            <Pressable
+              onPress={handleRemoveFavorite}
+              disabled={isRemoving}
+              android_ripple={{ color: '#fee2e2', borderless: false }}
+              style={({ pressed }) => [styles.removeBtn, pressed && styles.removeBtnPressed]}
+              hitSlop={8}
+            >
+              {isRemoving ? (
+                <ActivityIndicator size="small" color={Colors.general.error} />
+              ) : (
+                <>
+                  <Ionicons name="trash-outline" size={13} color={Colors.general.error} />
+                  <Text style={styles.removeBtnText}>Eliminar</Text>
+                </>
+              )}
+            </Pressable>
+          </View>
         </View>
-      </Animated.View>
-    </Pressable>
+      </Pressable>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    width: FAV_CARD_WIDTH,
+    flexDirection: 'row',
     backgroundColor: '#fff',
+    borderRadius: 12,
     overflow: 'hidden',
+    ...shadows.sm,
+  },
+
+  // ── Imagen ──────────────────────────
+  imageWrap: {
+    width: IMAGE_SIZE,
+    height: IMAGE_SIZE,
+    flexShrink: 0,
+    backgroundColor: Colors.gray.light,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  imagePlaceholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoBadge: {
+    position: 'absolute',
+    bottom: 6,
+    left: 6,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#e5e7eb',
   },
-  imageContainer: {
-    position: 'relative',
-    width: '100%',
-    height: FAV_CARD_WIDTH * 1.3,
-    backgroundColor: '#f3f4f6',
-    overflow: 'hidden',
-  },
-  productImage: {
+  logo: {
     width: '100%',
     height: '100%',
   },
-  logoContainer: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    width: 30,
-    height: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 15,
-    overflow: 'hidden',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+
+  // ── Información ─────────────────────
+  info: {
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    justifyContent: 'space-between',
   },
-  logoImage: {
-    width: '100%',
-    height: '100%',
-  },
-  heartButton: {
-    position: 'absolute',
-    bottom: 8,
-    right: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  heartIcon: {
-    textShadowColor: 'rgba(0, 0, 0, 0.35)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  productInfo: {
-    padding: 8,
-    gap: 4,
-  },
-  productName: {
-    fontSize: 12,
+  name: {
+    fontSize: 13,
     fontWeight: '500',
     color: '#374151',
-    lineHeight: 16,
+    lineHeight: 18,
   },
   price: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#111827',
+    fontSize: 17,
+    fontWeight: '800',
+    color: Colors.blue.dark,
+    marginTop: 4,
+  },
+
+  // ── Footer ──────────────────────────
+  footer: {
+    alignItems: 'flex-end',
+    marginTop: 8,
+  },
+  removeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#fca5a5',
+  },
+  removeBtnPressed: {
+    backgroundColor: '#fee2e2',
+  },
+  removeBtnText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.general.error,
   },
 });
 

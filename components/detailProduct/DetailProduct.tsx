@@ -71,38 +71,52 @@ const DetailProduct = ({ product, manufacturer, views }: DetailProductProps) => 
 
       <View style={styles.divider} />
 
-      {/* ── Fabricante: logo + nombre + ubicación ── */}
-      <Pressable
-        style={styles.manufacturerRow}
-        android_ripple={{ color: Colors.gray.light }}
-        onPress={() => manufacturer?.id && router.push(`/(tabs)/store/${manufacturer.id}` as any)}
-      >
-        {manufacturer?.image ? (
-          <Image
-            source={{ uri: manufacturer.image }}
-            style={styles.manufacturerLogo}
-            contentFit="contain"
-          />
-        ) : (
-          <View style={styles.manufacturerLogoFallback}>
-            <Ionicons name="business-outline" size={18} color={Colors.blue.dark} />
-          </View>
-        )}
-        <View style={styles.manufacturerInfo}>
-          <Text style={styles.manufacturerName} numberOfLines={1}>
-            {manufacturer?.name}
-          </Text>
-          {manufacturer?.street ? (
-            <View style={styles.locationRow}>
-              <Ionicons name="location-outline" size={12} color={Colors.gray.semiDark} />
-              <Text style={styles.locationText} numberOfLines={1}>
-                {manufacturer.street}
-              </Text>
+      {/* ── Fabricante: izquierda → tienda | derecha → maps ── */}
+      <View style={styles.manufacturerRow}>
+        {/* Logo + nombre → tienda */}
+        <Pressable
+          style={styles.manufacturerLeft}
+          android_ripple={{ color: Colors.gray.light }}
+          onPress={() => manufacturer?.id && router.push(`/(tabs)/store/${manufacturer.id}` as any)}
+        >
+          {manufacturer?.image ? (
+            <Image
+              source={{ uri: manufacturer.image }}
+              style={styles.manufacturerLogo}
+              contentFit="contain"
+            />
+          ) : (
+            <View style={styles.manufacturerLogoFallback}>
+              <Ionicons name="business-outline" size={18} color={Colors.blue.dark} />
             </View>
-          ) : null}
-        </View>
-        <Ionicons name="chevron-forward" size={16} color={Colors.gray.default} />
-      </Pressable>
+          )}
+          <View style={styles.manufacturerInfo}>
+            <Text style={styles.manufacturerName} numberOfLines={1}>
+              {manufacturer?.name}
+            </Text>
+            <Text style={styles.manufacturerSublabel}>Ver tienda</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={14} color={Colors.gray.default} />
+        </Pressable>
+
+        {/* Dirección → maps */}
+        {manufacturer?.street ? (
+          <Pressable
+            style={styles.manufacturerRight}
+            android_ripple={{ color: Colors.gray.light }}
+            onPress={() => {
+              const query = encodeURIComponent(manufacturer.street);
+              Linking.openURL(`https://maps.google.com/?q=${query}`);
+            }}
+          >
+            <Ionicons name="map-outline" size={16} color={Colors.blue.dark} />
+            <Text style={styles.locationText} numberOfLines={2}>
+              {manufacturer.street}
+            </Text>
+            <Ionicons name="chevron-forward" size={14} color={Colors.gray.default} />
+          </Pressable>
+        ) : null}
+      </View>
 
       {/* ── WhatsApp ── */}
       <Pressable
@@ -143,22 +157,40 @@ const styles = StyleSheet.create({
   // Fabricante
   manufacturerRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
+    alignItems: 'stretch',
+    gap: 8,
     marginBottom: 10,
   },
+  manufacturerLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: Colors.gray.light,
+    borderRadius: 8,
+    padding: 8,
+  },
+  manufacturerRight: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: Colors.gray.light,
+    borderRadius: 8,
+    padding: 8,
+  },
   manufacturerLogo: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: Colors.gray.light,
     backgroundColor: '#f8f8f8',
   },
   manufacturerLogoFallback: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: Colors.gray.light,
     backgroundColor: Colors.blue.dark + '0D',
@@ -167,22 +199,22 @@ const styles = StyleSheet.create({
   },
   manufacturerInfo: {
     flex: 1,
-    gap: 2,
+    gap: 1,
   },
   manufacturerName: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
     color: Colors.blue.dark,
   },
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
+  manufacturerSublabel: {
+    fontSize: 11,
+    color: Colors.gray.semiDark,
   },
   locationText: {
     fontSize: 12,
     color: Colors.gray.semiDark,
     flex: 1,
+    lineHeight: 16,
   },
   divider: {
     height: 1,
