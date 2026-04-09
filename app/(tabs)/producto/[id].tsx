@@ -12,7 +12,7 @@ import { shadows } from '@/constants/Styles';
 import DetailProduct from '@/components/detailProduct/DetailProduct';
 import Gallery from '@/components/detailProduct/Gallery';
 import Quantities from '@/components/detailProduct/Quantities';
-import RelatedProductSlider from '@/components/detailProduct/RelatedProductSlider';
+import ProductSlider from '@/components/home/ProductSlider';
 
 const LoadingState = () => (
   <View style={styles.centeredState}>
@@ -143,8 +143,8 @@ const ProductoScreen = () => {
 
       {/* Más productos del fabricante */}
       {manufacturerProducts && manufacturerProducts.length > 0 && (
-        <View style={[styles.card, styles.sliderCard]}>
-          <RelatedProductSlider
+        <View style={styles.sliderCard}>
+          <ProductSlider
             title={`Más de ${currentManufacturer?.name || 'este fabricante'}`}
             products={manufacturerProducts.filter(p => p.id !== currentProduct?.id)}
           />
@@ -153,8 +153,8 @@ const ProductoScreen = () => {
 
       {/* Productos relacionados */}
       {categoryProducts && categoryProducts.length > 0 && (
-        <View style={[styles.card, styles.sliderCard]}>
-          <RelatedProductSlider
+        <View style={styles.sliderCard}>
+          <ProductSlider
             title="Productos relacionados"
             products={categoryProducts.filter(p => p.id !== currentProduct?.id)}
           />

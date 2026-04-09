@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { productInstance, videoInstance } from '@/services';
-import { Product, Manufacturer, ProductWithManufacturerResponse } from '@/types/product';
+import { Product, Manufacturer, ProductWithManufacturerResponse, RelatedProductItem } from '@/types/product';
 
 interface ShopPagination {
   currentPage: number;
@@ -188,8 +188,8 @@ interface ProductState {
   maquinas: Product[];
   currentProduct: Product | null;
   currentManufacturer: Manufacturer | null;
-  manufacturerProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
-  categoryProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
+  manufacturerProducts: RelatedProductItem[];
+  categoryProducts: RelatedProductItem[];
   currentProductViews: number | null;
   currentProductIsFavorite: boolean | null;
   shopProducts: ShopProduct[];
