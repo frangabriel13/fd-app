@@ -1,11 +1,13 @@
 import React from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Image, 
-  TouchableOpacity, 
-  Linking
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Linking,
+  Share,
+  ActivityIndicator,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
@@ -15,53 +17,61 @@ import { Ionicons } from '@expo/vector-icons';
 const HeaderProfile = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { selectedManufacturer } = useSelector((state: RootState) => state.manufacturer);
-  const followed = useSelector((state: RootState) => state.user.followed);
+  const { followed, loading: followLoading } = useSelector((state: RootState) => state.user);
 
-  const manufacturer = selectedManufacturer;
-
-  const isFollowed = manufacturer
-    ? followed.some((f: any) => f.id === manufacturer.id) || !!manufacturer.isFollowed
+  const isFollowed = selectedManufacturer
+    ? followed.some((f: any) => f.id === selectedManufacturer.id) || !!selectedManufacturer.isFollowed
     : false;
 
-  const followersCount = manufacturer?.followersCount ?? 0;
+  const followersCount = selectedManufacturer?.followersCount ?? 0;
 
-  if (!manufacturer) {
+  if (!selectedManufacturer) {
     return null;
   }
 
   const handleFollow = async () => {
     if (isFollowed) {
-      await dispatch(unfollowManufacturer(manufacturer.id.toString()));
+      await dispatch(unfollowManufacturer(selectedManufacturer.id.toString()));
     } else {
       await dispatch(followManufacturer({
-        manufacturerId: manufacturer.id.toString(),
+        manufacturerId: selectedManufacturer.id.toString(),
         manufacturer: {
-          id: manufacturer.id,
-          name: manufacturer.name,
-          image: manufacturer.image ?? null,
-          userId: manufacturer.userId,
+          id: selectedManufacturer.id,
+          name: selectedManufacturer.name,
+          image: selectedManufacturer.image ?? null,
+          userId: selectedManufacturer.userId,
         },
       }));
     }
   };
 
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: `Conocé la tienda de ${selectedManufacturer.name} en Fabricante Directo`,
+      });
+    } catch (_) {
+      // silencioso
+    }
+  };
+
   const handleInstagram = () => {
-    if (manufacturer.instagramNick) {
-      const url = `https://instagram.com/${manufacturer.instagramNick}`;
+    if (selectedManufacturer.instagramNick) {
+      const url = `https://instagram.com/${selectedManufacturer.instagramNick}`;
       Linking.openURL(url);
     }
   };
 
   const handleTikTok = () => {
-    if (manufacturer.tiktokUrl) {
-      const url = manufacturer.tiktokUrl.replace(/\/live$/, '');
+    if (selectedManufacturer.tiktokUrl) {
+      const url = selectedManufacturer.tiktokUrl.replace(/\/live$/, '');
       Linking.openURL(url);
     }
   };
 
   const handleWhatsApp = () => {
-    if (manufacturer.phone) {
-      let phoneNumber = manufacturer.phone.replace(/\D/g, '');
+    if (selectedManufacturer.phone) {
+      let phoneNumber = selectedManufacturer.phone.replace(/\D/g, '');
       if (!phoneNumber.startsWith('54')) {
         phoneNumber = `54${phoneNumber}`;
       }
@@ -73,14 +83,14 @@ const HeaderProfile = () => {
   const renderStars = (rating: number | null) => {
     const stars = [];
     const ratingValue = rating || 0;
-    
+
     for (let i = 1; i <= 5; i++) {
       stars.push(
         <Ionicons
           key={i}
           name={i <= ratingValue ? "star" : "star-outline"}
           size={18}
-          color={i <= ratingValue ? "#f86f1a" : "#f86f1a"}
+          color={i <= ratingValue ? "#f86f1a" : "#d1d5db"}
         />
       );
     }
@@ -93,37 +103,42 @@ const HeaderProfile = () => {
       <View style={styles.headerSection}>
         <View style={styles.profileImageContainer}>
           <TouchableOpacity
-            onPress={manufacturer.live && manufacturer.tiktokUrl ? handleTikTok : undefined}
-            disabled={!(manufacturer.live && manufacturer.tiktokUrl)}
+            onPress={selectedManufacturer.live && selectedManufacturer.tiktokUrl ? handleTikTok : undefined}
+            disabled={!(selectedManufacturer.live && selectedManufacturer.tiktokUrl)}
           >
-            <Image 
-              source={manufacturer.image ? { uri: manufacturer.image } : require('@/assets/images/react-logo.png')} 
+            <Image
+              source={selectedManufacturer.image ? { uri: selectedManufacturer.image } : require('@/assets/images/react-logo.png')}
               style={styles.profileImage}
             />
           </TouchableOpacity>
         </View>
-        
+
         <View style={styles.profileInfo}>
-          <Text style={styles.profileName}>{manufacturer.name}</Text>
-          
+          <Text style={styles.profileName}>{selectedManufacturer.name}</Text>
+
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{followersCount}</Text>
               <Text style={styles.statLabel}>seguidores</Text>
             </View>
-            
+
             {/* Botones de acción al lado de estadísticas */}
             <View style={styles.actionsContainer}>
-              <TouchableOpacity 
-                style={[styles.actionButton, styles.followButton, isFollowed && styles.followingButton]} 
+              <TouchableOpacity
+                style={[styles.actionButton, styles.followButton, isFollowed && styles.followingButton]}
                 onPress={handleFollow}
+                disabled={followLoading}
               >
-                <Text style={[styles.actionButtonText, isFollowed && styles.followingText]}>
-                  {isFollowed ? 'Siguiendo' : 'Seguir'}
-                </Text>
+                {followLoading ? (
+                  <ActivityIndicator size="small" color={isFollowed ? '#262626' : 'white'} />
+                ) : (
+                  <Text style={[styles.actionButtonText, isFollowed && styles.followingText]}>
+                    {isFollowed ? 'Siguiendo' : 'Seguir'}
+                  </Text>
+                )}
               </TouchableOpacity>
-              
-              <TouchableOpacity style={[styles.actionButton, styles.shareButton]}>
+
+              <TouchableOpacity style={[styles.actionButton, styles.shareButton]} onPress={handleShare}>
                 <Text style={styles.shareButtonText}>Compartir</Text>
               </TouchableOpacity>
             </View>
@@ -131,22 +146,22 @@ const HeaderProfile = () => {
 
           { /* Social Media */ }
           <View style={styles.socialNetworksContainer}>
-            {manufacturer.instagramNick && (
-              <TouchableOpacity 
-                style={[styles.socialIcon, styles.instagramIcon]} 
+            {selectedManufacturer.instagramNick && (
+              <TouchableOpacity
+                style={[styles.socialIcon, styles.instagramIcon]}
                 onPress={handleInstagram}
               >
                 <Ionicons name="logo-instagram" size={26} color="white" />
               </TouchableOpacity>
             )}
-            {manufacturer.tiktokUrl && (
-              <TouchableOpacity 
-                style={[styles.socialIcon, styles.tiktokIcon]} 
+            {selectedManufacturer.tiktokUrl && (
+              <TouchableOpacity
+                style={[styles.socialIcon, styles.tiktokIcon]}
                 onPress={handleTikTok}
               >
                 <View style={styles.tiktokContainer}>
                   <Ionicons name="logo-tiktok" size={26} color="white" />
-                  {manufacturer.live && (
+                  {selectedManufacturer.live && (
                     <View style={styles.liveIndicator}>
                       <Text style={styles.liveText}>LIVE</Text>
                     </View>
@@ -154,9 +169,9 @@ const HeaderProfile = () => {
                 </View>
               </TouchableOpacity>
             )}
-            {manufacturer.phone && (
-              <TouchableOpacity 
-                style={[styles.socialIcon, styles.whatsappIcon]} 
+            {selectedManufacturer.phone && (
+              <TouchableOpacity
+                style={[styles.socialIcon, styles.whatsappIcon]}
                 onPress={handleWhatsApp}
               >
                 <Ionicons name="logo-whatsapp" size={26} color="white" />
@@ -168,18 +183,18 @@ const HeaderProfile = () => {
 
       {/* Descripción y calificación */}
       <View style={styles.divDescription}>
-        {manufacturer.description && (
-          <Text style={styles.description}>{manufacturer.description}</Text>
+        {selectedManufacturer.description && (
+          <Text style={styles.description}>{selectedManufacturer.description}</Text>
         )}
         <View style={styles.divRating}>
           <Text style={styles.pRating}>Calificación de los usuarios:</Text>
           <View style={styles.divRatingStars}>
             <View style={styles.divStars}>
-              {renderStars(manufacturer.averageRating)}
+              {renderStars(selectedManufacturer.averageRating)}
             </View>
             <Text style={styles.averageRating}>
-              {manufacturer.averageRating !== null && manufacturer.averageRating !== undefined
-                ? manufacturer.averageRating.toFixed(1)
+              {selectedManufacturer.averageRating !== null && selectedManufacturer.averageRating !== undefined
+                ? selectedManufacturer.averageRating.toFixed(1)
                 : 'Sin calificar'}
             </Text>
           </View>
@@ -202,15 +217,12 @@ const styles = StyleSheet.create({
     elevation: 3,
     paddingVertical: 12,
     paddingHorizontal: 8,
-    // marginVertical: 4,
     borderRadius: 0,
   },
   headerSection: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    // marginBottom: 4,
   },
-  // Nueva estructura tipo Instagram
   profileImageContainer: {
     marginRight: 8,
   },
@@ -230,7 +242,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#262626',
-    // marginBottom: 2,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -241,7 +252,6 @@ const styles = StyleSheet.create({
   },
   statItem: {
     alignItems: 'flex-start',
-    // marginRight: 24,
   },
   statNumber: {
     fontSize: 14,
@@ -254,7 +264,6 @@ const styles = StyleSheet.create({
     color: '#8e8e8e',
     lineHeight: 14,
   },
-  // Botones de acción estilo Instagram
   actionsContainer: {
     flexDirection: 'row',
     gap: 6,
@@ -296,7 +305,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#262626',
   },
-  // Redes sociales más compactas
   socialNetworksContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -355,7 +363,6 @@ const styles = StyleSheet.create({
   whatsappIcon: {
     backgroundColor: '#25D366',
   },
-  // Descripción y rating más limpios
   divDescription: {
     paddingTop: 2,
   },
