@@ -167,8 +167,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
     backgroundColor: '#f8f9fa',
     borderBottomWidth: 1,
     borderBottomColor: '#e9ecef',
@@ -182,9 +180,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.light.icon,
   },
-  productsContainer: {
-    padding: 8,
-  },
+  productsContainer: {},
   row: {
     justifyContent: 'flex-start',
     gap: CARD_GAP,
