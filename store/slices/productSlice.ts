@@ -314,10 +314,12 @@ export const fetchStoreProducts = createAsyncThunk(
       params.append('page', page.toString());
       params.append('limit', limit.toString());
 
-      console.log(`Obteniendo productos del fabricante ${userId} con params:`, params.toString());
       const response = await productInstance.get(`/store/${userId}?${params.toString()}`);
       return { ...response.data, append };
     } catch (error: any) {
+      if (error.response?.status === 429) {
+        return rejectWithValue('Demasiadas solicitudes. Esperá un momento e intentá de nuevo.');
+      }
       return rejectWithValue(error.response?.data?.message || 'Error al obtener los productos del fabricante');
     }
   }
