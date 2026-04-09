@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, memo } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { useSelector } from 'react-redux';
@@ -13,15 +13,18 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import type { RootState } from '@/store';
+import type { RelatedProductItem } from '@/types/product';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = (SCREEN_WIDTH - 16) / 2.35;
 const IMAGE_HEIGHT = CARD_WIDTH * 1.35;
 
-interface ProductSliderProps {
-  title: string;
-  section: 'featured' | 'newProducts' | 'packs' | 'sales' | 'masVendidos' | 'blanqueria' | 'lenceria' | 'calzado' | 'bisuteria' | 'telas' | 'insumos' | 'maquinas';
-}
+type Section = 'featured' | 'newProducts' | 'packs' | 'sales' | 'masVendidos' | 'blanqueria' | 'lenceria' | 'calzado' | 'bisuteria' | 'telas' | 'insumos' | 'maquinas';
+
+// Modo sección (Redux) o modo externo (productos pasados como prop)
+type ProductSliderProps =
+  | { title: string; section: Section; products?: never; onMorePress?: never }
+  | { title: string; section?: never; products: RelatedProductItem[]; onMorePress?: () => void };
 
 // — Skeleton card —
 const SkeletonCard = () => {
@@ -52,7 +55,7 @@ const SkeletonCard = () => {
 };
 
 // — Product card —
-const ProductCard = ({ item, onPress }: { item: any; onPress: () => void }) => {
+const ProductCard = memo(function ProductCard({ item, onPress }: { item: RelatedProductItem; onPress: () => void }) {
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -68,7 +71,7 @@ const ProductCard = ({ item, onPress }: { item: any; onPress: () => void }) => {
   };
 
   const discount =
-    item.onSale && item.salePrice > 0
+    item.onSale && item.salePrice && item.salePrice > 0
       ? Math.round(((item.price - item.salePrice) / item.price) * 100)
       : 0;
 
@@ -108,7 +111,7 @@ const ProductCard = ({ item, onPress }: { item: any; onPress: () => void }) => {
           <Text style={styles.productName} numberOfLines={1} ellipsizeMode="tail">
             {item.name}
           </Text>
-          {item.onSale && item.salePrice > 0 ? (
+          {item.onSale && item.salePrice && item.salePrice > 0 ? (
             <View style={styles.priceRow}>
               <Text style={styles.salePrice}>{formatPrice(item.salePrice)}</Text>
               <Text style={styles.originalPrice}>{formatPrice(item.price)}</Text>
@@ -120,15 +123,26 @@ const ProductCard = ({ item, onPress }: { item: any; onPress: () => void }) => {
       </Animated.View>
     </Pressable>
   );
-};
+});
+
+const EMPTY_PRODUCTS: RelatedProductItem[] = [];
 
 // — Componente principal —
-const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
-  const { [section]: products, loading } = useSelector((state: RootState) => state.product);
+const ProductSlider: React.FC<ProductSliderProps> = ({ title, section, products, onMorePress }) => {
   const router = useRouter();
 
-  const handleMorePress = () => {
-    const redirectConfig: Record<string, { genderId?: number; categoryId?: number; sortBy?: string }> = {
+  // Modo sección: lee del store
+  const sectionProducts = useSelector((state: RootState) =>
+    section ? (state.product[section] as RelatedProductItem[]) : EMPTY_PRODUCTS
+  );
+  const loading = useSelector((state: RootState) => state.product.loading);
+
+  const isExternalMode = products !== undefined;
+  const displayProducts: RelatedProductItem[] = isExternalMode ? products : sectionProducts;
+
+  const handleSectionMorePress = () => {
+    if (!section) return;
+    const redirectConfig: Record<Section, { genderId?: number; categoryId?: number; sortBy?: string }> = {
       featured: {},
       newProducts: { sortBy: 'newest' },
       packs: { genderId: 6, categoryId: 161 },
@@ -140,6 +154,7 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
       telas: { genderId: 6, categoryId: 162 },
       insumos: { genderId: 6, categoryId: 163 },
       maquinas: { genderId: 6, categoryId: 164 },
+      masVendidos: {},
     };
 
     const config = redirectConfig[section] || {};
@@ -152,13 +167,15 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
     router.push((queryString ? `/(tabs)/tienda?${queryString}` : '/(tabs)/tienda') as any);
   };
 
-  const isLoading = loading && (!products || products.length === 0);
+  const handleMorePress = onMorePress ?? handleSectionMorePress;
 
-  if (!isLoading && (!products || products.length === 0)) return null;
+  const isLoading = !isExternalMode && loading && displayProducts.length === 0;
+
+  if (!isLoading && displayProducts.length === 0) return null;
 
   return (
     <View style={styles.container}>
-      {/* Header — mismo patrón que Genders y LiveManufacturers */}
+      {/* Header */}
       <Pressable style={styles.header} onPress={handleMorePress}>
         <Text style={styles.title}>{title}</Text>
         <View style={styles.titleSpacer} />
@@ -178,7 +195,7 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ title, section }) => {
         />
       ) : (
         <FlatList
-          data={products}
+          data={displayProducts}
           renderItem={({ item }) => (
             <ProductCard
               item={item}
@@ -223,9 +240,7 @@ const styles = StyleSheet.create({
   },
 
   // — Lista —
-  listContent: {
-    // paddingHorizontal: 8,
-  },
+  listContent: {},
 
   // — Card —
   card: {

@@ -49,11 +49,16 @@ export interface Manufacturer {
   street: string;
 }
 
+export type RelatedProductItem = Pick<Product, 'id' | 'name' | 'price' | 'mainImage'> & {
+  onSale?: boolean;
+  salePrice?: number;
+};
+
 export interface ProductWithManufacturerResponse {
   product: Product;
-  manufacturer: Manufacturer;
-  manufacturerProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
-  categoryProducts: Pick<Product, 'id' | 'name' | 'price' | 'mainImage'>[];
+  manufacturer: Manufacturer | null;
+  manufacturerProducts: RelatedProductItem[];
+  categoryProducts: RelatedProductItem[];
   views?: number;
   isFavorite?: boolean | null;
 }
