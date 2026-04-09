@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Alert, Share } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProductWithManufacturer, clearCurrentProduct } from '@/store/slices/productSlice';
+import { fetchProductWithManufacturer, clearCurrentProduct, setCurrentProductIsFavorite } from '@/store/slices/productSlice';
+import { addFavorite, removeFavorite } from '@/store/slices/favoriteSlice';
 import { RootState, AppDispatch } from '@/store';
 import { formatPrice } from '@/utils/formatPrice';
 import { Ionicons } from '@expo/vector-icons';
@@ -42,9 +43,42 @@ const ProductoScreen = () => {
     manufacturerProducts,
     categoryProducts,
     currentProductViews,
+    currentProductIsFavorite,
     loading,
     error,
   } = useSelector((state: RootState) => state.product);
+  const userRole = useSelector((state: RootState) => state.auth.user?.role);
+
+  const handleToggleFavorite = useCallback(async () => {
+    if (!currentProduct?.id) return;
+    if (userRole !== 'wholesaler') {
+      Alert.alert(
+        'Acceso restringido',
+        'Iniciá sesión como mayorista para agregar productos a favoritos',
+        [{ text: 'Entendido', style: 'default' }]
+      );
+      return;
+    }
+    const productId = parseInt(currentProduct.id);
+    try {
+      if (currentProductIsFavorite) {
+        await dispatch(removeFavorite(productId)).unwrap();
+        dispatch(setCurrentProductIsFavorite(false));
+      } else {
+        await dispatch(addFavorite(productId)).unwrap();
+        dispatch(setCurrentProductIsFavorite(true));
+      }
+    } catch (error: any) {
+      console.error('Error al actualizar favoritos:', error);
+    }
+  }, [currentProduct, currentProductIsFavorite, userRole, dispatch]);
+
+  const handleShare = useCallback(async () => {
+    if (!currentProduct) return;
+    try {
+      await Share.share({ message: `${currentProduct.name} — Fabricante Directo` });
+    } catch {}
+  }, [currentProduct]);
 
   useEffect(() => {
     if (id) {
@@ -82,6 +116,9 @@ const ProductoScreen = () => {
         <Gallery
           images={currentProduct?.images}
           mainImage={currentProduct?.mainImage}
+          isFavorite={currentProductIsFavorite ?? false}
+          onToggleFavorite={handleToggleFavorite}
+          onShare={handleShare}
         />
       </View>
 
@@ -204,12 +241,13 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#fff',
-    padding: 16,
+    paddingHorizontal: 6,
+    paddingVertical: 10,
     ...shadows.sm,
   },
   sliderCard: {
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 10,
     marginTop: 6,
   },
 
