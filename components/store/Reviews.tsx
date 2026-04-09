@@ -16,7 +16,7 @@ const Reviews = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [createModalVisible, setCreateModalVisible] = useState(false);
-  const [selectedReview, setSelectedReview] = useState<any>(null);
+  const [selectedReview, setSelectedReview] = useState<{ id: number; rating: number; comment: string } | null>(null);
   
   if (!selectedManufacturer) {
     return null;
@@ -79,7 +79,7 @@ const Reviews = () => {
     setModalVisible(false);
   };
 
-  const handleEditReview = (review: any) => {
+  const handleEditReview = (review: { id: number; rating: number; comment: string }) => {
     setSelectedReview(review);
     setEditModalVisible(true);
     setModalVisible(false); // Cerrar el modal de reviews si está abierto
@@ -216,7 +216,7 @@ const Reviews = () => {
             );
           })}
           
-          {hasReviews && (
+          {reviews.length > 2 && (
             <TouchableOpacity style={styles.seeMoreButton} onPress={handleOpenModal}>
               <Text style={styles.seeMoreText}>Ver todo</Text>
             </TouchableOpacity>

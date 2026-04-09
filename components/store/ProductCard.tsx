@@ -1,13 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/Colors';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_PADDING = 8; // Padding del contenedor
-const CARD_GAP = 10; // Separación entre cards
-const NUM_COLUMNS = 2;
-const CARD_WIDTH = (SCREEN_WIDTH - (CARD_PADDING * 2) - (CARD_GAP * (NUM_COLUMNS - 1))) / NUM_COLUMNS;
 
 interface StoreProductCardProps {
   product: {
@@ -18,17 +13,10 @@ interface StoreProductCardProps {
   };
 }
 
-const ProductCard: React.FC<StoreProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<StoreProductCardProps> = React.memo(({ product }) => {
   const router = useRouter();
 
-  // Verificar si la URL de la imagen es válida
-  const isValidImageUrl = product.mainImage && product.mainImage.includes('amazonaws.com');
-  if (!isValidImageUrl) {
-    console.warn('⚠️ URL de imagen posiblemente inválida para producto:', product.id, product.mainImage);
-  }
-
   const handleProductPress = () => {
-    // console.log('🛍️ Navegando al producto desde store:', product.id);
     router.push(`/(tabs)/producto/${product.id}` as any);
   };
 
@@ -45,23 +33,17 @@ const ProductCard: React.FC<StoreProductCardProps> = ({ product }) => {
     console.error('❌ Error al cargar imagen para producto de store:', product.id, product.mainImage);
   };
 
-  const handleImageLoad = () => {
-    // console.log('✅ Imagen cargada correctamente para producto de store:', product.id);
-  };
-
   return (
-    <TouchableOpacity
-      style={styles.productCard}
+    <Pressable
+      style={({ pressed }) => [styles.productCard, pressed && { opacity: 0.7 }]}
       onPress={handleProductPress}
-      activeOpacity={0.7}
     >
       <View style={styles.imageContainer}>
         <Image
-          source={{ uri: product.mainImage || 'https://via.placeholder.com/140x186' }}
+          source={product.mainImage ? { uri: product.mainImage } : require('@/assets/images/react-logo.png')}
           style={styles.productImage}
-          resizeMode="cover"
+          contentFit="cover"
           onError={handleImageError}
-          onLoad={handleImageLoad}
         />
       </View>
       <View style={styles.productInfo}>
@@ -72,13 +54,13 @@ const ProductCard: React.FC<StoreProductCardProps> = ({ product }) => {
           <Text style={styles.price}>{formatPrice(product.price)}</Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
-};
+});
 
 const styles = StyleSheet.create({
   productCard: {
-    width: CARD_WIDTH,
+    width: '100%',
     backgroundColor: '#fff',
     borderRadius: 12,
     shadowColor: '#000',
@@ -94,9 +76,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0, 0, 0, 0.05)',
   },
   imageContainer: {
-    position: 'relative',
     width: '100%',
-    height: CARD_WIDTH * 1.25, // Altura proporcional al ancho
+    aspectRatio: 4 / 5,
     backgroundColor: '#f5f5f5',
     overflow: 'hidden',
   },

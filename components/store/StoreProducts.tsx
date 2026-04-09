@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, FlatList } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { fetchStoreProducts } from '@/store/slices/productSlice';
@@ -7,6 +7,8 @@ import { Colors } from '@/constants/Colors';
 import ProductCard from '@/components/store/ProductCard';
 import HeaderProfile from '@/components/store/HeaderProfile';
 import Reviews from '@/components/store/Reviews';
+
+const CARD_GAP = 10;
 
 const StoreProducts = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -16,7 +18,7 @@ const StoreProducts = () => {
 
   useEffect(() => {
     if (selectedManufacturer?.user?.id) {
-      dispatch(fetchStoreProducts({ 
+      dispatch(fetchStoreProducts({
         userId: selectedManufacturer.user.id.toString(),
         page: 1,
         limit: 16,
@@ -27,23 +29,19 @@ const StoreProducts = () => {
 
   const loadMoreProducts = () => {
     if (loadingMore || loading || !selectedManufacturer?.user?.id) return;
-    
+
     const currentPage = storePagination?.currentPage || 1;
     const totalPages = storePagination?.totalPages || 1;
-    
+
     if (currentPage >= totalPages) {
-      console.log('📄 No hay más páginas para cargar en la tienda');
       return;
     }
-    
-    const nextPage = currentPage + 1;
-    // console.log('📄 Cargando página:', nextPage, 'para tienda del fabricante:', selectedManufacturer.user.id);
-    
+
     setLoadingMore(true);
-    
-    dispatch(fetchStoreProducts({ 
+
+    dispatch(fetchStoreProducts({
       userId: selectedManufacturer.user.id.toString(),
-      page: nextPage,
+      page: currentPage + 1,
       limit: 16,
       append: true
     })).finally(() => {
@@ -53,7 +51,7 @@ const StoreProducts = () => {
 
   const renderFooter = () => {
     if (!loadingMore) return null;
-    
+
     return (
       <View style={styles.footerLoader}>
         <ActivityIndicator size="small" color={Colors.blue.default} />
@@ -63,7 +61,9 @@ const StoreProducts = () => {
   };
 
   const renderProduct = ({ item }: { item: any }) => (
-    <ProductCard product={item} />
+    <View style={{ flex: 1 }}>
+      <ProductCard product={item} />
+    </View>
   );
 
   const renderLoadingProducts = () => (
@@ -97,7 +97,13 @@ const StoreProducts = () => {
 
   const renderProductGrid = () => {
     if (loading && (!storeProducts || storeProducts.length === 0)) {
-      return renderLoadingProducts();
+      return (
+        <View style={styles.containerWithHeader}>
+          <HeaderProfile />
+          <Reviews />
+          {renderLoadingProducts()}
+        </View>
+      );
     }
 
     if (!loading && (!storeProducts || storeProducts.length === 0)) {
@@ -176,16 +182,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.light.icon,
   },
-  productsWrapper: {
-    flex: 1,
-  },
   productsContainer: {
     padding: 8,
   },
   row: {
     justifyContent: 'flex-start',
-    paddingHorizontal: 0,
-    gap: 10,
+    gap: CARD_GAP,
   },
   separator: {
     height: 10,
