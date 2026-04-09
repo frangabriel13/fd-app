@@ -1,11 +1,8 @@
-import { View, Text, StyleSheet, Pressable, Alert, Linking } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { useDispatch, useSelector } from 'react-redux';
+import { router } from 'expo-router';
 import { Product, Manufacturer } from '@/types/product';
-import { addFavorite, removeFavorite } from '@/store/slices/favoriteSlice';
-import { setCurrentProductIsFavorite } from '@/store/slices/productSlice';
-import { AppDispatch, RootState } from '@/store';
 import { formatPrice } from '@/utils/formatPrice';
 import { Colors } from '@/constants/Colors';
 
@@ -16,38 +13,10 @@ interface DetailProductProps {
 }
 
 const DetailProduct = ({ product, manufacturer, views }: DetailProductProps) => {
-  const dispatch = useDispatch<AppDispatch>();
-  const isFavorite = useSelector((state: RootState) => state.product.currentProductIsFavorite);
-  const userRole = useSelector((state: RootState) => state.auth.user?.role);
-
   const handleWhatsApp = () => {
     if (!manufacturer?.phone) return;
     const phone = manufacturer.phone.replace(/\D/g, '');
     Linking.openURL(`https://wa.me/${phone}`);
-  };
-
-  const handleToggleFavorite = async () => {
-    if (!product?.id) return;
-    if (userRole !== 'wholesaler') {
-      Alert.alert(
-        'Acceso restringido',
-        'Iniciá sesión como mayorista para agregar productos a favoritos',
-        [{ text: 'Entendido', style: 'default' }]
-      );
-      return;
-    }
-    const productId = parseInt(product.id);
-    try {
-      if (isFavorite) {
-        await dispatch(removeFavorite(productId)).unwrap();
-        dispatch(setCurrentProductIsFavorite(false));
-      } else {
-        await dispatch(addFavorite(productId)).unwrap();
-        dispatch(setCurrentProductIsFavorite(true));
-      }
-    } catch (error: any) {
-      console.error('Error al actualizar favoritos:', error);
-    }
   };
 
   const hasDiscount = product?.onSale && product.salePrice > 0;
@@ -81,29 +50,8 @@ const DetailProduct = ({ product, manufacturer, views }: DetailProductProps) => 
         )}
       </View>
 
-      {/* ── Nombre + compartir + favorito ── */}
-      <View style={styles.nameRow}>
-        <Text style={styles.productName}>{product?.name}</Text>
-        <View style={styles.actions}>
-          <Pressable
-            style={({ pressed }) => [styles.actionBtn, pressed && { opacity: 0.7 }]}
-            hitSlop={8}
-          >
-            <Ionicons name="share-outline" size={22} color={Colors.blue.dark} />
-          </Pressable>
-          <Pressable
-            style={({ pressed }) => [styles.actionBtn, pressed && { opacity: 0.7 }]}
-            onPress={handleToggleFavorite}
-            hitSlop={8}
-          >
-            <Ionicons
-              name={isFavorite ? 'heart' : 'heart-outline'}
-              size={22}
-              color={Colors.orange.dark}
-            />
-          </Pressable>
-        </View>
-      </View>
+      {/* ── Nombre del producto ── */}
+      <Text style={styles.productName}>{product?.name}</Text>
 
       {/* ── Precio ── */}
       <View style={styles.priceBlock}>
@@ -118,13 +66,17 @@ const DetailProduct = ({ product, manufacturer, views }: DetailProductProps) => 
         ) : (
           <Text style={styles.price}>{formatPrice(product?.price ?? 0)}</Text>
         )}
-        <Text style={styles.priceLabel}>Precio mayorista · por unidad</Text>
+        <Text style={styles.priceLabel}>Comprando al por mayor</Text>
       </View>
 
       <View style={styles.divider} />
 
       {/* ── Fabricante: logo + nombre + ubicación ── */}
-      <View style={styles.manufacturerRow}>
+      <Pressable
+        style={styles.manufacturerRow}
+        android_ripple={{ color: Colors.gray.light }}
+        onPress={() => manufacturer?.id && router.push(`/(tabs)/store/${manufacturer.id}` as any)}
+      >
         {manufacturer?.image ? (
           <Image
             source={{ uri: manufacturer.image }}
@@ -149,19 +101,22 @@ const DetailProduct = ({ product, manufacturer, views }: DetailProductProps) => 
             </View>
           ) : null}
         </View>
-      </View>
+        <Ionicons name="chevron-forward" size={16} color={Colors.gray.default} />
+      </Pressable>
 
       {/* ── WhatsApp ── */}
       <Pressable
         style={[styles.whatsappBtn, !manufacturer?.phone && styles.whatsappDisabled]}
-        android_ripple={{ color: 'rgba(0,0,0,0.12)' }}
+        android_ripple={{ color: '#1fba59' }}
         onPress={handleWhatsApp}
         disabled={!manufacturer?.phone}
       >
-        <Ionicons name="logo-whatsapp" size={20} color="#fff" />
-        <Text style={styles.whatsappText}>
-          Contactar a {manufacturer?.name ?? 'el fabricante'}
-        </Text>
+        <View style={styles.whatsappBtnInner}>
+          <Ionicons name="logo-whatsapp" size={16} color="#fff" />
+          <Text style={styles.whatsappText}>
+            Contactar a {manufacturer?.name ?? 'el fabricante'}
+          </Text>
+        </View>
       </Pressable>
 
       {/* ── Descripción ── */}
@@ -176,28 +131,13 @@ const DetailProduct = ({ product, manufacturer, views }: DetailProductProps) => 
 };
 
 const styles = StyleSheet.create({
-  // Nombre + acciones
-  nameRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-    marginBottom: 10,
-  },
+  // Nombre
   productName: {
-    flex: 1,
     fontSize: 20,
     fontWeight: '800',
     color: '#111827',
     lineHeight: 26,
-  },
-  actions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingTop: 2,
-  },
-  actionBtn: {
-    padding: 4,
+    marginBottom: 6,
   },
 
   // Fabricante
@@ -205,7 +145,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   manufacturerLogo: {
     width: 44,
@@ -247,7 +187,7 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: Colors.gray.light,
-    marginVertical: 12,
+    marginVertical: 10,
   },
 
   // Tags
@@ -255,7 +195,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
-    marginBottom: 10,
+    marginBottom: 8,
   },
   tag: {
     backgroundColor: Colors.gray.light,
@@ -288,7 +228,7 @@ const styles = StyleSheet.create({
 
   // Precio
   priceBlock: {
-    marginBottom: 4,
+    marginBottom: 6,
   },
   priceRow: {
     flexDirection: 'row',
@@ -325,34 +265,37 @@ const styles = StyleSheet.create({
   priceLabel: {
     fontSize: 12,
     color: Colors.gray.semiDark,
-    marginTop: 3,
+    marginTop: 4,
   },
 
   // WhatsApp
   whatsappBtn: {
+    borderRadius: 6,
+    overflow: 'hidden',
+    marginBottom: 4,
+  },
+  whatsappBtnInner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: 6,
+    paddingVertical: 14,
     backgroundColor: '#25d366',
-    paddingVertical: 13,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    marginBottom: 4,
+    borderRadius: 6,
   },
   whatsappDisabled: {
-    backgroundColor: Colors.gray.default,
+    opacity: 0.45,
   },
   whatsappText: {
     color: '#fff',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
   },
 
   // Descripción
   descriptionBlock: {
-    marginTop: 14,
-    gap: 6,
+    marginTop: 20,
+    gap: 8,
   },
   descriptionTitle: {
     fontSize: 15,

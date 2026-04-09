@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions, Text } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions, Text, Pressable } from 'react-native';
 import { Image } from 'expo-image';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 
 interface GalleryProps {
   images?: string[];
   mainImage?: string;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
+  onShare?: () => void;
 }
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const GALLERY_H = 380;
 
-const Gallery = ({ images = [], mainImage }: GalleryProps) => {
+const Gallery = ({ images = [], mainImage, isFavorite, onToggleFavorite, onShare }: GalleryProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Imagen principal al comienzo, sin duplicados
@@ -71,12 +75,30 @@ const Gallery = ({ images = [], mainImage }: GalleryProps) => {
         </View>
       )}
 
-      {/* Contador esquina superior derecha */}
+      {/* Contador esquina superior izquierda */}
       {allImages.length > 1 && (
         <View style={styles.counterBadge}>
           <Text style={styles.counterText}>{currentIndex + 1} / {allImages.length}</Text>
         </View>
       )}
+
+      {/* Íconos flotantes: compartir + favorito */}
+      <View style={styles.actionsColumn}>
+        <Pressable onPress={onToggleFavorite} hitSlop={8} android_ripple={{ color: 'rgba(0,0,0,0.08)', borderless: true }}>
+          <View style={[styles.iconBox, isFavorite && styles.iconBoxFavoriteActive]}>
+            <Ionicons
+              name={isFavorite ? 'heart' : 'heart-outline'}
+              size={24}
+              color={isFavorite ? Colors.orange.dark : Colors.blue.dark}
+            />
+          </View>
+        </Pressable>
+        <Pressable onPress={onShare} hitSlop={8} android_ripple={{ color: 'rgba(0,0,0,0.08)', borderless: true }}>
+          <View style={styles.iconBox}>
+            <Ionicons name="share-social-outline" size={24} color={Colors.blue.dark} />
+          </View>
+        </Pressable>
+      </View>
     </View>
   );
 };
@@ -134,12 +156,33 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.18)',
   },
 
+  // Acciones flotantes
+  actionsColumn: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    gap: 10,
+  },
+  iconBox: {
+    padding: 10,
+    borderRadius: 50,
+    backgroundColor: '#e8edf5',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  iconBoxFavoriteActive: {
+    backgroundColor: Colors.orange.dark + '22',
+  },
+
   // Contador
   counterBadge: {
     position: 'absolute',
     top: 12,
-    right: 12,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    left: 12,
+    backgroundColor: 'rgba(0,0,0,0.45)',
     borderRadius: 10,
     paddingHorizontal: 8,
     paddingVertical: 3,
