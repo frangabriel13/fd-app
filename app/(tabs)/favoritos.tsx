@@ -21,7 +21,7 @@ import { AppDispatch, RootState } from '@/store';
 import FavoriteCard from '@/components/favorites/FavoriteCard';
 import { useRefresh } from '@/hooks/useRefresh';
 import { Colors } from '@/constants/Colors';
-import { shadows } from '@/constants/Styles';
+import { shadows, spacing } from '@/constants/Styles';
 
 // ── Skeleton ─────────────────────────────────────────────────────────────────
 const SkeletonCard = () => {
@@ -173,14 +173,16 @@ const FavsScreen = () => {
 // ── Header ────────────────────────────────────────────────────────────────────
 const Header = ({ count, loading = false }: { count: number; loading?: boolean }) => (
   <View style={styles.header}>
-    <Text style={styles.headerTitle}>Mis favoritos</Text>
-    {!loading && count > 0 && (
-      <View style={styles.headerBadge}>
-        <Text style={styles.headerBadgeText}>
-          {count} {count === 1 ? 'producto' : 'productos'}
-        </Text>
-      </View>
-    )}
+    <View style={styles.headerLeft}>
+      <Text style={styles.headerTitle}>Mis favoritos</Text>
+      {!loading && count > 0 && (
+        <View style={styles.headerBadge}>
+          <Text style={styles.headerBadgeText}>
+            {count} {count === 1 ? 'producto' : 'productos'}
+          </Text>
+        </View>
+      )}
+    </View>
   </View>
 );
 
@@ -194,12 +196,17 @@ const styles = StyleSheet.create({
   // ── Header ──────────────────────────
   header: {
     backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    ...shadows.sm,
+  },
+  headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    ...shadows.sm,
   },
   headerTitle: {
     fontSize: 22,
@@ -220,14 +227,15 @@ const styles = StyleSheet.create({
 
   // ── Lista ────────────────────────────
   listContent: {
-    padding: 12,
-    paddingBottom: 32,
+    paddingTop: 6,
+    paddingBottom: spacing.lg,
   },
   listContentEmpty: {
     flex: 1,
   },
   separator: {
-    height: 8,
+    height: 1,
+    backgroundColor: '#e5e7eb',
   },
 
   // ── Estados vacío / error ────────────

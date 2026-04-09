@@ -6,7 +6,6 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring, FadeInDown } fr
 import { removeFavorite, selectRemovingProductId } from '@/store/slices/favoriteSlice';
 import { AppDispatch, RootState } from '@/store';
 import { Colors } from '@/constants/Colors';
-import { shadows } from '@/constants/Styles';
 import { formatPrice } from '@/utils/formatPrice';
 
 interface FavoriteCardProps {
@@ -97,14 +96,13 @@ const FavoriteCard = ({ product, index = 0 }: FavoriteCardProps) => {
               style={({ pressed }) => [styles.removeBtn, pressed && styles.removeBtnPressed]}
               hitSlop={8}
             >
-              {isRemoving ? (
-                <ActivityIndicator size="small" color={Colors.general.error} />
-              ) : (
-                <>
-                  <Ionicons name="trash-outline" size={13} color={Colors.general.error} />
+              <View style={styles.removeBtnInner}>
+                {isRemoving ? (
+                  <ActivityIndicator size="small" color={Colors.general.error} />
+                ) : (
                   <Text style={styles.removeBtnText}>Eliminar</Text>
-                </>
-              )}
+                )}
+              </View>
             </Pressable>
           </View>
         </View>
@@ -117,9 +115,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     backgroundColor: '#fff',
-    borderRadius: 12,
     overflow: 'hidden',
-    ...shadows.sm,
   },
 
   // ── Imagen ──────────────────────────
@@ -181,14 +177,17 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   removeBtn: {
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#fca5a5',
+    overflow: 'hidden',
+  },
+  removeBtnInner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     paddingVertical: 5,
     paddingHorizontal: 8,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#fca5a5',
   },
   removeBtnPressed: {
     backgroundColor: '#fee2e2',
