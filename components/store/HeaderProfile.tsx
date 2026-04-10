@@ -81,23 +81,6 @@ const HeaderProfile = () => {
     }
   };
 
-  const renderStars = (rating: number | null) => {
-    const stars = [];
-    const ratingValue = rating || 0;
-
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <Ionicons
-          key={i}
-          name={i <= ratingValue ? 'star' : 'star-outline'}
-          size={16}
-          color={i <= ratingValue ? Colors.orange.dark : '#d1d5db'}
-        />
-      );
-    }
-    return stars;
-  };
-
   return (
     <View style={styles.container}>
       {/* Header con imagen y datos básicos */}
@@ -192,19 +175,6 @@ const HeaderProfile = () => {
         {selectedManufacturer.description && (
           <Text style={styles.description}>{selectedManufacturer.description}</Text>
         )}
-        <View style={styles.divRating}>
-          <Text style={styles.pRating}>Calificación:</Text>
-          <View style={styles.divRatingStars}>
-            <View style={styles.divStars}>
-              {renderStars(selectedManufacturer.averageRating)}
-            </View>
-            <Text style={styles.averageRating}>
-              {selectedManufacturer.averageRating !== null && selectedManufacturer.averageRating !== undefined
-                ? selectedManufacturer.averageRating.toFixed(1)
-                : 'Sin calificar'}
-            </Text>
-          </View>
-        </View>
       </View>
     </View>
   );
@@ -368,30 +338,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#374151',
     lineHeight: 18,
-  },
-  divRating: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  pRating: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: Colors.gray.semiDark,
-  },
-  divRatingStars: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  divStars: {
-    flexDirection: 'row',
-    gap: 2,
-  },
-  averageRating: {
-    fontSize: 13,
-    color: Colors.gray.semiDark,
-    fontWeight: '600',
   },
 });
 
