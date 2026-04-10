@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, FlatList } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, FlatList, RefreshControl } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { fetchStoreProducts } from '@/store/slices/productSlice';
@@ -63,6 +63,7 @@ const StoreProducts = () => {
   const { selectedManufacturer } = useSelector((state: RootState) => state.manufacturer);
   const { storeProducts, storePagination, loading, error } = useSelector((state: RootState) => state.product);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (selectedManufacturer?.user?.id) {
@@ -74,6 +75,18 @@ const StoreProducts = () => {
       }));
     }
   }, [selectedManufacturer?.user?.id, dispatch]);
+
+  const handleRefresh = async () => {
+    if (!selectedManufacturer?.user?.id) return;
+    setRefreshing(true);
+    await dispatch(fetchStoreProducts({
+      userId: selectedManufacturer.user.id.toString(),
+      page: 1,
+      limit: 16,
+      append: false,
+    }));
+    setRefreshing(false);
+  };
 
   const loadMoreProducts = () => {
     if (loadingMore || loading || !selectedManufacturer?.user?.id) return;
@@ -177,6 +190,14 @@ const StoreProducts = () => {
         onEndReachedThreshold={0.3}
         ListFooterComponent={renderFooter}
         ListHeaderComponent={renderHeader}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            colors={[Colors.blue.dark]}
+            tintColor={Colors.blue.dark}
+          />
+        }
         style={{ flex: 1 }}
       />
     </View>

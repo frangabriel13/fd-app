@@ -1,6 +1,7 @@
-import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
+import { Colors } from '@/constants/Colors';
 
 interface Review {
   id: number;
@@ -14,6 +15,14 @@ interface EditReviewModalProps {
   review: Review | null;
   onSave: (reviewId: number, rating: number, comment: string) => Promise<void>;
 }
+
+const RATING_LABELS: Record<number, string> = {
+  1: 'Muy malo',
+  2: 'Malo',
+  3: 'Regular',
+  4: 'Bueno',
+  5: 'Excelente',
+};
 
 const EditReviewModal = ({ visible, onClose, review, onSave }: EditReviewModalProps) => {
   const [rating, setRating] = useState(5);
@@ -29,12 +38,10 @@ const EditReviewModal = ({ visible, onClose, review, onSave }: EditReviewModalPr
 
   const handleSave = async () => {
     if (!review) return;
-    
     if (comment.trim().length === 0) {
-      alert('Por favor escribe un comentario');
+      alert('Por favor escribí un comentario');
       return;
     }
-
     setLoading(true);
     try {
       await onSave(review.id, rating, comment);
@@ -44,100 +51,84 @@ const EditReviewModal = ({ visible, onClose, review, onSave }: EditReviewModalPr
     }
   };
 
-  const renderStars = () => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <TouchableOpacity
-          key={i}
-          onPress={() => setRating(i)}
-          style={styles.starButton}
-        >
-          <Ionicons
-            name={i <= rating ? "star" : "star-outline"}
-            size={40}
-            color={i <= rating ? "#f86f1a" : "#d1d5db"}
-          />
-        </TouchableOpacity>
-      );
-    }
-    return stars;
-  };
-
   return (
     <Modal
       visible={visible}
       animationType="slide"
-      transparent={true}
+      transparent
       onRequestClose={onClose}
     >
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.modalOverlay}
+        style={styles.overlay}
       >
-        <TouchableOpacity 
-          style={styles.backdrop}
-          activeOpacity={1}
-          onPress={onClose}
-        />
-        <View style={styles.modalContainer}>
-          {/* Header del modal */}
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Editar comentario</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Ionicons name="close" size={28} color="#262626" />
-            </TouchableOpacity>
+        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
+
+        <View style={styles.sheet}>
+          {/* Drag handle */}
+          <View style={styles.handle} />
+
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Editar comentario</Text>
+            <Pressable
+              onPress={onClose}
+              style={({ pressed }) => [styles.closeBtn, pressed && { opacity: 0.6 }]}
+              hitSlop={8}
+            >
+              <Ionicons name="close" size={24} color="#374151" />
+            </Pressable>
           </View>
 
-          {/* Contenido del modal */}
-          <View style={styles.modalContent}>
-            {/* Calificación */}
+          {/* Contenido */}
+          <View style={styles.content}>
+
+            {/* Estrellas */}
             <View style={styles.ratingSection}>
-              <Text style={styles.sectionLabel}>Tu calificación</Text>
-              <View style={styles.starsContainer}>
-                {renderStars()}
+              <Text style={styles.label}>Tu calificación</Text>
+              <View style={styles.starsRow}>
+                {[1, 2, 3, 4, 5].map(i => (
+                  <TouchableOpacity key={i} onPress={() => setRating(i)} style={styles.starBtn}>
+                    <Ionicons
+                      name={i <= rating ? 'star' : 'star-outline'}
+                      size={40}
+                      color={i <= rating ? Colors.orange.dark : '#d1d5db'}
+                    />
+                  </TouchableOpacity>
+                ))}
               </View>
+              <Text style={styles.ratingLabel}>{RATING_LABELS[rating]}</Text>
             </View>
 
             {/* Comentario */}
             <View style={styles.commentSection}>
-              <Text style={styles.sectionLabel}>Tu comentario</Text>
+              <Text style={styles.label}>Tu comentario</Text>
               <TextInput
                 style={styles.textInput}
                 value={comment}
                 onChangeText={setComment}
-                placeholder="Escribe tu comentario aquí..."
+                placeholder="Escribí tu comentario aquí..."
                 placeholderTextColor="#9ca3af"
                 multiline
-                numberOfLines={6}
+                numberOfLines={5}
                 textAlignVertical="top"
                 maxLength={500}
               />
               <Text style={styles.charCount}>{comment.length}/500</Text>
             </View>
 
-            {/* Botones de acción */}
-            <View style={styles.actionsContainer}>
-              <TouchableOpacity 
-                style={styles.cancelButton}
-                onPress={onClose}
-                disabled={loading}
-              >
-                <Text style={styles.cancelButtonText}>Cancelar</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.saveButton, loading && styles.saveButtonDisabled]}
-                onPress={handleSave}
-                disabled={loading}
-              >
-                {loading ? (
-                  <ActivityIndicator size="small" color="white" />
-                ) : (
-                  <Text style={styles.saveButtonText}>Guardar</Text>
-                )}
-              </TouchableOpacity>
-            </View>
+            {/* Acciones */}
+            <TouchableOpacity
+              style={[styles.submitBtn, loading && styles.submitBtnDisabled]}
+              onPress={handleSave}
+              disabled={loading}
+            >
+              {loading
+                ? <ActivityIndicator size="small" color="#fff" />
+                : <Text style={styles.submitBtnText}>Guardar</Text>
+              }
+            </TouchableOpacity>
+
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -146,59 +137,84 @@ const EditReviewModal = ({ visible, onClose, review, onSave }: EditReviewModalPr
 };
 
 const styles = StyleSheet.create({
-  modalOverlay: {
+  overlay: {
     flex: 1,
     justifyContent: 'flex-end',
   },
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0,0,0,0.45)',
   },
-  modalContainer: {
-    backgroundColor: 'white',
+  sheet: {
+    backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: '85%',
+    paddingBottom: 28,
   },
-  modalHeader: {
+
+  /* Handle + header */
+  handle: {
+    width: 36,
+    height: 4,
+    backgroundColor: '#d1d5db',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginTop: 10,
+    marginBottom: 6,
+  },
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    borderBottomColor: '#f3f4f6',
   },
-  modalTitle: {
-    fontSize: 20,
+  headerTitle: {
+    fontSize: 17,
     fontWeight: '700',
-    color: '#262626',
+    color: '#111827',
   },
-  closeButton: {
+  closeBtn: {
     padding: 4,
   },
-  modalContent: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+
+  /* Contenido */
+  content: {
+    paddingHorizontal: 16,
+    paddingTop: 20,
   },
+
+  /* Estrellas */
   ratingSection: {
+    alignItems: 'center',
     marginBottom: 24,
   },
-  sectionLabel: {
-    fontSize: 16,
+  label: {
+    fontSize: 14,
     fontWeight: '600',
-    color: '#262626',
+    color: '#374151',
     marginBottom: 12,
+    alignSelf: 'flex-start',
   },
-  starsContainer: {
+  starsRow: {
     flexDirection: 'row',
-    justifyContent: 'center',
     gap: 8,
-    paddingVertical: 8,
+    paddingVertical: 4,
   },
-  starButton: {
+  starBtn: {
     padding: 4,
   },
+  ratingLabel: {
+    fontSize: 13,
+    color: '#6b7280',
+    marginTop: 8,
+    fontWeight: '500',
+  },
+
+  /* Comentario */
   commentSection: {
     marginBottom: 24,
   },
@@ -206,50 +222,33 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9fafb',
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 15,
-    color: '#262626',
-    minHeight: 120,
+    borderRadius: 10,
+    padding: 14,
+    fontSize: 14,
+    color: '#111827',
+    minHeight: 110,
   },
   charCount: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#9ca3af',
     textAlign: 'right',
-    marginTop: 8,
+    marginTop: 6,
   },
-  actionsContainer: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  cancelButton: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    backgroundColor: 'white',
+
+  /* Acciones */
+  submitBtn: {
+    paddingVertical: 13,
+    borderRadius: 10,
+    backgroundColor: Colors.blue.dark,
     alignItems: 'center',
   },
-  cancelButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#6b7280',
-  },
-  saveButton: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 12,
-    backgroundColor: '#021344',
-    alignItems: 'center',
-  },
-  saveButtonDisabled: {
+  submitBtnDisabled: {
     opacity: 0.6,
   },
-  saveButtonText: {
-    fontSize: 16,
+  submitBtnText: {
+    fontSize: 15,
     fontWeight: '600',
-    color: 'white',
+    color: '#fff',
   },
 });
 
