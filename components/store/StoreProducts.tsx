@@ -1,14 +1,62 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, FlatList } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { fetchStoreProducts } from '@/store/slices/productSlice';
 import { Colors } from '@/constants/Colors';
-import ProductCard from '@/components/store/ProductCard';
+import { Ionicons } from '@expo/vector-icons';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
+import ProductCard, { CARD_WIDTH } from '@/components/store/ProductCard';
 import HeaderProfile from '@/components/store/HeaderProfile';
 import Reviews from '@/components/store/Reviews';
 
-const CARD_GAP = 10;
+const CARD_GAP = 3;
+
+// — Skeleton —
+const SkeletonCard = () => {
+  const opacity = useSharedValue(0.35);
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(0.85, { duration: 550 }),
+        withTiming(0.35, { duration: 550 }),
+      ),
+      -1,
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+  return (
+    <Animated.View style={[styles.skeletonCard, animatedStyle]}>
+      <View style={styles.skeletonImage} />
+      <View style={styles.skeletonInfo}>
+        <View style={styles.skeletonLine} />
+        <View style={styles.skeletonLineShort} />
+        <View style={styles.skeletonPrice} />
+      </View>
+    </Animated.View>
+  );
+};
+
+const SkeletonGrid = () => (
+  <View style={styles.skeletonGrid}>
+    {Array.from({ length: 6 }).map((_, i) => (
+      <View key={i} style={styles.skeletonItemWrapper}>
+        <SkeletonCard />
+      </View>
+    ))}
+  </View>
+);
+
+const ItemSeparator = () => <View style={styles.separator} />;
 
 const StoreProducts = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -22,103 +70,100 @@ const StoreProducts = () => {
         userId: selectedManufacturer.user.id.toString(),
         page: 1,
         limit: 16,
-        append: false
+        append: false,
       }));
     }
   }, [selectedManufacturer?.user?.id, dispatch]);
 
   const loadMoreProducts = () => {
     if (loadingMore || loading || !selectedManufacturer?.user?.id) return;
-
     const currentPage = storePagination?.currentPage || 1;
     const totalPages = storePagination?.totalPages || 1;
-
-    if (currentPage >= totalPages) {
-      return;
-    }
-
+    if (currentPage >= totalPages) return;
     setLoadingMore(true);
-
     dispatch(fetchStoreProducts({
       userId: selectedManufacturer.user.id.toString(),
       page: currentPage + 1,
       limit: 16,
-      append: true
-    })).finally(() => {
-      setLoadingMore(false);
-    });
+      append: true,
+    })).finally(() => setLoadingMore(false));
   };
 
-  const renderFooter = () => {
-    if (!loadingMore) return null;
+  const renderProduct = useCallback(
+    ({ item }: { item: any }) => <ProductCard product={item} />,
+    [],
+  );
 
+  const renderFooter = useCallback(() => {
+    if (!loadingMore) return null;
     return (
       <View style={styles.footerLoader}>
-        <ActivityIndicator size="small" color={Colors.blue.default} />
-        <Text style={styles.footerText}>Cargando más productos...</Text>
+        <ActivityIndicator size="small" color={Colors.blue.dark} />
+        <Text style={styles.footerText}>Cargando más...</Text>
       </View>
     );
-  };
-
-  const renderProduct = ({ item }: { item: any }) => (
-    <View style={{ flex: 1 }}>
-      <ProductCard product={item} />
-    </View>
-  );
-
-  const renderLoadingProducts = () => (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator size="large" color={Colors.blue.default} />
-      <Text style={styles.loadingText}>Cargando productos...</Text>
-    </View>
-  );
-
-  const renderEmptyProducts = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>No hay productos disponibles</Text>
-      <Text style={styles.emptySubText}>Esta tienda aún no tiene productos publicados</Text>
-    </View>
-  );
+  }, [loadingMore]);
 
   const renderHeader = () => (
     <View>
       <HeaderProfile />
       <Reviews />
-      <View style={styles.header}>
-        <Text style={styles.title}>Productos de la tienda</Text>
-        {storePagination && (
-          <Text style={styles.resultsText}>
-            {storePagination.totalProducts} productos
-          </Text>
-        )}
-      </View>
+      {storePagination && (
+        <View style={styles.resultsBar}>
+          <View style={styles.resultsRow}>
+            <Text style={styles.resultsCount}>{storePagination.totalProducts}</Text>
+            <Text style={styles.resultsLabel}>
+              {storePagination.totalProducts === 1 ? 'producto' : 'productos'}
+            </Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 
-  const renderProductGrid = () => {
-    if (loading && (!storeProducts || storeProducts.length === 0)) {
-      return (
-        <View style={styles.containerWithHeader}>
-          <HeaderProfile />
-          <Reviews />
-          {renderLoadingProducts()}
-        </View>
-      );
-    }
-
-    if (!loading && (!storeProducts || storeProducts.length === 0)) {
-      return (
-        <View style={styles.containerWithHeader}>
-          <View>
-            <HeaderProfile />
-            <Reviews />
-          </View>
-          {renderEmptyProducts()}
-        </View>
-      );
-    }
-
+  // — Estado error —
+  if (error) {
     return (
+      <View style={styles.container}>
+        <HeaderProfile />
+        <Reviews />
+        <View style={styles.feedbackContainer}>
+          <Ionicons name="cloud-offline-outline" size={52} color={Colors.gray.default} />
+          <Text style={styles.feedbackTitle}>Ocurrió un error</Text>
+          <Text style={styles.feedbackText}>{error}</Text>
+        </View>
+      </View>
+    );
+  }
+
+  // — Estado cargando (primera carga) —
+  if (loading && (!storeProducts || storeProducts.length === 0)) {
+    return (
+      <View style={styles.container}>
+        <HeaderProfile />
+        <Reviews />
+        <SkeletonGrid />
+      </View>
+    );
+  }
+
+  // — Estado vacío —
+  if (!loading && (!storeProducts || storeProducts.length === 0)) {
+    return (
+      <View style={styles.container}>
+        <HeaderProfile />
+        <Reviews />
+        <View style={styles.feedbackContainer}>
+          <Ionicons name="bag-outline" size={52} color={Colors.gray.default} />
+          <Text style={styles.feedbackTitle}>Sin productos</Text>
+          <Text style={styles.feedbackText}>Esta tienda aún no tiene productos publicados</Text>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
       <FlatList
         data={storeProducts}
         renderItem={renderProduct}
@@ -127,29 +172,13 @@ const StoreProducts = () => {
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.productsContainer}
         showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ItemSeparatorComponent={ItemSeparator}
         onEndReached={loadMoreProducts}
         onEndReachedThreshold={0.3}
         ListFooterComponent={renderFooter}
         ListHeaderComponent={renderHeader}
         style={{ flex: 1 }}
       />
-    );
-  };
-
-  if (error) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Error: {error}</Text>
-        </View>
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.container}>
-      {renderProductGrid()}
     </View>
   );
 };
@@ -157,91 +186,119 @@ const StoreProducts = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.gray.light,
   },
-  containerWithHeader: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#f8f9fa',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: Colors.light.text,
-  },
-  resultsText: {
-    fontSize: 14,
-    color: Colors.light.icon,
-  },
-  productsContainer: {},
+
+  // — Grid —
   row: {
     justifyContent: 'flex-start',
     gap: CARD_GAP,
   },
   separator: {
-    height: 10,
+    height: CARD_GAP,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  productsContainer: {
+    paddingVertical: 0,
+  },
+
+  // — Barra de resultados —
+  resultsBar: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 60,
+    paddingHorizontal: 8,
+    paddingVertical: 10,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
   },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: Colors.light.icon,
-    textAlign: 'center',
+  resultsRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
   },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 20,
+  resultsCount: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.blue.dark,
   },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: Colors.light.text,
-    marginBottom: 8,
-    textAlign: 'center',
+  resultsLabel: {
+    fontSize: 12,
+    fontWeight: '400',
+    color: Colors.gray.semiDark,
   },
-  emptySubText: {
-    fontSize: 14,
-    color: Colors.light.icon,
-    textAlign: 'center',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 20,
-  },
-  errorText: {
-    fontSize: 16,
-    color: 'red',
-    textAlign: 'center',
-  },
+
+  // — Footer paginación —
   footerLoader: {
-    paddingVertical: 16,
+    paddingVertical: 20,
     alignItems: 'center',
+    gap: 8,
   },
   footerText: {
-    marginTop: 8,
     fontSize: 12,
-    color: Colors.light.icon,
+    color: Colors.gray.semiDark,
+  },
+
+  // — Estados de feedback —
+  feedbackContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+    gap: 12,
+  },
+  feedbackTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#111827',
     textAlign: 'center',
   },
-});
+  feedbackText: {
+    fontSize: 13,
+    color: Colors.gray.semiDark,
+    textAlign: 'center',
+    paddingHorizontal: 32,
+  },
 
+  // — Skeleton —
+  skeletonGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: CARD_GAP,
+  },
+  skeletonItemWrapper: {
+    width: CARD_WIDTH,
+  },
+  skeletonCard: {
+    overflow: 'hidden',
+    backgroundColor: Colors.gray.light,
+  },
+  skeletonImage: {
+    width: '100%',
+    height: CARD_WIDTH * 1.3,
+    backgroundColor: '#e5e7eb',
+  },
+  skeletonInfo: {
+    padding: 8,
+    gap: 6,
+  },
+  skeletonLine: {
+    height: 10,
+    borderRadius: 4,
+    backgroundColor: '#e5e7eb',
+  },
+  skeletonLineShort: {
+    height: 10,
+    borderRadius: 4,
+    backgroundColor: '#e5e7eb',
+    width: '65%',
+  },
+  skeletonPrice: {
+    height: 14,
+    borderRadius: 4,
+    backgroundColor: '#e5e7eb',
+    width: '45%',
+    marginTop: 2,
+  },
+});
 
 export default StoreProducts;
