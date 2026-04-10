@@ -10,29 +10,6 @@ import EditReviewModal from '@/components/modals/EditReviewModal';
 import CreateReviewModal from '@/components/modals/CreateReviewModal';
 import { Colors } from '@/constants/Colors';
 
-/* ─── TODO: eliminar antes de producción ─── */
-const MOCK_REVIEWS = [
-  { id: 9001, rating: 5, comment: 'Excelente calidad en los productos, llegaron bien embalados y antes de lo esperado. Muy recomendable para mayoristas.', createdAt: '2026-03-20T10:00:00Z', user: { id: 9001, wholesaler: { name: 'Distribuidora Sur' } } },
-  { id: 9002, rating: 4, comment: 'Muy buena atención. Tuvimos una demora en un pedido pero lo resolvieron rápido. Los productos son de primera.', createdAt: '2026-03-15T14:30:00Z', user: { id: 9002, wholesaler: { name: 'Textil Norte' } } },
-  { id: 9003, rating: 5, comment: 'Trabajamos hace 2 años con este fabricante y siempre cumple. Calidad constante y buenos precios para volumen.', createdAt: '2026-03-10T09:15:00Z', user: { id: 9003, wholesaler: { name: 'Modas Centro' } } },
-  { id: 9004, rating: 3, comment: 'El producto está bien pero la comunicación podría mejorar. A veces tardan en responder los mensajes.', createdAt: '2026-02-28T16:00:00Z', user: { id: 9004, wholesaler: { name: 'Ropa Express' } } },
-  { id: 9005, rating: 5, comment: 'Los mejores fabricantes con los que trabajé. Siempre entregan en fecha y la calidad es impecable. Muy profesionales.', createdAt: '2026-02-20T11:00:00Z', user: { id: 9005, wholesaler: { name: 'Mayorista del Litoral' } } },
-  { id: 9006, rating: 4, comment: 'Buena relación precio-calidad. Los talles son exactos y la tela muy buena. Seguimos comprando cada temporada.', createdAt: '2026-02-14T08:45:00Z', user: { id: 9006, wholesaler: { name: 'Casa Fernández' } } },
-  { id: 9007, rating: 2, comment: 'El último pedido vino con algunas fallas en el terminado. Nos lo cambiaron pero fue un trámite largo.', createdAt: '2026-02-05T13:20:00Z', user: { id: 9007, wholesaler: { name: 'Stock Cuyo' } } },
-  { id: 9008, rating: 5, comment: 'Increíble la variedad de modelos. Siempre tienen novedades y los precios son muy competitivos para el volumen que manejamos.', createdAt: '2026-01-30T15:10:00Z', user: { id: 9008, wholesaler: { name: 'Distribuidora Pampa' } } },
-  { id: 9009, rating: 4, comment: 'El packaging es excelente, llega todo perfecto. El único punto a mejorar es que el mínimo de compra es bastante alto.', createdAt: '2026-01-22T10:30:00Z', user: { id: 9009, wholesaler: { name: 'Tienda Belgrano' } } },
-  { id: 9010, rating: 5, comment: 'Superaron mis expectativas. Hicimos un pedido personalizado y lo cumplieron al detalle. 100% recomendados.', createdAt: '2026-01-15T09:00:00Z', user: { id: 9010, wholesaler: { name: 'Moda Patagonia' } } },
-  { id: 9011, rating: 5, comment: 'Llevan años en el rubro y se nota. La confección es de altísima calidad y el servicio de post-venta es muy bueno.', createdAt: '2026-01-08T14:00:00Z', user: { id: 9011, wholesaler: { name: 'Import Rosario' } } },
-  { id: 9012, rating: 3, comment: 'Los productos son buenos pero los tiempos de entrega son un poco largos. Habría que mejorar la logística.', createdAt: '2025-12-20T11:30:00Z', user: { id: 9012, wholesaler: { name: 'Boutique Córdoba' } } },
-  { id: 9013, rating: 4, comment: 'Muy confiables. Llevamos tres temporadas trabajando juntos y nunca tuvimos problemas graves. Siempre resuelven.', createdAt: '2025-12-10T16:45:00Z', user: { id: 9013, wholesaler: { name: 'Al Por Mayor BA' } } },
-  { id: 9014, rating: 5, comment: 'El mejor fabricante que encontré en la plataforma. Precios justos, calidad premium y comunicación fluida. No cambio.', createdAt: '2025-12-01T10:00:00Z', user: { id: 9014, wholesaler: { name: 'Galería Palermo' } } },
-  { id: 9015, rating: 4, comment: 'Buen nivel general. Los modelos de temporada estaban muy bien logrados. Pedimos 200 unidades y todo llegó perfecto.', createdAt: '2025-11-25T09:30:00Z', user: { id: 9015, wholesaler: { name: 'Moda Tucumán' } } },
-  { id: 9016, rating: 5, comment: 'Trabajo con muchos fabricantes y este es el más prolijo de todos. Cada pedido viene con remito, etiquetas y todo en orden.', createdAt: '2025-11-15T13:00:00Z', user: { id: 9016, wholesaler: { name: 'Central de Ropa Mendoza' } } },
-  { id: 9017, rating: 1, comment: 'Tuve una mala experiencia con el último pedido. La tela no era la prometida y tardaron en responderme dos semanas.', createdAt: '2025-11-05T08:00:00Z', user: { id: 9017, wholesaler: { name: 'Proveedor del Norte' } } },
-  { id: 9018, rating: 5, comment: 'Nos sorprendieron gratamente. Primeros en responder, primeros en entregar. La calidad habla por sí sola. Volvemos siempre.', createdAt: '2025-10-28T15:30:00Z', user: { id: 9018, wholesaler: { name: 'Textiles San Juan' } } },
-  { id: 9019, rating: 4, comment: 'Muy buena onda en el trato. Los precios son accesibles y la calidad está muy por encima de lo que esperábamos.', createdAt: '2025-10-20T11:00:00Z', user: { id: 9019, wholesaler: { name: 'La Comercial Salta' } } },
-  { id: 9020, rating: 5, comment: 'Llevamos más de un año trabajando con ellos. Cada temporada mejoran. Muy profesionales y comprometidos con la calidad.', createdAt: '2025-10-10T10:00:00Z', user: { id: 9020, wholesaler: { name: 'Distribuidora El Eje' } } },
-];
 
 /* ─── Helpers (fuera del componente para estabilidad de referencias) ─── */
 
@@ -105,8 +82,7 @@ const Reviews = () => {
 
   if (!selectedManufacturer) return null;
 
-  // TODO: eliminar MOCK_REVIEWS antes de producción
-  const reviews = [...(selectedManufacturer.reviews || []), ...MOCK_REVIEWS];
+  const reviews = selectedManufacturer.reviews || [];
   const currentUserId = user?.id;
   const totalReviews = reviews.length;
   const averageRating = selectedManufacturer.averageRating ?? 0;

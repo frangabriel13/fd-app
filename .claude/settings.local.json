@@ -12,7 +12,10 @@
       "Bash(node:*)",
       "Bash(npx expo:*)",
       "Bash(kill %1)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(xxd)",
+      "Bash(sed -i '85d' /mnt/c/Users/mansi/Desktop/projects/fd-app/components/store/Reviews.tsx)",
+      "Bash(sed -i 's/\\\\\\(  const reviews = \\\\\\)\\\\[\\\\.\\\\.\\\\.\\(\\\\\\(selectedManufacturer\\\\.reviews || \\\\[\\\\]\\\\\\)\\), \\\\.\\\\.\\\\.MOCK_REVIEWS\\\\];/\\\\1\\\\2;/' /mnt/c/Users/mansi/Desktop/projects/fd-app/components/store/Reviews.tsx)"
     ]
   }
 }

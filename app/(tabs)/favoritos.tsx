@@ -1,8 +1,8 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { Text, View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -95,11 +95,13 @@ const FavsScreen = () => {
     useCallback(() => dispatch(getFavorites()), [dispatch])
   );
 
-  useEffect(() => {
-    if (userRole === 'wholesaler') {
-      dispatch(getFavorites());
-    }
-  }, [dispatch, userRole]);
+  useFocusEffect(
+    useCallback(() => {
+      if (userRole === 'wholesaler') {
+        dispatch(getFavorites());
+      }
+    }, [dispatch, userRole])
+  );
 
   // Solo para mayoristas
   if (userRole !== 'wholesaler') {

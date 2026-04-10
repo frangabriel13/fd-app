@@ -23,11 +23,7 @@ const DataProfile = () => {
   const roleLabel = user?.role ? (ROLE_LABEL[user.role] ?? user.role) : null;
 
   const handlePress = () => {
-    if (user?.role === 'manufacturer') {
-      router.push('/(dashboard)/perfil' as any);
-    } else {
-      router.push('/(tabs)/mi-cuenta');
-    }
+    router.push('/(tabs)/mi-cuenta');
   };
 
   return (
