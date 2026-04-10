@@ -1,8 +1,19 @@
-import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  FadeIn,
+} from 'react-native-reanimated';
 import { Colors } from '@/constants/Colors';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CARD_GAP = 3;
+const NUM_COLUMNS = 2;
+export const CARD_WIDTH = (SCREEN_WIDTH - CARD_GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
 
 interface StoreProductCardProps {
   product: {
@@ -15,6 +26,19 @@ interface StoreProductCardProps {
 
 const ProductCard: React.FC<StoreProductCardProps> = React.memo(({ product }) => {
   const router = useRouter();
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.96, { damping: 15, stiffness: 300 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+  };
 
   const handleProductPress = () => {
     router.push(`/(tabs)/producto/${product.id}` as any);
@@ -34,76 +58,60 @@ const ProductCard: React.FC<StoreProductCardProps> = React.memo(({ product }) =>
   };
 
   return (
-    <Pressable
-      style={({ pressed }) => [styles.productCard, pressed && { opacity: 0.7 }]}
-      onPress={handleProductPress}
-    >
-      <View style={styles.imageContainer}>
-        <Image
-          source={product.mainImage ? { uri: product.mainImage } : require('@/assets/images/react-logo.png')}
-          style={styles.productImage}
-          contentFit="cover"
-          onError={handleImageError}
-        />
-      </View>
-      <View style={styles.productInfo}>
-        <Text style={styles.productName} numberOfLines={2} ellipsizeMode="tail">
-          {product.name}
-        </Text>
-        <View style={styles.priceContainer}>
+    <Pressable onPress={handleProductPress} onPressIn={handlePressIn} onPressOut={handlePressOut}>
+      <Animated.View style={[styles.card, animatedStyle]} entering={FadeIn.duration(250)}>
+        <View style={styles.imageContainer}>
+          <Image
+            source={product.mainImage ? { uri: product.mainImage } : require('@/assets/images/react-logo.png')}
+            style={styles.productImage}
+            contentFit="cover"
+            transition={200}
+            onError={handleImageError}
+          />
+        </View>
+        <View style={styles.productInfo}>
+          <Text style={styles.productName} numberOfLines={1} ellipsizeMode="tail">
+            {product.name}
+          </Text>
           <Text style={styles.price}>{formatPrice(product.price)}</Text>
         </View>
-      </View>
+      </Animated.View>
     </Pressable>
   );
 });
 
 const styles = StyleSheet.create({
-  productCard: {
-    width: '100%',
+  card: {
+    width: CARD_WIDTH,
     backgroundColor: '#fff',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 2,
     overflow: 'hidden',
-    borderWidth: 0.5,
-    borderColor: 'rgba(0, 0, 0, 0.05)',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   imageContainer: {
     width: '100%',
-    aspectRatio: 4 / 5,
-    backgroundColor: '#f5f5f5',
+    height: CARD_WIDTH * 1.3,
+    backgroundColor: Colors.gray.light,
     overflow: 'hidden',
   },
   productImage: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#f5f5f5',
   },
   productInfo: {
-    paddingVertical: 6,
-    paddingHorizontal: 6,
+    padding: 8,
+    gap: 4,
   },
   productName: {
-    fontSize: 16,
-    fontWeight: '400',
-    color: Colors.light.text,
-    marginBottom: 4,
-  },
-  priceContainer: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#374151',
+    lineHeight: 16,
   },
   price: {
-    fontSize: 20,
-    fontWeight: '500',
-    color: Colors.gray.semiDark,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#111827',
   },
 });
 
