@@ -191,6 +191,11 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
                 label: 'Pedidos unificados',
                 onPress: () => router.push('/(dashboard)/pedidos-unificados'),
               },
+              {
+                icon: 'bar-chart-outline',
+                label: 'Estadísticas',
+                onPress: () => router.push('/(dashboard)/estadisticas' as any),
+              },
             ],
           },
         ];
