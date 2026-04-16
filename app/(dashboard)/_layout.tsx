@@ -13,6 +13,7 @@ export default function DashboardLayout() {
       <Stack.Screen name="pedidos-unificados" />
       <Stack.Screen name="ver-pedidos" />
       <Stack.Screen name="ver-ordenes" />
+      <Stack.Screen name="estadisticas" />
     </Stack>
   )
 }
