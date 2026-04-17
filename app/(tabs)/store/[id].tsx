@@ -6,6 +6,7 @@ import { getManufacturerById, clearSelectedManufacturer } from '@/store/slices/m
 import { clearStoreProducts } from '@/store/slices/productSlice';
 import { RootState, AppDispatch } from '@/store';
 import StoreProducts from '@/components/store/StoreProducts';
+import { manufacturerInstance } from '@/services/axiosConfig';
 
 const StoreScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -16,6 +17,7 @@ const StoreScreen = () => {
     const numericId = Number(id);
     if (id && !isNaN(numericId)) {
       dispatch(getManufacturerById(numericId));
+      manufacturerInstance.post(`/${numericId}/view`).catch(() => {});
     }
     return () => {
       dispatch(clearSelectedManufacturer());

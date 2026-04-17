@@ -141,7 +141,9 @@ const Menu = () => {
     if (role === 'admin') return {
       title: 'Administración',
       items: [
-        { icon: 'list-outline', iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Pedidos unificados', onPress: () => router.push('/(dashboard)/pedidos-unificados' as any) },
+        { icon: 'people-outline',    iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Ver usuarios',       onPress: () => router.push('/(dashboard)/ver-usuarios' as any) },
+        { icon: 'list-outline',      iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Pedidos unificados', onPress: () => router.push('/(dashboard)/pedidos-unificados' as any) },
+        { icon: 'bar-chart-outline', iconBg: ICON_BG, iconColor: ICON_COLOR, label: 'Estadísticas',       onPress: () => router.push('/(dashboard)/estadisticas' as any) },
       ],
     };
     return null;
