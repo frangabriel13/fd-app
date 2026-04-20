@@ -11,6 +11,7 @@ import SuccessModal from '@/components/modals/successModal';
 const VerifyAccountScreen = () => {
   const dispatch = useAppDispatch();
   const { email } = useLocalSearchParams<{ email: string }>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState<string | null>(null);
@@ -19,25 +20,41 @@ const VerifyAccountScreen = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  // Refs para los inputs
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
-  // Verificar que tenemos el email
   useEffect(() => {
     if (!email) {
-      setError('Email no encontrado. Por favor vuelve al login.');
+      router.replace('/(auth)/login');
     }
   }, [email]);
 
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
   const handleInputChange = (value: string, index: number) => {
-    if (value.length > 1) return; // Solo permitir un carácter por input
+    if (value.length > 1) {
+      const digits = value.replace(/\D/g, '').slice(0, 6).split('');
+      const newCode = [...code];
+      digits.forEach((d, i) => { if (index + i < 6) newCode[index + i] = d; });
+      setCode(newCode);
+      const nextIndex = Math.min(index + digits.length, 5);
+      inputRefs.current[nextIndex]?.focus();
+      return;
+    }
     const newCode = [...code];
     newCode[index] = value;
     setCode(newCode);
-
-    // Mover el foco al siguiente input automáticamente
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyPress = (key: string, index: number) => {
+    if (key === 'Backspace' && !code[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
     }
   };
 
@@ -52,17 +69,13 @@ const VerifyAccountScreen = () => {
 
     try {
       const verificationCode = code.join('');
-      console.log('Código de verificación:', verificationCode);
-
       await dispatch(verifyAccount({ email: email as string, code: verificationCode })).unwrap();
 
       setShowSuccessModal(true);
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         setShowSuccessModal(false);
         router.replace('/(auth)/login');
       }, 3000);
-
-      // router.replace('/(auth)/login');
     } catch (err: any) {
       setError(err.message || 'Error al verificar la cuenta');
     } finally {
@@ -72,7 +85,7 @@ const VerifyAccountScreen = () => {
 
   const handleResendCode = async () => {
     if (!email) {
-      setError('Email no encontrado. Por favor vuelve al login.');
+      router.replace('/(auth)/login');
       return;
     }
 
@@ -83,9 +96,8 @@ const VerifyAccountScreen = () => {
     try {
       await dispatch(resendVerificationCode(email)).unwrap();
       setSuccessMessage('Código de verificación reenviado exitosamente');
-      console.log('Código reenviado exitosamente');
     } catch (err: any) {
-      setError(err || 'Error al reenviar el código');
+      setError(err.message || 'Error al reenviar el código');
     } finally {
       setResendLoading(false);
     }
@@ -106,17 +118,15 @@ const VerifyAccountScreen = () => {
         >
           <Feather name="arrow-left" size={24} color="white" />
         </TouchableOpacity>
-        
+
         <H1 className="text-center mb-8 text-white">Verificar Cuenta</H1>
 
-        {/* Mostrar email para confirmar */}
         {email && (
           <Typography variant="body" className="text-gray-300 mb-4 text-center">
             Ingresa el código de 6 dígitos enviado a {email}
           </Typography>
         )}
 
-        {/* Inputs para los 6 dígitos */}
         <View className="flex-row justify-center mb-6">
           {code.map((digit, index) => (
             <TextInput
@@ -124,8 +134,8 @@ const VerifyAccountScreen = () => {
               ref={(ref) => { inputRefs.current[index] = ref; }}
               value={digit}
               onChangeText={(value) => handleInputChange(value, index)}
+              onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
               keyboardType="numeric"
-              maxLength={1}
               className="border border-gray-200 bg-white rounded-md text-center text-lg font-mont-medium mx-2 w-12 h-12 text-gray-900"
             />
           ))}
@@ -135,28 +145,28 @@ const VerifyAccountScreen = () => {
           variant="primary"
           onPress={handleVerify}
           loading={loading}
+          disabled={!email || loading}
           className="rounded-md bg-secondary mb-4"
         >
           Verificar Cuenta
         </Button>
 
-        <Button 
+        <Button
           variant="ghost"
           onPress={handleResendCode}
           loading={resendLoading}
+          disabled={!email || resendLoading}
           className="text-white"
         >
           Reenviar código
         </Button>
 
-        {/* Mostrar mensajes de éxito */}
         {successMessage && (
           <Typography variant="body" className="text-green-400 mb-4 text-center">
             {successMessage}
           </Typography>
         )}
 
-        {/* Mostrar errores si existen */}
         {error && (
           <Typography variant="body" className="text-red-500 mb-4 text-center">
             {error}

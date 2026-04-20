@@ -19,7 +19,7 @@ const LoginScreen = () => {
   const [error, setError] = useState<string | null>(null);
   const dispatch = useAppDispatch();
   const authLoading = useAppSelector((state) => state.auth.loading);
-  const { signIn: googleSignIn, isLoading: googleLoading, error: googleError } = useGoogleSignIn();
+  const { signIn: googleSignIn, isLoading: googleLoading, error: googleError, clearError: clearGoogleError } = useGoogleSignIn();
 
   useEffect(() => {
     // Resetear el estado de auth cuando el componente se monta
@@ -30,29 +30,25 @@ const LoginScreen = () => {
   }, [dispatch]);
 
   const handleLogin = async () => {
-    if (!email || !password) {
+    const sanitizedEmail = email.trim().toLowerCase();
+    if (!sanitizedEmail || !password) {
       setError('Por favor completa todos los campos');
       return;
     }
 
     setLoading(true);
-    setError(null); // Limpiar el error antes de intentar iniciar sesión
+    setError(null);
+    clearGoogleError();
     try {
-      const result = await dispatch(login({ email, password })).unwrap();
-      // Si el usuario tiene rol, redirigir a tabs, sino el AuthContext manejará la redirección
+      const result = await dispatch(login({ email: sanitizedEmail, password })).unwrap();
       if (result.user?.role) {
         router.replace('/(tabs)');
       }
-      // Si no tiene rol, el AuthContext se encargará de redirigir a onboarding
     } catch (err: any) {
-      const errorMessage = err.message || 'Error al iniciar sesión';
-      const errorInfo = err.info?.message;
-
-      // Mostrar el mensaje de error
-      if(errorMessage === 'El email aún no ha sido verificado') {
-        router.replace(`/(auth)/verificar-cuenta?email=${encodeURIComponent(email)}`);
+      if (err.message === 'El email aún no ha sido verificado') {
+        router.replace(`/(auth)/verificar-cuenta?email=${encodeURIComponent(sanitizedEmail)}`);
       } else {
-        setError(errorInfo ? `${errorInfo}` : errorMessage);
+        setError(err.message || 'Error al iniciar sesión');
       }
     } finally {
       setLoading(false);
@@ -60,6 +56,8 @@ const LoginScreen = () => {
   };
 
   const handleGoogleLogin = async () => {
+    setError(null);
+    clearGoogleError();
     try {
       const userInfo = await googleSignIn();
       
@@ -80,16 +78,11 @@ const LoginScreen = () => {
           photo: user.photo || '', // Usar string vacío si no hay foto
         };
         
-        // Enviar al backend usando Redux
         const result = await dispatch(googleLogin(googleData)).unwrap();
-        
-        // Si el usuario tiene rol, redirigir a tabs, sino el AuthContext manejará la redirección
         if (result.user?.role) {
           router.replace('/(tabs)');
         }
-        // Si no tiene rol, el AuthContext se encargará de redirigir a onboarding
       } else {
-        console.log('Respuesta de Google Sign-In:', userInfo);
         setError('Error en la respuesta de Google Sign-In');
       }
     } catch (error: any) {
@@ -115,6 +108,8 @@ const LoginScreen = () => {
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
+        autoComplete="email"
+        textContentType="emailAddress"
         placeholderTextColor="#9CA3AF"
         className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
       />
@@ -125,6 +120,8 @@ const LoginScreen = () => {
           value={password}
           onChangeText={setPassword}
           secureTextEntry={!showPassword}
+          autoComplete="current-password"
+          textContentType="password"
           placeholderTextColor="#9CA3AF"
           className="border border-gray-200 bg-white rounded-md px-4 py-3 pr-12 font-mont-regular text-gray-900"
         />

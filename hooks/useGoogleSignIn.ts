@@ -67,11 +67,14 @@ export const useGoogleSignIn = () => {
     }
   };
 
+  const clearError = () => setError(null);
+
   return {
     signIn,
     signOut,
     getCurrentUser,
     isLoading,
     error,
+    clearError,
   };
 };
