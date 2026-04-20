@@ -90,6 +90,11 @@ const ProductoScreen = () => {
     };
   }, [id, dispatch]);
 
+  useEffect(() => {
+    if (currentProduct) {
+      console.log('currentProduct:', currentProduct);
+    }
+  }, [currentProduct]);
 
   if (loading) return <LoadingState />;
   if (error) return <ErrorState onRetry={() => id && dispatch(fetchProductWithManufacturer(id))} />;
@@ -139,6 +144,7 @@ const ProductoScreen = () => {
           inventories={currentProduct?.inventories}
           manufacturerId={currentManufacturer?.id || 0}
           productId={currentProduct?.id?.toString() || ''}
+          categoryId={currentProduct?.categoryId ?? undefined}
         />
       </View>
 
