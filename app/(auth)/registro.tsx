@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { View, TextInput, Alert, ScrollView, TouchableOpacity } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, TextInput, ScrollView, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Button, Container, H1, GoogleIcon } from '@/components/ui';
 import { registerUser } from '@/store/slices/userSlice';
-import { googleLogin } from '@/store/slices/authSlice';
+import { googleLogin, resetAuthState } from '@/store/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { Typography } from '@/components/ui/Typography';
 import { registerUserValidator } from '@/utils/validators';
@@ -12,8 +12,9 @@ import Feather from '@expo/vector-icons/Feather';
 
 export default function RegisterScreen() {
   const dispatch = useAppDispatch();
-  const { loading, error } = useAppSelector(state => state.user);
-  const { signIn: googleSignIn, isLoading: googleLoading, error: googleError } = useGoogleSignIn();
+  const { loading } = useAppSelector(state => state.user);
+  const { signIn: googleSignIn, isLoading: googleLoading } = useGoogleSignIn();
+  const [error, setError] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     email: '',
@@ -23,7 +24,12 @@ export default function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  useEffect(() => {
+    dispatch(resetAuthState());
+  }, [dispatch]);
+
   const handleRegister = async () => {
+    setError(null);
     const validationErrors = registerUserValidator(
       formData.email,
       formData.password,
@@ -31,34 +37,35 @@ export default function RegisterScreen() {
     );
 
     if (Object.keys(validationErrors).length > 0) {
-      Alert.alert('Error', Object.values(validationErrors).join('\n'));
+      setError(Object.values(validationErrors)[0]);
       return;
     }
 
     try {
-      const result = await dispatch(registerUser({ 
-        email: formData.email, 
-        password: formData.password 
+      const result = await dispatch(registerUser({
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password
       }));
-      
+
       if (registerUser.fulfilled.match(result)) {
-        router.replace(`/(auth)/verificar-cuenta?email=${encodeURIComponent(formData.email)}`);
+        router.replace(`/(auth)/verificar-cuenta?email=${encodeURIComponent(formData.email.trim().toLowerCase())}`);
       } else if (registerUser.rejected.match(result)) {
-        Alert.alert('Error', result.payload as string || 'Error al crear cuenta');
+        setError(result.payload as string || 'Error al crear cuenta');
       }
     } catch {
-      Alert.alert('Error', 'Ocurrió un error inesperado');
+      setError('Ocurrió un error inesperado');
     }
   };
 
   const handleGoogleLogin = async () => {
+    setError(null);
     try {
       const userInfo = await googleSignIn();
-      
+
       if (userInfo && 'data' in userInfo && userInfo.data) {
         const { idToken, user } = userInfo.data;
         if (!idToken || !user.email || !user.name) {
-          Alert.alert('Error', 'Datos incompletos de Google Sign-In');
+          setError('Datos incompletos de Google Sign-In');
           return;
         }
 
@@ -69,19 +76,23 @@ export default function RegisterScreen() {
           photo: user.photo || '',
         };
 
-        await dispatch(googleLogin(googleData)).unwrap();
-        router.replace('/(tabs)');
+        const result = await dispatch(googleLogin(googleData)).unwrap();
+        if (result.user?.role) {
+          router.replace('/(tabs)');
+        }
       } else {
-        console.log('Respuesta de Google Sign-In:', userInfo);
-        Alert.alert('Error', 'Error en la respuesta de Google Sign-In');
+        setError('Error en la respuesta de Google Sign-In');
       }
     } catch (error: any) {
-      console.error('Error en Google Sign-In:', error);
-      Alert.alert('Error', error.message || 'Error al iniciar sesión con Google');
+      setError(error.message || 'Error al iniciar sesión con Google');
     }
   };
 
-  const isFormValid = formData.email && formData.password && formData.confirmPassword;
+  const isFormValid =
+    formData.email.length > 0 &&
+    formData.password.length > 0 &&
+    formData.confirmPassword.length > 0 &&
+    Object.keys(registerUserValidator(formData.email, formData.password, formData.confirmPassword)).length === 0;
 
   return (
     <ScrollView 
@@ -97,6 +108,9 @@ export default function RegisterScreen() {
           onChangeText={(text) => setFormData(prev => ({ ...prev, email: text }))}
           autoCapitalize="none"
           keyboardType="email-address"
+          autoComplete="email"
+          textContentType="emailAddress"
+          placeholderTextColor="#9CA3AF"
           className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
         />
         
@@ -106,6 +120,8 @@ export default function RegisterScreen() {
             value={formData.password}
             onChangeText={(text) => setFormData(prev => ({ ...prev, password: text }))}
             secureTextEntry={!showPassword}
+            autoComplete="new-password"
+            textContentType="newPassword"
             placeholderTextColor="#9CA3AF"
             className="border border-gray-200 bg-white rounded-md px-4 py-3 pr-12 font-mont-regular text-gray-900"
           />
@@ -123,6 +139,8 @@ export default function RegisterScreen() {
             value={formData.confirmPassword}
             onChangeText={(text) => setFormData(prev => ({ ...prev, confirmPassword: text }))}
             secureTextEntry={!showConfirmPassword}
+            autoComplete="new-password"
+            textContentType="newPassword"
             placeholderTextColor="#9CA3AF"
             className="border border-gray-200 bg-white rounded-md px-4 py-3 pr-12 font-mont-regular text-gray-900"
           />
@@ -144,13 +162,10 @@ export default function RegisterScreen() {
           Crear Cuenta
         </Button>
 
-        {/* Mostrar error de Redux si existe */}
         {error && (
-          <View className="mb-4 p-3 bg-red-100 rounded-md">
-            <Typography variant="body" className="text-red-700">
-              {error}
-            </Typography>
-          </View>
+          <Typography variant="body" className="text-red-500 mb-4 text-center">
+            {error}
+          </Typography>
         )}
 
         {/* Separador */}
