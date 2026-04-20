@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { Typography } from '@/components/ui/Typography';
 import { registerUserValidator } from '@/utils/validators';
 import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
+import Feather from '@expo/vector-icons/Feather';
 
 export default function RegisterScreen() {
   const dispatch = useAppDispatch();
@@ -19,6 +20,8 @@ export default function RegisterScreen() {
     password: '',
     confirmPassword: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleRegister = async () => {
     const validationErrors = registerUserValidator(
@@ -97,21 +100,39 @@ export default function RegisterScreen() {
           className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
         />
         
-        <TextInput
-          placeholder="Contraseña"
-          value={formData.password}
-          onChangeText={(text) => setFormData(prev => ({ ...prev, password: text }))}
-          secureTextEntry
-          className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
-        />
-        
-        <TextInput
-          placeholder="Confirmar contraseña"
-          value={formData.confirmPassword}
-          onChangeText={(text) => setFormData(prev => ({ ...prev, confirmPassword: text }))}
-          secureTextEntry
-          className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-6 font-mont-regular text-gray-900"
-        />
+        <View className="relative mb-4">
+          <TextInput
+            placeholder="Contraseña"
+            value={formData.password}
+            onChangeText={(text) => setFormData(prev => ({ ...prev, password: text }))}
+            secureTextEntry={!showPassword}
+            placeholderTextColor="#9CA3AF"
+            className="border border-gray-200 bg-white rounded-md px-4 py-3 pr-12 font-mont-regular text-gray-900"
+          />
+          <TouchableOpacity
+            onPress={() => setShowPassword(prev => !prev)}
+            className="absolute right-3 top-3"
+          >
+            <Feather name={showPassword ? 'eye-off' : 'eye'} size={20} color="#9CA3AF" />
+          </TouchableOpacity>
+        </View>
+
+        <View className="relative mb-6">
+          <TextInput
+            placeholder="Confirmar contraseña"
+            value={formData.confirmPassword}
+            onChangeText={(text) => setFormData(prev => ({ ...prev, confirmPassword: text }))}
+            secureTextEntry={!showConfirmPassword}
+            placeholderTextColor="#9CA3AF"
+            className="border border-gray-200 bg-white rounded-md px-4 py-3 pr-12 font-mont-regular text-gray-900"
+          />
+          <TouchableOpacity
+            onPress={() => setShowConfirmPassword(prev => !prev)}
+            className="absolute right-3 top-3"
+          >
+            <Feather name={showConfirmPassword ? 'eye-off' : 'eye'} size={20} color="#9CA3AF" />
+          </TouchableOpacity>
+        </View>
         
         <Button 
           variant="primary" 

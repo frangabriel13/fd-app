@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { login, googleLogin, resetAuthState } from '@/store/slices/authSlice';
 import { Typography } from '@/components/ui/Typography';
 import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
+import Feather from '@expo/vector-icons/Feather';
 // import { useAuth } from '@/hooks/useAuth';
 
 const LoginScreen = () => {
@@ -13,6 +14,7 @@ const LoginScreen = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const dispatch = useAppDispatch();
@@ -117,14 +119,22 @@ const LoginScreen = () => {
         className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-4 font-mont-regular text-gray-900"
       />
       
-      <TextInput
-        placeholder="Contraseña"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        placeholderTextColor="#9CA3AF"
-        className="border border-gray-200 bg-white rounded-md px-4 py-3 mb-6 font-mont-regular text-gray-900"
-      />
+      <View className="relative mb-6">
+        <TextInput
+          placeholder="Contraseña"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPassword}
+          placeholderTextColor="#9CA3AF"
+          className="border border-gray-200 bg-white rounded-md px-4 py-3 pr-12 font-mont-regular text-gray-900"
+        />
+        <TouchableOpacity
+          onPress={() => setShowPassword(prev => !prev)}
+          className="absolute right-3 top-3"
+        >
+          <Feather name={showPassword ? 'eye-off' : 'eye'} size={20} color="#9CA3AF" />
+        </TouchableOpacity>
+      </View>
 
       
       <Button 
