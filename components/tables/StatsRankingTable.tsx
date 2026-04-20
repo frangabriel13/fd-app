@@ -113,8 +113,9 @@ const TableHeader = () => (
     <View style={styles.headerSpacer} />
     <Text style={styles.headerName}>Fabricante</Text>
     <View style={{ flex: 1 }} />
-    <Text style={styles.headerViews}>Visitas</Text>
-    <View style={styles.headerVerSpacer} />
+    <View style={styles.headerViewsGroup}>
+      <Text style={styles.headerViews}>Visitas</Text>
+    </View>
   </View>
 );
 
@@ -137,24 +138,29 @@ const StatsRankingTable = () => {
       {/* Resumen */}
       <View style={styles.summaryRow}>
         <View style={styles.summaryCard}>
+          <View style={[styles.summaryIconBox, { backgroundColor: '#e8edf5' }]}>
+            <Ionicons name="people-outline" size={16} color={Colors.blue.dark} />
+          </View>
           <Text style={styles.summaryValue}>{ranking.length}</Text>
           <Text style={styles.summaryLabel}>Fabricantes</Text>
         </View>
-        <View style={styles.summaryDivider} />
         <View style={styles.summaryCard}>
+          <View style={[styles.summaryIconBox, { backgroundColor: '#fff4ec' }]}>
+            <Ionicons name="eye-outline" size={16} color={Colors.orange.dark} />
+          </View>
           <Text style={styles.summaryValue}>{formatViews(totalViews)}</Text>
           <Text style={styles.summaryLabel}>Visitas totales</Text>
         </View>
         {ranking.length > 0 && (
-          <>
-            <View style={styles.summaryDivider} />
-            <View style={styles.summaryCard}>
-              <Text style={[styles.summaryValue, styles.summaryTopName]} numberOfLines={1}>
-                {ranking[0].name}
-              </Text>
-              <Text style={styles.summaryLabel}>Más visitado</Text>
+          <View style={styles.summaryCard}>
+            <View style={[styles.summaryIconBox, { backgroundColor: '#fef3c7' }]}>
+              <Ionicons name="trophy-outline" size={16} color="#d97706" />
             </View>
-          </>
+            <Text style={[styles.summaryValue, styles.summaryTopName]} numberOfLines={1}>
+              {ranking[0].name}
+            </Text>
+            <Text style={styles.summaryLabel}>Más visitado</Text>
+          </View>
         )}
       </View>
 
@@ -206,31 +212,43 @@ const styles = StyleSheet.create({
   // — Resumen —
   summaryRow: {
     flexDirection: 'row',
-    backgroundColor: Colors.blue.dark,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    backgroundColor: Colors.gray.light,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
+    gap: 8,
   },
   summaryCard: {
     flex: 1,
     alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    paddingVertical: 12,
+    paddingHorizontal: 6,
     gap: 3,
   },
-  summaryDivider: {
-    width: 1,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    marginVertical: 4,
+  summaryIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 2,
   },
   summaryValue: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
-    color: '#fff',
+    color: '#111827',
+    height: 24,
+    textAlignVertical: 'center',
   },
   summaryTopName: {
-    fontSize: 13,
+    fontSize: 12,
   },
   summaryLabel: {
     fontSize: 10,
-    color: 'rgba(255,255,255,0.65)',
+    color: Colors.gray.semiDark,
     fontWeight: '500',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -246,8 +264,8 @@ const styles = StyleSheet.create({
   tableHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 6,
     backgroundColor: Colors.gray.light,
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
@@ -270,24 +288,25 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
+  headerViewsGroup: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    width: 114,
+  },
   headerViews: {
     fontSize: 11,
     fontWeight: '700',
     color: Colors.gray.semiDark,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    marginRight: 8,
-  },
-  headerVerSpacer: {
-    width: 52,
   },
 
   // — Fila —
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
     gap: 10,
     backgroundColor: '#fff',
   },

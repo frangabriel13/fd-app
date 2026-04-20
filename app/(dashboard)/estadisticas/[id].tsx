@@ -9,8 +9,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useLocalSearchParams } from 'expo-router';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import {
   fetchManufacturerStats,
@@ -30,7 +29,6 @@ const PERIODS: { key: StatsPeriod; label: string; description: string }[] = [
 ];
 
 export default function ManufacturerStatsScreen() {
-  const insets = useSafeAreaInsets();
   const dispatch = useAppDispatch();
 
   const { id, name, image } = useLocalSearchParams<{
@@ -67,20 +65,7 @@ export default function ManufacturerStatsScreen() {
   const currentPeriodMeta = PERIODS.find((p) => p.key === activePeriod)!;
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Header con back */}
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => router.back()}
-          android_ripple={{ color: 'rgba(255,255,255,0.15)' }}
-          style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}
-        >
-          <Ionicons name="arrow-back" size={22} color="#fff" />
-        </Pressable>
-        <Text style={styles.headerTitle}>Estadísticas</Text>
-        <View style={styles.headerRight} />
-      </View>
-
+    <View style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
@@ -181,33 +166,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.gray.light,
-  },
-
-  // — Header —
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.blue.dark,
-    paddingHorizontal: 8,
-    paddingVertical: 10,
-    gap: 8,
-  },
-  backButton: {
-    padding: 8,
-    borderRadius: 8,
-  },
-  backButtonPressed: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#fff',
-    letterSpacing: 0.2,
-  },
-  headerRight: {
-    width: 38,
   },
 
   // — Scroll —
