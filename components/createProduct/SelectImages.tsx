@@ -76,22 +76,22 @@ const SelectImages: React.FC<SelectImagesProps> = ({
     if (!hasPermissions) return;
 
     try {
+      const remaining = MAX_IMAGES - localImages.length;
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [3, 4], // 900x1200 ratio
         quality: 0.8,
-        allowsMultipleSelection: false,
+        allowsMultipleSelection: true,
+        selectionLimit: remaining,
       });
 
-      if (!result.canceled && result.assets[0]) {
-        const newImage: LocalImage = {
-          uri: result.assets[0].uri,
-          id: Date.now().toString(),
+      if (!result.canceled && result.assets.length > 0) {
+        const newImages: LocalImage[] = result.assets.map((asset, i) => ({
+          uri: asset.uri,
+          id: (Date.now() + i).toString(),
           uploaded: false,
-          uploading: false
-        };
-        setLocalImages(prev => [...prev, newImage]);
+          uploading: false,
+        }));
+        setLocalImages(prev => [...prev, ...newImages]);
       }
     } catch (error) {
       console.error('Error selecting from gallery:', error);
