@@ -35,7 +35,7 @@ export default function NotificacionesScreen() {
     } else if (item.type === 'live_started' && item.data?.manufacturerId) {
       router.push(`/(tabs)/store/${item.data.manufacturerId}` as any);
     } else if (item.type === 'new_sale' && item.data?.subOrderId) {
-      router.push({ pathname: '/(dashboard)/ver-ordenes/ver-orden' as any, params: { subOrderId: item.data.subOrderId } });
+      router.push({ pathname: '/(dashboard)/ver-ordenes' as any, params: { subOrderId: item.data.subOrderId } });
     }
   }, [dispatch]);
 
