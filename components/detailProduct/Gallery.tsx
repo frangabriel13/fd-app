@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions, Text, Pressable } from 'react-native';
 import { Image } from 'expo-image';
+import { Video, ResizeMode } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 
 interface GalleryProps {
   images?: string[];
   mainImage?: string;
+  videoUrl?: string | null;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
   onShare?: () => void;
@@ -15,7 +17,7 @@ interface GalleryProps {
 const { width: SCREEN_W } = Dimensions.get('window');
 const GALLERY_H = 380;
 
-const Gallery = ({ images = [], mainImage, isFavorite, onToggleFavorite, onShare }: GalleryProps) => {
+const Gallery = ({ images = [], mainImage, videoUrl, isFavorite, onToggleFavorite, onShare }: GalleryProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Imagen principal al comienzo, sin duplicados
@@ -23,12 +25,14 @@ const Gallery = ({ images = [], mainImage, isFavorite, onToggleFavorite, onShare
     ? [mainImage, ...images.filter(img => img !== mainImage)]
     : images;
 
+  const totalCount = allImages.length + (videoUrl ? 1 : 0);
+
   const handleScroll = (event: any) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / SCREEN_W);
     setCurrentIndex(index);
   };
 
-  if (allImages.length === 0) {
+  if (allImages.length === 0 && !videoUrl) {
     return (
       <View style={styles.container}>
         <View style={styles.placeholder}>
@@ -61,12 +65,22 @@ const Gallery = ({ images = [], mainImage, isFavorite, onToggleFavorite, onShare
             />
           </View>
         ))}
+        {videoUrl && (
+          <View style={styles.slide}>
+            <Video
+              source={{ uri: videoUrl }}
+              style={styles.image}
+              resizeMode={ResizeMode.CONTAIN}
+              useNativeControls
+            />
+          </View>
+        )}
       </ScrollView>
 
       {/* Pills indicadores */}
-      {allImages.length > 1 && (
+      {totalCount > 1 && (
         <View style={styles.dotsRow}>
-          {allImages.map((_, i) => (
+          {Array.from({ length: totalCount }).map((_, i) => (
             <View
               key={i}
               style={[styles.dot, i === currentIndex ? styles.dotActive : styles.dotInactive]}
@@ -76,9 +90,9 @@ const Gallery = ({ images = [], mainImage, isFavorite, onToggleFavorite, onShare
       )}
 
       {/* Contador esquina superior izquierda */}
-      {allImages.length > 1 && (
+      {totalCount > 1 && (
         <View style={styles.counterBadge}>
-          <Text style={styles.counterText}>{currentIndex + 1} / {allImages.length}</Text>
+          <Text style={styles.counterText}>{currentIndex + 1} / {totalCount}</Text>
         </View>
       )}
 
