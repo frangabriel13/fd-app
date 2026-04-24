@@ -86,5 +86,7 @@ function handleNotificationNavigation(data?: Record<string, string>) {
     router.push(`/(tabs)/producto/${data.productId}` as any);
   } else if (data.type === 'live_started' && data.manufacturerId) {
     router.push(`/(tabs)/store/${data.manufacturerId}` as any);
+  } else if (data.type === 'new_sale' && data.subOrderId) {
+    router.push({ pathname: '/(dashboard)/ver-ordenes' as any, params: { subOrderId: data.subOrderId } });
   }
 }

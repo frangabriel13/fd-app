@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { router } from 'expo-router';
 import { TextInput } from 'react-native';
 import { Button, Container, H1, Typography } from '@/components/ui';
@@ -8,14 +8,22 @@ import SuccessModal from '@/components/modals/successModal';
 
 const ForgotPasswordScreen = () => {
   const dispatch = useAppDispatch();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
   const handleForgotPassword = async () => {
-    if(!email) {
+    const sanitizedEmail = email.trim().toLowerCase();
+    if(!sanitizedEmail) {
       setError('Por favor ingresa tu email');
       return;
     }
@@ -24,9 +32,9 @@ const ForgotPasswordScreen = () => {
     setError(null);
 
     try {
-      await dispatch(forgotPassword(email)).unwrap();
+      await dispatch(forgotPassword(sanitizedEmail)).unwrap();
       setShowSuccessModal(true);
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         setShowSuccessModal(false);
         router.replace('/(auth)/login');
       }, 3000);

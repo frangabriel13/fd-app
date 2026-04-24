@@ -1,8 +1,7 @@
-import Images from '@/constants/Images';
+import { Image } from 'expo-image';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import {
   Dimensions,
-  Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
   ScrollView,
@@ -16,10 +15,10 @@ const SLIDE_WIDTH = SCREEN_WIDTH;
 const aspectRatio = 1920 / 750;
 
 const images = [
-  Images.sliderImages.banner1,
-  Images.sliderImages.banner2,
-  Images.sliderImages.banner3,
-  Images.sliderImages.banner4,
+  'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/banners/banner1.png',
+  'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/banners/banner2.png',
+  'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/banners/banner3.png',
+  'https://fabricante-directo-node.s3.sa-east-1.amazonaws.com/images/banners/banner4.png',
 ];
 
 const loopedImages = [images[images.length - 1], ...images, images[0]];
@@ -82,9 +81,9 @@ const Slider = () => {
           {loopedImages.map((img, idx) => (
             <View key={idx} style={styles.slide}>
               <Image
-                source={img}
+                source={{ uri: img }}
                 style={styles.image}
-                resizeMode="cover"
+                contentFit="cover"
               />
             </View>
           ))}

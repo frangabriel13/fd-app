@@ -102,7 +102,7 @@ const SuborderModal: React.FC<SuborderModalProps> = ({ onClose, subOrder }) => {
   };
 
   const renderProductItem = (product: Product) => {
-    return product.inventories.map((inventory, idx) => {
+    return (product.inventories ?? []).map((inventory, idx) => {
       // Mostrar size si color es 'Sin color', sino mostrar color
       const variant = inventory.color === 'Sin color' ? inventory.size : inventory.color;
       
@@ -216,8 +216,8 @@ const SuborderModal: React.FC<SuborderModalProps> = ({ onClose, subOrder }) => {
           </View>
 
           <View style={styles.productsContainer}>
-            {subOrder.products.map(product => renderProductItem(product))}
-            {subOrder.packs.map(pack => renderPackItem(pack))}
+            {(subOrder.products ?? []).map(product => renderProductItem(product))}
+            {(subOrder.packs ?? []).map(pack => renderPackItem(pack))}
           </View>
         </View>
 

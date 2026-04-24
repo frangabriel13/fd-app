@@ -3,7 +3,7 @@ import { notificationInstance } from '@/services/axiosConfig';
 
 export interface AppNotification {
   id: number;
-  type: 'new_product' | 'live_started';
+  type: 'new_product' | 'live_started' | 'new_sale';
   title: string;
   body: string;
   data: Record<string, any>;

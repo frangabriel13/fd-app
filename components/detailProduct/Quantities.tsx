@@ -14,12 +14,15 @@ interface Inventory {
   stock: number;
 }
 
+const UNIT_CATEGORY_IDS = [130, 131, 161, 162, 163, 164];
+
 interface QuantitiesProps {
   isVariable?: boolean;
   inventories?: Inventory[];
   onQuantityChange?: (inventoryId: number, quantity: number) => void;
   manufacturerId: number;
   productId: string;
+  categoryId?: number;
 }
 
 interface QuantityRowProps {
@@ -111,10 +114,13 @@ const Quantities = ({
   onQuantityChange,
   manufacturerId,
   productId,
+  categoryId,
 }: QuantitiesProps) => {
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const { addToCart, updateCartItem, removeFromCart, manufacturers } = useCart();
   const { triggerAnimation } = useCartAnimationContext();
+
+  const isUnitMode = categoryId !== undefined && UNIT_CATEGORY_IDS.includes(categoryId);
 
   // Solo los inventarios de este producto en el carrito
   const cartItems = manufacturers[manufacturerId]?.[productId];
@@ -170,6 +176,53 @@ const Quantities = ({
       <View style={styles.emptyContainer}>
         <Ionicons name="cube-outline" size={28} color={Colors.gray.default} />
         <Text style={styles.emptyText}>Sin inventario disponible</Text>
+      </View>
+    );
+  }
+
+  if (isUnitMode) {
+    const firstInventory = inventories[0];
+    const qty = quantities[firstInventory.id] || 0;
+    const isActive = qty > 0;
+
+    return (
+      <View>
+        <View style={styles.header}>
+          <Text style={styles.title}>Elegir cantidad</Text>
+          {qty > 0 && (
+            <View style={styles.totalBadge}>
+              <Text style={styles.totalBadgeText}>{qty} u. seleccionadas</Text>
+            </View>
+          )}
+        </View>
+        <View style={[styles.row, isActive && styles.rowActive]}>
+          {isActive && <View style={styles.rowAccent} />}
+          <View style={styles.labelSide}>
+            <Text style={[styles.label, isActive && styles.labelActive]}>Unidades</Text>
+          </View>
+          <View style={[styles.pill, isActive && styles.pillActive]}>
+            <Pressable
+              style={styles.pillBtn}
+              onPress={() => handleDecrement(firstInventory.id)}
+              disabled={qty === 0}
+              android_ripple={{ color: Colors.gray.light, borderless: true }}
+              hitSlop={4}
+            >
+              <Ionicons name="remove" size={16} color={qty === 0 ? Colors.gray.default : Colors.blue.dark} />
+            </Pressable>
+            <View style={styles.pillDivider} />
+            <Text style={[styles.pillQty, isActive && styles.pillQtyActive]}>{qty}</Text>
+            <View style={styles.pillDivider} />
+            <Pressable
+              style={styles.pillBtn}
+              onPress={() => handleIncrement(firstInventory.id)}
+              android_ripple={{ color: Colors.gray.light, borderless: true }}
+              hitSlop={4}
+            >
+              <Ionicons name="add" size={16} color={Colors.blue.dark} />
+            </Pressable>
+          </View>
+        </View>
       </View>
     );
   }

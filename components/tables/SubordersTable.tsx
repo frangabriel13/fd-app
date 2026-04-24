@@ -42,18 +42,23 @@ interface SubOrder {
   createdAt?: string;
 }
 
-export default function SubordersTable() {
+interface SubordersTableProps {
+  initialSubOrderId?: number;
+}
+
+export default function SubordersTable({ initialSubOrderId }: SubordersTableProps) {
   const dispatch = useAppDispatch();
-  const { 
+  const {
     mySubOrders,
     loadingMySubOrders,
-    errorMySubOrders 
+    errorMySubOrders
   } = useAppSelector(state => state.order);
-  
+
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedSubOrder, setSelectedSubOrder] = useState<SubOrder | null>(null);
+  const autoOpenedRef = React.useRef(false);
 
   // Cargar datos cuando el componente se monta
   useEffect(() => {
@@ -62,8 +67,20 @@ export default function SubordersTable() {
     // Cleanup al desmontar el componente
     return () => {
       dispatch(clearMySubOrders());
+      autoOpenedRef.current = false;
     };
   }, [dispatch]);
+
+  // Abrir modal automáticamente si se llegó desde una notificación
+  useEffect(() => {
+    if (!initialSubOrderId || !mySubOrders || autoOpenedRef.current) return;
+    const target = mySubOrders.find(s => s.id === initialSubOrderId);
+    if (target) {
+      autoOpenedRef.current = true;
+      setSelectedSubOrder(target);
+      setModalVisible(true);
+    }
+  }, [initialSubOrderId, mySubOrders]);
 
   const handleSort = (field: string) => {
     if (sortBy === field) {
