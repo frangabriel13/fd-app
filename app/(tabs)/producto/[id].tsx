@@ -145,7 +145,7 @@ const ProductoScreen = () => {
           inventories={currentProduct?.inventories}
           manufacturerId={currentManufacturer?.id || 0}
           productId={currentProduct?.id?.toString() || ''}
-          categoryId={currentProduct?.categoryId ?? undefined}
+          categoryId={currentProduct?.category?.id ?? undefined}
         />
       </View>
 
