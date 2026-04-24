@@ -563,11 +563,11 @@ Leyenda: 🔴 Crítico (bloquea release) · 🟠 Alto (arreglar antes de Closed 
 
 ### 14.1 Top-5 a resolver SÍ O SÍ antes de Closed Beta
 
-1. **Fix import de `useEffect` en `app/(tabs)/favoritos.tsx:1`.**
+1. ✅ **Fix import de `useEffect` en `app/(tabs)/favoritos.tsx:1`.** *(Resuelto)*
    Una línea. Sin esto, todos los mayoristas que abran Favoritos ven un crash.
 
-2. **Generar keystore de producción y configurar `android/app/build.gradle:111-119`.**
-   Subir el keystore a EAS secrets (`eas credentials`) o a variables de `gradle.properties` local. Validar que `./gradlew bundleRelease` produzca un `.aab` firmado correctamente.
+2. ✅ **Generar keystore de producción y configurar `android/app/build.gradle`.** *(Resuelto)*
+   Keystore generado en `android/app/fd-release.jks`. Credenciales en `android/key.properties` (ignorado por git). `./gradlew bundleRelease` produce `.aab` firmado correctamente.
 
 3. **Activar ProGuard/minify (`android/app/build.gradle:70,116`).**
    Poner `enableProguardInReleaseBuilds = true`. Añadir reglas en `android/app/proguard-rules.pro` para Hermes, Reanimated, Firebase y Google Sign-In (todas publican reglas oficiales). Probar un build release completo.
