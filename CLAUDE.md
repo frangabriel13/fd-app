@@ -19,7 +19,23 @@ npm run build:preview             # Build APK for internal testing
 npm run build:android             # Build production AAB for Play Store
 npm run build:submit              # Build + submit to Google Play in one step
 npm run submit:android            # Submit existing build to Google Play
+
+# Local release build (requires android/key.properties — never commit this file)
+cd android && ./gradlew bundleRelease   # Generates android/app/build/outputs/bundle/release/app-release.aab
 ```
+
+### Release signing setup
+
+Release builds require `android/key.properties` (git-ignored) with:
+
+```properties
+RELEASE_STORE_FILE=app/fd-release.jks
+RELEASE_STORE_PASSWORD=<password>
+RELEASE_KEY_ALIAS=fd-release
+RELEASE_KEY_PASSWORD=<password>
+```
+
+The keystore file lives at `android/app/fd-release.jks` (git-ignored via `*.jks`). Keep it backed up securely — losing it means losing the ability to publish updates to the same Play Store listing.
 
 There are no tests in this project.
 
