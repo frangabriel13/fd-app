@@ -34,6 +34,8 @@ export default function NotificacionesScreen() {
       router.push(`/(tabs)/producto/${item.data.productId}` as any);
     } else if (item.type === 'live_started' && item.data?.manufacturerId) {
       router.push(`/(tabs)/store/${item.data.manufacturerId}` as any);
+    } else if (item.type === 'new_sale' && item.data?.subOrderId) {
+      router.push({ pathname: '/(dashboard)/ver-ordenes/ver-orden' as any, params: { subOrderId: item.data.subOrderId } });
     }
   }, [dispatch]);
 
@@ -54,12 +56,23 @@ export default function NotificacionesScreen() {
       activeOpacity={0.7}
     >
       <View style={[styles.iconCircle, {
-        backgroundColor: item.type === 'live_started' ? '#fef2f2' : '#eff6ff',
+        backgroundColor:
+          item.type === 'live_started' ? '#fef2f2' :
+          item.type === 'new_sale' ? '#f0fdf4' :
+          '#eff6ff',
       }]}>
         <Ionicons
-          name={item.type === 'live_started' ? 'wifi' : 'cube-outline'}
+          name={
+            item.type === 'live_started' ? 'wifi' :
+            item.type === 'new_sale' ? 'bag-check-outline' :
+            'cube-outline'
+          }
           size={22}
-          color={item.type === 'live_started' ? '#ef4444' : '#3b82f6'}
+          color={
+            item.type === 'live_started' ? '#ef4444' :
+            item.type === 'new_sale' ? '#16a34a' :
+            '#3b82f6'
+          }
         />
       </View>
       <View style={styles.content}>
