@@ -122,6 +122,7 @@ const ProductoScreen = () => {
         <Gallery
           images={currentProduct?.images}
           mainImage={currentProduct?.mainImage}
+          videoUrl={currentProduct?.videoUrl}
           isFavorite={currentProductIsFavorite ?? false}
           onToggleFavorite={handleToggleFavorite}
           onShare={handleShare}
