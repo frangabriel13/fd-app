@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Linking, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { normalizeArgPhone } from '../../utils/whatsapp';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { 
   fetchUnifiedOrders,
@@ -135,7 +136,8 @@ export default function UnifiedOrdersTable() {
     }
 
     const message = `Hola ${getUserName(order.user)}, te escribo sobre tu pedido #${order.id}`;
-    const whatsappUrl = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(message)}`;
+    const normalizedPhone = normalizeArgPhone(phone);
+    const whatsappUrl = `whatsapp://send?phone=${normalizedPhone}&text=${encodeURIComponent(message)}`;
     
     Linking.canOpenURL(whatsappUrl).then(supported => {
       if (supported) {

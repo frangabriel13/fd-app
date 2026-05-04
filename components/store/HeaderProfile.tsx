@@ -14,6 +14,7 @@ import { RootState, AppDispatch } from '@/store';
 import { followManufacturer, unfollowManufacturer } from '@/store/slices/userSlice';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
+import { normalizeArgPhone } from '@/utils/whatsapp';
 
 const HeaderProfile = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -72,10 +73,7 @@ const HeaderProfile = () => {
 
   const handleWhatsApp = () => {
     if (selectedManufacturer.phone) {
-      let phoneNumber = selectedManufacturer.phone.replace(/\D/g, '');
-      if (!phoneNumber.startsWith('54')) {
-        phoneNumber = `54${phoneNumber}`;
-      }
+      const phoneNumber = normalizeArgPhone(selectedManufacturer.phone);
       const wspUrl = `https://wa.me/${phoneNumber}`;
       Linking.openURL(wspUrl);
     }

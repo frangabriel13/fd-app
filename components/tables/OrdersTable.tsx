@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Linking, Alert, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import OrderModal from '../modals/OrderModal';
+import { normalizeArgPhone } from '../../utils/whatsapp';
 import { router } from 'expo-router';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { 
@@ -127,7 +128,8 @@ export default function OrdersTable() {
     }
 
     const message = `Hola ${getUserName(manufacturerUser)}, te escribo sobre tu pedido #${order.id}`;
-    const whatsappUrl = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(message)}`;
+    const normalizedPhone = normalizeArgPhone(phone);
+    const whatsappUrl = `whatsapp://send?phone=${normalizedPhone}&text=${encodeURIComponent(message)}`;
     
     Linking.canOpenURL(whatsappUrl).then(supported => {
       if (supported) {

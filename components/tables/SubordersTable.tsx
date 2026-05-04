@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Linking, Alert, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { normalizeArgPhone } from '../../utils/whatsapp';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { 
   fetchMySubOrders,
@@ -127,7 +128,8 @@ export default function SubordersTable({ initialSubOrderId }: SubordersTableProp
     }
 
     const message = `Hola ${getWholesalerName(subOrder)}, te escribo sobre tu orden #${subOrder.id}`;
-    const whatsappUrl = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(message)}`;
+    const normalizedPhone = normalizeArgPhone(phone);
+    const whatsappUrl = `whatsapp://send?phone=${normalizedPhone}&text=${encodeURIComponent(message)}`;
     
     Linking.canOpenURL(whatsappUrl).then(supported => {
       if (supported) {
