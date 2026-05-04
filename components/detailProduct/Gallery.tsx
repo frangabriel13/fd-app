@@ -72,6 +72,8 @@ const Gallery = ({ images = [], mainImage, videoUrl, isFavorite, onToggleFavorit
               style={styles.image}
               resizeMode={ResizeMode.CONTAIN}
               useNativeControls
+              isLooping
+              shouldPlay={currentIndex === allImages.length}
             />
           </View>
         )}
