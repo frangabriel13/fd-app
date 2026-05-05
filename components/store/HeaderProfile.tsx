@@ -85,10 +85,10 @@ const HeaderProfile = () => {
       <View style={styles.headerSection}>
         <View style={styles.profileImageContainer}>
           <TouchableOpacity
-            onPress={selectedManufacturer.live && selectedManufacturer.tiktokUrl ? handleTikTok : undefined}
-            disabled={!(selectedManufacturer.live && selectedManufacturer.tiktokUrl)}
+            onPress={selectedManufacturer.isLive && selectedManufacturer.tiktokUrl ? handleTikTok : undefined}
+            disabled={!(selectedManufacturer.isLive && selectedManufacturer.tiktokUrl)}
           >
-            <View style={[styles.imageRing, selectedManufacturer.live && styles.imageRingLive]}>
+            <View style={[styles.imageRing, selectedManufacturer.isLive && styles.imageRingLive]}>
               <Image
                 source={selectedManufacturer.image ? { uri: selectedManufacturer.image } : require('@/assets/images/react-logo.png')}
                 style={styles.profileImage}
@@ -148,7 +148,7 @@ const HeaderProfile = () => {
               >
                 <View style={styles.tiktokContainer}>
                   <Ionicons name="logo-tiktok" size={22} color="white" />
-                  {selectedManufacturer.live && (
+                  {selectedManufacturer.isLive && (
                     <View style={styles.liveIndicator}>
                       <Text style={styles.liveText}>LIVE</Text>
                     </View>

@@ -49,7 +49,7 @@ type Manufacturer = {
   id: number;
   name: string;
   image: string | null;
-  live: boolean;
+  isLive: boolean;
 };
 
 type ManufacturerItemProps = {
@@ -77,10 +77,10 @@ const ManufacturerItem = ({ manufacturer, onPress }: ManufacturerItemProps) => {
       <Animated.View style={[styles.item, animatedItemStyle]}>
         <View style={styles.avatarWrapper}>
           {/* Anillo exterior difuso (solo live) */}
-          {manufacturer.live && <View style={styles.ringOuter} />}
+          {manufacturer.isLive && <View style={styles.ringOuter} />}
 
           {/* Anillo interior */}
-          <View style={[styles.ring, manufacturer.live ? styles.ringLive : styles.ringDefault]}>
+          <View style={[styles.ring, manufacturer.isLive ? styles.ringLive : styles.ringDefault]}>
             <Image
               source={manufacturer.image ? { uri: manufacturer.image } : logoDefault}
               style={styles.avatar}
