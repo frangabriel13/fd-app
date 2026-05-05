@@ -21,7 +21,9 @@
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); plugins = d.get\\('expo',{}\\).get\\('plugins',[]\\); print\\(json.dumps\\(plugins, indent=2\\)\\)\")",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); android = d.get\\('expo',{}\\).get\\('android',{}\\); print\\(json.dumps\\(android, indent=2\\)\\)\")",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('project_id:', d.get\\('project_info',{}\\).get\\('project_id','?'\\)\\); clients=d.get\\('client',[]\\); [print\\('package:', c.get\\('client_info',{}\\).get\\('android_client_info',{}\\).get\\('package_name','?'\\)\\) for c in clients]\")",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(git show *)",
+      "Read(//tmp/**)"
     ]
   }
 }

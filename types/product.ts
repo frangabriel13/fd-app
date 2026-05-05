@@ -13,6 +13,7 @@ export interface Product {
   description: string;
   mainImage: string;
   images: string[];
+  productImages?: { id: number; url: string }[];
   attributes: Record<string, any>;
   price: number;
   priceUSD?: number;
