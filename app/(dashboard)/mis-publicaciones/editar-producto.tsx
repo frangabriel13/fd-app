@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Switch, Alert, ActivityIndicator } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -6,7 +6,7 @@ import { Button, Typography } from '@/components/ui';
 import { spacing, borderRadius } from '@/constants/Styles';
 import SelectColors from '@/components/createProduct/SelectColors';
 import SelectSizes from '@/components/createProduct/SelectSizes';
-import SelectImages from '@/components/createProduct/SelectImages';
+import EditProductImages from '@/components/createProduct/EditProductImages';
 import SelectVideo from '@/components/createProduct/SelectVideo';
 import SubscriptionModal from '@/components/modals/SubscriptionModal';
 import { fetchProductForEdit, updateProduct, resetUpdateState } from '@/store/slices/productSlice';
@@ -31,11 +31,21 @@ const EditarProductoScreen = () => {
     isOnSale: false,
     tags: [] as string[],
     images: [] as string[],
+    productImages: [] as { id: number; url: string }[],
+    mainImage: '',
     video: '',
     colors: [] as number[],
     sizes: [] as number[],
     colorVariations: [] as Array<{ colorId: number; mainImage: string; images: string[] }>
   });
+
+  // Determinar si el fabricante tiene plan premium activo (define el cap de imágenes)
+  const isPremium = useMemo(() => {
+    const activeSubscription = user?.manufacturer?.subscriptions?.find(
+      sub => sub.status?.toLowerCase() === 'active'
+    );
+    return activeSubscription?.plan?.toLowerCase() === 'premium';
+  }, [user?.manufacturer?.subscriptions]);
 
   const [showColorModal, setShowColorModal] = useState(false);
   const [showSizeModal, setShowSizeModal] = useState(false);
@@ -112,6 +122,11 @@ const EditarProductoScreen = () => {
 
       console.log('Color variations construidas:', colorVariations);
 
+      // Construir productImages a partir de la respuesta del backend.
+      // Si el endpoint todavía no devuelve productImages (productos viejos),
+      // se queda vacío y el carrusel solo permite agregar imágenes nuevas.
+      const productImages = currentProduct.productImages || [];
+
       setProductData({
         name: currentProduct.name || '',
         price: currentProduct.price?.toString() || '',
@@ -119,6 +134,8 @@ const EditarProductoScreen = () => {
         isOnSale: currentProduct.onSale || false,
         tags: currentProduct.tags || [],
         images: currentProduct.images || (currentProduct.mainImage ? [currentProduct.mainImage] : []),
+        productImages: productImages,
+        mainImage: currentProduct.mainImage || '',
         video: currentProduct.videoUrl || '',
         colors: colors,
         sizes: sizes,
@@ -190,14 +207,15 @@ const EditarProductoScreen = () => {
     setShowImageModal(true);
   };
 
-  const handleImagesChange = (images: string[]) => {
-    console.log('=== IMAGES CHANGED ===');
-    console.log('New images from SelectImages:', images);
-    console.log('=====================');
-    
+  const handleImagesSave = (payload: {
+    finalImages: { id: number; url: string }[];
+    mainImage: string;
+  }) => {
     setProductData(prev => ({
       ...prev,
-      images: images
+      productImages: payload.finalImages,
+      images: payload.finalImages.map(i => i.url),
+      mainImage: payload.mainImage,
     }));
   };
 
@@ -236,12 +254,6 @@ const EditarProductoScreen = () => {
   };
 
   const handleSelectVideo = () => {
-    // Verificar si el usuario tiene plan premium
-    const activeSubscription = user?.manufacturer?.subscriptions?.find(
-      sub => sub.status?.toLowerCase() === 'active'
-    );
-    const isPremium = activeSubscription?.plan?.toLowerCase() === 'premium';
-
     if (isPremium) {
       setShowVideoModal(true);
     } else {
@@ -276,27 +288,21 @@ const EditarProductoScreen = () => {
     }
 
     try {
-      const availableImages = productData.images.length > 0 ? productData.images : [];
-      
-      if (availableImages.length === 0) {
+      // El set final de imágenes (con IDs reales) lo arma SelectImages.
+      // Si productImages está vacío pero hay images legacy, caemos a no enviar imgIds
+      // (el backend respeta las imágenes existentes cuando imgIds viene undefined).
+      const finalImages = productData.productImages;
+      const additionalImages = finalImages.length > 0
+        ? finalImages.map(i => i.url)
+        : productData.images;
+
+      if (additionalImages.length === 0) {
         Alert.alert('Imágenes requeridas', 'Debes tener al menos una imagen del producto');
         return;
       }
 
-      const mainImage = availableImages[0] || '';
-      const additionalImages = availableImages;
-      const imgIds = uploadedImages.length > 0 ? 
-                    uploadedImages.map(img => img.id) : 
-                    availableImages.map((_, index) => Date.now() + index);
-
-      console.log('=== DEBUG ACTUALIZACIÓN ===');
-      console.log('productId:', productId);
-      console.log('currentProduct.isVariable:', currentProduct.isVariable);
-      console.log('currentProduct.gender:', currentProduct.gender);
-      console.log('productData.images:', productData.images);
-      console.log('availableImages:', availableImages);
-      console.log('mainImage:', mainImage);
-      console.log('========================');
+      const mainImage = productData.mainImage || additionalImages[0] || '';
+      const imgIds = finalImages.length > 0 ? finalImages.map(i => i.id) : undefined;
 
       if (currentProduct.isVariable) {
         // Actualizar producto variable
@@ -315,8 +321,8 @@ const EditarProductoScreen = () => {
           isVariable: true as const,
           variations: productData.colorVariations.map(variation => ({
             ...variation,
-            mainImage: variation.mainImage || mainImage,
-            images: variation.images.length > 0 ? variation.images : availableImages
+            mainImage: mainImage,
+            images: additionalImages
           }))
         };
 
@@ -573,12 +579,14 @@ const EditarProductoScreen = () => {
         </Button>
       </View>
 
-      {/* Modal de selección de imágenes */}
-      <SelectImages
+      {/* Modal de selección de imágenes (carrusel + main + límite premium) */}
+      <EditProductImages
         visible={showImageModal}
         onClose={handleCloseImageModal}
-        selectedImages={productData.images}
-        onSelectionChange={handleImagesChange}
+        existingImages={productData.productImages}
+        mainImage={productData.mainImage}
+        isPremium={isPremium}
+        onSave={handleImagesSave}
       />
 
       {/* Modal de selección de colores */}
