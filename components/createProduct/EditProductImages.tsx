@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Modal,
@@ -20,8 +20,11 @@ import { uploadImages } from '@/store/slices/imageSlice';
 import { RootState } from '@/store';
 import type { AppDispatch } from '@/store';
 
-const { width: SCREEN_W } = Dimensions.get('window');
-const CAROUSEL_H = 380;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+// Cards chicas tipo carrusel del home: 3 visibles + peek de la siguiente
+const CARD_GAP = 8;
+const CARD_WIDTH = (SCREEN_WIDTH - spacing.lg * 2 - CARD_GAP * 2) / 3.25;
+const CARD_HEIGHT = CARD_WIDTH * 1.3;
 
 interface ImageItem {
   id: number;
@@ -51,9 +54,6 @@ const EditProductImages: React.FC<EditProductImagesProps> = ({
 
   const [images, setImages] = useState<ImageItem[]>([]);
   const [currentMain, setCurrentMain] = useState<string>('');
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [containerWidth, setContainerWidth] = useState(SCREEN_W);
-  const scrollRef = useRef<ScrollView>(null);
 
   const MAX_IMAGES = isPremium ? 9 : 3;
 
@@ -62,7 +62,6 @@ const EditProductImages: React.FC<EditProductImagesProps> = ({
     if (visible) {
       setImages(existingImages.map((img) => ({ id: img.id, url: img.url })));
       setCurrentMain(mainImage);
-      setCurrentIndex(0);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
@@ -159,8 +158,8 @@ const EditProductImages: React.FC<EditProductImagesProps> = ({
     }
   };
 
-  const handleDeleteCurrent = () => {
-    const target = images[currentIndex];
+  const handleDelete = (index: number) => {
+    const target = images[index];
     if (!target) return;
 
     Alert.alert(
@@ -172,18 +171,12 @@ const EditProductImages: React.FC<EditProductImagesProps> = ({
           text: 'Eliminar',
           style: 'destructive',
           onPress: () => {
-            const next = images.filter((_, i) => i !== currentIndex);
+            const next = images.filter((_, i) => i !== index);
             setImages(next);
             // Si la imagen eliminada era la principal, reasignar a la primera disponible
             if (target.url === currentMain) {
               setCurrentMain(next.length > 0 ? next[0].url : '');
             }
-            // Ajustar el índice si quedó fuera de rango
-            const newIndex = Math.max(0, Math.min(currentIndex, next.length - 1));
-            setCurrentIndex(newIndex);
-            setTimeout(() => {
-              scrollRef.current?.scrollTo({ x: newIndex * containerWidth, animated: false });
-            }, 50);
           },
         },
       ]
@@ -201,12 +194,6 @@ const EditProductImages: React.FC<EditProductImagesProps> = ({
     }
     onSave({ finalImages: images, mainImage: currentMain });
     onClose();
-  };
-
-  const handleScroll = (event: any) => {
-    if (containerWidth <= 0) return;
-    const idx = Math.round(event.nativeEvent.contentOffset.x / containerWidth);
-    if (idx !== currentIndex) setCurrentIndex(idx);
   };
 
   const canAddMore = images.length < MAX_IMAGES;
@@ -245,67 +232,37 @@ const EditProductImages: React.FC<EditProductImagesProps> = ({
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Carrusel */}
+          {/* Carrusel de cards chicas con scroll horizontal */}
           {images.length > 0 ? (
-            <View style={styles.carouselSection}>
-              <View
-                style={styles.carouselContainer}
-                onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
-              >
-                <ScrollView
-                  ref={scrollRef}
-                  horizontal
-                  pagingEnabled
-                  showsHorizontalScrollIndicator={false}
-                  onScroll={handleScroll}
-                  scrollEventThrottle={16}
-                >
-                  {images.map((img) => (
-                    <View key={`${img.id}`} style={[styles.slide, { width: containerWidth }]}>
-                      <Image
-                        source={{ uri: img.url }}
-                        style={styles.slideImage}
-                        contentFit="contain"
-                        transition={200}
-                      />
-                    </View>
-                  ))}
-                </ScrollView>
-
-                {/* Contador */}
-                {images.length > 1 && (
-                  <View style={styles.counterBadge}>
-                    <Typography variant="caption" className="text-white font-semibold">
-                      {currentIndex + 1} / {images.length}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.carouselContent}
+              decelerationRate="fast"
+              snapToInterval={CARD_WIDTH + CARD_GAP}
+              snapToAlignment="start"
+            >
+              {images.map((img, index) => (
+                <View key={`${img.id}`} style={styles.card}>
+                  <Image
+                    source={{ uri: img.url }}
+                    style={styles.cardImage}
+                    contentFit="cover"
+                    transition={200}
+                  />
+                  <TouchableOpacity
+                    style={styles.cardDeleteBtn}
+                    onPress={() => handleDelete(index)}
+                    activeOpacity={0.8}
+                    hitSlop={6}
+                  >
+                    <Typography variant="caption" className="text-white font-bold">
+                      ✕
                     </Typography>
-                  </View>
-                )}
-
-                {/* Botón eliminar flotante */}
-                <TouchableOpacity
-                  style={styles.deleteFloatingButton}
-                  onPress={handleDeleteCurrent}
-                  activeOpacity={0.8}
-                >
-                  <Typography variant="body" className="text-white font-bold">
-                    ✕
-                  </Typography>
-                </TouchableOpacity>
-
-                {/* Dots indicators */}
-                {images.length > 1 && (
-                  <View style={styles.dotsRow}>
-                    {images.map((_, i) => (
-                      <View
-                        key={i}
-                        style={[styles.dot, i === currentIndex ? styles.dotActive : styles.dotInactive]}
-                      />
-                    ))}
-                  </View>
-                )}
-              </View>
-
-            </View>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
           ) : (
             <View style={styles.emptyCarousel}>
               <Typography variant="h1" className="text-gray-300 text-center mb-2">
@@ -430,77 +387,48 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  carouselSection: {
-    backgroundColor: '#fff',
-    paddingBottom: spacing.md,
+  carouselContent: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+    gap: CARD_GAP,
   },
-  carouselContainer: {
-    height: CAROUSEL_H,
+  card: {
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
+    borderRadius: 8,
+    overflow: 'hidden',
     backgroundColor: Colors.gray.light,
     position: 'relative',
   },
-  slide: {
-    height: CAROUSEL_H,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  slideImage: {
+  cardImage: {
     width: '100%',
     height: '100%',
   },
-  counterBadge: {
+  cardDeleteBtn: {
     position: 'absolute',
-    top: 12,
-    left: 12,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  deleteFloatingButton: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: 'rgba(239, 68, 68, 0.9)',
+    top: 6,
+    right: 6,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(239, 68, 68, 0.92)',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  dotsRow: {
-    position: 'absolute',
-    bottom: 14,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 5,
-  },
-  dot: {
-    height: 5,
-    borderRadius: 3,
-  },
-  dotActive: {
-    width: 20,
-    backgroundColor: Colors.blue.dark,
-  },
-  dotInactive: {
-    width: 6,
-    backgroundColor: 'rgba(0,0,0,0.18)',
+    shadowRadius: 3,
+    elevation: 3,
   },
   emptyCarousel: {
-    height: CAROUSEL_H,
+    height: CARD_HEIGHT + spacing.lg * 2,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.gray.light,
     paddingHorizontal: spacing.lg,
+    marginHorizontal: spacing.lg,
+    marginVertical: spacing.lg,
+    borderRadius: 8,
   },
   progressContainer: {
     alignItems: 'center',
