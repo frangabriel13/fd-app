@@ -31,7 +31,7 @@ const ManufacturerItem = ({ item, avatarSize, onPress }: ManufacturerItemProps) 
     <Pressable onPress={onPress} onPressIn={handlePressIn} onPressOut={handlePressOut}>
       <Animated.View style={[styles.item, animStyle]}>
         <View style={[styles.avatarWrapper, { width: outerRingSize, height: outerRingSize }]}>
-          {item.live && (
+          {item.isLive && (
             <View style={[styles.ringOuter, {
               width: outerRingSize,
               height: outerRingSize,
@@ -41,7 +41,7 @@ const ManufacturerItem = ({ item, avatarSize, onPress }: ManufacturerItemProps) 
           <View style={[
             styles.ring,
             { width: ringSize, height: ringSize, borderRadius: ringSize / 2 },
-            item.live ? styles.ringLive : styles.ringDefault,
+            item.isLive ? styles.ringLive : styles.ringDefault,
           ]}>
             <Image
               source={item.image ? { uri: item.image } : logoDefault}

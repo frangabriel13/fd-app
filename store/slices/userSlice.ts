@@ -31,6 +31,7 @@ interface Manufacturer {
   dniBack?: string | null;
   role?: string | null;
   live?: boolean;
+  isLive?: boolean;
   owner?: string | null;
   phone?: string | null;
   pointOfSale?: boolean;

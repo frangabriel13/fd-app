@@ -15,7 +15,7 @@ const AccountScreen = () => {
         {myUser?.role === 'manufacturer' && myUser?.manufacturer && (
           <LiveAccount
             image={myUser.manufacturer.image}
-            live={myUser.manufacturer.live}
+            isLive={myUser.manufacturer.isLive}
           />
         )}
         <MenuAccount userRole={myUser?.role} />
