@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Switch, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Switch, Alert, Modal } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Typography } from '@/components/ui';
@@ -7,6 +7,8 @@ import { spacing, borderRadius } from '@/constants/Styles';
 import SelectColors from '@/components/createProduct/SelectColors';
 import SelectSizes from '@/components/createProduct/SelectSizes';
 import SelectImages from '@/components/createProduct/SelectImages';
+import SelectVideo from '@/components/createProduct/SelectVideo';
+import SubscriptionModal from '@/components/modals/SubscriptionModal';
 import { createProduct, resetCreateState } from '@/store/slices/productSlice';
 import type { AppDispatch, RootState } from '@/store';
 
@@ -22,6 +24,7 @@ const DetalleProductoScreen = () => {
   // Redux state
   const { createdProduct, isCreating, createError } = useSelector((state: RootState) => state.product);
   const { uploadedImages } = useSelector((state: RootState) => state.image);
+  const { user } = useSelector((state: RootState) => state.user);
   
   const [productData, setProductData] = useState({
     name: '',
@@ -38,6 +41,15 @@ const DetalleProductoScreen = () => {
   const [showColorModal, setShowColorModal] = useState(false);
   const [showSizeModal, setShowSizeModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+
+  // Detectar si el usuario tiene plan premium activo
+  const activeSubscription = user?.manufacturer?.subscriptions?.find(
+    sub => sub.status?.toLowerCase() === 'active'
+  );
+  const isPremium = activeSubscription?.plan?.toLowerCase() === 'premium';
 
   // Consoleguear los parámetros recibidos y limpiar estado
   useEffect(() => {
@@ -160,6 +172,30 @@ const DetalleProductoScreen = () => {
     setShowSizeModal(false);
   };
 
+  // Cierra el modal de éxito y navega a la home, limpiando el estado de creación
+  const handleFinishSuccess = () => {
+    setShowSuccessModal(false);
+    dispatch(resetCreateState());
+    router.push('/(tabs)/');
+  };
+
+  // Abre el selector de video si es premium, o el modal de suscripción si no
+  const handleAddVideo = () => {
+    if (isPremium) {
+      setShowVideoModal(true);
+    } else {
+      setShowSubscriptionModal(true);
+    }
+  };
+
+  const handleCloseVideoModal = () => {
+    setShowVideoModal(false);
+  };
+
+  const handleCloseSubscriptionModal = () => {
+    setShowSubscriptionModal(false);
+  };
+
   const handleFinish = async () => {
     if (!isFormValid()) {
       Alert.alert('Formulario incompleto', 'Por favor completa todos los campos requeridos');
@@ -268,21 +304,9 @@ const DetalleProductoScreen = () => {
         await dispatch(createProduct(productPayload)).unwrap();
       }
 
-      // Si llegamos aquí, el producto se creó exitosamente
-      Alert.alert(
-        '¡Éxito!',
-        'El producto se ha creado correctamente',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Limpiar estado y navegar
-              dispatch(resetCreateState());
-              router.push('/(tabs)/');
-            }
-          }
-        ]
-      );
+      // Si llegamos aquí, el producto se creó exitosamente. Mostramos el modal de éxito
+      // con la opción de subir video (sólo para usuarios premium).
+      setShowSuccessModal(true);
     } catch (error: any) {
       console.error('Error al crear producto:', error);
       Alert.alert(
@@ -419,16 +443,11 @@ const DetalleProductoScreen = () => {
                   📏 Seleccionar talles
                 </Typography>
                 <Typography variant="caption" className="text-gray-400 text-center mt-1">
-                  {productData.sizes.length > 0 
-                    ? `${productData.sizes.length} talle(s) seleccionado(s)` 
+                  {productData.sizes.length > 0
+                    ? `${productData.sizes.length} talle(s) seleccionado(s)`
                     : 'Toca para elegir los talles disponibles'
                   }
                 </Typography>
-                {productData.sizes.length > 0 && (
-                  <Typography variant="caption" className="text-gray-600 text-center mt-1">
-                    {productData.sizes.join(', ')}
-                  </Typography>
-                )}
               </TouchableOpacity>
             </View>
           )}
@@ -480,6 +499,63 @@ const DetalleProductoScreen = () => {
         onClose={handleCloseSizeModal}
         selectedSizes={productData.sizes}
         onSelectionChange={handleSizesChange}
+      />
+
+      {/* Modal de éxito post-creación con opción de subir video */}
+      <Modal
+        visible={showSuccessModal}
+        animationType="fade"
+        transparent
+        onRequestClose={handleFinishSuccess}
+      >
+        <View style={styles.successOverlay}>
+          <View style={styles.successCard}>
+            <Typography variant="h1" className="text-center mb-2">
+              🎉
+            </Typography>
+            <Typography variant="h3" className="text-gray-800 text-center mb-2">
+              ¡Producto creado!
+            </Typography>
+            <Typography variant="body" className="text-gray-600 text-center mb-6">
+              Tu producto se publicó correctamente.
+              {'\n'}
+              {isPremium
+                ? '¿Querés agregar un video para destacarlo?'
+                : 'Sumá un video para destacarlo (función Premium).'}
+            </Typography>
+
+            <Button
+              variant="primary"
+              onPress={handleAddVideo}
+              style={styles.successPrimaryBtn}
+              className="bg-primary"
+            >
+              🎥 {isPremium ? 'Subir video' : 'Conocer Premium'}
+            </Button>
+
+            <TouchableOpacity onPress={handleFinishSuccess} style={styles.successSecondaryBtn}>
+              <Typography variant="body" className="text-gray-500 text-center">
+                Listo, ir al inicio
+              </Typography>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal de selección de video (sólo se monta cuando ya hay producto creado) */}
+      {createdProduct?.id && (
+        <SelectVideo
+          visible={showVideoModal}
+          onClose={handleCloseVideoModal}
+          productId={createdProduct.id}
+          videoUrl={null}
+        />
+      )}
+
+      {/* Modal de suscripción para no-premium */}
+      <SubscriptionModal
+        visible={showSubscriptionModal}
+        onClose={handleCloseSubscriptionModal}
       />
     </View>
   );
@@ -538,6 +614,28 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     borderWidth: 1,
     borderColor: '#fecaca',
+  },
+  successOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  successCard: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: borderRadius.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.xl,
+  },
+  successPrimaryBtn: {
+    minHeight: 50,
+    marginBottom: spacing.sm,
+  },
+  successSecondaryBtn: {
+    paddingVertical: spacing.md,
+    alignItems: 'center',
   },
 });
 

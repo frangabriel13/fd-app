@@ -19,20 +19,20 @@ import { fetchAuthUser } from '@/store/slices/userSlice';
 
 interface LiveAccountProps {
   image?: string;
-  live?: boolean;
+  isLive?: boolean;
 }
 
-const LiveAccount = ({ image, live }: LiveAccountProps) => {
+const LiveAccount = ({ image, isLive }: LiveAccountProps) => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector(state => state.user);
   const { loading } = useAppSelector(state => state.manufacturer);
   const [localImage, setLocalImage] = useState<string | undefined>(image);
-  const [localLive, setLocalLive] = useState<boolean>(live || false);
+  const [localLive, setLocalLive] = useState<boolean>(isLive || false);
   const [isTogglingLive, setIsTogglingLive] = useState(false);
 
   useEffect(() => {
-    setLocalLive(live || false);
-  }, [live]);
+    setLocalLive(isLive || false);
+  }, [isLive]);
 
   const requestPermissions = async () => {
     if (Platform.OS !== 'web') {
@@ -119,7 +119,7 @@ const LiveAccount = ({ image, live }: LiveAccountProps) => {
     try {
       setIsTogglingLive(true);
       const result = await dispatch(activateLiveManufacturer()).unwrap();
-      setLocalLive(result.live);
+      setLocalLive(result.isLive ?? result.live ?? false);
       // Refrescar datos del usuario para que se refleje en toda la app
       await dispatch(fetchAuthUser()).unwrap();
     } catch (error: any) {

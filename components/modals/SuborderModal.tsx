@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Alert } 
 import { Ionicons } from '@expo/vector-icons';
 import { spacing, borderRadius, shadows } from '@/constants/Styles';
 import { Colors } from '@/constants/Colors';
+import { normalizeArgPhone } from '@/utils/whatsapp';
 
 interface Product {
   id: number | string;
@@ -80,7 +81,8 @@ const SuborderModal: React.FC<SuborderModalProps> = ({ onClose, subOrder }) => {
     }
 
     const message = `Hola ${wholesalerName}, te escribo sobre tu orden #${subOrder.id}`;
-    const whatsappUrl = `whatsapp://send?phone=${wholesalerPhone}&text=${encodeURIComponent(message)}`;
+    const normalizedPhone = normalizeArgPhone(wholesalerPhone);
+    const whatsappUrl = `whatsapp://send?phone=${normalizedPhone}&text=${encodeURIComponent(message)}`;
     
     Linking.canOpenURL(whatsappUrl).then(supported => {
       if (supported) {

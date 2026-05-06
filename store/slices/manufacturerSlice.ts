@@ -59,6 +59,7 @@ interface Manufacturer {
   image?: string | null;
   instagramNick?: string | null;
   live?: boolean;
+  isLive?: boolean;
   number?: string | null;
   postalCode?: number | null;
   province?: string | null;
@@ -75,6 +76,7 @@ export interface LiveManufacturer {
   name: string;
   image: string | null;
   live: boolean;
+  isLive: boolean;
   tiktokUrl: string | null;
   user: {
     id: number;
@@ -87,6 +89,7 @@ interface ApprovedManufacturer {
   name: string;
   createdAt: string;
   live: boolean;
+  isLive: boolean;
   userId: number;
   street: string | null;
   subscriptions?: Subscription[];
@@ -660,7 +663,8 @@ const manufacturerSlice = createSlice({
         if (index !== -1) {
           state.approvedManufacturers[index] = {
             ...state.approvedManufacturers[index],
-            live: manufacturer.live
+            live: manufacturer.live,
+            isLive: manufacturer.isLive ?? manufacturer.live
           };
         }
       })
@@ -764,28 +768,32 @@ const manufacturerSlice = createSlice({
         // Actualizar el manufacturer actual
         if (state.manufacturer) {
           state.manufacturer.live = updatedManufacturer.live;
+          state.manufacturer.isLive = updatedManufacturer.isLive ?? updatedManufacturer.live;
         }
-        
+
         // Actualizar selectedManufacturer si coincide
         if (state.selectedManufacturer && state.selectedManufacturer.id === updatedManufacturer.id) {
           state.selectedManufacturer.live = updatedManufacturer.live;
+          state.selectedManufacturer.isLive = updatedManufacturer.isLive ?? updatedManufacturer.live;
         }
-        
+
         // Actualizar en la lista de fabricantes en vivo
         const liveIndex = state.liveManufacturers.findIndex(m => m.id === updatedManufacturer.id);
         if (liveIndex !== -1) {
           state.liveManufacturers[liveIndex] = {
             ...state.liveManufacturers[liveIndex],
-            live: updatedManufacturer.live ?? false
+            live: updatedManufacturer.live ?? false,
+            isLive: updatedManufacturer.isLive ?? updatedManufacturer.live ?? false
           };
         }
-        
+
         // Actualizar en la lista de fabricantes aprobados
         const approvedIndex = state.approvedManufacturers.findIndex(m => m.id === updatedManufacturer.id);
         if (approvedIndex !== -1) {
           state.approvedManufacturers[approvedIndex] = {
             ...state.approvedManufacturers[approvedIndex],
-            live: updatedManufacturer.live ?? false
+            live: updatedManufacturer.live ?? false,
+            isLive: updatedManufacturer.isLive ?? updatedManufacturer.live ?? false
           };
         }
       })

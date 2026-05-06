@@ -14,6 +14,7 @@ import { RootState, AppDispatch } from '@/store';
 import { followManufacturer, unfollowManufacturer } from '@/store/slices/userSlice';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
+import { normalizeArgPhone } from '@/utils/whatsapp';
 
 const HeaderProfile = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -72,10 +73,7 @@ const HeaderProfile = () => {
 
   const handleWhatsApp = () => {
     if (selectedManufacturer.phone) {
-      let phoneNumber = selectedManufacturer.phone.replace(/\D/g, '');
-      if (!phoneNumber.startsWith('54')) {
-        phoneNumber = `54${phoneNumber}`;
-      }
+      const phoneNumber = normalizeArgPhone(selectedManufacturer.phone);
       const wspUrl = `https://wa.me/${phoneNumber}`;
       Linking.openURL(wspUrl);
     }
@@ -87,10 +85,10 @@ const HeaderProfile = () => {
       <View style={styles.headerSection}>
         <View style={styles.profileImageContainer}>
           <TouchableOpacity
-            onPress={selectedManufacturer.live && selectedManufacturer.tiktokUrl ? handleTikTok : undefined}
-            disabled={!(selectedManufacturer.live && selectedManufacturer.tiktokUrl)}
+            onPress={selectedManufacturer.isLive && selectedManufacturer.tiktokUrl ? handleTikTok : undefined}
+            disabled={!(selectedManufacturer.isLive && selectedManufacturer.tiktokUrl)}
           >
-            <View style={[styles.imageRing, selectedManufacturer.live && styles.imageRingLive]}>
+            <View style={[styles.imageRing, selectedManufacturer.isLive && styles.imageRingLive]}>
               <Image
                 source={selectedManufacturer.image ? { uri: selectedManufacturer.image } : require('@/assets/images/react-logo.png')}
                 style={styles.profileImage}
@@ -150,7 +148,7 @@ const HeaderProfile = () => {
               >
                 <View style={styles.tiktokContainer}>
                   <Ionicons name="logo-tiktok" size={22} color="white" />
-                  {selectedManufacturer.live && (
+                  {selectedManufacturer.isLive && (
                     <View style={styles.liveIndicator}>
                       <Text style={styles.liveText}>LIVE</Text>
                     </View>

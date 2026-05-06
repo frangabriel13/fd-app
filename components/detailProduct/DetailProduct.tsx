@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Product, Manufacturer } from '@/types/product';
 import { formatPrice } from '@/utils/formatPrice';
+import { normalizeArgPhone } from '@/utils/whatsapp';
 import { Colors } from '@/constants/Colors';
 
 interface DetailProductProps {
@@ -15,7 +16,7 @@ interface DetailProductProps {
 const DetailProduct = ({ product, manufacturer, views }: DetailProductProps) => {
   const handleWhatsApp = () => {
     if (!manufacturer?.phone) return;
-    const phone = manufacturer.phone.replace(/\D/g, '');
+    const phone = normalizeArgPhone(manufacturer.phone);
     Linking.openURL(`https://wa.me/${phone}`);
   };
 

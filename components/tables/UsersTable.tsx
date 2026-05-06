@@ -24,6 +24,7 @@ interface ApprovedManufacturer {
   name: string;
   createdAt: string;
   live: boolean;
+  isLive: boolean;
   userId: number;
   street: string | null;
   subscriptions?: Subscription[];
@@ -202,7 +203,7 @@ export default function UsersTable() {
   };
 
   const handleToggleLive = (manufacturer: ApprovedManufacturer) => {
-    const action = manufacturer.live ? 'desactivar' : 'activar';
+    const action = manufacturer.isLive ? 'desactivar' : 'activar';
     Alert.alert(
       `${action.charAt(0).toUpperCase() + action.slice(1)} Estado Live`,
       `¿Estás seguro de que deseas ${action} el estado live de ${manufacturer.name}?`,
@@ -325,7 +326,7 @@ export default function UsersTable() {
           >
             {isApproved ? (
               // Para fabricantes aprobados: mostrar estado live clickeable
-              (manufacturer as ApprovedManufacturer).live ? (
+              (manufacturer as ApprovedManufacturer).isLive ? (
                 <View className="w-3 h-3 bg-red-500 rounded-full" />
               ) : (
                 <View className="w-3 h-3 bg-gray-300 rounded-full" />
