@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import { router } from 'expo-router';
 import { useAppDispatch, useAppSelector } from './redux';
@@ -22,7 +22,7 @@ export function useNotifications() {
       try {
         await notificationInstance.post('/device-token', {
           token: newToken,
-          platform: 'android',
+          platform: Platform.OS,
         });
       } catch (err) {
         console.error('Error re-registrando token:', err);

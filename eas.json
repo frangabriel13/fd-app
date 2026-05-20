@@ -36,6 +36,11 @@
         "serviceAccountKeyPath": "./google-service-account-key.json",
         "track": "internal",
         "releaseStatus": "completed"
+      },
+      "ios": {
+        "appleId": "mansilla.franco.1@gmail.com",
+        "ascAppId": "APP_STORE_CONNECT_APP_ID_PLACEHOLDER",
+        "appleTeamId": "APPLE_TEAM_ID_PLACEHOLDER"
       }
     }
   }

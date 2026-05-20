@@ -11,7 +11,20 @@
     "description": "Plataforma que conecta fabricantes directamente con mayoristas para compras al por mayor sin intermediarios.",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.fabricantedirecto.fdapp"
+      "bundleIdentifier": "com.fabricantedirecto.fdapp",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "entitlements": {
+        "aps-environment": "production"
+      },
+      "infoPlist": {
+        "UIBackgroundModes": ["remote-notification", "fetch"],
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": ["com.googleusercontent.apps.IOS_CLIENT_ID_REVERSED"]
+          }
+        ]
+      }
     },
     "android": {
       "package": "com.fabricantedirecto.fdapp",
@@ -53,10 +66,21 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "The app accesses your photos to let you share them with your friends."
+          "photosPermission": "Necesitamos acceso a tus fotos para que puedas seleccionar imágenes de productos, logo y documentos de verificación.",
+          "cameraPermission": "Necesitamos acceso a la cámara para que puedas tomar fotos de tus productos, logo y documentos de verificación.",
+          "microphonePermission": "Necesitamos acceso al micrófono para grabar videos de productos."
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static",
+            "deploymentTarget": "15.1"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, Pressable, Alert, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
-import { useAppSelector } from '@/hooks/redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
+import { deleteAccount } from '@/store/slices/userSlice';
+import { logout } from '@/store/slices/authSlice';
+import { clearNotifications } from '@/store/slices/notificationSlice';
+import { resetFavorites } from '@/store/slices/favoriteSlice';
+import { removeDeviceToken } from '@/services/notificationService';
+import { persistor } from '@/store';
 import { Colors } from '../../constants/Colors';
 
 const ICON_BG    = '#e8edf5';
@@ -65,7 +73,10 @@ function MenuSection({ title, items }: MenuSectionConfig) {
 // — Menú principal —
 const MenuAccount = ({ userRole }: MenuAccountProps) => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { signOut } = useGoogleSignIn();
   const { user } = useAppSelector(state => state.user);
+  const [deleting, setDeleting] = useState(false);
 
   // Plan info para manufacturers
   const activeSubscription =
@@ -89,6 +100,67 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
     if (p === 'premium') return '#F59E0B';
     return Colors.blue.default;
   };
+
+  // Eliminación de cuenta — doble confirmación obligatoria por App Store Guideline 5.1.1(v).
+  // Tras éxito: limpia caches, persistencia y desloguea a /(auth)/login.
+  const performAccountDeletion = useCallback(async () => {
+    if (deleting) return;
+    setDeleting(true);
+    try {
+      // Borrar device token primero — si falla seguimos igual,
+      // el backend debería borrarlo también al eliminar la cuenta.
+      try { await removeDeviceToken(); } catch {}
+
+      await dispatch(deleteAccount()).unwrap();
+
+      // Cerrar sesión de Google si aplica (no rompe si no estaba autenticado).
+      try { await signOut(); } catch {}
+
+      // Limpieza local: token, slices in-memory y storage persistente.
+      await AsyncStorage.removeItem('token');
+      dispatch(logout());
+      dispatch(clearNotifications());
+      dispatch(resetFavorites());
+      await persistor.purge();
+
+      router.replace('/(auth)/login');
+    } catch (err: any) {
+      Alert.alert(
+        'No se pudo eliminar la cuenta',
+        typeof err === 'string'
+          ? err
+          : 'Ocurrió un error al eliminar tu cuenta. Intentalo nuevamente o contactá a soporte.'
+      );
+    } finally {
+      setDeleting(false);
+    }
+  }, [deleting, dispatch, router, signOut]);
+
+  const handleDeleteAccount = useCallback(() => {
+    // Confirmación 1: explicación de qué se va a borrar.
+    Alert.alert(
+      'Eliminar mi cuenta',
+      'Se eliminarán de forma permanente tu perfil y todos los datos asociados (publicaciones, órdenes, favoritos, suscripciones). Esta acción no se puede deshacer.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Continuar',
+          style: 'destructive',
+          onPress: () => {
+            // Confirmación 2: último chance.
+            Alert.alert(
+              '¿Estás seguro?',
+              'Una vez eliminada, no podrás recuperar tu cuenta ni los datos asociados.',
+              [
+                { text: 'Cancelar', style: 'cancel' },
+                { text: 'Eliminar cuenta', style: 'destructive', onPress: performAccountDeletion },
+              ]
+            );
+          },
+        },
+      ]
+    );
+  }, [performAccountDeletion]);
 
   const handleContactAdmin = () => {
     const phoneNumber = '5491234567890';
@@ -260,6 +332,29 @@ const MenuAccount = ({ userRole }: MenuAccountProps) => {
           </View>
         </View>
       )}
+
+      {/* Sección de cuenta — opción destructiva (App Store Guideline 5.1.1(v)) */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Cuenta</Text>
+        <View style={styles.sectionCard}>
+          <Pressable
+            onPress={handleDeleteAccount}
+            disabled={deleting}
+            android_ripple={{ color: '#fef2f2' }}
+            style={({ pressed }) => pressed && styles.deletePressed}
+          >
+            <View style={styles.item}>
+              <View style={[styles.iconBox, { backgroundColor: '#fef2f2' }]}>
+                <Ionicons name="trash-outline" size={18} color="#dc2626" />
+              </View>
+              <Text style={styles.deleteLabel}>
+                {deleting ? 'Eliminando…' : 'Eliminar mi cuenta'}
+              </Text>
+              <Ionicons name="chevron-forward" size={16} color="#fca5a5" />
+            </View>
+          </Pressable>
+        </View>
+      </View>
     </View>
   );
 };
@@ -386,6 +481,17 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: '#111827',
+    fontWeight: '500',
+  },
+
+  // — Eliminar cuenta —
+  deletePressed: {
+    backgroundColor: '#fef2f2',
+  },
+  deleteLabel: {
+    flex: 1,
+    fontSize: 14,
+    color: '#dc2626',
     fontWeight: '500',
   },
 });
