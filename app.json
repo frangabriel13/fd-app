@@ -17,11 +17,16 @@
         "aps-environment": "production"
       },
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification", "fetch"],
+        "UIBackgroundModes": [
+          "remote-notification",
+          "fetch"
+        ],
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleURLTypes": [
           {
-            "CFBundleURLSchemes": ["com.googleusercontent.apps.IOS_CLIENT_ID_REVERSED"]
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.IOS_CLIENT_ID_REVERSED"
+            ]
           }
         ]
       }
@@ -80,7 +85,8 @@
             "deploymentTarget": "15.1"
           }
         }
-      ]
+      ],
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true
