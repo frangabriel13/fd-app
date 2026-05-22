@@ -2,6 +2,7 @@ import Slider from '@/components/slider/Slider';
 import Genders from '@/components/home/Genders';
 import LiveManufacturers from '@/components/home/LiveManufacturers';
 import ProductSlider from '@/components/home/ProductSlider';
+import VideoFeedCarousel from '@/components/home/VideoFeedCarousel';
 import { StyleSheet, ScrollView, View, RefreshControl } from 'react-native';
 import { useEffect, useRef, useCallback } from 'react';
 import { useScrollToTop } from '@react-navigation/native';
@@ -9,6 +10,7 @@ import { useFocusEffect } from 'expo-router';
 import { useDispatch } from 'react-redux';
 import { fetchMobileHomeProducts } from '@/store/slices/productSlice';
 import { fetchAllLiveManufacturers, clearLiveManufacturers } from '@/store/slices/manufacturerSlice';
+import { fetchCarouselVideos } from '@/store/slices/videoFeedSlice';
 import type { AppDispatch } from '@/store';
 import Info from '@/components/home/Info';
 import { useRefresh } from '@/hooks/useRefresh';
@@ -27,6 +29,7 @@ const HomeScreen = () => {
 
   useEffect(() => {
     dispatch(fetchMobileHomeProducts());
+    dispatch(fetchCarouselVideos());
   }, [dispatch]);
 
   const { refreshing, onRefresh } = useRefresh(
@@ -35,6 +38,7 @@ const HomeScreen = () => {
       await Promise.all([
         dispatch(fetchMobileHomeProducts()),
         dispatch(fetchAllLiveManufacturers({ page: 1, limit: 8, isFirstLoad: true })),
+        dispatch(fetchCarouselVideos()),
       ]);
     }, [dispatch])
   );
@@ -59,6 +63,7 @@ const HomeScreen = () => {
         <Genders />
         <LiveManufacturers />
         <ProductSlider title="Productos Destacados" section="featured" />
+        <VideoFeedCarousel />
         <ProductSlider title="Más Vendidos" section="masVendidos" />
         <ProductSlider title="Nuevos Ingresos" section="newProducts" />
         <ProductSlider title="Packs/Combos" section="packs" />
