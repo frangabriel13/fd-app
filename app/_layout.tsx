@@ -57,6 +57,7 @@ export default function RootLayout() {
                   animation: 'slide_from_bottom',
                 }}
               />
+              <Stack.Screen name="videos-destacados" options={{ headerShown: false }} />
               <Stack.Screen name="+not-found" />
             </Stack>
             <StatusBar style="auto" />

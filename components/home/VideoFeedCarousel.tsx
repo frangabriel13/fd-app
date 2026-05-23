@@ -124,11 +124,16 @@ const VideoFeedCarousel: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
+      {/* Header (tappeable: navega a la pantalla con grilla paginada) */}
+      <Pressable
+        style={styles.header}
+        onPress={() => router.push('/videos-destacados' as any)}
+      >
         <Ionicons name="videocam" size={18} color="#021344" />
         <Text style={styles.title}>Videos Destacados</Text>
-      </View>
+        <View style={styles.headerSpacer} />
+        <Ionicons name="chevron-forward" size={20} color="#111827" />
+      </Pressable>
 
       {isLoading ? (
         <FlatList
@@ -177,6 +182,9 @@ const styles = StyleSheet.create({
     color: '#111827',
     letterSpacing: 1.5,
     textTransform: 'uppercase',
+  },
+  headerSpacer: {
+    flex: 1,
   },
 
   // — Lista —
