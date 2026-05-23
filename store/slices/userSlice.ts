@@ -150,6 +150,21 @@ export const unfollowManufacturer = createAsyncThunk(
   }
 );
 
+// Eliminar cuenta del usuario autenticado — requerido por App Store Guideline 5.1.1(v).
+// El backend debe borrar (o anonimizar) el usuario y sus datos derivados:
+// suscripciones, productos, órdenes, reviews, favoritos y device tokens.
+export const deleteAccount = createAsyncThunk(
+  'user/deleteAccount',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await userInstance.delete('/me');
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error al eliminar la cuenta');
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -273,6 +288,22 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(unfollowManufacturer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      // deleteAccount
+      .addCase(deleteAccount.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteAccount.fulfilled, (state) => {
+        state.loading = false;
+        state.user = null;
+        state.followed = [];
+        state.isVerified = false;
+        state.error = null;
+      })
+      .addCase(deleteAccount.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

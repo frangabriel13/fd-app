@@ -2,9 +2,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { API_CONFIG } from '@/constants/ApiConfig';
 
-// Instancia específica para operaciones de autenticación (sin interceptores)
-const manufacturerAxios = axios.create({
-  baseURL: `${API_CONFIG.API_URL_3001}/manufacturers`,
+// Instancia específica para operaciones de autenticación (sin interceptores
+// para evitar loops de refresh).
+const authAxios = axios.create({
+  baseURL: `${API_CONFIG.API_URL_3001}/auth`,
 });
 
 // Función para obtener el token, similar a la de axiosConfig.ts
@@ -42,7 +43,7 @@ export const refreshTokenService = async (): Promise<string> => {
     
     const headers = { Authorization: `Bearer ${currentToken}` };
     
-    const response = await manufacturerAxios.post('/refresh-token', {}, {
+    const response = await authAxios.post('/refresh-token', {}, {
       headers
     });
     

@@ -23,7 +23,10 @@
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('project_id:', d.get\\('project_info',{}\\).get\\('project_id','?'\\)\\); clients=d.get\\('client',[]\\); [print\\('package:', c.get\\('client_info',{}\\).get\\('android_client_info',{}\\).get\\('package_name','?'\\)\\) for c in clients]\")",
       "Bash(npm run *)",
       "Bash(git show *)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(git log *)",
+      "Bash(python3 -c \"import json; d=json.load\\(open\\('app.json'\\)\\); print\\(json.dumps\\(d['expo'].get\\('updates','NO HAY bloque updates'\\), indent=2\\)\\); print\\('---'\\); print\\('runtimeVersion:', d['expo'].get\\('runtimeVersion','NO HAY'\\)\\)\")",
+      "Bash(grep -E \"\\(index|_layout|\\\\.tsx$\\)\")"
     ]
   }
 }

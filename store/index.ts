@@ -17,6 +17,7 @@ import favoriteSlice from './slices/favoriteSlice';
 import reviewSlice from './slices/reviewSlice';
 import notificationReducer from './slices/notificationSlice';
 import adminStatsReducer from './slices/adminStatsSlice';
+import videoFeedSlice from './slices/videoFeedSlice';
 
 // Combine all reducers
 const rootReducer = combineReducers({
@@ -34,6 +35,7 @@ const rootReducer = combineReducers({
   reviews: reviewSlice,
   notifications: notificationReducer,
   adminStats: adminStatsReducer,
+  videoFeed: videoFeedSlice,
 });
 
 // Excluye el estado de búsqueda del producto de la persistencia — si la app
