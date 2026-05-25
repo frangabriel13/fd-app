@@ -1,6 +1,7 @@
 import React, { useEffect, memo } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -79,8 +80,12 @@ const VideoCard = memo(function VideoCard({
           transition={200}
         />
 
-        {/* Gradient inferior + overlay con info */}
-        <View style={styles.bottomShade} pointerEvents="none" />
+        {/* Gradiente discreto solo sobre el nombre del producto. */}
+        <LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.7)']}
+          style={styles.bottomShade}
+          pointerEvents="none"
+        />
 
         {/* Logo del fabricante */}
         {item.logo && (
@@ -212,8 +217,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: '45%',
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    height: '25%',
   },
   logoContainer: {
     position: 'absolute',
