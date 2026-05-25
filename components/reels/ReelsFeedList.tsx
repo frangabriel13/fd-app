@@ -5,8 +5,9 @@ import {
   StyleSheet,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  FlatList,
+  ViewToken,
 } from 'react-native';
-import { FlashList, ViewToken } from '@shopify/flash-list';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchFeedNextPage,
@@ -24,9 +25,8 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 // Cuando el activeIndex llega a este umbral cerca del final, pedimos la próxima página.
 const PREFETCH_THRESHOLD = 3;
 
-// Threshold permisivo: en swipes rápidos FlashList no siempre llega al 80%.
-// onMomentumScrollEnd hace de respaldo redundante por si este callback se
-// pierde un evento.
+// Threshold permisivo. La fuente de verdad principal es onScroll, este
+// callback queda como respaldo.
 const VIEWABILITY_CONFIG = {
   itemVisiblePercentThreshold: 60,
 };
@@ -47,7 +47,7 @@ const ReelsFeedList: React.FC<ReelsFeedListProps> = ({ initialIndex }) => {
   // El botón mute (en ReelItem) y el tap en el video siguen permitiendo silenciar.
   const [isMuted, setIsMuted] = useState(false);
 
-  const flashListRef = useRef<FlashList<VideoFeedItem>>(null);
+  const listRef = useRef<FlatList<VideoFeedItem>>(null);
 
   // onViewableItemsChanged debe ser estable — FlashList se queja si cambia entre renders.
   const viewedIdsRef = useRef<Set<number>>(new Set());
@@ -91,20 +91,35 @@ const ReelsFeedList: React.FC<ReelsFeedListProps> = ({ initialIndex }) => {
   const handleVideoEnded = useCallback(() => {
     const nextIndex = activeIndex + 1;
     if (nextIndex < videos.length) {
-      flashListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
+      listRef.current?.scrollToIndex({ index: nextIndex, animated: true });
     }
   }, [activeIndex, videos.length]);
 
-  // Fallback robusto a onViewableItemsChanged: al terminar el momentum del
-  // scroll calculamos el índice desde el offset.
-  const onMomentumScrollEnd = useCallback(
-    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const newIndex = Math.round(e.nativeEvent.contentOffset.y / SCREEN_HEIGHT);
+  // Detección del índice activo basada en offset (fuente de verdad principal
+  // ahora que usamos FlatList). Se calcula también durante el scroll, no
+  // sólo al terminar el momentum, para que el cambio se detecte antes.
+  const updateActiveFromOffset = useCallback(
+    (offsetY: number) => {
+      const newIndex = Math.round(offsetY / SCREEN_HEIGHT);
       if (newIndex !== activeIndex && newIndex >= 0 && newIndex < videos.length) {
         setActiveIndex(newIndex);
       }
     },
     [activeIndex, videos.length]
+  );
+
+  const onScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      updateActiveFromOffset(e.nativeEvent.contentOffset.y);
+    },
+    [updateActiveFromOffset]
+  );
+
+  const onMomentumScrollEnd = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      updateActiveFromOffset(e.nativeEvent.contentOffset.y);
+    },
+    [updateActiveFromOffset]
   );
 
   const renderItem = useCallback(
@@ -130,24 +145,40 @@ const ReelsFeedList: React.FC<ReelsFeedListProps> = ({ initialIndex }) => {
     [initialIndex, videos.length]
   );
 
+  // getItemLayout permite que initialScrollIndex y scrollToIndex sean
+  // instantáneos, sin layout pass intermedio.
+  const getItemLayout = useCallback(
+    (_data: ArrayLike<VideoFeedItem> | null | undefined, index: number) => ({
+      length: SCREEN_HEIGHT,
+      offset: SCREEN_HEIGHT * index,
+      index,
+    }),
+    []
+  );
+
   return (
     <View style={styles.container}>
-      <FlashList
-        ref={flashListRef}
+      <FlatList
+        ref={listRef}
         data={videos}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
-        estimatedItemSize={SCREEN_HEIGHT}
         pagingEnabled
         snapToInterval={SCREEN_HEIGHT}
+        snapToAlignment="start"
         decelerationRate="fast"
         showsVerticalScrollIndicator={false}
         viewabilityConfig={VIEWABILITY_CONFIG}
         onViewableItemsChanged={onViewableItemsChanged}
+        onScroll={onScroll}
         onMomentumScrollEnd={onMomentumScrollEnd}
+        scrollEventThrottle={32}
         initialScrollIndex={safeInitialIndex}
+        getItemLayout={getItemLayout}
         removeClippedSubviews
-        drawDistance={SCREEN_HEIGHT}
+        windowSize={3}
+        initialNumToRender={2}
+        maxToRenderPerBatch={2}
       />
     </View>
   );
