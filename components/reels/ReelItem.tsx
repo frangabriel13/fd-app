@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -34,11 +34,13 @@ const VideoLayer = memo(function VideoLayer({
   videoUrl,
   isActive,
   isMuted,
+  isPausedManually,
   onEnded,
 }: {
   videoUrl: string;
   isActive: boolean;
   isMuted: boolean;
+  isPausedManually: boolean;
   onEnded: () => void;
 }) {
   const player = useVideoPlayer(videoUrl, (p) => {
@@ -46,25 +48,38 @@ const VideoLayer = memo(function VideoLayer({
     // hacer auto-advance al siguiente reel.
     p.loop = false;
     p.muted = isMuted;
+    p.volume = isMuted ? 0 : 1;
   });
 
-  // Sincroniza play/pause con el estado activo. Al volverse activo, resetea
-  // a 0 y reproduce siempre (cubre el caso de volver a un reel ya visto).
+  // Detecta el flanco "inactive → active" para resetear a 0 sin pisar el
+  // currentTime cuando el usuario solo está reanudando una pausa manual.
+  const prevActiveRef = useRef(isActive);
   useEffect(() => {
-    if (isActive) {
+    if (isActive && !prevActiveRef.current) {
       try {
         player.currentTime = 0;
       } catch {
         // expo-video puede tirar si el player aún no cargó; lo ignoramos.
       }
+    }
+    prevActiveRef.current = isActive;
+  }, [isActive, player]);
+
+  // Play / pause combinando "es el reel visible" + "el usuario lo pausó".
+  useEffect(() => {
+    const shouldPlay = isActive && !isPausedManually;
+    if (shouldPlay) {
       player.play();
     } else {
       player.pause();
     }
-  }, [isActive, player]);
+  }, [isActive, isPausedManually, player]);
 
+  // Mute robusto: además de la flag, llevamos el volumen a 0. En algunas
+  // versiones de expo-video la prop `muted` no se respeta dinámicamente.
   useEffect(() => {
     player.muted = isMuted;
+    player.volume = isMuted ? 0 : 1;
   }, [isMuted, player]);
 
   // Listener de fin de video: dispara onEnded para que el feed avance solo.
@@ -82,6 +97,7 @@ const VideoLayer = memo(function VideoLayer({
       contentFit="cover"
       nativeControls={false}
       allowsPictureInPicture={false}
+      pointerEvents="none"
     />
   );
 });
@@ -103,6 +119,19 @@ const ReelItem: React.FC<ReelItemProps> = ({
   const distance = Math.abs(index - activeIndex);
   const shouldMountVideo = distance <= 1;
   const isActive = index === activeIndex;
+
+  // Pausa manual local del reel. Se resetea cuando el reel deja de ser activo
+  // (al volver, debe arrancar reproduciéndose siempre).
+  const [isPausedManually, setIsPausedManually] = useState(false);
+  useEffect(() => {
+    if (!isActive && isPausedManually) {
+      setIsPausedManually(false);
+    }
+  }, [isActive, isPausedManually]);
+
+  const handleTogglePause = () => {
+    if (isActive) setIsPausedManually((p) => !p);
+  };
 
   const handleCtaPress = () => {
     onCtaPress(item.id);
@@ -136,12 +165,14 @@ const ReelItem: React.FC<ReelItemProps> = ({
           videoUrl={item.videoUrl}
           isActive={isActive}
           isMuted={isMuted}
+          isPausedManually={isPausedManually}
           onEnded={onEnded}
         />
       )}
 
-      {/* Tap en el video → toggle mute (UX estándar Reels). */}
-      <Pressable style={styles.tapLayer} onPress={onToggleMute} />
+      {/* Tap en el video → pausa/resume. El mute se maneja con el botón
+          flotante de arriba a la derecha. */}
+      <Pressable style={styles.tapLayer} onPress={handleTogglePause} />
 
       {/* Gradient inferior para legibilidad del texto blanco. */}
       <LinearGradient
@@ -151,9 +182,16 @@ const ReelItem: React.FC<ReelItemProps> = ({
       />
 
       {/* Indicador de carga mientras el video activo bufferea (solo el activo). */}
-      {isActive && (
+      {isActive && !isPausedManually && (
         <View style={styles.loadingHint} pointerEvents="none">
           <ActivityIndicator size="small" color="rgba(255,255,255,0.6)" />
+        </View>
+      )}
+
+      {/* Indicador visual de pausa manual (ícono de play grande al centro). */}
+      {isActive && isPausedManually && (
+        <View style={styles.pauseIndicator} pointerEvents="none">
+          <Ionicons name="play" size={56} color="rgba(255,255,255,0.85)" />
         </View>
       )}
 
@@ -228,6 +266,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '50%',
     alignSelf: 'center',
+  },
+  pauseIndicator: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   muteButton: {
     position: 'absolute',
