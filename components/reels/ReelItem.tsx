@@ -24,6 +24,7 @@ interface ReelItemProps {
   isMuted: boolean;
   onToggleMute: () => void;
   onCtaPress: (productId: number) => void;
+  onEnded: () => void;
 }
 
 // Sub-componente que monta el player real. Solo se renderiza cuando el slide
@@ -33,34 +34,46 @@ const VideoLayer = memo(function VideoLayer({
   videoUrl,
   isActive,
   isMuted,
+  onEnded,
 }: {
   videoUrl: string;
   isActive: boolean;
   isMuted: boolean;
+  onEnded: () => void;
 }) {
   const player = useVideoPlayer(videoUrl, (p) => {
-    p.loop = true;
+    // loop = false → necesario para que expo-video emita 'playToEnd' y podamos
+    // hacer auto-advance al siguiente reel.
+    p.loop = false;
     p.muted = isMuted;
-    if (isActive) p.play();
   });
 
-  // Sincroniza play/pause y mute con los props cuando cambian.
+  // Sincroniza play/pause con el estado activo. Al volverse activo, resetea
+  // a 0 y reproduce siempre (cubre el caso de volver a un reel ya visto).
   useEffect(() => {
     if (isActive) {
-      player.play();
-    } else {
-      player.pause();
       try {
         player.currentTime = 0;
       } catch {
         // expo-video puede tirar si el player aún no cargó; lo ignoramos.
       }
+      player.play();
+    } else {
+      player.pause();
     }
   }, [isActive, player]);
 
   useEffect(() => {
     player.muted = isMuted;
   }, [isMuted, player]);
+
+  // Listener de fin de video: dispara onEnded para que el feed avance solo.
+  useEffect(() => {
+    const sub = player.addListener('playToEnd', () => {
+      onEnded();
+    });
+    return () => sub.remove();
+  }, [player, onEnded]);
 
   return (
     <VideoView
@@ -80,6 +93,7 @@ const ReelItem: React.FC<ReelItemProps> = ({
   isMuted,
   onToggleMute,
   onCtaPress,
+  onEnded,
 }) => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -118,7 +132,12 @@ const ReelItem: React.FC<ReelItemProps> = ({
 
       {/* Video real: solo en la ventana activa, encima del poster. */}
       {shouldMountVideo && (
-        <VideoLayer videoUrl={item.videoUrl} isActive={isActive} isMuted={isMuted} />
+        <VideoLayer
+          videoUrl={item.videoUrl}
+          isActive={isActive}
+          isMuted={isMuted}
+          onEnded={onEnded}
+        />
       )}
 
       {/* Tap en el video → toggle mute (UX estándar Reels). */}
@@ -153,11 +172,20 @@ const ReelItem: React.FC<ReelItemProps> = ({
 
       {/* Overlay con info del producto */}
       <View style={[styles.infoOverlay, { paddingBottom: insets.bottom + 20 }]}>
-        {/* Logo del fabricante (solo si está disponible) */}
+        {/* Logo del fabricante (solo si está disponible). Clickeable: navega
+            a la tienda del fabricante si el backend mandó el manufacturerId. */}
         {item.logo ? (
-          <View style={styles.logoCircle}>
+          <Pressable
+            onPress={() => {
+              if (item.manufacturerId) {
+                router.push(`/(tabs)/store/${item.manufacturerId}` as any);
+              }
+            }}
+            style={styles.logoCircle}
+            hitSlop={8}
+          >
             <Image source={{ uri: item.logo }} style={styles.logoImg} contentFit="contain" />
-          </View>
+          </Pressable>
         ) : null}
 
         {/* Nombre + precio a la izquierda, CTA a la derecha */}

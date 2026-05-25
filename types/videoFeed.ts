@@ -11,6 +11,10 @@ export interface VideoFeedItem {
   userId: number;
   createdAt: string;
   logo: string | null;
+  // Manufacturer.id (NO Manufacturer.userId). Lo necesita el cliente para
+  // navegar a /(tabs)/store/[id] al tocar el logo en un reel.
+  manufacturerId?: number | null;
+  manufacturerName?: string | null;
 }
 
 export interface VideoFeedResponse {

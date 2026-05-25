@@ -214,4 +214,4 @@ See `examples/` for Redux and Axios usage patterns aimed at new developers.
 | `tailwind.config.js` | Design tokens (colors, fonts) |
 | `app.json` | Expo config, Android permissions, plugins |
 | `eas.json` | Build profiles (development/preview/production) |
-| `config/googleSignIn.ts` | Google Sign-In configuration |
+| `config/googleSignIn.ts` | Google Sign-In configuration (cliente). Antes de tocar SHA-1, `webClientId`, o debuggear `DEVELOPER_ERROR`, **leer `GOOGLE_SIGNIN_SETUP.md`** — la app usa dos proyectos Google Cloud distintos (OAuth + Firebase) y Play App Signing introduce un SHA-1 extra. |

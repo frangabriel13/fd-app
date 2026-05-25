@@ -1,5 +1,11 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { Dimensions, View, StyleSheet } from 'react-native';
+import {
+  Dimensions,
+  View,
+  StyleSheet,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+} from 'react-native';
 import { FlashList, ViewToken } from '@shopify/flash-list';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -18,9 +24,11 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 // Cuando el activeIndex llega a este umbral cerca del final, pedimos la próxima página.
 const PREFETCH_THRESHOLD = 3;
 
-// Solo el item visible >= 80% se considera "activo" para autoplay.
+// Threshold permisivo: en swipes rápidos FlashList no siempre llega al 80%.
+// onMomentumScrollEnd hace de respaldo redundante por si este callback se
+// pierde un evento.
 const VIEWABILITY_CONFIG = {
-  itemVisiblePercentThreshold: 80,
+  itemVisiblePercentThreshold: 60,
 };
 
 interface ReelsFeedListProps {
@@ -35,7 +43,11 @@ const ReelsFeedList: React.FC<ReelsFeedListProps> = ({ initialIndex }) => {
   const analytics = useReelsAnalytics();
 
   const [activeIndex, setActiveIndex] = useState(initialIndex);
-  const [isMuted, setIsMuted] = useState(true);
+  // Arranca con sonido — el usuario espera escuchar el reel apenas entra.
+  // El botón mute (en ReelItem) y el tap en el video siguen permitiendo silenciar.
+  const [isMuted, setIsMuted] = useState(false);
+
+  const flashListRef = useRef<FlashList<VideoFeedItem>>(null);
 
   // onViewableItemsChanged debe ser estable — FlashList se queja si cambia entre renders.
   const viewedIdsRef = useRef<Set<number>>(new Set());
@@ -73,6 +85,28 @@ const ReelsFeedList: React.FC<ReelsFeedListProps> = ({ initialIndex }) => {
     [analytics]
   );
 
+  // Cuando el video termina, deslizamos al siguiente. Si es el último del lote,
+  // no hacemos nada (el prefetch puede haber traído más, pero si todavía no
+  // llegaron, nos quedamos ahí en lugar de romper).
+  const handleVideoEnded = useCallback(() => {
+    const nextIndex = activeIndex + 1;
+    if (nextIndex < videos.length) {
+      flashListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
+    }
+  }, [activeIndex, videos.length]);
+
+  // Fallback robusto a onViewableItemsChanged: al terminar el momentum del
+  // scroll calculamos el índice desde el offset.
+  const onMomentumScrollEnd = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const newIndex = Math.round(e.nativeEvent.contentOffset.y / SCREEN_HEIGHT);
+      if (newIndex !== activeIndex && newIndex >= 0 && newIndex < videos.length) {
+        setActiveIndex(newIndex);
+      }
+    },
+    [activeIndex, videos.length]
+  );
+
   const renderItem = useCallback(
     ({ item, index }: { item: VideoFeedItem; index: number }) => (
       <ReelItem
@@ -82,9 +116,10 @@ const ReelsFeedList: React.FC<ReelsFeedListProps> = ({ initialIndex }) => {
         isMuted={isMuted}
         onToggleMute={toggleMute}
         onCtaPress={handleCtaPress}
+        onEnded={handleVideoEnded}
       />
     ),
-    [activeIndex, isMuted, toggleMute, handleCtaPress]
+    [activeIndex, isMuted, toggleMute, handleCtaPress, handleVideoEnded]
   );
 
   const keyExtractor = useCallback((item: VideoFeedItem) => String(item.id), []);
@@ -98,6 +133,7 @@ const ReelsFeedList: React.FC<ReelsFeedListProps> = ({ initialIndex }) => {
   return (
     <View style={styles.container}>
       <FlashList
+        ref={flashListRef}
         data={videos}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
@@ -108,6 +144,7 @@ const ReelsFeedList: React.FC<ReelsFeedListProps> = ({ initialIndex }) => {
         showsVerticalScrollIndicator={false}
         viewabilityConfig={VIEWABILITY_CONFIG}
         onViewableItemsChanged={onViewableItemsChanged}
+        onMomentumScrollEnd={onMomentumScrollEnd}
         initialScrollIndex={safeInitialIndex}
         removeClippedSubviews
         drawDistance={SCREEN_HEIGHT}
