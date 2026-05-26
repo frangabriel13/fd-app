@@ -22,9 +22,9 @@ interface ReelItemProps {
   index: number;
   activeIndex: number;
   isMuted: boolean;
+  isScreenFocused: boolean;
   onToggleMute: () => void;
   onCtaPress: (productId: number) => void;
-  onEnded: () => void;
 }
 
 // Sub-componente que monta el player real. Solo se renderiza cuando el slide
@@ -35,18 +35,16 @@ const VideoLayer = memo(function VideoLayer({
   isActive,
   isMuted,
   isPausedManually,
-  onEnded,
 }: {
   videoUrl: string;
   isActive: boolean;
   isMuted: boolean;
   isPausedManually: boolean;
-  onEnded: () => void;
 }) {
   const player = useVideoPlayer(videoUrl, (p) => {
-    // loop = false → necesario para que expo-video emita 'playToEnd' y podamos
-    // hacer auto-advance al siguiente reel.
-    p.loop = false;
+    // loop = true: el video se repite desde el principio al terminar. El cambio
+    // de reel solo ocurre con scroll manual del usuario.
+    p.loop = true;
     p.muted = isMuted;
     p.volume = isMuted ? 0 : 1;
   });
@@ -82,14 +80,6 @@ const VideoLayer = memo(function VideoLayer({
     player.volume = isMuted ? 0 : 1;
   }, [isMuted, player]);
 
-  // Listener de fin de video: dispara onEnded para que el feed avance solo.
-  useEffect(() => {
-    const sub = player.addListener('playToEnd', () => {
-      onEnded();
-    });
-    return () => sub.remove();
-  }, [player, onEnded]);
-
   return (
     <VideoView
       player={player}
@@ -107,9 +97,9 @@ const ReelItem: React.FC<ReelItemProps> = ({
   index,
   activeIndex,
   isMuted,
+  isScreenFocused,
   onToggleMute,
   onCtaPress,
-  onEnded,
 }) => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -118,7 +108,10 @@ const ReelItem: React.FC<ReelItemProps> = ({
   // Más lejos: solo poster estático.
   const distance = Math.abs(index - activeIndex);
   const shouldMountVideo = distance <= 1;
-  const isActive = index === activeIndex;
+  // Solo se considera "activo" si además la pantalla tiene el foco. Esto pausa
+  // el reel cuando el usuario navega a producto/fabricante y evita que el audio
+  // siga sonando de fondo.
+  const isActive = index === activeIndex && isScreenFocused;
 
   // Pausa manual local del reel. Se resetea cuando el reel deja de ser activo
   // (al volver, debe arrancar reproduciéndose siempre).
@@ -166,7 +159,6 @@ const ReelItem: React.FC<ReelItemProps> = ({
           isActive={isActive}
           isMuted={isMuted}
           isPausedManually={isPausedManually}
-          onEnded={onEnded}
         />
       )}
 

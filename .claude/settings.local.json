@@ -26,7 +26,8 @@
       "Read(//tmp/**)",
       "Bash(git log *)",
       "Bash(python3 -c \"import json; d=json.load\\(open\\('app.json'\\)\\); print\\(json.dumps\\(d['expo'].get\\('updates','NO HAY bloque updates'\\), indent=2\\)\\); print\\('---'\\); print\\('runtimeVersion:', d['expo'].get\\('runtimeVersion','NO HAY'\\)\\)\")",
-      "Bash(grep -E \"\\(index|_layout|\\\\.tsx$\\)\")"
+      "Bash(grep -E \"\\(index|_layout|\\\\.tsx$\\)\")",
+      "Bash(npx eslint *)"
     ]
   }
 }

@@ -9,6 +9,7 @@ import {
   ViewToken,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { useFocusEffect } from 'expo-router';
 import {
   fetchFeedNextPage,
   selectFeedVideos,
@@ -46,6 +47,17 @@ const ReelsFeedList: React.FC<ReelsFeedListProps> = ({ initialIndex }) => {
   // Arranca con sonido — el usuario espera escuchar el reel apenas entra.
   // El botón mute (en ReelItem) y el tap en el video siguen permitiendo silenciar.
   const [isMuted, setIsMuted] = useState(false);
+  // Foco de la pantalla. Cuando el usuario navega a producto/fabricante, la
+  // pantalla de reels queda en background; bajamos este flag para pausar el
+  // player y cortar el audio. Vuelve a true al regresar.
+  const [isScreenFocused, setIsScreenFocused] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      setIsScreenFocused(true);
+      return () => setIsScreenFocused(false);
+    }, [])
+  );
 
   const listRef = useRef<FlatList<VideoFeedItem>>(null);
 
@@ -85,16 +97,6 @@ const ReelsFeedList: React.FC<ReelsFeedListProps> = ({ initialIndex }) => {
     [analytics]
   );
 
-  // Cuando el video termina, deslizamos al siguiente. Si es el último del lote,
-  // no hacemos nada (el prefetch puede haber traído más, pero si todavía no
-  // llegaron, nos quedamos ahí en lugar de romper).
-  const handleVideoEnded = useCallback(() => {
-    const nextIndex = activeIndex + 1;
-    if (nextIndex < videos.length) {
-      listRef.current?.scrollToIndex({ index: nextIndex, animated: true });
-    }
-  }, [activeIndex, videos.length]);
-
   // Detección del índice activo basada en offset (fuente de verdad principal
   // ahora que usamos FlatList). Se calcula también durante el scroll, no
   // sólo al terminar el momentum, para que el cambio se detecte antes.
@@ -129,12 +131,12 @@ const ReelsFeedList: React.FC<ReelsFeedListProps> = ({ initialIndex }) => {
         index={index}
         activeIndex={activeIndex}
         isMuted={isMuted}
+        isScreenFocused={isScreenFocused}
         onToggleMute={toggleMute}
         onCtaPress={handleCtaPress}
-        onEnded={handleVideoEnded}
       />
     ),
-    [activeIndex, isMuted, toggleMute, handleCtaPress, handleVideoEnded]
+    [activeIndex, isMuted, isScreenFocused, toggleMute, handleCtaPress]
   );
 
   const keyExtractor = useCallback((item: VideoFeedItem) => String(item.id), []);
